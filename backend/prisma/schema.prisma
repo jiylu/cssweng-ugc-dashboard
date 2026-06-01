@@ -13,7 +13,7 @@ model User {
   first_name String
   last_name  String
   role       UserRoles
-  user_id    String   @id  @default(uuid())
+  user_id    String    @default(uuid())
 }
 
 enum UserRoles {
