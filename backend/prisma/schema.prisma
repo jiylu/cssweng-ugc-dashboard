@@ -7,13 +7,13 @@ datasource db {
 }
 
 model User {
+  user_id    String    @id
   email      String    @unique
-  password   String
   createdAt  DateTime  @default(now())
   first_name String
   last_name  String
   role       UserRoles
-  user_id    String    @default(uuid())
+  is_active  Boolean   @default(true)
 }
 
 enum UserRoles {
