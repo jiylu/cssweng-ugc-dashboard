@@ -1,65 +1,141 @@
-import Image from "next/image";
+"use client"
+// Local
+import Image from 'next/image';
+import logo from './public/Logo.svg'
+import styles from './ui/loginRegisterStyles/login.module.css';
 
-export default function Home() {
+// React
+import { useRouter } from 'next/navigation'
+import { useState } from "react";
+
+// Shadecn
+import { Button } from "@/components/ui/button"
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+
+
+export default function Page() {
+  const [form, setForm] = useState({ email: "", password: "" });
+  const [errors, setErrors] = useState({ email: "", password: "" });
+  const router = useRouter()
+
+  // VALIDATIONS
+  const validate = () => {
+    const newErrors = { email: "", password: "" };
+
+    // Email
+    if (!form.email) {
+      newErrors.email = "Email is required";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+      newErrors.email = "Enter a valid email address";
+    }
+
+    // Password
+    if (!form.password) {
+      newErrors.password = "Password is required";
+    } else if (form.password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters";
+    }
+
+    return newErrors;
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const newErrors = validate();
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    // console.log("Submit:", form); // CHECKER LANG
+    router.push('/dashboard');
+  };
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+    <>
+      <title>Log-in</title>
+      <main>
+        <section className={styles.overlay} >
+          <div className={styles.loginpanel} >
+            <Image src={logo} alt="Logo" className="mb-25"/>
+            <div className={styles.cardwrapper}>
+              <Card className="w-full">
+                <CardHeader>
+                  <CardTitle>Login to your account</CardTitle>
+                  <CardDescription>
+                    Enter your email below to login to your account
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {/* --DITO START NG FORM-- */}
+                  <form onSubmit={handleSubmit}>
+                    {/* EMAIL INPUT */}
+                    <div className="flex flex-col gap-6">
+                      <div className="grid gap-2">
+                        <Label htmlFor="email">Email</Label>
+                        <Input
+                          id="email"
+                          type="text"
+                          placeholder="email@example.com"
+                          value={form.email}
+                          onChange={e => setForm({ ...form, email: e.target.value })}
+                        />
+                        {errors.email && <p style={{ color: "#ff6467" }}>{errors.email}</p>}
+                      </div>
+
+                    {/* PASSWORD INPUT */}
+                      <div className="grid gap-2">
+                        <div className="flex items-center">
+                          <Label htmlFor="password">Password</Label>
+                          <a
+                            href="#"
+                            className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
+                          >
+                            Forgot your password?
+                          </a>
+                        </div>
+                        <Input 
+                          id="password" 
+                          type="password" 
+                          placeholder=".........." 
+                          value={form.password} 
+                          onChange={e => setForm({ ...form, password: e.target.value })} 
+                        />
+                        {errors.password && <p style={{ color: "#ff6467" }}>{errors.password}</p>}
+                      </div>
+
+                    </div>
+                      <CardFooter className="flex-col gap-2">
+                        <Button type="submit" className="cursor-pointer w-full">
+                          Login
+                        </Button>
+                        <Button 
+                          type="button" 
+                          variant="outline" 
+                          className="cursor-pointer w-full" 
+                          onClick={() => router.push('/contentCreatorRegister')}
+                        >
+                          Register
+                      </Button>
+                    </CardFooter>
+                  </form>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </section>
       </main>
-    </div>
-  );
+    </>
+  )
 }
