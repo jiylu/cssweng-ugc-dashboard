@@ -141,7 +141,7 @@ export default function Page() {
                           type="button" 
                           variant="outline" 
                           className="cursor-pointer w-full" 
-                          onClick={() => router.push('/contentCreatorRegister')}
+                          onClick={() => router.push('/creatorRegister')}
                         >
                           Register
                       </Button>

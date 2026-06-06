@@ -85,17 +85,16 @@
 
 :root {
   --background: #0D0E11;  
-  /* --foreground: #F2F2F0; */
   --foreground: #F2F2F0;
   --card: #181A1F;
   --card-foreground: #F2F2F0;
   --popover: #181A1F;
   --popover-foreground: #F2F2F0;
-  --primary: oklch(0.922 0 0);
+  --primary: #F2F2F0;
   --primary-foreground: #181A1F;
   --secondary: oklch(0.269 0 0);
   --secondary-foreground: #F2F2F0;
-  --muted: oklch(0.269 0 0);
+  --muted: #181A1F;
   --muted-foreground: oklch(0.708 0 0);
   --accent: oklch(0.269 0 0);
   --accent-foreground: #F2F2F0;
