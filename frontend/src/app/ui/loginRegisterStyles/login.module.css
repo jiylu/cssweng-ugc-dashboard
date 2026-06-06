@@ -1,34 +1,95 @@
 /* Login Styles */
-/* body {
-    min-height: 100vh;
-    background:
-        radial-gradient(circle at 20% 20%, #00d4ff44, transparent 30%),
-        radial-gradient(circle at 80% 40%, #ff00ff33, transparent 30%),
-        radial-gradient(circle at 50% 80%, #00ff9933, transparent 30%),
-        #0a0a0a;
-    margin: 0px;
-} */
-
 .overlay {
     display: flex;
     justify-content: flex-end;
 }
 
+/* ── Left Panel ── */
+.leftpanel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 2.5rem;
+  position: relative;
+  overflow: hidden;
+}
 
+.gridlines {
+  position: absolute;
+  inset: 0;
+  opacity: 0.06;
+  background-image:
+    linear-gradient(#fff 1px, transparent 1px),
+    linear-gradient(90deg, #fff 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+}
+
+.orb1 {
+  position: absolute;
+  width: 360px; height: 360px;
+  top: -40px; right: -40px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #6B1FA8 -50%, transparent 50%);
+  pointer-events: none;
+}
+
+.orb2 {
+  position: absolute;
+  width: 220px; height: 220px;
+  bottom: 20px; left: -20px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #AAFB79 -50%, transparent 50%);
+  pointer-events: none;
+}
+
+.herotext {
+  z-index: 1;
+}
+
+.herotext h2 {
+  font-size: 64px;
+  font-weight: 200;
+  color: #F2F2F0;
+  line-height: 1.25;
+  margin: 0 0 12px;
+  letter-spacing: -0.5px;
+}
+
+.herotext p {
+  font-size: 22px;
+  color: #878A94;
+  line-height: 1.65;
+  margin: 0;
+}
+
+/* ── Right Panel ── */
 .loginpanel {
     background: #181A1F; 
-    width: 45%;
+    width: 40%;
     height: 100vh;
+    padding: 0 2.5rem;
+    gap: 22px;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    align-items: center;
     box-shadow: -20px 0 60px rgba(0, 0, 0, 0.4);
+}
+
+.h1text {
+  font-size: 64px;
+  color: #F2F2F0;
+  line-height: 1.25;
+  letter-spacing: -0.5px;
 }
 
 .cardwrapper {
     width: 100%;
-    padding: 0 2.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     box-sizing: border-box;
     /* filter: drop-shadow(0 0 24px rgba(0, 212, 255, 0.07)); */
 }
