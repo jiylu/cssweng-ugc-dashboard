@@ -49,12 +49,12 @@
 }
 
 .dark {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
+  --background: #F2F0EA;
+  --foreground: #0D0E11;
+  --card: #F2F0EA;
+  --card-foreground: #0D0E11;
+  --popover: #F2F0EA;
+  --popover-foreground: #0D0E11;
   --primary: #181A1F;
   --primary-foreground: #F2F2F0;
   --secondary: oklch(0.97 0 0);
@@ -66,7 +66,7 @@
   --destructive: oklch(0.577 0.245 27.325);
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  --ring: 	#6B1FA8;
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
@@ -74,7 +74,7 @@
   --chart-5: oklch(0.269 0 0);
   --radius: 2px;
   --sidebar: #F2F2F0;
-  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-foreground: #0D0E11;
   --sidebar-primary: #181A1F;
   --sidebar-primary-foreground: #F2F2F0;
   --sidebar-accent: oklch(0.97 0 0);
@@ -116,6 +116,8 @@
   --sidebar-border: #2A2C33;
   --sidebar-ring: oklch(0.556 0 0);
 }
+
+@variant dark (&:where(.dark, .dark *));
 
 @layer base {
   * {

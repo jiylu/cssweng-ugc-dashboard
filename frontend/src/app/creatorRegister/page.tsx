@@ -1,10 +1,15 @@
 "use client"
-
+// Local
 import Image from 'next/image';
 import logo from './../public/Logo.svg'
 import logo2 from './../public/Logo-notext-lime.svg'
 import styles from '.././ui/loginRegisterStyles/login.module.css';
 
+// React
+import { useRouter } from 'next/navigation'
+import { useState } from "react";
+
+// Shadecn
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -22,11 +27,78 @@ import {
   FieldLabel,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { useRouter } from 'next/navigation'
 
 export default function Register() {
+  const [form, setForm] = useState({ fname:"", lname:"", email: "", password: "", confirmPassword: "" });
+  const [errors, setErrors] = useState({ fname:"", lname:"", email: "", password: "", confirmPassword: "" });
   const router = useRouter()
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setForm(prev => ({ ...prev, [e.target.id]: e.target.value }));
+  };
+
+  // VALIDATIONS
+  const validate = () => {
+    const newErrors = { fname:"", lname:"", email: "", password: "", confirmPassword: "" };
+
+    // First name
+    if (!form.fname) {
+      newErrors.fname = "First name is required.";
+    } else if (form.fname.length < 2) {
+      newErrors.fname = "First name must atleast be 2 characters.";
+    }
+
+    // Last name
+    if (!form.lname) {
+      newErrors.lname = "Last name is required.";
+    } else if (form.lname.length < 2) {
+      newErrors.lname = "Last name must atleast be 2 characters.";
+    }
+
+    // Email
+    if (!form.email) {
+      newErrors.email = "Email is required";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+      newErrors.email = "Enter a valid email address";
+    }
+
+    // Password
+    if (!form.password) {
+      newErrors.password = "Password is required";
+    } else if (form.password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters";
+    } else if (!/[A-Z]/.test(form.password)) {
+      newErrors.password = "Password must contain at least one uppercase letter.";
+    } else if (!/[a-z]/.test(form.password)) {
+      newErrors.password = 'Password must contain at least one lowercase letter.';
+    } else if (!/[0-9]/.test(form.password)) {
+      newErrors.password = 'Password must contain at least one number.';
+    } else if (!/[!@#$%^&*]/.test(form.password)) {
+      newErrors.password = 'Password must contain at least one special character (!@#$%^&*).';
+    }
+
+    if (!form.confirmPassword) {
+      newErrors.confirmPassword = 'Please confirm your password.';
+    } else if (form.confirmPassword !== form.password) {
+      newErrors.confirmPassword = 'Passwords do not match.';
+    }
+
+    return newErrors;
+  };
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const newErrors = validate();
+
+    if (newErrors.fname || newErrors.lname || newErrors.email || newErrors.password || newErrors.confirmPassword) {
+      setErrors(newErrors);
+      return;
+    }
+
+    // console.log("Submit:", form); // CHECKER LANG
+    router.push('/login');
+  };
+
   return (
     <>
       <title>Register</title>
@@ -59,7 +131,8 @@ export default function Register() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <form>
+                  {/* START OF FORM */}
+                  <form onSubmit={handleSubmit}>
                     <Field orientation="horizontal" className="mb-4 w-full flex gap-2">
                       <Button type="button" className="w-[50%]">Content Creator</Button>
                       <Button type="submit" variant="outline" className="w-[50%]">Client/Company</Button>
@@ -68,11 +141,13 @@ export default function Register() {
                     <FieldGroup className="grid w-full grid-cols-2 mb-4">
                       <Field>
                         <FieldLabel htmlFor="first-name">First Name</FieldLabel>
-                        <Input id="first-name" placeholder="Carlos" />
+                        <Input id="fname" placeholder="Carlos" value={form.fname} onChange={handleChange}/>
+                        {errors.fname && <p style={{ color: "#ff6467" }}>{errors.fname}</p>}
                       </Field>
                       <Field>
                         <FieldLabel htmlFor="last-name">Last Name</FieldLabel>
-                        <Input id="last-name" placeholder="Barring" />
+                        <Input id="lname" placeholder="Barring" value={form.lname} onChange={handleChange}/>
+                        {errors.lname && <p style={{ color: "#ff6467" }}>{errors.lname}</p>}
                       </Field>
                     </FieldGroup>
 
@@ -81,41 +156,57 @@ export default function Register() {
                       <Field>
                         <FieldLabel htmlFor="fieldgroup-email">Email</FieldLabel>
                         <Input
-                          id="fieldgroup-email"
+                          id="email"
                           type="email"
                           placeholder="carlosBarring@example.com"
+                          value={form.email}
+                          onChange={handleChange}
                         />
-                        <FieldDescription>
-                          Choose a unique e-mail for your account.
-                        </FieldDescription>
+                        {errors.email 
+                          ? <p style={{ color: "#ff6467" }}>{errors.email}</p>
+                          : <FieldDescription>Choose a unique e-mail for your account.</FieldDescription>
+                        }
                       </Field>
+
+                    {/* PASSWORD */}
                       <Field>
                         <FieldLabel htmlFor="fieldgroup-password">Password</FieldLabel>
                         <Input
-                          id="fieldgroup-password"
+                          id="password"
                           type="password"
                           placeholder="Enter a valid password"
+                          value={form.password}
+                          onChange={handleChange}
                         />
-                        <FieldDescription> 
-                          Password must contain at least 8 characters, 
-                          one uppercase letter (A–Z),
-                          one lowercase letter (a–z),
-                          one number (0–9), and
-                          one special character (!@#$%^&*)</FieldDescription>
+                        {errors.password
+                          ? <p style={{ color: "#ff6467" }}>{errors.password}</p>
+                          : <FieldDescription> 
+                            Password must contain at least 6 characters, 
+                            one uppercase letter (A–Z),
+                            one lowercase letter (a–z),
+                            one number (0–9), and
+                            one special character (!@#$%^&*)
+                          </FieldDescription>
+                        }
                       </Field>
+                    
+                    {/* CONFIM PASSWORD */}
                       <Field>
                         <FieldLabel htmlFor="fieldgroup-password">Confirm Password</FieldLabel>
                         <Input
-                          id="fieldgroup-confirm-password"
+                          id="confirmPassword"
                           type="password"
                           placeholder="Confirm password"
+                          value={form.confirmPassword}
+                          onChange={handleChange}
                         />
+                        {errors.confirmPassword && <p style={{ color: "#ff6467" }}>{errors.confirmPassword}</p>}
                       </Field>
                     </FieldGroup>
 
                     {/* Submit Button */}
                     <CardFooter className="flex-col gap-2">
-                      <Button type="submit" className="w-full" onClick={() => router.push('/')}>
+                      <Button type="submit" className="w-full">
                         Create Account
                       </Button>
                       <CardDescription className="cursor-pointer hover:underline" onClick={() => router.push('/')}>

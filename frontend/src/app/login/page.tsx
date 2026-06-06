@@ -32,6 +32,7 @@ export default function Page() {
   // VALIDATIONS
   const validate = () => {
     const newErrors = { email: "", password: "" };
+    
 
     // Email
     if (!form.email) {
@@ -50,11 +51,11 @@ export default function Page() {
     return newErrors;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const newErrors = validate();
 
-    if (Object.keys(newErrors).length > 0) {
+    if (newErrors.email || newErrors.password) {
       setErrors(newErrors);
       return;
     }
