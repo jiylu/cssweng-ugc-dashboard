@@ -29,8 +29,8 @@ import {
 import { Input } from "@/components/ui/input"
 
 export default function Register() {
-  const [form, setForm] = useState({ fname:"", lname:"", email: "", password: "", confirmPassword: "" });
-  const [errors, setErrors] = useState({ fname:"", lname:"", email: "", password: "", confirmPassword: "" });
+  const [form, setForm] = useState({ companyName:"", address:"", email: "", taxid: "", password: "", confirmPassword: "" });
+  const [errors, setErrors] = useState({ companyName:"", address:"", email: "", taxid: "", password: "", confirmPassword: "" });
   const router = useRouter()
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -39,20 +39,13 @@ export default function Register() {
 
   // VALIDATIONS
   const validate = () => {
-    const newErrors = { fname:"", lname:"", email: "", password: "", confirmPassword: "" };
+    const newErrors = { companyName:"", address:"", email: "", taxid: "", password: "", confirmPassword: "" };
 
-    // First name
-    if (!form.fname) {
-      newErrors.fname = "First name is required.";
-    } else if (form.fname.length < 2) {
-      newErrors.fname = "First name must atleast be 2 characters.";
-    }
-
-    // Last name
-    if (!form.lname) {
-      newErrors.lname = "Last name is required.";
-    } else if (form.lname.length < 2) {
-      newErrors.lname = "Last name must atleast be 2 characters.";
+    // Company name
+    if (!form.companyName) {
+      newErrors.companyName = "First name is required.";
+    } else if (form.companyName.length < 2) {
+      newErrors.companyName = "First name must atleast be 2 characters.";
     }
 
     // Email
@@ -60,6 +53,16 @@ export default function Register() {
       newErrors.email = "Email is required";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
       newErrors.email = "Enter a valid email address";
+    }
+
+    // Address
+    if (!form.address) {
+      newErrors.address = "Address is required.";
+    }
+
+    // TIN
+    if (!form.taxid) {
+      newErrors.taxid = "Tax Identification Number is required.";
     }
 
     // Password & Confirm Password
@@ -88,7 +91,7 @@ export default function Register() {
     e.preventDefault();
     const newErrors = validate();
 
-    if (newErrors.fname || newErrors.lname || newErrors.email || newErrors.password || newErrors.confirmPassword) {
+    if (newErrors.companyName ||  newErrors.address || newErrors.email || newErrors.taxid || newErrors.password || newErrors.confirmPassword) {
       setErrors(newErrors);
       return;
     }
@@ -132,22 +135,36 @@ export default function Register() {
                   {/* START OF FORM */}
                   <form onSubmit={handleSubmit}>
                     <Field orientation="horizontal" className="mb-4 w-full flex gap-2">
-                      <Button type="button" className="w-[50%]">Content Creator</Button>
-                      <Button type="button" variant="outline" className="w-[50%]"  onClick={() => router.push('/clientRegister')}>Client/Company</Button>
+                      <Button type="button" variant="outline" className="w-[50%]" onClick={() => router.push('/creatorRegister')}>Content Creator</Button>
+                      <Button type="button" className="w-[50%]" onClick={() => router.push('/clientregister')}>Client/Company</Button>
                     </Field>
-                    {/* FULL NAME */}
+                    {/* COMPANY NAME */}
                     <FieldGroup className="grid w-full grid-cols-2 mb-4">
                       <Field>
-                        <FieldLabel htmlFor="first-name">First Name</FieldLabel>
-                        <Input id="fname" placeholder="Carlos" value={form.fname} onChange={handleChange}/>
-                        {errors.fname && <p style={{ color: "#ff6467" }}>{errors.fname}</p>}
+                        <FieldLabel htmlFor="company-name">Company Name</FieldLabel>
+                        <Input id="companyName" placeholder="Enter a comapany name" value={form.companyName} onChange={handleChange}/>
+                        {errors.companyName && <p style={{ color: "#ff6467" }}>{errors.companyName}</p>}
                       </Field>
+                        {/* ADDRESS */}
                       <Field>
-                        <FieldLabel htmlFor="last-name">Last Name</FieldLabel>
-                        <Input id="lname" placeholder="Barring" value={form.lname} onChange={handleChange}/>
-                        {errors.lname && <p style={{ color: "#ff6467" }}>{errors.lname}</p>}
+                        <FieldLabel htmlFor="fieldgroup-address">Address</FieldLabel>
+                        <Input
+                        id="address"
+                        type="text"
+                        placeholder="Enter a valid company address"
+                        value={form.address}
+                        onChange={handleChange}
+                        />
+                        {errors.address && <p style={{ color: "#ff6467" }}>{errors.address}</p>}
                       </Field>
                     </FieldGroup>
+
+                    {/* TAX IDENTIFICATION NUMBER */}
+                    <Field className="mb-4">
+                        <FieldLabel htmlFor="tax-id">Tax Identification Number (TIN)</FieldLabel>
+                        <Input id="taxid" type="number" placeholder="Enter TIN number" value={form.taxid} onChange={handleChange}/>
+                        {errors.taxid && <p style={{ color: "#ff6467" }}>{errors.taxid}</p>}
+                    </Field>
 
                     {/* EMAIL */}
                     <Field className="mb-3">
@@ -155,7 +172,7 @@ export default function Register() {
                       <Input
                         id="email"
                         type="email"
-                        placeholder="carlosBarring@example.com"
+                        placeholder="company@example.com"
                         value={form.email}
                         onChange={handleChange}
                       />

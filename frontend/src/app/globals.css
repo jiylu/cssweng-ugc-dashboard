@@ -98,7 +98,7 @@
   --muted-foreground: oklch(0.708 0 0);
   --accent: oklch(0.269 0 0);
   --accent-foreground: #F2F2F0;
-  --destructive: oklch(0.704 0.191 22.216);
+  --destructive: #ff6467;
   --border: #2A2C33;
   --input: oklch(1 0 0 / 15%);
   --ring: #AAFB79;
@@ -116,8 +116,6 @@
   --sidebar-border: #2A2C33;
   --sidebar-ring: oklch(0.556 0 0);
 }
-
-@variant dark (&:where(.dark, .dark *));
 
 @layer base {
   * {
