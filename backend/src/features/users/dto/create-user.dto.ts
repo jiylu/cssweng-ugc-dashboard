@@ -1,3 +1,4 @@
+import { UserRoles } from '@prisma/client';
 import {
   IsEmail,
   IsEnum,
@@ -5,7 +6,6 @@ import {
   IsString,
   MaxLength,
 } from 'class-validator';
-import { UserRoles } from 'src/generated/prisma/enums';
 
 export class CreateUserDTO {
   @IsString()

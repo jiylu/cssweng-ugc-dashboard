@@ -16,7 +16,32 @@ model User {
   is_active  Boolean   @default(true)
 }
 
+model Campaigns {
+  campaign_id String @default(uuid()) @id 
+  ugc_creator_id String
+  client_id String?
+  project_name String 
+  description String
+  pricing Decimal
+  start_date DateTime
+  end_date DateTime
+  created_at DateTime @default(now())
+  campaign_type CampaignType
+  campaign_status CampaignStatus @default(ACTIVE)
+}
+
 enum UserRoles {
   CLIENT
   CREATOR
+}
+
+enum CampaignType {
+  COLLABORATION
+  UGC
+}
+
+enum CampaignStatus {
+  ACTIVE
+  REJECTED
+  COMPLETED
 }

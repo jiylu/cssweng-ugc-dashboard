@@ -6,14 +6,14 @@ import { CreateUserDTO } from './dto/create-user.dto';
 export class UserController {
   constructor(private readonly userService: UserService) {}
   // TODO: Safeguard
-  @Post('create-user')
-  async createUser(@Body() dto: CreateUserDTO) {
-    return await this.userService.createUser(dto);
+  @Post()
+  create(@Body() dto: CreateUserDTO) {
+    return this.userService.createUser(dto);
   }
 
   @Get(':userId')
-  async findUser(@Param('userId') userId: string) {
-    return await this.userService.findActiveUserById(userId);
+  findOne(@Param('userId') userId: string) {
+    return this.userService.findActiveUserById(userId);
   }
 
   // TODO: Make /me /update and /deactivate endpoint
