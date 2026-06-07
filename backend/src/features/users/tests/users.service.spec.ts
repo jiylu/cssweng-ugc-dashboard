@@ -3,7 +3,7 @@ import { UserService } from '../users.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ConflictException, NotFoundException } from '@nestjs/common';
 import { CreateUserDTO } from '../dto/create-user.dto';
-import { UserRoles } from 'src/generated/prisma/enums';
+import { UserRoles } from '@prisma/client';
 import { UpdateUserDTO } from '../dto/update-user.dto';
 
 describe('UserService', () => {
