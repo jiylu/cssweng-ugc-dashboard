@@ -111,7 +111,7 @@ export default function Register() {
             <Image src={logo} alt="Logo" className="w-[200px] mb-10"/>
 
             <div className={styles.herotext}>
-              <h2>Everything you need,<br /><span className="text-[#AAFB79]">in one place.</span></h2>
+              <h2>Everything you need,<br /><span className="text-[#8811FF]">in one place.</span></h2>
               <p>Manage your content, track analytics,<br />and collaborate with clients.</p>
             </div>
           </div>
@@ -206,7 +206,7 @@ export default function Register() {
                         Create Account
                       </Button>
                       <CardDescription className="cursor-pointer hover:underline" onClick={() => router.push('/')}>
-                            Alredy have an account?
+                            Already have an account?
                       </CardDescription>
                     </CardFooter>
                   </form>

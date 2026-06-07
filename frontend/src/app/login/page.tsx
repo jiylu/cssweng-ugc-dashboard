@@ -78,7 +78,7 @@ export default function Page() {
             <Image src={logo} alt="Logo" className="w-[200px] mb-10"/>
 
             <div className={styles.herotext}>
-              <h2>Everything you need,<br /><span className="text-[#AAFB79]">in one place.</span></h2>
+              <h2>Everything you need,<br /><span className="text-[#8811FF]">in one place.</span></h2>
               <p>Manage your content, track analytics,<br />and collaborate with clients.</p>
             </div>
           </div>
