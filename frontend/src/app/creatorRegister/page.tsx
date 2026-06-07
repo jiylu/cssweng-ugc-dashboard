@@ -2,7 +2,7 @@
 // Local
 import Image from 'next/image';
 import logo from './../public/Logo.svg'
-import logo2 from './../public/Logo-notext-lime.svg'
+import logo2 from './../public/Logo-notext-purple.svg'
 import styles from '.././ui/loginRegisterStyles/login.module.css';
 
 // React
