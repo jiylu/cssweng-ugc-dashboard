@@ -131,10 +131,6 @@ export default function Register() {
                 <CardContent>
                   {/* START OF FORM */}
                   <form onSubmit={handleSubmit}>
-                    <Field orientation="horizontal" className="mb-4 w-full flex gap-2">
-                      <Button type="button" className="w-[50%]">Content Creator</Button>
-                      <Button type="button" variant="outline" className="w-[50%]"  onClick={() => router.push('/clientRegister')}>Client/Company</Button>
-                    </Field>
                     {/* FULL NAME */}
                     <FieldGroup className="grid w-full grid-cols-2 mb-4">
                       <Field>
