@@ -14,6 +14,9 @@ model User {
   last_name  String
   role       UserRoles
   is_active  Boolean   @default(true)
+
+  campaigns_as_creator Campaigns[] @relation("CreatorCampaigns")
+  campaigns_as_client  Campaigns[] @relation("ClientCampaigns")
 }
 
 model Campaigns {
@@ -28,16 +31,32 @@ model Campaigns {
   created_at      DateTime       @default(now())
   campaign_status CampaignStatus @default(ACTIVE)
 
+  creator   User       @relation("CreatorCampaigns", fields: [ugc_creator_id], references: [user_id])
+  client    User?      @relation("ClientCampaigns", fields: [client_id], references: [user_id])
   proposals Proposals[]
+  deliverables Deliverables[]
 }
 
 model Proposals {
   proposal_id     String         @id @default(uuid())
   campaign_id     String
-  campaign        Campaigns      @relation(fields: [campaign_id], references: [campaign_id])
   client_email    String
   client_comments String         @default("")
   proposal_status ProposalStatus @default(PENDING)
+
+  campaign Campaigns @relation(fields: [campaign_id], references: [campaign_id])
+}
+
+model Deliverables {
+  deliverable_id    String          @id @default(uuid())
+  campaign_id       String
+  deliverable_title String
+  description       String
+  deadline          DateTime
+  pricing           Decimal
+  deliverable_type  DeliverableType
+
+  campaign Campaigns @relation(fields: [campaign_id], references: [campaign_id])
 }
 
 enum UserRoles {
@@ -45,7 +64,7 @@ enum UserRoles {
   CREATOR
 }
 
-enum CampaignType {
+enum DeliverableType {
   COLLABORATION
   UGC
 }
