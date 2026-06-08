@@ -27,6 +27,14 @@
     scrollbar-gutter: stable;
 }
 
+.header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
 .mainbody {
     margin-top: 30px;
 }

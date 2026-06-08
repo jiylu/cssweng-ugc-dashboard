@@ -1,6 +1,7 @@
 "use client"
 // Local
 import logo from './../public/Logo-black.svg'
+import defaultprofile from './../public/default-profile.png'
 import styles from './../ui/dashboardStyles/dashboard.module.css';
 
 // React
@@ -82,18 +83,19 @@ export default function Dashboard() {
         {/* RIGHT PANEL */}
         <section className={styles.rightpanel}>
           {/* HEADER */}
-          <div>
-              <Field orientation="horizontal" className="mb-5">
-                <InputGroup className="w-100 h-10 border-[#837f7b]-600">
-                  <InputGroupInput placeholder="Search..."/>
-                  <InputGroupAddon>
-                    <Search />
-                  </InputGroupAddon>
-                </InputGroup>
-                <Button className="h-10">Search</Button>
-              </Field>
-            <Separator />
+          <div className={styles.header}>
+            <div className="flex flex-row items-center gap-2">
+              <InputGroup className="w-100 h-10 border-[#837f7b]-600">
+                <InputGroupInput placeholder="Search..."/>
+                <InputGroupAddon>
+                  <Search />
+                </InputGroupAddon>
+              </InputGroup>
+              <Button className="h-10">Search</Button>
+            </div>
+              <Image src={defaultprofile} alt="default" className="w-[40px] mr-5 rounded-full"/>
           </div>
+          <Separator />
 
           {/* BODY */}
           <div className={styles.mainbody}>
