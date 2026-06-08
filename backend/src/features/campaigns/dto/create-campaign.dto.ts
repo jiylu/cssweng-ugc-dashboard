@@ -1,10 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { CampaignType } from '@prisma/client';
+import { Type } from 'class-transformer';
 import {
   IsDateString,
-  IsDecimal,
   IsEnum,
   IsNotEmpty,
+  IsNumber,
   IsString,
   MaxLength,
 } from 'class-validator';
@@ -26,7 +27,8 @@ export class CreateCampaignDTO {
   description!: string;
 
   @ApiProperty({ example: '55000.67' })
-  @IsDecimal()
+  @IsNumber()
+  @Type(() => Number)
   pricing!: number;
 
   @ApiProperty({ example: '2026-06-07T00:00:00.000Z' })

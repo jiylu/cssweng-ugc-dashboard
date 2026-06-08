@@ -1,6 +1,5 @@
 import {
   ConflictException,
-  HttpException,
   HttpStatus,
   Injectable,
   NotFoundException,
@@ -106,9 +105,5 @@ export class CampaignsService {
         client_id: dto.clientId,
       },
     });
-  }
-
-  async editCampaign(campaignId) {
-
   }
 }
