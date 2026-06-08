@@ -10,13 +10,11 @@ import Image from 'next/image';
 import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button"
 import { Field } from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group"
-import { TrendingUp, CheckCircle, Filter } from "lucide-react"
 import {
   Table,
   TableBody,
@@ -34,6 +32,10 @@ import { Calendar } from "lucide-react"
 import { Settings } from "lucide-react"
 import { LogOut } from "lucide-react"
 import { Search } from "lucide-react"
+import { TrendingUp, 
+         CheckCircle, 
+         Filter 
+       } from "lucide-react"
 
 export default function Dashboard() {
   return (
