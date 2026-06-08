@@ -30,7 +30,6 @@ export class CampaignsService {
         pricing: new Prisma.Decimal(dto.pricing),
         start_date: new Date(dto.startDate),
         end_date: new Date(dto.endDate),
-        campaign_type: dto.campaignType,
       },
     });
   }

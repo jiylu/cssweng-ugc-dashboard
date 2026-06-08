@@ -26,7 +26,6 @@ model Campaigns {
   start_date      DateTime
   end_date        DateTime
   created_at      DateTime       @default(now())
-  campaign_type   CampaignType
   campaign_status CampaignStatus @default(ACTIVE)
 
   proposals Proposals[]
