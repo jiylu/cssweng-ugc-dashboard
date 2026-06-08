@@ -5,6 +5,8 @@ import { ConflictException, NotFoundException } from '@nestjs/common';
 import { CreateUserDTO } from '../dto/create-user.dto';
 import { UserRoles } from '@prisma/client';
 import { UpdateUserDTO } from '../dto/update-user.dto';
+import { SupabaseService } from 'src/supabase/supabase.service';
+import { LoginUserDTO } from '../dto/login-user.dto';
 
 describe('UserService', () => {
   let service: UserService;
@@ -17,13 +19,28 @@ describe('UserService', () => {
     },
   };
 
+  const mockSupabase = {
+    client: {
+      auth: {
+        signUp: jest.fn(),
+        signInWithPassword: jest.fn(),
+      },
+    },
+  };
+
   beforeEach(async () => {
+    jest.clearAllMocks();
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         UserService,
         {
           provide: PrismaService,
           useValue: mockPrisma,
+        },
+        {
+          provide: SupabaseService,
+          useValue: mockSupabase,
         },
       ],
     }).compile();
@@ -43,20 +60,40 @@ describe('UserService', () => {
     };
 
     const dto: CreateUserDTO = {
-      userId: 'abc123',
       email: 'john@test.com',
+      password: 'Password1!',
       firstName: 'John',
       lastName: 'Doe',
       role: UserRoles.CREATOR,
     };
 
+    mockPrisma.user.findFirst.mockResolvedValue(null);
+    mockSupabase.client.auth.signUp.mockResolvedValue({
+      data: {
+        user: {
+          id: 'abc123',
+        },
+      },
+      error: null,
+    });
     mockPrisma.user.create.mockResolvedValue(mockUser);
 
     const res = await service.createUser(dto);
     expect(res).toEqual(mockUser);
+    expect(mockSupabase.client.auth.signUp).toHaveBeenCalledWith({
+      email: dto.email,
+      password: dto.password,
+      options: {
+        data: {
+          firstName: dto.firstName,
+          lastName: dto.lastName,
+          role: dto.role,
+        },
+      },
+    });
     expect(mockPrisma.user.create).toHaveBeenCalledWith({
       data: {
-        user_id: dto.userId,
+        user_id: 'abc123',
         email: dto.email,
         first_name: dto.firstName,
         last_name: dto.lastName,
@@ -67,14 +104,22 @@ describe('UserService', () => {
 
   it('should throw if required fields are missing', async () => {
     const dto = {
-      userId: '',
       email: '',
+      password: '',
       firstName: '',
       lastName: '',
       role: '' as unknown,
     } as CreateUserDTO;
 
-    mockPrisma.user.create.mockRejectedValue(new Error('Invalid data'));
+    mockPrisma.user.findFirst.mockResolvedValue(null);
+    mockSupabase.client.auth.signUp.mockResolvedValue({
+      data: {
+        user: null,
+      },
+      error: {
+        message: 'Invalid data',
+      },
+    });
 
     await expect(service.createUser(dto)).rejects.toThrow('Invalid data');
   });
@@ -93,14 +138,65 @@ describe('UserService', () => {
     mockPrisma.user.findFirst.mockResolvedValue(mockUser1);
 
     const dto = {
-      userId: '123abc',
       email: 'john@test.com',
+      password: 'Password1!',
       firstName: 'John',
       lastName: 'Eod',
       role: UserRoles.CREATOR,
     } as CreateUserDTO;
 
     await expect(service.createUser(dto)).rejects.toThrow(ConflictException);
+    expect(mockSupabase.client.auth.signUp).not.toHaveBeenCalled();
+  });
+
+  it('should login a user', async () => {
+    const mockUser = {
+      user_id: 'abc123',
+      email: 'john@test.com',
+      createdAt: new Date(),
+      first_name: 'John',
+      last_name: 'Doe',
+      role: 'CREATOR',
+      is_active: true,
+    };
+
+    const dto: LoginUserDTO = {
+      email: 'john@test.com',
+      password: 'Password1!',
+    };
+
+    const session = {
+      access_token: 'access-token',
+      refresh_token: 'refresh-token',
+    };
+
+    mockSupabase.client.auth.signInWithPassword.mockResolvedValue({
+      data: {
+        user: {
+          id: 'abc123',
+        },
+        session,
+      },
+      error: null,
+    });
+    mockPrisma.user.findFirst.mockResolvedValue(mockUser);
+
+    const res = await service.login(dto);
+
+    expect(res).toEqual({
+      user: mockUser,
+      session,
+    });
+    expect(mockSupabase.client.auth.signInWithPassword).toHaveBeenCalledWith({
+      email: dto.email,
+      password: dto.password,
+    });
+    expect(mockPrisma.user.findFirst).toHaveBeenCalledWith({
+      where: {
+        user_id: 'abc123',
+        is_active: true,
+      },
+    });
   });
 
   it('should find a user', async () => {

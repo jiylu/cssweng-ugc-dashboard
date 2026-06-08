@@ -4,16 +4,17 @@ import Image from 'next/image';
 import logo from './../public/Logo.svg'
 import logo2 from './../public/Logo-notext-purple.svg'
 import styles from '.././ui/loginRegisterStyles/login.module.css';
+import { CheckCircle2, Loader2 } from "lucide-react";
 
 // React
 import { useRouter } from 'next/navigation'
 import { useState } from "react";
+import { createUser } from "@/lib/users-api";
 
 // Shadecn
 import { Button } from "@/components/ui/button"
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
   CardFooter,
@@ -31,9 +32,16 @@ import { Input } from "@/components/ui/input"
 export default function Register() {
   const [form, setForm] = useState({ fname:"", lname:"", email: "", password: "", confirmPassword: "" });
   const [errors, setErrors] = useState({ fname:"", lname:"", email: "", password: "", confirmPassword: "" });
+  const [submitError, setSubmitError] = useState("");
+  const [submitSuccess, setSubmitSuccess] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter()
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (submitError) {
+      setSubmitError("");
+    }
+
     setForm(prev => ({ ...prev, [e.target.id]: e.target.value }));
   };
 
@@ -84,8 +92,10 @@ export default function Register() {
     return newErrors;
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setSubmitError("");
+    setSubmitSuccess("");
     const newErrors = validate();
 
     if (newErrors.fname || newErrors.lname || newErrors.email || newErrors.password || newErrors.confirmPassword) {
@@ -93,8 +103,24 @@ export default function Register() {
       return;
     }
 
-    // console.log("Submit:", form); // CHECKER LANG
-    router.push('/login');
+    setErrors(newErrors);
+    setIsSubmitting(true);
+
+    try {
+      await createUser({
+        email: form.email,
+        password: form.password,
+        firstName: form.fname,
+        lastName: form.lname,
+        role: "CREATOR",
+      });
+
+      setSubmitSuccess("Account created. Taking you to login...");
+      window.setTimeout(() => router.push('/login'), 700);
+    } catch (error) {
+      setSubmitError(error instanceof Error ? error.message : "Unable to create account.");
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -130,18 +156,18 @@ export default function Register() {
                 </CardHeader>
                 <CardContent>
                   {/* START OF FORM */}
-                  <form onSubmit={handleSubmit}>
+                  <form onSubmit={handleSubmit} aria-busy={isSubmitting}>
                     {/* FULL NAME */}
                     <FieldGroup className="grid w-full grid-cols-2 mb-4">
                       <Field>
                         <FieldLabel htmlFor="first-name">First Name</FieldLabel>
-                        <Input id="fname" placeholder="Carlos" value={form.fname} onChange={handleChange}/>
-                        {errors.fname && <p style={{ color: "#ff6467" }}>{errors.fname}</p>}
+                        <Input id="fname" placeholder="Carlos" value={form.fname} onChange={handleChange} disabled={isSubmitting}/>
+                        {errors.fname && <p role="alert" style={{ color: "#ff6467" }}>{errors.fname}</p>}
                       </Field>
                       <Field>
                         <FieldLabel htmlFor="last-name">Last Name</FieldLabel>
-                        <Input id="lname" placeholder="Barring" value={form.lname} onChange={handleChange}/>
-                        {errors.lname && <p style={{ color: "#ff6467" }}>{errors.lname}</p>}
+                        <Input id="lname" placeholder="Barring" value={form.lname} onChange={handleChange} disabled={isSubmitting}/>
+                        {errors.lname && <p role="alert" style={{ color: "#ff6467" }}>{errors.lname}</p>}
                       </Field>
                     </FieldGroup>
 
@@ -154,9 +180,10 @@ export default function Register() {
                         placeholder="carlosBarring@example.com"
                         value={form.email}
                         onChange={handleChange}
+                        disabled={isSubmitting}
                       />
                       {errors.email 
-                        ? <p style={{ color: "#ff6467" }}>{errors.email}</p>
+                        ? <p role="alert" style={{ color: "#ff6467" }}>{errors.email}</p>
                         : <FieldDescription>Choose a unique e-mail for your account.</FieldDescription>
                       }
                     </Field>
@@ -171,8 +198,9 @@ export default function Register() {
                           placeholder="Enter a valid password"
                           value={form.password}
                           onChange={handleChange}
+                          disabled={isSubmitting}
                         />
-                        {errors.password && <p style={{ color: "#ff6467" }}>{errors.password}</p>}
+                        {errors.password && <p role="alert" style={{ color: "#ff6467" }}>{errors.password}</p>}
                       </Field>
             
                       {/* CONFIM PASSWORD */}
@@ -184,8 +212,9 @@ export default function Register() {
                           placeholder="Confirm password"
                           value={form.confirmPassword}
                           onChange={handleChange}
+                          disabled={isSubmitting}
                         />
-                        {errors.confirmPassword && <p style={{ color: "#ff6467" }}>{errors.confirmPassword}</p>}
+                        {errors.confirmPassword && <p role="alert" style={{ color: "#ff6467" }}>{errors.confirmPassword}</p>}
                       </Field>
                     </FieldGroup>
                     <FieldDescription> 
@@ -195,13 +224,23 @@ export default function Register() {
                       one number (0–9), and
                       one special character (!@#$%^&*)
                     </FieldDescription>
+                    <div aria-live="polite" className="min-h-6">
+                      {submitError && <p role="alert" style={{ color: "#ff6467" }}>{submitError}</p>}
+                      {submitSuccess && (
+                        <p className="flex items-center gap-2 text-sm text-[#168a3a]">
+                          <CheckCircle2 className="size-4" />
+                          {submitSuccess}
+                        </p>
+                      )}
+                    </div>
 
                     {/* Submit Button */}
                     <CardFooter className="flex-col gap-2">
-                      <Button type="submit" className="w-full">
-                        Create Account
+                      <Button type="submit" className="w-full" disabled={isSubmitting}>
+                        {isSubmitting && <Loader2 className="size-4 animate-spin" />}
+                        {isSubmitting ? "Creating Account..." : "Create Account"}
                       </Button>
-                      <CardDescription className="cursor-pointer hover:underline" onClick={() => router.push('/')}>
+                      <CardDescription className="cursor-pointer hover:underline" onClick={() => !isSubmitting && router.push('/')}>
                             Already have an account?
                       </CardDescription>
                     </CardFooter>
