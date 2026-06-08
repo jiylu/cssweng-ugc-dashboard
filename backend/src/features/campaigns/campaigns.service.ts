@@ -20,6 +20,8 @@ export class CampaignsService {
   ) {}
 
   async createCampaign(dto: CreateCampaignDTO) {
+    await this.userService.getActiveUserById(dto.ugcId);
+
     return await this.prisma.campaigns.create({
       data: {
         ugc_creator_id: dto.ugcId,
@@ -83,8 +85,12 @@ export class CampaignsService {
 
   async updateCampaignStatus(campaignId: string, dto: UpdateCampaignStatusDto) {
     const campaign = await this.findOneCampaign(campaignId);
+    const terminalStatuses = [
+      CampaignStatus.REJECTED,
+      CampaignStatus.COMPLETED,
+    ] as CampaignStatus[];
 
-    if (CampaignStatus.REJECTED === campaign.campaign_status) {
+    if (terminalStatuses.includes(campaign.campaign_status)) {
       throw new ConflictException({
         status: HttpStatus.CONFLICT,
         code: 'CAMPAIGN_STATUS_UPDATE_ERROR',
