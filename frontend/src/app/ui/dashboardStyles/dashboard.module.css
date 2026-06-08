@@ -23,7 +23,8 @@
     flex: 1;
     margin: 30px;
     height: 100vh;
-    overflow-y: auto;
+    overflow-y: scroll;
+    scrollbar-gutter: stable;
 }
 
 .mainbody {
