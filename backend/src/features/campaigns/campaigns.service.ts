@@ -20,6 +20,8 @@ export class CampaignsService {
   ) {}
 
   async createCampaign(dto: CreateCampaignDTO) {
+    await this.userService.getActiveUserById(dto.ugcId);
+
     return await this.prisma.campaigns.create({
       data: {
         ugc_creator_id: dto.ugcId,
@@ -51,6 +53,17 @@ export class CampaignsService {
     return campaign;
   }
 
+  async findOneActiveCampaignByClientId(clientId: string) {
+    await this.userService.getActiveUserById(clientId);
+
+    return await this.prisma.campaigns.findFirst({
+      where: {
+        client_id: clientId,
+        campaign_status: CampaignStatus.ACTIVE,
+      },
+    });
+  }
+
   async findAllCampaigns(query: CampaignQueryDTO) {
     const page = query.page ?? 1;
     const limit = query.limit ?? 10;
@@ -72,8 +85,12 @@ export class CampaignsService {
 
   async updateCampaignStatus(campaignId: string, dto: UpdateCampaignStatusDto) {
     const campaign = await this.findOneCampaign(campaignId);
+    const terminalStatuses = [
+      CampaignStatus.REJECTED,
+      CampaignStatus.COMPLETED,
+    ] as CampaignStatus[];
 
-    if (CampaignStatus.REJECTED === campaign.campaign_status) {
+    if (terminalStatuses.includes(campaign.campaign_status)) {
       throw new ConflictException({
         status: HttpStatus.CONFLICT,
         code: 'CAMPAIGN_STATUS_UPDATE_ERROR',
@@ -89,21 +106,37 @@ export class CampaignsService {
     });
   }
 
-  async updateCampaignClientId(
-    campaignId: string,
-    dto: UpdateCampaignClientDTO,
-  ) {
+  private async assertExistingCampaignAndNoClient(campaignId: string) {
     const campaign = await this.findOneCampaign(campaignId);
 
     if (campaign.client_id) {
       throw new ConflictException({
         status: HttpStatus.CONFLICT,
         code: 'CAMPAIGN_ALREADY_HAS_CLIENT',
-        body: 'Campaign Already Has Client',
+        message: 'Campaign Already Has Client',
       });
     }
+  }
 
-    await this.userService.getActiveUserById(dto.clientId);
+  private async assertExistingClientIdAndNoActiveEngagement(clientId: string) {
+    await this.userService.getActiveUserById(clientId);
+    const activeCampaign = await this.findOneActiveCampaignByClientId(clientId);
+
+    if (activeCampaign) {
+      throw new ConflictException({
+        status: HttpStatus.CONFLICT,
+        code: 'CLIENT_HAS_ACTIVE_CAMPAIGN',
+        message: 'Client has Active Campaign',
+      });
+    }
+  }
+
+  async updateCampaignClientId(
+    campaignId: string,
+    dto: UpdateCampaignClientDTO,
+  ) {
+    await this.assertExistingCampaignAndNoClient(campaignId);
+    await this.assertExistingClientIdAndNoActiveEngagement(dto.clientId);
 
     return this.prisma.campaigns.update({
       where: { campaign_id: campaignId },
