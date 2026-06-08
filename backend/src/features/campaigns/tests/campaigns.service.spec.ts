@@ -347,33 +347,11 @@ describe('CampaignService', () => {
   });
 
   describe('updateCampaignClientId', () => {
-    it('should throw ConflictException if campaign already has a client', async () => {
+    it('should update the client_id for the campaign when campaign exists and client has no active engagements', async () => {
+      const campaignId = 'camp123';
+
       const mockCampaign = {
-        campaign_id: 'camp123',
-        ugc_creator_id: 'ugcA',
-        client_id: '123client',
-        project_name: 'Test Project',
-        description: 'Test Desc',
-        pricing: new Prisma.Decimal(1000),
-        start_date: new Date(),
-        end_date: new Date(),
-        created_at: new Date(),
-        campaign_type: CampaignType.UGC,
-        campaign_status: CampaignStatus.REJECTED,
-      };
-
-      const dto: UpdateCampaignClientDTO = {
-        clientId: 'testclient123',
-      };
-
-      mockPrisma.campaigns.findFirst.mockResolvedValue(mockCampaign);
-      const res = service.updateCampaignClientId('camp123', dto);
-      await expect(res).rejects.toThrow(ConflictException);
-    });
-
-    it('should update the client_id for the campaign', async () => {
-      const mockCampaign = {
-        campaign_id: 'camp123',
+        campaign_id: campaignId,
         ugc_creator_id: 'ugcA',
         project_name: 'Test Project',
         description: 'Test Desc',
@@ -386,17 +364,8 @@ describe('CampaignService', () => {
       };
 
       const updatedCampaign = {
-        campaign_id: 'camp123',
-        ugc_creator_id: 'ugcA',
+        ...mockCampaign,
         client_id: 'testclient123',
-        project_name: 'Test Project',
-        description: 'Test Desc',
-        pricing: new Prisma.Decimal(1000),
-        start_date: new Date(),
-        end_date: new Date(),
-        created_at: new Date(),
-        campaign_type: CampaignType.UGC,
-        campaign_status: CampaignStatus.ACTIVE,
       };
 
       const mockUser = {
@@ -409,15 +378,95 @@ describe('CampaignService', () => {
         is_active: true,
       };
 
-      const dto: UpdateCampaignClientDTO = {
-        clientId: 'testclient123',
-      };
-
-      mockPrisma.campaigns.findFirst.mockResolvedValue(mockCampaign);
+      jest.spyOn(service, 'findOneCampaign').mockResolvedValue(mockCampaign as any);
+      // ensure there is no active engagement for this client
+      jest.spyOn(service, 'findOneActiveCampaignByClientId').mockResolvedValue(null as any);
       mockUserService.getActiveUserById.mockResolvedValue(mockUser);
       mockPrisma.campaigns.update.mockResolvedValue(updatedCampaign);
-      const res = await service.updateCampaignClientId('camp123', dto);
+
+      const dto: UpdateCampaignClientDTO = { clientId: 'testclient123' };
+      const res = await service.updateCampaignClientId(campaignId, dto);
       expect(res).toEqual(updatedCampaign);
+      expect(mockPrisma.campaigns.update).toHaveBeenCalledWith({
+        where: { campaign_id: campaignId },
+        data: { client_id: 'testclient123' },
+      });
+    });
+
+    it('should throw NotFoundException when campaign does not exist', async () => {
+      const campaignId = 'missing-camp';
+      const dto: UpdateCampaignClientDTO = { clientId: 'testclient123' };
+
+      jest.spyOn(service, 'findOneCampaign').mockRejectedValue(new NotFoundException());
+
+      await expect(service.updateCampaignClientId(campaignId, dto)).rejects.toBeInstanceOf(NotFoundException);
+    });
+
+    it('should throw ConflictException if campaign already has a client', async () => {
+      const campaignId = 'camp-with-client';
+      const mockCampaign = {
+        campaign_id: campaignId,
+        ugc_creator_id: 'ugcA',
+        client_id: 'existing-client',
+        project_name: 'Test Project',
+        description: 'Test Desc',
+        pricing: new Prisma.Decimal(1000),
+        start_date: new Date(),
+        end_date: new Date(),
+        created_at: new Date(),
+        campaign_type: CampaignType.UGC,
+        campaign_status: CampaignStatus.ACTIVE,
+      };
+
+      jest.spyOn(service, 'findOneCampaign').mockResolvedValue(mockCampaign as any);
+
+      await expect(service.updateCampaignClientId(campaignId, { clientId: 'new-client' })).rejects.toBeInstanceOf(ConflictException);
+    });
+
+    it('should throw NotFoundException when client id does not exist', async () => {
+      const campaignId = 'camp123';
+      const mockCampaign = {
+        campaign_id: campaignId,
+        ugc_creator_id: 'ugcA',
+        project_name: 'Test Project',
+        description: 'Test Desc',
+        pricing: new Prisma.Decimal(1000),
+        start_date: new Date(),
+        end_date: new Date(),
+        created_at: new Date(),
+        campaign_type: CampaignType.UGC,
+        campaign_status: CampaignStatus.ACTIVE,
+      };
+
+      jest.spyOn(service, 'findOneCampaign').mockResolvedValue(mockCampaign as any);
+      mockUserService.getActiveUserById.mockRejectedValue(new NotFoundException());
+
+      await expect(service.updateCampaignClientId(campaignId, { clientId: 'missing-client' })).rejects.toBeInstanceOf(NotFoundException);
+    });
+
+    it('should throw ConflictException when client exists but has an active engagement', async () => {
+      const campaignId = 'camp123';
+      const mockCampaign = {
+        campaign_id: campaignId,
+        ugc_creator_id: 'ugcA',
+        project_name: 'Test Project',
+        description: 'Test Desc',
+        pricing: new Prisma.Decimal(1000),
+        start_date: new Date(),
+        end_date: new Date(),
+        created_at: new Date(),
+        campaign_type: CampaignType.UGC,
+        campaign_status: CampaignStatus.ACTIVE,
+      };
+
+      const mockUser = { user_id: 'client123' } as any;
+
+      jest.spyOn(service, 'findOneCampaign').mockResolvedValue(mockCampaign as any);
+      mockUserService.getActiveUserById.mockResolvedValue(mockUser);
+      // simulate an active campaign for this client
+      jest.spyOn(service, 'findOneActiveCampaignByClientId').mockResolvedValue({ campaign_id: 'active-camp' } as any);
+
+      await expect(service.updateCampaignClientId(campaignId, { clientId: 'client123' })).rejects.toBeInstanceOf(ConflictException);
     });
   });
 });
