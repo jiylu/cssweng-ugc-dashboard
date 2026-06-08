@@ -34,3 +34,20 @@ jobs:
 
       - name: Run Unit Tests
         run: npm run test
+
+      # --- DISCORD NOTIFICATIONS ---
+      - name: Discord Notification - Success
+        if: success()
+        uses: Ilshidur/action-discord@master
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        with:
+          args: '✅ **PASSED:** Backend tests for the `dev` branch are successful! The PR is ready for code review.'
+
+      - name: Discord Notification - Failed
+        if: failure()
+        uses: Ilshidur/action-discord@master
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        with:
+          args: '❌ **FAILED:** Backend tests failed! Please check the GitHub Action logs and fix the errors before merging.'
