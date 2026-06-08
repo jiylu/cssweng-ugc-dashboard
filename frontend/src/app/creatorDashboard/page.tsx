@@ -9,17 +9,36 @@ import Image from 'next/image';
 // Shadecn
 import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button"
+import { Field } from "@/components/ui/field"
+import { Input } from "@/components/ui/input"
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group"
+import { TrendingUp, CheckCircle, Filter } from "lucide-react"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+
+// Lucide
 import { LayoutPanelTop } from "lucide-react"
 import { Megaphone } from "lucide-react"
 import { NotebookPen } from "lucide-react"
 import { Calendar } from "lucide-react"
 import { Settings } from "lucide-react"
 import { LogOut } from "lucide-react"
+import { Search } from "lucide-react"
 
 export default function Dashboard() {
   return (
     <>
-      <main>
+      <main className="flex flex-row w-full h-screen overflow-hidden">
         {/* LEFT PANEL */}
         <section className={styles.leftpanel}>
           <Image src={logo} alt="Logo" className="w-[150px] mt-10 mb-10"/>
@@ -60,11 +79,88 @@ export default function Dashboard() {
 
         {/* RIGHT PANEL */}
         <section className={styles.rightpanel}>
-          <div className={styles.header}>
-
+          {/* HEADER */}
+          <div>
+              <Field orientation="horizontal" className="mb-5">
+                <InputGroup className="w-100 h-10 border-[#837f7b]-600">
+                  <InputGroupInput placeholder="Search..."/>
+                  <InputGroupAddon>
+                    <Search />
+                  </InputGroupAddon>
+                </InputGroup>
+                <Button className="h-10">Search</Button>
+              </Field>
+            <Separator />
           </div>
-          <div className={styles.mainbody}>
 
+          {/* BODY */}
+          <div className={styles.mainbody}>
+            <h1 className={`${styles.h1text} mb-8`}>Welcome Back, User</h1>
+          </div>
+          <div className="grid grid-cols-4 gap-4 mb-10">
+            {[
+              { icon: <Megaphone size={28} className="text-gray-400" />, label: "ACTIVE CAMPAIGNS", value: "7" },
+              { icon: <NotebookPen size={28} className="text-gray-400" />, label: "PENDING PROPOSALS", value: "3" },
+              { icon: <TrendingUp size={28} className="text-gray-400" />, label: "REVENUE GENERATED", value: "Php 72,000" },
+              { icon: <CheckCircle size={28} className="text-gray-400" />, label: "MONTHLY COMPLETED", value: "7" },
+            ].map((stat) => (
+              <div key={stat.label} className={styles.card}>
+                {stat.icon}
+                <p className="text-[11px] text-gray-500 font-semibold tracking-widest mt-3 mb-1">{stat.label}</p>
+                <p className="text-2xl font-bold text-gray-800">{stat.value}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* URGENT / TO DO */}
+          <div className="mb-10">
+            <h2 className="text-2xl font-bold mb-4">Urgent / To Do</h2>
+            <div className={`${styles.card} max-w-xs border-l-4 border-l-purple-600`}>
+              <p className="font-semibold text-gray-800 mb-1">[Campaign Name]</p>
+              <p className="text-sm text-gray-500 mb-3">Proposal was sent 3 days ago.</p>
+              <Button className="bg-purple-600 hover:bg-purple-700 text-white text-sm h-8 px-4">
+                Follow up
+              </Button>
+            </div>
+          </div>
+
+          {/* ONGOING DELIVERABLES */}
+          <div className={styles.card}>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-bold">Ongoing Deliverables</h2>
+              <Button variant="ghost" className="text-sm text-gray-500 gap-1">
+                <Filter size={16} /> Filter By
+              </Button>
+          </div>
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-gray-100 text-xs font-semibold text-gray-600 uppercase tracking-wide">
+                  <TableHead>Campaign Name</TableHead>
+                  <TableHead>Deliverable</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Deadline</TableHead>
+                  <TableHead>Status</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {[
+                  { campaign: "Product X Review", deliverable: "Script", type: "Partnership", deadline: "May 20, 2025", status: "In Progress" },
+                  { campaign: "Product X Review", deliverable: "Script", type: "Partnership", deadline: "May 20, 2025", status: "In Progress" },
+                ].map((row, i) => (
+                  <TableRow key={i} className="text-sm text-gray-700">
+                    <TableCell>{row.campaign}</TableCell>
+                    <TableCell>{row.deliverable}</TableCell>
+                    <TableCell>{row.type}</TableCell>
+                    <TableCell>{row.deadline}</TableCell>
+                    <TableCell>
+                      <span className="text-purple-700 bg-purple-50 px-2 py-1 rounded text-xs font-medium">
+                        {row.status}
+                      </span>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </div>
         </section>
       </main>
