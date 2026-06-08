@@ -113,7 +113,7 @@ export class CampaignsService {
       throw new ConflictException({
         status: HttpStatus.CONFLICT,
         code: 'CAMPAIGN_ALREADY_HAS_CLIENT',
-        body: 'Campaign Already Has Client',
+        message: 'Campaign Already Has Client',
       });
     }
   }
