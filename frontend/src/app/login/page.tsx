@@ -79,8 +79,7 @@ export default function Page() {
     setIsSubmitting(true);
 
     try {
-      // TODO(production): Keep credentials included so the backend can set the
-      // HttpOnly auth cookie; do not store access tokens in frontend storage.
+      // PROD: Keep credentials included so the backend can set the HttpOnly auth cookie; do not store access tokens in frontend storage for security
       await loginUser({
         ...form,
         rememberMe,
