@@ -1,0 +1,31 @@
+/* DASHBOARD */
+.leftpanel {
+    width: 20%;
+    height: 100vh;
+    padding: 0 2.5rem;
+    display: flex;
+    flex-direction: column;
+    box-shadow: -20px 0 60px rgba(107, 31, 168, 0.08);
+}
+
+.navbtn {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.leftpanelfooter {
+    
+}
+
+.rightpanel {
+
+}
+
+.header {
+
+}
+
+.mainbody {
+
+}

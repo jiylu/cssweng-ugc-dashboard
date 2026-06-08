@@ -1,11 +1,11 @@
 "use client"
 // Local
-import Image from 'next/image';
 import logo from './../public/Logo.svg'
 import logo2 from './../public/Logo-notext-purple.svg'
 import styles from './../ui/loginRegisterStyles/login.module.css';
 
 // React
+import Image from 'next/image';
 import { useRouter } from 'next/navigation'
 import { useState } from "react";
 
@@ -61,7 +61,7 @@ export default function Page() {
     }
 
     // console.log("Submit:", form); // CHECKER LANG
-    router.push('/dashboard');
+    router.push('/creatorDashboard');
   };
 
   return (
