@@ -90,6 +90,24 @@ describe('CampaignService', () => {
         },
       });
     });
+
+    it("should throw NotFoundException when ugc id doesn't exist", async () => {
+      const dto: CreateCampaignDTO = {
+        ugcId: 'missing-ugc',
+        projectName: 'No UGC',
+        description: 'Should fail',
+        pricing: 500,
+        startDate: new Date().toISOString(),
+        endDate: new Date().toISOString(),
+        campaignType: CampaignType.UGC,
+      };
+
+      mockPrisma.campaigns.create.mockRejectedValue(new NotFoundException());
+
+      await expect(service.createCampaign(dto)).rejects.toBeInstanceOf(
+        NotFoundException,
+      );
+    });
   });
 
   describe('findAll', () => {
@@ -193,8 +211,48 @@ describe('CampaignService', () => {
   });
 
   describe('updateCampaignStatus', () => {
-    it('should update campaign status successfully', async () => {
-      const campaignId = 'camp123';
+    it('should update from ACTIVE to REJECTED', async () => {
+      const campaignId = 'camp-pending-1';
+
+      const mockCampaign = {
+        campaign_id: campaignId,
+        ugc_creator_id: 'ugcA',
+        project_name: 'Test Project',
+        description: 'Test Desc',
+        pricing: new Prisma.Decimal(1000),
+        start_date: new Date(),
+        end_date: new Date(),
+        created_at: new Date(),
+        campaign_type: CampaignType.UGC,
+        campaign_status: CampaignStatus.ACTIVE,
+      };
+
+      const dto = {
+        campaignStatus: CampaignStatus.REJECTED,
+      };
+
+      jest
+        .spyOn(service, 'findOneCampaign')
+        .mockResolvedValue(mockCampaign as any);
+      mockPrisma.campaigns.update.mockResolvedValue({
+        ...mockCampaign,
+        campaign_status: CampaignStatus.REJECTED,
+      });
+
+      const result = await service.updateCampaignStatus(campaignId, dto);
+      expect(result).toEqual({
+        ...mockCampaign,
+        campaign_status: CampaignStatus.REJECTED,
+      });
+
+      expect(mockPrisma.campaigns.update).toHaveBeenCalledWith({
+        where: { campaign_id: campaignId },
+        data: { campaign_status: CampaignStatus.REJECTED },
+      });
+    });
+
+    it('should update from ACTIVE to COMPLETED', async () => {
+      const campaignId = 'camp-pending-2';
 
       const mockCampaign = {
         campaign_id: campaignId,
@@ -216,14 +274,12 @@ describe('CampaignService', () => {
       jest
         .spyOn(service, 'findOneCampaign')
         .mockResolvedValue(mockCampaign as any);
-
       mockPrisma.campaigns.update.mockResolvedValue({
         ...mockCampaign,
         campaign_status: CampaignStatus.COMPLETED,
       });
 
       const result = await service.updateCampaignStatus(campaignId, dto);
-
       expect(result).toEqual({
         ...mockCampaign,
         campaign_status: CampaignStatus.COMPLETED,
@@ -231,14 +287,12 @@ describe('CampaignService', () => {
 
       expect(mockPrisma.campaigns.update).toHaveBeenCalledWith({
         where: { campaign_id: campaignId },
-        data: {
-          campaign_status: CampaignStatus.COMPLETED,
-        },
+        data: { campaign_status: CampaignStatus.COMPLETED },
       });
     });
 
-    it('should throw an error when trying to update a rejected campaign', async () => {
-      const campaignId = 'camp123';
+    it('should throw when trying to change from REJECTED to ACTIVE', async () => {
+      const campaignId = 'camp-rejected-1';
 
       const mockCampaign = {
         campaign_id: campaignId,
@@ -257,9 +311,38 @@ describe('CampaignService', () => {
         campaignStatus: CampaignStatus.ACTIVE,
       };
 
-      mockPrisma.campaigns.findFirst.mockResolvedValue(mockCampaign);
+      jest
+        .spyOn(service, 'findOneCampaign')
+        .mockResolvedValue(mockCampaign as any);
       const res = service.updateCampaignStatus(campaignId, dto);
-      await expect(res).rejects.toThrow(ConflictException);
+      await expect(res).rejects.toBeInstanceOf(ConflictException);
+    });
+
+    it('should throw when trying to change from COMPLETED to ACTIVE', async () => {
+      const campaignId = 'camp-completed-1';
+
+      const mockCampaign = {
+        campaign_id: campaignId,
+        ugc_creator_id: 'ugcA',
+        project_name: 'Test Project',
+        description: 'Test Desc',
+        pricing: new Prisma.Decimal(1000),
+        start_date: new Date(),
+        end_date: new Date(),
+        created_at: new Date(),
+        campaign_type: CampaignType.UGC,
+        campaign_status: CampaignStatus.COMPLETED,
+      };
+
+      const dto = {
+        campaignStatus: CampaignStatus.ACTIVE,
+      };
+
+      jest
+        .spyOn(service, 'findOneCampaign')
+        .mockResolvedValue(mockCampaign as any);
+      const res = service.updateCampaignStatus(campaignId, dto);
+      await expect(res).rejects.toBeInstanceOf(ConflictException);
     });
   });
 
