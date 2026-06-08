@@ -378,9 +378,13 @@ describe('CampaignService', () => {
         is_active: true,
       };
 
-      jest.spyOn(service, 'findOneCampaign').mockResolvedValue(mockCampaign as any);
+      jest
+        .spyOn(service, 'findOneCampaign')
+        .mockResolvedValue(mockCampaign as any);
       // ensure there is no active engagement for this client
-      jest.spyOn(service, 'findOneActiveCampaignByClientId').mockResolvedValue(null as any);
+      jest
+        .spyOn(service, 'findOneActiveCampaignByClientId')
+        .mockResolvedValue(null);
       mockUserService.getActiveUserById.mockResolvedValue(mockUser);
       mockPrisma.campaigns.update.mockResolvedValue(updatedCampaign);
 
@@ -397,9 +401,13 @@ describe('CampaignService', () => {
       const campaignId = 'missing-camp';
       const dto: UpdateCampaignClientDTO = { clientId: 'testclient123' };
 
-      jest.spyOn(service, 'findOneCampaign').mockRejectedValue(new NotFoundException());
+      jest
+        .spyOn(service, 'findOneCampaign')
+        .mockRejectedValue(new NotFoundException());
 
-      await expect(service.updateCampaignClientId(campaignId, dto)).rejects.toBeInstanceOf(NotFoundException);
+      await expect(
+        service.updateCampaignClientId(campaignId, dto),
+      ).rejects.toBeInstanceOf(NotFoundException);
     });
 
     it('should throw ConflictException if campaign already has a client', async () => {
@@ -418,9 +426,11 @@ describe('CampaignService', () => {
         campaign_status: CampaignStatus.ACTIVE,
       };
 
-      jest.spyOn(service, 'findOneCampaign').mockResolvedValue(mockCampaign as any);
+      jest.spyOn(service, 'findOneCampaign').mockResolvedValue(mockCampaign);
 
-      await expect(service.updateCampaignClientId(campaignId, { clientId: 'new-client' })).rejects.toBeInstanceOf(ConflictException);
+      await expect(
+        service.updateCampaignClientId(campaignId, { clientId: 'new-client' }),
+      ).rejects.toBeInstanceOf(ConflictException);
     });
 
     it('should throw NotFoundException when client id does not exist', async () => {
@@ -438,10 +448,18 @@ describe('CampaignService', () => {
         campaign_status: CampaignStatus.ACTIVE,
       };
 
-      jest.spyOn(service, 'findOneCampaign').mockResolvedValue(mockCampaign as any);
-      mockUserService.getActiveUserById.mockRejectedValue(new NotFoundException());
+      jest
+        .spyOn(service, 'findOneCampaign')
+        .mockResolvedValue(mockCampaign as any);
+      mockUserService.getActiveUserById.mockRejectedValue(
+        new NotFoundException(),
+      );
 
-      await expect(service.updateCampaignClientId(campaignId, { clientId: 'missing-client' })).rejects.toBeInstanceOf(NotFoundException);
+      await expect(
+        service.updateCampaignClientId(campaignId, {
+          clientId: 'missing-client',
+        }),
+      ).rejects.toBeInstanceOf(NotFoundException);
     });
 
     it('should throw ConflictException when client exists but has an active engagement', async () => {
@@ -461,12 +479,18 @@ describe('CampaignService', () => {
 
       const mockUser = { user_id: 'client123' } as any;
 
-      jest.spyOn(service, 'findOneCampaign').mockResolvedValue(mockCampaign as any);
+      jest
+        .spyOn(service, 'findOneCampaign')
+        .mockResolvedValue(mockCampaign as any);
       mockUserService.getActiveUserById.mockResolvedValue(mockUser);
       // simulate an active campaign for this client
-      jest.spyOn(service, 'findOneActiveCampaignByClientId').mockResolvedValue({ campaign_id: 'active-camp' } as any);
+      jest
+        .spyOn(service, 'findOneActiveCampaignByClientId')
+        .mockResolvedValue({ campaign_id: 'active-camp' } as any);
 
-      await expect(service.updateCampaignClientId(campaignId, { clientId: 'client123' })).rejects.toBeInstanceOf(ConflictException);
+      await expect(
+        service.updateCampaignClientId(campaignId, { clientId: 'client123' }),
+      ).rejects.toBeInstanceOf(ConflictException);
     });
   });
 });
