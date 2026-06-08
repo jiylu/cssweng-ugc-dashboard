@@ -51,6 +51,17 @@ export class CampaignsService {
     return campaign;
   }
 
+  async findOneActiveCampaignByClientId(clientId: string) {
+    await this.userService.getActiveUserById(clientId);
+
+    return await this.prisma.campaigns.findFirst({
+      where: {
+        client_id: clientId,
+        campaign_status: CampaignStatus.ACTIVE,
+      },
+    });
+  }
+
   async findAllCampaigns(query: CampaignQueryDTO) {
     const page = query.page ?? 1;
     const limit = query.limit ?? 10;

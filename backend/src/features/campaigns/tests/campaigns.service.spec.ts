@@ -3,7 +3,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { CampaignsService } from '../campaigns.service';
 import { CampaignStatus, CampaignType, Prisma } from '@prisma/client';
 import { CreateCampaignDTO } from '../dto/create-campaign.dto';
-import { ConflictException } from '@nestjs/common';
+import { ConflictException, NotFoundException } from '@nestjs/common';
 import { UpdateCampaignClientDTO } from '../dto/update-campaign-client.dto';
 import { UserService } from 'src/features/users/users.service';
 
@@ -129,6 +129,66 @@ describe('CampaignService', () => {
           created_at: 'desc',
         },
       });
+    });
+  });
+
+  describe('findOneActiveCampaignByClientId', () => {
+    it('should return one active campaign for a client', async () => {
+      const mockCampaign = {
+        campaign_id: 'campClient1',
+        ugc_creator_id: 'ugcA',
+        client_id: 'client123',
+        project_name: 'Client Project',
+        description: 'Client Desc',
+        pricing: new Prisma.Decimal(2000),
+        start_date: new Date(),
+        end_date: new Date(),
+        created_at: new Date(),
+        campaign_type: CampaignType.UGC,
+        campaign_status: CampaignStatus.ACTIVE,
+      };
+
+      const mockUser = {
+        user_id: 'client123',
+        email: 'client@test.com',
+        createdAt: new Date(),
+        first_name: 'Client',
+        last_name: 'User',
+        role: 'CLIENT',
+        is_active: true,
+      };
+
+      mockUserService.getActiveUserById.mockResolvedValue(mockUser);
+      mockPrisma.campaigns.findFirst.mockResolvedValue(mockCampaign);
+
+      const res = await service.findOneActiveCampaignByClientId('client123');
+      expect(res).toEqual(mockCampaign);
+      expect(mockPrisma.campaigns.findFirst).toHaveBeenCalledWith({
+        where: {
+          client_id: 'client123',
+          campaign_status: CampaignStatus.ACTIVE,
+        },
+      });
+    });
+
+    it('should return null when no active campaign for client', async () => {
+      mockUserService.getActiveUserById.mockResolvedValue({
+        user_id: 'client123',
+        is_active: true,
+      });
+      mockPrisma.campaigns.findFirst.mockResolvedValue(null);
+
+      const res = await service.findOneActiveCampaignByClientId('client123');
+      expect(res).toBeNull();
+    });
+
+    it('should throw NotFoundException when user not found', async () => {
+      mockUserService.getActiveUserById.mockRejectedValue(
+        new NotFoundException(),
+      );
+      await expect(
+        service.findOneActiveCampaignByClientId('missing'),
+      ).rejects.toBeInstanceOf(NotFoundException);
     });
   });
 
