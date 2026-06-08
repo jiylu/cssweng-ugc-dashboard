@@ -5,6 +5,7 @@ import { CampaignStatus, CampaignType, Prisma } from '@prisma/client';
 import { CreateCampaignDTO } from '../dto/create-campaign.dto';
 import { ConflictException } from '@nestjs/common';
 import { UpdateCampaignClientDTO } from '../dto/update-campaign-client.dto';
+import { UserService } from 'src/features/users/users.service';
 
 describe('CampaignService', () => {
   let service: CampaignsService;
@@ -18,6 +19,10 @@ describe('CampaignService', () => {
     },
   };
 
+  const mockUserService = {
+    getActiveUserById: jest.fn(),
+  };
+
   beforeEach(async () => {
     jest.useFakeTimers();
     jest.setSystemTime(new Date('2026-06-06T16:35:51.366Z'));
@@ -28,6 +33,10 @@ describe('CampaignService', () => {
         {
           provide: PrismaService,
           useValue: mockPrisma,
+        },
+        {
+          provide: UserService,
+          useValue: mockUserService,
         },
       ],
     }).compile();
@@ -247,11 +256,22 @@ describe('CampaignService', () => {
         campaign_status: CampaignStatus.ACTIVE,
       };
 
+      const mockUser = {
+        user_id: 'testclient123',
+        email: 'testemail@test.com',
+        createdAt: new Date(),
+        first_name: 'John',
+        last_name: 'Doe',
+        role: 'CREATOR',
+        is_active: true,
+      };
+
       const dto: UpdateCampaignClientDTO = {
         clientId: 'testclient123',
       };
 
       mockPrisma.campaigns.findFirst.mockResolvedValue(mockCampaign);
+      mockUserService.getActiveUserById.mockResolvedValue(mockUser);
       mockPrisma.campaigns.update.mockResolvedValue(updatedCampaign);
       const res = await service.updateCampaignClientId('camp123', dto);
       expect(res).toEqual(updatedCampaign);

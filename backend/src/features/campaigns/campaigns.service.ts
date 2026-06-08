@@ -10,10 +10,14 @@ import { CampaignStatus, Prisma } from '@prisma/client';
 import { CampaignQueryDTO } from './dto/campaign-query-dto';
 import { UpdateCampaignStatusDto } from './dto/update-campaign-status-dto';
 import { UpdateCampaignClientDTO } from './dto/update-campaign-client.dto';
+import { UserService } from '../users/users.service';
 
 @Injectable()
 export class CampaignsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private userService: UserService,
+  ) {}
 
   async createCampaign(dto: CreateCampaignDTO) {
     return await this.prisma.campaigns.create({
@@ -98,6 +102,8 @@ export class CampaignsService {
         body: 'Campaign Already Has Client',
       });
     }
+
+    await this.userService.getActiveUserById(dto.clientId);
 
     return this.prisma.campaigns.update({
       where: { campaign_id: campaignId },
