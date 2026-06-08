@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CampaignsService } from '../campaigns.service';
-import { CampaignStatus, CampaignType, Prisma } from '@prisma/client';
+import { CampaignStatus, Prisma } from '@prisma/client';
 import { CreateCampaignDTO } from '../dto/create-campaign.dto';
 import { ConflictException, NotFoundException } from '@nestjs/common';
 import { UpdateCampaignClientDTO } from '../dto/update-campaign-client.dto';
@@ -60,7 +60,6 @@ describe('CampaignService', () => {
         start_date: new Date(),
         end_date: new Date(),
         created_at: new Date(),
-        campaign_type: CampaignType.UGC,
         campaign_status: CampaignStatus.ACTIVE,
       };
 
@@ -71,7 +70,6 @@ describe('CampaignService', () => {
         pricing: 10000,
         startDate: new Date().toISOString(),
         endDate: new Date().toISOString(),
-        campaignType: CampaignType.UGC,
       };
 
       mockPrisma.campaigns.create.mockResolvedValue(mockCampaign);
@@ -86,7 +84,6 @@ describe('CampaignService', () => {
           pricing: new Prisma.Decimal(10000),
           start_date: new Date(),
           end_date: new Date(),
-          campaign_type: CampaignType.UGC,
         },
       });
     });
@@ -99,7 +96,6 @@ describe('CampaignService', () => {
         pricing: 500,
         startDate: new Date().toISOString(),
         endDate: new Date().toISOString(),
-        campaignType: CampaignType.UGC,
       };
 
       mockPrisma.campaigns.create.mockRejectedValue(new NotFoundException());
@@ -121,7 +117,6 @@ describe('CampaignService', () => {
         start_date: new Date('2026-06-06T00:00:00.000Z'),
         end_date: new Date('2026-06-07T00:00:00.000Z'),
         created_at: new Date('2026-06-06T10:00:00.000Z'),
-        campaign_type: CampaignType.UGC,
         campaign_status: CampaignStatus.ACTIVE,
       }));
 
@@ -162,7 +157,6 @@ describe('CampaignService', () => {
         start_date: new Date(),
         end_date: new Date(),
         created_at: new Date(),
-        campaign_type: CampaignType.UGC,
         campaign_status: CampaignStatus.ACTIVE,
       };
 
@@ -223,7 +217,6 @@ describe('CampaignService', () => {
         start_date: new Date(),
         end_date: new Date(),
         created_at: new Date(),
-        campaign_type: CampaignType.UGC,
         campaign_status: CampaignStatus.ACTIVE,
       };
 
@@ -263,7 +256,6 @@ describe('CampaignService', () => {
         start_date: new Date(),
         end_date: new Date(),
         created_at: new Date(),
-        campaign_type: CampaignType.UGC,
         campaign_status: CampaignStatus.ACTIVE,
       };
 
@@ -303,7 +295,6 @@ describe('CampaignService', () => {
         start_date: new Date(),
         end_date: new Date(),
         created_at: new Date(),
-        campaign_type: CampaignType.UGC,
         campaign_status: CampaignStatus.REJECTED,
       };
 
@@ -330,7 +321,6 @@ describe('CampaignService', () => {
         start_date: new Date(),
         end_date: new Date(),
         created_at: new Date(),
-        campaign_type: CampaignType.UGC,
         campaign_status: CampaignStatus.COMPLETED,
       };
 
@@ -359,7 +349,6 @@ describe('CampaignService', () => {
         start_date: new Date(),
         end_date: new Date(),
         created_at: new Date(),
-        campaign_type: CampaignType.UGC,
         campaign_status: CampaignStatus.ACTIVE,
       };
 
@@ -422,7 +411,6 @@ describe('CampaignService', () => {
         start_date: new Date(),
         end_date: new Date(),
         created_at: new Date(),
-        campaign_type: CampaignType.UGC,
         campaign_status: CampaignStatus.ACTIVE,
       };
 
@@ -444,7 +432,6 @@ describe('CampaignService', () => {
         start_date: new Date(),
         end_date: new Date(),
         created_at: new Date(),
-        campaign_type: CampaignType.UGC,
         campaign_status: CampaignStatus.ACTIVE,
       };
 
@@ -473,11 +460,10 @@ describe('CampaignService', () => {
         start_date: new Date(),
         end_date: new Date(),
         created_at: new Date(),
-        campaign_type: CampaignType.UGC,
         campaign_status: CampaignStatus.ACTIVE,
       };
 
-      const mockUser = { user_id: 'client123' } as any;
+      const mockUser = { user_id: 'client123' };
 
       jest
         .spyOn(service, 'findOneCampaign')
