@@ -13,6 +13,8 @@ export function ApiFindOneCampaign() {
   return applyDecorators(
     ApiOperation({
       summary: 'Finds a campaign using a campaignId parameter',
+      description:
+        'Retrieves a campaign by its campaignId path parameter. No request body. Refer to CreateCampaignDTO for the campaign schema/shape.',
     }),
     ApiParam({
       name: 'campaignId',
@@ -36,6 +38,8 @@ export function ApiFindAllCampaigns() {
   return applyDecorators(
     ApiOperation({
       summary: 'Retrieves all campaigns with optional filtering and pagination',
+      description:
+        'Retrieves campaigns with optional query filters. Refer to CampaignQueryDTO for available query parameters (creatorId, page, limit, activeOnly). The response is an array of campaigns; refer to CreateCampaignDTO for campaign object shape.',
     }),
     ApiQuery({
       name: 'creatorId',
@@ -82,7 +86,11 @@ export function ApiFindAllCampaigns() {
 
 export function ApiUpdateCampaignStatus() {
   return applyDecorators(
-    ApiOperation({ summary: 'Updates the status of a campaign' }),
+    ApiOperation({
+      summary: 'Updates the status of a campaign',
+      description:
+        "Updates a campaign's status. Request body must follow UpdateCampaignStatusDto (field: campaignStatus). Returns the updated campaign. Refer to UpdateCampaignStatusDto for request body details.",
+    }),
     ApiParam({
       name: 'campaignId',
       type: String,
@@ -104,7 +112,11 @@ export function ApiUpdateCampaignStatus() {
 
 export function ApiUpdateCampaignClient() {
   return applyDecorators(
-    ApiOperation({ summary: 'Assigns a client to a campaign' }),
+    ApiOperation({
+      summary: 'Assigns a client to a campaign',
+      description:
+        'Assigns a client (by user ID) to an existing campaign. Request body must follow UpdateCampaignClientDTO (field: clientId). The endpoint validates that the client exists and has no active engagements. Refer to UpdateCampaignClientDTO for request body details.',
+    }),
     ApiParam({
       name: 'campaignId',
       type: String,
@@ -120,6 +132,10 @@ export function ApiUpdateCampaignClient() {
     ApiResponse({
       status: 409,
       description: 'Campaign already has a client assigned',
+    }),
+    ApiResponse({
+      status: 403,
+      description: 'User role is not client',
     }),
   );
 }

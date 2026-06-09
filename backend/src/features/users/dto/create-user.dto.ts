@@ -1,4 +1,5 @@
 import { UserRoles } from '@prisma/client';
+import { ApiProperty } from '@nestjs/swagger';
 import {
   IsEmail,
   IsEnum,
@@ -28,6 +29,7 @@ export class CreateUserDTO {
   @MaxLength(50)
   lastName!: string;
 
+  @ApiProperty({ enum: UserRoles, example: UserRoles.CLIENT })
   @IsEnum(UserRoles)
   role!: UserRoles;
 }
