@@ -8,5 +8,6 @@ import { UsersModule } from '../users/users.module';
   imports: [PrismaModule, UsersModule],
   providers: [CampaignsService],
   controllers: [CampaignsController],
+  exports: [CampaignsService],
 })
 export class CampaignsModule {}
