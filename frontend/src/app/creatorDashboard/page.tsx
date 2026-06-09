@@ -3,6 +3,7 @@
 import logo from './../public/Logo-black.svg'
 import defaultprofile from './../public/default-profile.png'
 import styles from './../ui/dashboardStyles/dashboard.module.css';
+import { useAuth } from "./../hooks/useAuth";
 
 // React
 import Image from 'next/image';
@@ -25,6 +26,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { Badge } from "@/components/ui/badge"
+import { Spinner } from "@/components/ui/spinner"
+
 
 // Lucide
 import { LayoutPanelTop } from "lucide-react"
@@ -40,7 +44,18 @@ import { TrendingUp,
        } from "lucide-react"
 
 export default function Dashboard() {
+  const { user, loading } = useAuth();
   const router = useRouter();
+
+  if (loading) return (
+      <div className="flex mt-5 justify-center">
+        <Badge variant="outline">
+          <Spinner data-icon="inline-start" />
+          Loading...
+        </Badge>
+      </div>
+  );
+  if (!user) return null;
 
   const handleSignout = () => {
     // SIGN OUT LOGIC (e.g. CLEAR COOKIES, etc.)

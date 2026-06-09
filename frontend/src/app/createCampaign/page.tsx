@@ -1,8 +1,8 @@
 "use client"
 // Local
 import logo from './../public/Logo-black.svg'
-// import defaultprofile from './../public/default-profile.png'
 import styles from './../ui/createCampaignStyles/createCampaign.module.css';
+import { useAuth } from "./../hooks/useAuth";
 
 // React
 import Image from 'next/image';
@@ -12,23 +12,8 @@ import { useState, useRef } from 'react';
 // Shadecn
 import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button"
-import { Field } from "@/components/ui/field"
-/*
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-} from "@/components/ui/input-group"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-*/
-
+import { Badge } from "@/components/ui/badge"
+import { Spinner } from "@/components/ui/spinner"
 
 // Lucide
 import { 
@@ -67,6 +52,17 @@ export default function CreateCampaignPage() {
             pricing: "" 
         }
     ]);
+    const { user, loading } = useAuth();
+
+    if (loading) return (
+        <div className="flex mt-5 justify-center">
+            <Badge variant="outline">
+            <Spinner data-icon="inline-start" />
+            Loading...
+            </Badge>
+        </div>
+    );
+    if (!user) return null;
 
     const formatDate = (dateString: string) => {
         if (!dateString) return "";
