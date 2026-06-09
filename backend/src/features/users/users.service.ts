@@ -93,9 +93,8 @@ export class UserService {
   }
 
   async getUserFromAccessToken(accessToken: string) {
-    const { data, error } = await this.supabase.client.auth.getUser(
-      accessToken,
-    );
+    const { data, error } =
+      await this.supabase.client.auth.getUser(accessToken);
 
     if (error || !data.user) {
       throw new UnauthorizedException({
