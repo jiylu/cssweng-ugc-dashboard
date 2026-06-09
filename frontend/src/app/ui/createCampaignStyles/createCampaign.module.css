@@ -1,13 +1,13 @@
 /* Left panel */
 .leftpanel {
-  width: 18%;
-  height: 100vh;
-  padding: 0 2.5rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  box-shadow: -20px 0 60px rgba(107, 31, 168, 0.08);
-  border-right: 1px solid #837f7b;
+    width: 18%;
+    height: 100vh;
+    padding: 0 2.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    box-shadow: -20px 0 60px rgba(107, 31, 168, 0.08);
+    border-right: 1px solid #837f7b;
 }
 
 .navbtn {

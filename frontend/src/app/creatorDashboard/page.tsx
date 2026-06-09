@@ -6,6 +6,7 @@ import styles from './../ui/dashboardStyles/dashboard.module.css';
 
 // React
 import Image from 'next/image';
+import { useRouter } from 'next/navigation'
 
 // Shadecn
 import { Separator } from "@/components/ui/separator"
@@ -39,6 +40,13 @@ import { TrendingUp,
        } from "lucide-react"
 
 export default function Dashboard() {
+  const router = useRouter();
+
+  const handleSignout = () => {
+    // SIGN OUT LOGIC (e.g. CLEAR COOKIES, etc.)
+    router.push('/login');
+  };
+
   return (
     <>
       <main className="flex flex-row w-full h-screen overflow-hidden">
@@ -49,7 +57,7 @@ export default function Dashboard() {
 
           {/* NAVIGATION */}
           <div className={styles.navbtn}>
-            <Button type="button" className="cursor-pointer w-57 h-[50px] mt-10 mb-6 text-lg">
+            <Button type="button" onClick={() => router.push('/createCampaign')} className="cursor-pointer w-57 h-[50px] mt-10 mb-6 text-lg">
               + New Campaign
             </Button>
             <div className="flex flex-col justify-start items-start">
@@ -59,7 +67,7 @@ export default function Dashboard() {
               <Button variant="ghost" className="justify-start items-center cursor-pointer w-57 h-[50px] text-lg">
                 <Megaphone />Campaigns
               </Button>
-              <Button variant="ghost" className="justify-start items-center cursor-pointer w-57 h-[50px] text-lg">
+              <Button variant="ghost" onClick={() => router.push('/createCampaign')} className="justify-start items-center cursor-pointer w-57 h-[50px] text-lg">
                 <NotebookPen />Proposals
               </Button>
               <Button variant="ghost" className="justify-start items-center cursor-pointer w-57 h-[50px] text-lg">
@@ -74,7 +82,7 @@ export default function Dashboard() {
           {/* SIGN OUT */}
           <div className="mt-auto mb-5 flex flex-col">
             <Separator />
-            <Button variant="ghost" className="justify-start items-center cursor-pointer w-57 h-[50px] text-lg">
+            <Button variant="ghost" onClick={handleSignout} className="justify-start items-center cursor-pointer w-57 h-[50px] text-lg">
               <LogOut />Sign Out
             </Button>
           </div>

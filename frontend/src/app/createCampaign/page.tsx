@@ -1,11 +1,12 @@
 "use client"
 // Local
-import logo from './../public/Logo.svg'
+import logo from './../public/Logo-black.svg'
 // import defaultprofile from './../public/default-profile.png'
 import styles from './../ui/createCampaignStyles/createCampaign.module.css';
 
 // React
 import Image from 'next/image';
+import { useRouter } from 'next/navigation'
 import { useState, useRef } from 'react';
 
 // Shadecn
@@ -51,6 +52,7 @@ import { TrendingUp,
 
 
 export default function CreateCampaignPage() {
+    const router = useRouter();
     const startDateRef = useRef<HTMLInputElement>(null);
     const endDateRef = useRef<HTMLInputElement>(null);
     const [startDate, setStartDate] = useState("");
@@ -98,46 +100,50 @@ export default function CreateCampaignPage() {
         }));
     };
 
+    const handleSignout = () => {
+        // SIGN OUT LOGIC (e.g. CLEAR COOKIES, etc.)
+        router.push('/login');
+    };
+
     return (
         <main className="flex flex-row w-full h-screen overflow-hidden">
-            {/* LEFT PANEL */}
-            <section className={styles.leftpanel}>
-            <Image src={logo} alt="Logo" className="w-[150px] mt-10 mb-10"/>
+        {/* LEFT PANEL */}
+        <section className={styles.leftpanel}>
+          <Image src={logo} alt="Logo" className="w-[150px] mt-10 mb-10"/>
+          <Separator />
+
+          {/* NAVIGATION */}
+          <div className={styles.navbtn}>
+            <Button type="button" onClick={() => router.push('/createCampaign')} className="cursor-pointer w-57 h-[50px] mt-10 mb-6 text-lg">
+              + New Campaign
+            </Button>
+            <div className="flex flex-col justify-start items-start">
+              <Button variant="ghost" onClick={() => router.push('/creatorDashboard')} className="justify-start items-center cursor-pointer w-57 h-[50px] text-lg">
+                <LayoutPanelTop />Dashboard
+              </Button>
+              <Button variant="ghost" className="justify-start items-center cursor-pointer w-57 h-[50px] text-lg">
+                <Megaphone />Campaigns
+              </Button>
+              <Button variant="ghostactive" onClick={() => router.push('/createCampaign')} className="justify-start items-center cursor-pointer w-57 h-[50px] text-lg">
+                <NotebookPen />Proposals
+              </Button>
+              <Button variant="ghost" className="justify-start items-center cursor-pointer w-57 h-[50px] text-lg">
+                <Calendar />Calendar
+              </Button>
+              <Button variant="ghost" className="justify-start items-center cursor-pointer w-57 h-[50px] text-lg">
+                <Settings />Settings
+              </Button>
+            </div>
+          </div>
+
+          {/* SIGN OUT */}
+          <div className="mt-auto mb-5 flex flex-col">
             <Separator />
-
-            {/* NAVIGATION */}
-            <div className={styles.navbtn}>
-                <Button type="button" className="w-full h-[50px] mt-10 mb-6 text-lg">
-                    + New Campaign
-                </Button>
-                
-                <div className="flex flex-col gap-2">
-                    <Button variant="ghost" className="bg-accent text-accent-foreground justify-start w-full h-[50px] text-lg">
-                        <LayoutPanelTop className="mr-2" /> Dashboard
-                    </Button>
-                    <Button variant="ghost" className="justify-start w-full h-[50px] text-lg">
-                        <Megaphone className="mr-2" /> Campaigns
-                    </Button>
-                    <Button variant="ghost" className="justify-start w-full h-[50px] text-lg">
-                        <NotebookPen className="mr-2" /> Proposals
-                    </Button>
-                    <Button variant="ghost" className="justify-start w-full h-[50px] text-lg">
-                        <Calendar className="mr-2" /> Calendar
-                    </Button>
-                    <Button variant="ghost" className="justify-start w-full h-[50px] text-lg">
-                        <Settings className="mr-2" /> Settings
-                    </Button>
-                </div>
-            </div>
-
-            {/* SIGN OUT */}
-            <div className="mt-auto mb-5 flex flex-col">
-                <Separator />
-                <Button variant="ghost" className="justify-start items-center cursor-pointer w-57 h-[50px] text-lg">
-                <LogOut />Sign Out
-                </Button>
-            </div>
-            </section>
+            <Button variant="ghost" onClick={handleSignout} className="justify-start items-center cursor-pointer w-57 h-[50px] text-lg">
+              <LogOut />Sign Out
+            </Button>
+          </div>
+        </section>
 
             {/* RIGHT PANEL */}
             <section className={styles.rightpanel}>
