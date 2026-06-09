@@ -3,17 +3,18 @@
 import logo from './../public/Logo.svg'
 import logo2 from './../public/Logo-notext-purple.svg'
 import styles from './../ui/loginRegisterStyles/login.module.css';
+import { CheckCircle2, Loader2 } from "lucide-react";
 
 // React
 import Image from 'next/image';
 import { useRouter } from 'next/navigation'
 import { useState } from "react";
+import { loginUser } from "@/lib/users-api";
 
 // Shadecn
 import { Button } from "@/components/ui/button"
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
   CardFooter,
@@ -27,7 +28,19 @@ import { Label } from "@/components/ui/label"
 export default function Page() {
   const [form, setForm] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState({ email: "", password: "" });
+  const [submitError, setSubmitError] = useState("");
+  const [submitSuccess, setSubmitSuccess] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter()
+
+  const updateField = (field: "email" | "password", value: string) => {
+    if (submitError) {
+      setSubmitError("");
+    }
+
+    setForm((prev) => ({ ...prev, [field]: value }));
+  };
 
   // VALIDATIONS
   const validate = () => {
@@ -51,8 +64,10 @@ export default function Page() {
     return newErrors;
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setSubmitError("");
+    setSubmitSuccess("");
     const newErrors = validate();
 
     if (newErrors.email || newErrors.password) {
@@ -60,8 +75,21 @@ export default function Page() {
       return;
     }
 
-    // console.log("Submit:", form); // CHECKER LANG
-    router.push('/creatorDashboard');
+    setErrors(newErrors);
+    setIsSubmitting(true);
+
+    try {
+      // PROD: Keep credentials included so the backend can set the HttpOnly auth cookie; do not store access tokens in frontend storage for security
+      await loginUser({
+        ...form,
+        rememberMe,
+      });
+      setSubmitSuccess("Login successful. Taking you to your dashboard...");
+      window.setTimeout(() => router.push('/creatorDashboard'), 500);
+    } catch (error) {
+      setSubmitError(error instanceof Error ? error.message : "Unable to login.");
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -97,7 +125,7 @@ export default function Page() {
                 </CardHeader>
                 <CardContent>
                   {/* --DITO START NG FORM-- */}
-                  <form onSubmit={handleSubmit}>
+                  <form onSubmit={handleSubmit} aria-busy={isSubmitting}>
                     {/* EMAIL INPUT */}
                     <div className="flex flex-col gap-6">
                       <div className="grid gap-2">
@@ -107,9 +135,10 @@ export default function Page() {
                           type="text"
                           placeholder="email@example.com"
                           value={form.email}
-                          onChange={e => setForm({ ...form, email: e.target.value })}
+                          onChange={e => updateField("email", e.target.value)}
+                          disabled={isSubmitting}
                         />
-                        {errors.email && <p style={{ color: "#ff6467" }}>{errors.email}</p>}
+                        {errors.email && <p role="alert" style={{ color: "#ff6467" }}>{errors.email}</p>}
                       </div>
 
                     {/* PASSWORD INPUT */}
@@ -128,21 +157,43 @@ export default function Page() {
                           type="password" 
                           placeholder=".........." 
                           value={form.password} 
-                          onChange={e => setForm({ ...form, password: e.target.value })} 
+                          onChange={e => updateField("password", e.target.value)}
+                          disabled={isSubmitting}
                         />
-                        {errors.password && <p style={{ color: "#ff6467" }}>{errors.password}</p>}
+                        {errors.password && <p role="alert" style={{ color: "#ff6467" }}>{errors.password}</p>}
+                      </div>
+                      <label className="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground">
+                        <input
+                          type="checkbox"
+                          checked={rememberMe}
+                          onChange={(e) => setRememberMe(e.target.checked)}
+                          disabled={isSubmitting}
+                          className="size-4 cursor-pointer accent-[#8811FF]"
+                        />
+                        Remember me for 30 days
+                      </label>
+                      <div aria-live="polite" className="min-h-6">
+                        {submitError && <p role="alert" style={{ color: "#ff6467" }}>{submitError}</p>}
+                        {submitSuccess && (
+                          <p className="flex items-center gap-2 text-sm text-[#168a3a]">
+                            <CheckCircle2 className="size-4" />
+                            {submitSuccess}
+                          </p>
+                        )}
                       </div>
 
                     </div>
                       <CardFooter className="flex-col gap-2">
-                        <Button type="submit" className="cursor-pointer w-full">
-                          Login
+                        <Button type="submit" className="cursor-pointer w-full" disabled={isSubmitting}>
+                          {isSubmitting && <Loader2 className="size-4 animate-spin" />}
+                          {isSubmitting ? "Logging in..." : "Login"}
                         </Button>
                         <Button 
                           type="button" 
                           variant="outline" 
                           className="cursor-pointer w-full" 
                           onClick={() => router.push('/creatorRegister')}
+                          disabled={isSubmitting}
                         >
                           Register
                       </Button>
