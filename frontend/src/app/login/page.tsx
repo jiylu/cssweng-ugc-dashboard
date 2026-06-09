@@ -1,12 +1,12 @@
 "use client"
 // Local
-import Image from 'next/image';
 import logo from './../public/Logo.svg'
 import logo2 from './../public/Logo-notext-purple.svg'
 import styles from './../ui/loginRegisterStyles/login.module.css';
 import { CheckCircle2, Loader2 } from "lucide-react";
 
 // React
+import Image from 'next/image';
 import { useRouter } from 'next/navigation'
 import { useState } from "react";
 import { loginUser } from "@/lib/users-api";
@@ -85,7 +85,7 @@ export default function Page() {
         rememberMe,
       });
       setSubmitSuccess("Login successful. Taking you to your dashboard...");
-      window.setTimeout(() => router.push('/dashboard'), 500);
+      window.setTimeout(() => router.push('/creatorDashboard'), 500);
     } catch (error) {
       setSubmitError(error instanceof Error ? error.message : "Unable to login.");
       setIsSubmitting(false);
