@@ -12,10 +12,13 @@ export class DeliverablesService {
     private campaignService: CampaignsService,
   ) {}
 
-  async createDeliverable(dto: CreateDeliverableDTO) {
-    await this.campaignService.findOneCampaign(dto.campaignId);
+  async createDeliverable(
+    dto: CreateDeliverableDTO,
+    tx: Prisma.TransactionClient | PrismaService = this.prisma,
+  ) {
+    await this.campaignService.findOneCampaign(dto.campaignId, tx);
 
-    return await this.prisma.deliverables.create({
+    return await tx.deliverables.create({
       data: {
         campaign_id: dto.campaignId,
         deliverable_title: dto.deliverableTitle,

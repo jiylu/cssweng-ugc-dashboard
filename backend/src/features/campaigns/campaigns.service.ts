@@ -19,10 +19,13 @@ export class CampaignsService {
     private userService: UserService,
   ) {}
 
-  async createCampaign(dto: CreateCampaignDTO) {
+  async createCampaign(
+    dto: CreateCampaignDTO,
+    tx: Prisma.TransactionClient | PrismaService = this.prisma,
+  ) {
     await this.userService.getActiveUserById(dto.ugcId);
 
-    return await this.prisma.campaigns.create({
+    return await tx.campaigns.create({
       data: {
         ugc_creator_id: dto.ugcId,
         project_name: dto.projectName,
@@ -34,8 +37,11 @@ export class CampaignsService {
     });
   }
 
-  async findOneCampaign(campaignId: string) {
-    const campaign = await this.prisma.campaigns.findFirst({
+  async findOneCampaign(
+    campaignId: string,
+    tx: Prisma.TransactionClient | PrismaService = this.prisma,
+  ) {
+    const campaign = await tx.campaigns.findFirst({
       where: {
         campaign_id: campaignId,
       },

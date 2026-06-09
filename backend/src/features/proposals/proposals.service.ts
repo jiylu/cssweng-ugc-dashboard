@@ -7,7 +7,7 @@ import {
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateProposalDTO } from './dto/create-proposal.dto';
 import { CampaignsService } from '../campaigns/campaigns.service';
-import { ProposalStatus } from '@prisma/client';
+import { Prisma, ProposalStatus } from '@prisma/client';
 import { UserService } from '../users/users.service';
 import { UpdateProposalCommentDTO } from './dto/update-proposal-comment.dto';
 import { UpdateProposalStatusDTO } from './dto/update-proposal-status.dto';
@@ -51,18 +51,20 @@ export class ProposalsService {
     }
   }
 
-  async createProposal(dto: CreateProposalDTO) {
-    await this.campaignService.findOneCampaign(dto.campaignId);
+  async createProposal(
+    dto: CreateProposalDTO,
+    tx: Prisma.TransactionClient | PrismaService = this.prisma,
+  ) {
+    await this.campaignService.findOneCampaign(dto.campaignId, tx);
     await this.assertClientHasNoActiveEngagement(dto.clientEmail);
 
-    return this.prisma.proposals.create({
+    return tx.proposals.create({
       data: {
         campaign_id: dto.campaignId,
         client_email: dto.clientEmail,
       },
     });
   }
-
   async findActiveProposalByClientEmail(clientEmail: string) {
     return await this.prisma.proposals.findFirst({
       where: {
