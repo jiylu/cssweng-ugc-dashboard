@@ -6,6 +6,7 @@ import {
   IsNumber,
   IsString,
   MaxLength,
+  Min,
 } from 'class-validator';
 
 export class CreateCampaignDTO {
@@ -27,6 +28,7 @@ export class CreateCampaignDTO {
   @ApiProperty({ example: '55000.67' })
   @IsNumber()
   @Type(() => Number)
+  @Min(0)
   pricing!: number;
 
   @ApiProperty({ example: '2026-06-07T00:00:00.000Z' })
