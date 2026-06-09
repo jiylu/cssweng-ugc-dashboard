@@ -4,7 +4,7 @@ const apiBaseUrl =
   process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ?? "http://localhost:8080";
 
 const nextConfig: NextConfig = {
-  devIndicators: false;
+  devIndicators: false,
   async rewrites() {
     return [
       {
