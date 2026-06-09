@@ -74,17 +74,16 @@ export class CampaignsService {
     const limit = query.limit ?? 10;
     const skip = (page - 1) * limit;
 
+    await this.userService.getActiveUserById(query.creatorId);
+
     return this.prisma.campaigns.findMany({
       where: {
-        ...(query.creatorId && {
-          ugc_creator_id: query.creatorId,
-        }),
+        ...(query.creatorId && { ugc_creator_id: query.creatorId }),
+        ...(query.activeOnly && { campaign_status: CampaignStatus.ACTIVE }),
       },
       skip,
       take: limit,
-      orderBy: {
-        created_at: 'desc',
-      },
+      orderBy: { created_at: 'desc' },
     });
   }
 
