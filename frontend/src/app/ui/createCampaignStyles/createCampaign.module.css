@@ -371,3 +371,21 @@
   background-color: #581982;
   transform: translateY(-1px);
 }
+
+/* Scroll Bar */
+.rightpanel::-webkit-scrollbar {
+    width: 6px;
+}
+
+.rightpanel::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.rightpanel::-webkit-scrollbar-thumb {
+    background-color: #b7b7b7;
+    border-radius: 999px;
+}
+
+.rightpanel::-webkit-scrollbar-thumb:hover {
+    background-color: #9ca3af;
+}

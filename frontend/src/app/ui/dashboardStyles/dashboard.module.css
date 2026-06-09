@@ -21,10 +21,12 @@
 /* Right Panel */
 .rightpanel {
     flex: 1;
-    margin: 30px;
+    margin: 30px 0 30px 30px;
     height: 100vh;
     overflow-y: scroll;
     scrollbar-gutter: stable;
+    padding-right: 30px;
+    box-sizing: border-box;
 }
 
 .header {
@@ -55,7 +57,7 @@
   letter-spacing: -0.5px;
 }
 
-/* Scrol Bar */
+/* Scroll Bar */
 .rightpanel::-webkit-scrollbar {
     width: 6px;
 }
@@ -65,7 +67,7 @@
 }
 
 .rightpanel::-webkit-scrollbar-thumb {
-    background-color: #d1d5db;
+    background-color: #b7b7b7;
     border-radius: 999px;
 }
 

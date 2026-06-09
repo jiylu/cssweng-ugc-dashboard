@@ -137,13 +137,13 @@ export default function Dashboard() {
           </div>
 
           {/* ONGOING DELIVERABLES */}
-          <div className={styles.card}>
+          <div className={`${styles.card} mb-10`}>
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-2xl font-bold">Ongoing Deliverables</h2>
               <Button variant="ghost" className="text-sm text-gray-500 gap-1">
                 <Filter size={16} /> Filter By
               </Button>
-          </div>
+            </div>
             <Table>
               <TableHeader>
                 <TableRow className="bg-gray-100 text-xs font-semibold text-gray-600 uppercase tracking-wide">
