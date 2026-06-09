@@ -1,9 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CampaignsService } from '../campaigns.service';
-import { CampaignStatus, Prisma } from '@prisma/client';
+import { CampaignStatus, Prisma, UserRoles } from '@prisma/client';
 import { CreateCampaignDTO } from '../dto/create-campaign.dto';
-import { ConflictException, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { UpdateCampaignClientDTO } from '../dto/update-campaign-client.dto';
 import { UserService } from 'src/features/users/users.service';
 
@@ -363,7 +367,7 @@ describe('CampaignService', () => {
         createdAt: new Date(),
         first_name: 'John',
         last_name: 'Doe',
-        role: 'CREATOR',
+        role: UserRoles.CLIENT,
         is_active: true,
       };
 
@@ -384,6 +388,40 @@ describe('CampaignService', () => {
         where: { campaign_id: campaignId },
         data: { client_id: 'testclient123' },
       });
+    });
+
+    it('should throw ForbiddenException when user role is CREATOR', async () => {
+      const campaignId = 'camp123-creator';
+
+      const mockCampaign = {
+        campaign_id: campaignId,
+        ugc_creator_id: 'ugcA',
+        project_name: 'Test Project',
+        description: 'Test Desc',
+        pricing: new Prisma.Decimal(1000),
+        start_date: new Date(),
+        end_date: new Date(),
+        created_at: new Date(),
+        campaign_status: CampaignStatus.ACTIVE,
+      };
+
+      const mockUser = {
+        user_id: 'creator123',
+        is_active: true,
+        role: UserRoles.CREATOR,
+      };
+
+      jest
+        .spyOn(service, 'findOneCampaign')
+        .mockResolvedValue(mockCampaign as any);
+      jest
+        .spyOn(service, 'findOneActiveCampaignByClientId')
+        .mockResolvedValue(null);
+      mockUserService.getActiveUserById.mockResolvedValue(mockUser);
+
+      await expect(
+        service.updateCampaignClientId(campaignId, { clientId: 'creator123' }),
+      ).rejects.toBeInstanceOf(ForbiddenException);
     });
 
     it('should throw NotFoundException when campaign does not exist', async () => {
