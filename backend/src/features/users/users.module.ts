@@ -8,6 +8,5 @@ import { SupabaseModule } from 'src/supabase/supabase.module';
   imports: [PrismaModule, SupabaseModule],
   providers: [UserService],
   controllers: [UserController],
-  exports: [UserService],
 })
 export class UsersModule {}
