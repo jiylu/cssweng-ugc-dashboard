@@ -5,6 +5,7 @@ import { SupabaseModule } from './supabase/supabase.module';
 import { CampaignsModule } from './features/campaigns/campaigns.module';
 import { ProposalsModule } from './features/proposals/proposals.module';
 import { DeliverablesModule } from './features/deliverables/deliverables.module';
+import { CampaignSetupModule } from './features/campaign-setup/campaign-setup.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { DeliverablesModule } from './features/deliverables/deliverables.module'
     CampaignsModule,
     ProposalsModule,
     DeliverablesModule,
+    CampaignSetupModule,
   ],
   controllers: [],
   providers: [],
