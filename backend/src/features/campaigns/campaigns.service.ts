@@ -1,12 +1,13 @@
 import {
   ConflictException,
+  ForbiddenException,
   HttpStatus,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateCampaignDTO } from './dto/create-campaign.dto';
-import { CampaignStatus, Prisma } from '@prisma/client';
+import { CampaignStatus, Prisma, UserRoles } from '@prisma/client';
 import { CampaignQueryDTO } from './dto/campaign-query-dto';
 import { UpdateCampaignStatusDto } from './dto/update-campaign-status-dto';
 import { UpdateCampaignClientDTO } from './dto/update-campaign-client.dto';
@@ -123,8 +124,16 @@ export class CampaignsService {
   }
 
   private async assertExistingClientIdAndNoActiveEngagement(clientId: string) {
-    await this.userService.getActiveUserById(clientId);
+    const user = await this.userService.getActiveUserById(clientId);
     const activeCampaign = await this.findOneActiveCampaignByClientId(clientId);
+
+    if (user.role === UserRoles.CREATOR) {
+      throw new ForbiddenException({
+        status: HttpStatus.FORBIDDEN,
+        code: 'USER_IS_NOT_CLIENT',
+        message: 'User is not a client',
+      });
+    }
 
     if (activeCampaign) {
       throw new ConflictException({
