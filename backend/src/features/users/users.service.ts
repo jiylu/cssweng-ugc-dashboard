@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   ConflictException,
+  HttpStatus,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -145,6 +146,7 @@ export class UserService {
 
     if (!user) {
       throw new NotFoundException({
+        status: HttpStatus.NOT_FOUND,
         code: 'USER_NOT_FOUND',
         message: 'User not found',
       });
@@ -172,6 +174,7 @@ export class UserService {
 
     if (!user) {
       throw new NotFoundException({
+        status: HttpStatus.NOT_FOUND,
         code: 'USER_NOT_FOUND',
         message: 'User not found',
       });

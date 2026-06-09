@@ -34,12 +34,16 @@ export function ApiFindOneCampaign() {
       type: String,
       description: 'UUID of the campaign to retrieve',
       example: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+      required: true,
     }),
     ApiResponse({
       status: 200,
       description: 'Campaign retrieved successfully',
     }),
-    ApiResponse({ status: 404, description: 'Campaign not found' }),
+    ApiResponse({
+      status: 404,
+      description: 'Campaign not found',
+    }),
   );
 }
 
@@ -50,7 +54,7 @@ export function ApiFindAllCampaigns() {
     }),
     ApiQuery({
       name: 'creatorId',
-      required: false,
+      required: true,
       type: String,
       description: 'Filter campaigns by UGC creator ID',
       example: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
@@ -69,9 +73,24 @@ export function ApiFindAllCampaigns() {
       description: 'Number of results per page (default: 10)',
       example: 10,
     }),
+    ApiQuery({
+      name: 'activeOnly',
+      required: false,
+      type: Boolean,
+      description: 'If true, returns only active campaigns',
+      example: true,
+    }),
     ApiResponse({
       status: 200,
       description: 'Campaigns retrieved successfully',
+    }),
+    ApiResponse({
+      status: 400,
+      description: 'Bad request (no creatorId query)',
+    }),
+    ApiResponse({
+      status: 404,
+      description: 'User not found (USER_NOT_FOUND)',
     }),
   );
 }
