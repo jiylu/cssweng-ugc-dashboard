@@ -6,23 +6,8 @@ import {
   ApiQuery,
   ApiResponse,
 } from '@nestjs/swagger';
-import { CreateCampaignDTO } from '../dto/create-campaign.dto';
 import { UpdateCampaignStatusDto } from '../dto/update-campaign-status-dto';
 import { UpdateCampaignClientDTO } from '../dto/update-campaign-client.dto';
-
-export function ApiCreateCampaign() {
-  return applyDecorators(
-    ApiOperation({
-      summary: 'Create a campaign',
-      description:
-        'Creates a new campaign using the provided campaign details (no client id yet)',
-    }),
-    ApiBody({ type: CreateCampaignDTO }),
-    ApiResponse({ status: 201, description: 'Created successfully' }),
-    ApiResponse({ status: 400, description: 'Invalid input' }),
-    ApiResponse({ status: 409, description: 'Conflict' }),
-  );
-}
 
 export function ApiFindOneCampaign() {
   return applyDecorators(
