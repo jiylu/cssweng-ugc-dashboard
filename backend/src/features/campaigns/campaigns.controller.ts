@@ -1,19 +1,9 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  Patch,
-  Post,
-  Query,
-} from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Query } from '@nestjs/common';
 import { CampaignsService } from './campaigns.service';
-import { CreateCampaignDTO } from './dto/create-campaign.dto';
 import { CampaignQueryDTO } from './dto/campaign-query-dto';
 import { UpdateCampaignStatusDto } from './dto/update-campaign-status-dto';
 import { UpdateCampaignClientDTO } from './dto/update-campaign-client.dto';
 import {
-  ApiCreateCampaign,
   ApiFindAllCampaigns,
   ApiFindOneCampaign,
   ApiUpdateCampaignClient,
@@ -23,12 +13,6 @@ import {
 @Controller('campaigns')
 export class CampaignsController {
   constructor(private readonly campaignsService: CampaignsService) {}
-
-  @ApiCreateCampaign()
-  @Post()
-  create(@Body() dto: CreateCampaignDTO) {
-    return this.campaignsService.createCampaign(dto);
-  }
 
   @ApiFindOneCampaign()
   @Get(':campaignId')

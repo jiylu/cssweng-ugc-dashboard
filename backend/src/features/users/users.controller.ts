@@ -93,10 +93,7 @@ export class UserController {
   }
 
   @Get('me')
-  async me(
-    @Req() req: Request,
-    @Res({ passthrough: true }) res: Response,
-  ) {
+  async me(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
     const authCookie = parseAuthCookie(req);
 
     if (!authCookie) {
