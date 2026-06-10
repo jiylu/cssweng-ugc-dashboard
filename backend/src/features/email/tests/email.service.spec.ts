@@ -9,7 +9,7 @@ describe('EmailService', () => {
   beforeEach(() => {
     process.env = { ...originalEnv };
     fetchMock = jest.fn();
-    global.fetch = fetchMock as unknown as typeof fetch;
+    global.fetch = fetchMock;
     service = new EmailService();
   });
 
@@ -57,10 +57,7 @@ describe('EmailService', () => {
         }),
       );
 
-      const [, options] = fetchMock.mock.calls[0] as [
-        string,
-        { body: string },
-      ];
+      const [, options] = fetchMock.mock.calls[0] as [string, { body: string }];
       const body = JSON.parse(options.body) as {
         from: string;
         to: string;
@@ -89,10 +86,7 @@ describe('EmailService', () => {
         projectName: '<script>alert("x")</script>',
       });
 
-      const [, options] = fetchMock.mock.calls[0] as [
-        string,
-        { body: string },
-      ];
+      const [, options] = fetchMock.mock.calls[0] as [string, { body: string }];
       const body = JSON.parse(options.body) as { html: string };
 
       expect(body.html).toContain(

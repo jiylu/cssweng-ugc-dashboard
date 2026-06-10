@@ -73,9 +73,9 @@ export class EmailService {
       }),
     });
 
-    const body = (await response.json().catch(() => null)) as
-      | ResendEmailResponse
-      | null;
+    const body = (await response
+      .json()
+      .catch(() => null)) as ResendEmailResponse | null;
 
     if (!response.ok) {
       throw new Error(

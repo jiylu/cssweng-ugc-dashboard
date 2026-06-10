@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { CampaignsService } from '../campaigns/campaigns.service';
 import { DeliverablesService } from '../deliverables/deliverables.service';
 import { ProposalsService } from '../proposals/proposals.service';
 import { CreateCampaignRequestDto } from './dto/create-campaign-request-dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { EmailService } from '../email/email.service';
 
 @Injectable()
 export class CampaignSetupService {
@@ -12,10 +13,13 @@ export class CampaignSetupService {
     private campaignService: CampaignsService,
     private deliverableService: DeliverablesService,
     private proposalService: ProposalsService,
+    private emailService: EmailService,
   ) {}
 
+  private readonly logger = new Logger(CampaignSetupService.name);
+
   async createFullCampaignService(dto: CreateCampaignRequestDto) {
-    return this.prisma.$transaction(async (tx) => {
+    const result = this.prisma.$transaction(async (tx) => {
       const totalPrice = dto.deliverables.reduce(
         (sum, d) => sum + Number(d.pricing),
         0,
@@ -43,5 +47,15 @@ export class CampaignSetupService {
 
       return { campaign, proposal, deliverables };
     });
+
+    await this.emailService
+      .sendProposalReminderEmail({
+        clientEmail: dto.proposal.clientEmail,
+        projectName: dto.campaign.projectName,
+      })
+      .catch((err) => {
+        this.logger.warn('Failed to send proposal reminder email', err);
+      });
+    return result;
   }
 }
