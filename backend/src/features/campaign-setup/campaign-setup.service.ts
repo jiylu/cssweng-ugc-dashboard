@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { CampaignsService } from '../campaigns/campaigns.service';
 import { DeliverablesService } from '../deliverables/deliverables.service';
 import { ProposalsService } from '../proposals/proposals.service';
-import { ActivityLog } from '../activity-log/activity-log.service';
 import { CreateCampaignRequestDto } from './dto/create-campaign-request-dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 
