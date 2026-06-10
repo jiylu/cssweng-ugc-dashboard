@@ -6,6 +6,7 @@ import { CampaignsModule } from './features/campaigns/campaigns.module';
 import { ProposalsModule } from './features/proposals/proposals.module';
 import { DeliverablesModule } from './features/deliverables/deliverables.module';
 import { CampaignSetupModule } from './features/campaign-setup/campaign-setup.module';
+import { ActivityLogModule } from './features/activity-log/activity-log.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { CampaignSetupModule } from './features/campaign-setup/campaign-setup.mo
     ProposalsModule,
     DeliverablesModule,
     CampaignSetupModule,
+    ActivityLogModule
   ],
   controllers: [],
   providers: [],
