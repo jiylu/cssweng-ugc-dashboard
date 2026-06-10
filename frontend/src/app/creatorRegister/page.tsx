@@ -81,7 +81,7 @@ export default function Register() {
       newErrors.password = 'Password must contain at least one lowercase letter.';
     } else if (!/[0-9]/.test(form.password)) {
       newErrors.password = 'Password must contain at least one number.';
-    } else if (!/[!@#$%^&*]/.test(form.password)) {
+    } else if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]/.test(form.password)) {
       newErrors.password = 'Password must contain at least one special character (!@#$%^&*).';
     } else if (!form.confirmPassword) {
       newErrors.confirmPassword = 'Please confirm your password.';
