@@ -3,6 +3,9 @@
 import logo from './../public/Logo-black.svg'
 import styles from './../ui/createCampaignStyles/createCampaign.module.css';
 import { useAuth } from "./../hooks/useAuth";
+import { useCreateCampaign } from "./../hooks/useCreateCampaign";
+import { CreateCampaignPayload } from './../createCampaign/types/campaign';
+import { toast } from "sonner";
 
 // React
 import Image from 'next/image';
@@ -30,29 +33,24 @@ import {
     CirclePlus, // for add deliverable button
     ChevronDown, ChevronUp
 } from "lucide-react"
-import { TrendingUp, 
-         CheckCircle, 
-         Filter 
-       } from "lucide-react"
-
 
 export default function CreateCampaignPage() {
     const router = useRouter();
     const startDateRef = useRef<HTMLInputElement>(null);
     const endDateRef = useRef<HTMLInputElement>(null);
+
+    const [projectName, setProjectName] = useState("");;
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
+    const [campaignDescription, setCampaignDescription] = useState("");
+    // const [contactPerson, setContactPerson] = useState("");
+    const [contactEmail, setContactEmail] = useState("");
     const [deliverables, setDeliverables] = useState([
-        { 
-            id: 1, // temp id only
-            deliverable_title: "", 
-            description: "", 
-            deliverable_type: "", 
-            deadline: "", 
-            pricing: "" 
-        }
+        { id: 1, deliverable_title: "", description: "", deliverable_type: "", deadline: "", pricing: "" }
     ]);
+
     const { user, loading } = useAuth();
+    const { mutate: submitCampaign, isPending } = useCreateCampaign();
 
     if (loading) return (
         <div className="flex mt-5 justify-center">
@@ -94,6 +92,49 @@ export default function CreateCampaignPage() {
             }
             return item;
         }));
+    };
+
+    const buildPayload = (): CreateCampaignPayload => ({
+    campaign: {
+        ugcId: user.user_id,        
+        projectName: projectName,
+        description: campaignDescription,
+        startDate: new Date(startDate).toISOString(),
+        endDate: new Date(endDate).toISOString(),
+    },
+    deliverables: deliverables.map(({ id, ...rest }) => ({
+        deliverableTitle: rest.deliverable_title,
+        description: rest.description,
+        deliverableType: rest.deliverable_type as 'COLLABORATION' | 'UGC',
+        deadline: new Date(rest.deadline).toISOString(),
+        pricing: parseFloat(rest.pricing.replace(/,/g, '') || '0'),
+    })),
+    proposal: {
+        clientEmail: contactEmail,
+    },
+    });
+
+    const handleSaveDraft = () => {
+        submitCampaign(
+        { payload: buildPayload() },
+        {
+            onSuccess: () => toast.success("Draft saved!"),
+            onError: (err) => toast.error(err.message),
+        }
+        );
+    };
+
+    const handleSendProposal = () => {
+        submitCampaign(
+        { payload: buildPayload() },
+        {
+            onSuccess: () => {
+            toast.success("Proposal sent!");
+            router.push('/creatorDashboard');
+            },
+            onError: (err) => toast.error(err.message),
+        }
+        );
     };
 
     const handleSignout = () => {
@@ -183,7 +224,7 @@ export default function CreateCampaignPage() {
                             {/* Campaign Name */}
                             <div className={styles.inputGroup}>
                                 <label className={styles.label}>CAMPAIGN NAME</label>
-                                <input type="text" className={styles.underlineInput} placeholder="Enter campaign name" />
+                                <input value={projectName} onChange={(e) => setProjectName(e.target.value)} type="text" className={styles.underlineInput} placeholder="Enter campaign name" />
                             </div>
 
                             {/* Start & End Dates */}
@@ -247,7 +288,7 @@ export default function CreateCampaignPage() {
                             {/* Campaign Description */}
                             <div className={styles.inputGroup}>
                                 <label className={styles.label}>CAMPAIGN DESCRIPTION</label>
-                                <textarea className={styles.textareaBox} placeholder="Enter Description"></textarea>
+                                <textarea value={campaignDescription} onChange={(e) => setCampaignDescription(e.target.value)} className={styles.textareaBox} placeholder="Enter Description"></textarea>
                             </div>
                         </div>
 
@@ -267,7 +308,7 @@ export default function CreateCampaignPage() {
                             {/* Contact Email */}
                             <div className={styles.inputGroup}>
                                 <label className={styles.label}>CONTACT PERSON EMAIL</label>
-                                <input type="email" className={styles.underlineInput} placeholder="Enter email of contact person" />
+                                <input value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} type="email" className={styles.underlineInput} placeholder="Enter email of contact person" />
                             </div>
                         </div>
 
@@ -367,9 +408,20 @@ export default function CreateCampaignPage() {
                         </div>
 
                         <div className={styles.actionBtns}>
-                            <button className={styles.draftBtn}>Save Draft</button>
-                            <button className={styles.sendBtn}>
-                                <SendHorizontal size={16} className="mb-[4px]"/> Send Proposal
+                            <button
+                                className={styles.draftBtn}
+                                onClick={handleSaveDraft}
+                                disabled={isPending}
+                            >
+                                {isPending ? "Saving..." : "Save Draft"}
+                            </button>
+                            <button
+                                className={styles.sendBtn}
+                                onClick={handleSendProposal}
+                                disabled={isPending}
+                            >
+                                <SendHorizontal size={16} className="mb-[4px]" />
+                                {isPending ? "Sending..." : "Send Proposal"}
                             </button>
                         </div>
                     </div>                    
