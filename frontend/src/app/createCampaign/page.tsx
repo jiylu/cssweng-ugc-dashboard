@@ -6,6 +6,7 @@ import { useAuth } from "./../hooks/useAuth";
 import { useCreateCampaign } from "./../hooks/useCreateCampaign";
 import { CreateCampaignPayload } from './../createCampaign/types/campaign';
 import { toast } from "sonner";
+import { validateCampaignForm } from './utils/validators';
 
 // React
 import Image from 'next/image';
@@ -38,7 +39,7 @@ export default function CreateCampaignPage() {
     const router = useRouter();
     const startDateRef = useRef<HTMLInputElement>(null);
     const endDateRef = useRef<HTMLInputElement>(null);
-
+    const [errors, setErrors] = useState<Record<string, string>>({});
     const [projectName, setProjectName] = useState("");;
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
@@ -72,6 +73,22 @@ export default function CreateCampaignPage() {
         setDeliverables(deliverables.map(item => 
             item.id === id ? { ...item, [field]: value } : item
         ));
+    };
+
+    const validateForm = (): boolean => {
+        const formData = {
+            projectName,
+            startDate,
+            endDate,
+            campaignDescription,
+            contactEmail,
+            deliverables,
+        };
+
+        const newErrors = validateCampaignForm(formData);
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
     };
 
     const addDeliverable = () => {
@@ -115,6 +132,7 @@ export default function CreateCampaignPage() {
     });
 
     const handleSaveDraft = () => {
+        if (!validateForm()) return;
         submitCampaign(
         { payload: buildPayload() },
         {
@@ -125,6 +143,7 @@ export default function CreateCampaignPage() {
     };
 
     const handleSendProposal = () => {
+        if (!validateForm()) return;
         submitCampaign(
         { payload: buildPayload() },
         {
@@ -225,6 +244,9 @@ export default function CreateCampaignPage() {
                             <div className={styles.inputGroup}>
                                 <label className={styles.label}>CAMPAIGN NAME</label>
                                 <input value={projectName} onChange={(e) => setProjectName(e.target.value)} type="text" className={styles.underlineInput} placeholder="Enter campaign name" />
+                                {errors.projectName && (
+                                    <p className="text-xs mt-1" style={{ color: "#ff6467" }}>{errors.projectName}</p>
+                                )}
                             </div>
 
                             {/* Start & End Dates */}
@@ -249,11 +271,13 @@ export default function CreateCampaignPage() {
                                             onChange={(e) => setStartDate(e.target.value)}
                                             data-empty={!startDate} 
                                             className={`${styles.underlineInput} ${styles.brandedDateInput} w-full bg-transparent relative z-10 cursor-text`} />
-                                        
                                         <span className={styles.customDatePlaceholder}>
                                             Set campaign start date
                                         </span>
                                     </div>
+                                    {errors.startDate && (
+                                        <p className="text-xs mt-1" style={{ color: "#ff6467" }}>{errors.startDate}</p>
+                                    )}
                                 </div>
 
                                 <div className={styles.inputGroup}>
@@ -276,11 +300,13 @@ export default function CreateCampaignPage() {
                                             onChange={(e) => setEndDate(e.target.value)}
                                             data-empty={!endDate}
                                             className={`${styles.underlineInput} ${styles.brandedDateInput} w-full bg-transparent relative z-10 cursor-text`} />
-                                        
                                         <span className={styles.customDatePlaceholder}>
                                             Set campaign end date
                                         </span>
                                     </div>
+                                    {errors.endDate && (
+                                        <p className=" text-xs mt-1" style={{ color: "#ff6467" }}>{errors.endDate}</p>
+                                    )}
                                 </div>
                                 
                             </div>
@@ -289,6 +315,9 @@ export default function CreateCampaignPage() {
                             <div className={styles.inputGroup}>
                                 <label className={styles.label}>CAMPAIGN DESCRIPTION</label>
                                 <textarea value={campaignDescription} onChange={(e) => setCampaignDescription(e.target.value)} className={styles.textareaBox} placeholder="Enter Description"></textarea>
+                                {errors.campaignDescription && (
+                                    <p className=" text-xs mt-1" style={{ color: "#ff6467" }}>{errors.campaignDescription}</p>
+                                )}
                             </div>
                         </div>
 
@@ -309,6 +338,9 @@ export default function CreateCampaignPage() {
                             <div className={styles.inputGroup}>
                                 <label className={styles.label}>CONTACT PERSON EMAIL</label>
                                 <input value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} type="email" className={styles.underlineInput} placeholder="Enter email of contact person" />
+                                {errors.contactEmail && (
+                                    <p className="text-xs mt-1" style={{ color: "#ff6467" }}>{errors.contactEmail}</p>
+                                )}
                             </div>
                         </div>
 
@@ -325,9 +357,8 @@ export default function CreateCampaignPage() {
                                     <div>Price</div>
                                 </div>
 
-                                {deliverables.map((item) => (
+                                {deliverables.map((item, index) => (
                                     <div key={item.id} className={`${styles.tableGrid} ${styles.tableRow}`}>
-                                        
                                         {/* name */}
                                         <input 
                                             type="text"
@@ -366,6 +397,9 @@ export default function CreateCampaignPage() {
                                                 onChange={(e) => updateDeliverable(item.id, 'deadline', e.target.value)}
                                                 data-empty={!item.deadline}
                                                 className={`${styles.underlineInput} ${styles.brandedDateInput} w-full bg-transparent relative z-10 cursor-text`} />
+                                            {errors.deadline && (
+                                                <p className=" text-xs mt-1" style={{ color: "#ff6467" }}>{errors.deadline}</p>
+                                            )}
                                             <span className={styles.customDatePlaceholder} style={{ left: '0' }}>
                                                 Set a deadline
                                             </span>
@@ -386,6 +420,9 @@ export default function CreateCampaignPage() {
                                                     updateDeliverable(item.id, 'pricing', parts.slice(0, 2).join('.'));
                                                 }}
                                             />
+                                            {errors.pricing && (
+                                                <p className=" text-xs mt-1" style={{ color: "#ff6467" }}>{errors.pricing}</p>
+                                            )}
                                             <div className="flex flex-col ml-1 shrink-0">
                                                 <ChevronUp 
                                                     size={14} 
@@ -397,6 +434,12 @@ export default function CreateCampaignPage() {
                                                     onClick={() => adjustPrice(item.id, -1000)} />
                                             </div>
                                         </div>
+                                        {errors[`deliverable_title_${index}`] && (
+                                            <p className=" text-xs mt-1" style={{ color: "#ff6467" }}>{errors[`deliverable_title_${index}`]}</p>
+                                        )}
+                                        {errors[`description_${index}`] && (
+                                            <p className=" text-xs mt-1" style={{ color: "#ff6467" }}>{errors[`description_${index}`]}</p>
+                                        )}
                                     </div>
                                 ))}
 
