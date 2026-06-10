@@ -104,7 +104,7 @@ describe('ActivityLogService', () => {
       expect(mockPrisma.activityLog.findMany).toHaveBeenCalledWith({
         where: { user_id: 'user-1' },
         orderBy: { created_at: 'desc' },
-        include: { user: true, target_user: true },
+        include: { user: true },
       });
     });
 
@@ -131,7 +131,7 @@ describe('ActivityLogService', () => {
       expect(mockPrisma.activityLog.findMany).toHaveBeenCalledWith({
         where: { target_user_id: 'user-2' },
         orderBy: { created_at: 'desc' },
-        include: { user: true, target_user: true },
+        include: { user: true },
       });
     });
   });

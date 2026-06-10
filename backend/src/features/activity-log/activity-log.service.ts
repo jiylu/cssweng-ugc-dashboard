@@ -16,7 +16,7 @@ export class ActivityLogService {
         action: dto.action,
         title: dto.title,
         message: dto.message,
-        is_read: dto.isRead,
+        is_read: dto.isRead || false,
         created_at: new Date(),
       },
     });
@@ -28,7 +28,7 @@ export class ActivityLogService {
       orderBy: { created_at: 'desc' },
       include: {
         user: true,
-        target_user: true,
+        //target_user: true,
       },
     });
   }
@@ -39,7 +39,7 @@ export class ActivityLogService {
       orderBy: { created_at: 'desc' },
       include: {
         user: true,
-        target_user: true,
+        //target_user: true,
       },
     });
   }

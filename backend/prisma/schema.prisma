@@ -19,7 +19,7 @@ model User {
   campaigns_as_client  Campaigns[] @relation("ClientCampaigns")
 
   activity_logs          ActivityLog[] @relation("ActivityLogUser")
-  targeted_activity_logs ActivityLog[] @relation("ActivityLogTargetUser")
+  //targeted_activity_logs ActivityLog[] @relation("ActivityLogTargetUser")
 }
 
 model Campaigns {
@@ -65,17 +65,17 @@ model Deliverables {
 model ActivityLog {
   log_id         String          @id @default(uuid())
   user_id        String
-  target_user_id String
+  target_user_id String?
   entity_type    EntityType
   entity_id      String
   action         Action
-  title          DeliverableType
+  title          String
   message        String
   is_read        Boolean
   created_at     DateTime
 
   user        User @relation("ActivityLogUser",       fields: [user_id],        references: [user_id])
-  target_user User @relation("ActivityLogTargetUser", fields: [target_user_id], references: [user_id])
+  //target_user User @relation("ActivityLogTargetUser", fields: [target_user_id], references: [user_id])
 }
 
 enum UserRoles {

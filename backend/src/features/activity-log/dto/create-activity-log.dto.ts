@@ -1,28 +1,32 @@
-import { IsString, IsBoolean, IsEnum } from 'class-validator';
-import { EntityType, Action, DeliverableType } from '@prisma/client';
+import { IsString, IsBoolean, IsEnum, IsNotEmpty } from 'class-validator';
+import { EntityType, Action } from '@prisma/client';
 
 export class CreateActivityLogDto {
   @IsString()
-  userId: string;
+  @IsNotEmpty()
+  userId!: string;
 
   @IsString()
-  targetUserId: string;
+  @IsNotEmpty()
+  targetUserId?: string;
 
   @IsEnum(EntityType)
-  entityType: EntityType;
+  entityType!: EntityType;
 
   @IsString()
-  entityId: string;
+  entityId!: string;
 
   @IsEnum(Action)
-  action: Action;
-
-  @IsEnum(DeliverableType)
-  title: DeliverableType;
+  action!: Action;
 
   @IsString()
-  message: string;
+  @IsNotEmpty()
+  title!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  message!: string;
 
   @IsBoolean()
-  isRead: boolean;
+  isRead?: boolean;
 }
