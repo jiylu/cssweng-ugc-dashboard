@@ -33,8 +33,8 @@ import { Input } from "@/components/ui/input"
 export default function Register() {
   const [form, setForm] = useState({ fname:"", lname:"", email: "", password: "", confirmPassword: "" });
   const [errors, setErrors] = useState({ fname:"", lname:"", email: "", password: "", confirmPassword: "" });
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false) 
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [submitSuccess, setSubmitSuccess] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
