@@ -59,6 +59,21 @@ model Deliverables {
   campaign Campaigns @relation(fields: [campaign_id], references: [campaign_id])
 }
 
+model ActivityLog {
+  log_id         String          @id @default(uuid())
+  user_id        String
+  target_user_id String
+  entity_type    EntityType
+  entity_id      String
+  action         Action
+  title          DeliverableType
+  message        String
+  is_read        Boolean
+  created_at     DateTime
+
+  campaign Campaigns @relation(fields: [campaign_id], references: [campaign_id])
+}
+
 enum UserRoles {
   CLIENT
   CREATOR
@@ -80,4 +95,16 @@ enum ProposalStatus {
   FOR_REVISION
   REJECTED
   ACCEPTED
+}
+
+enum EntityType {
+  CAMPAIGN
+  SUBMISSION
+  PAYMENT
+}
+
+enum Action {
+  SUBMISSION
+  APPROVE
+  SIGNED
 }
