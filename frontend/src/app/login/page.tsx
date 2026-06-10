@@ -13,6 +13,7 @@ import { loginUser } from "@/lib/users-api";
 
 // Shadecn
 import { Button } from "@/components/ui/button"
+import { Eye, EyeOff } from "lucide-react"
 import {
   Card,
   CardContent,
@@ -28,6 +29,7 @@ import { Label } from "@/components/ui/label"
 export default function Page() {
   const [form, setForm] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState({ email: "", password: "" });
+  const [showPassword, setShowPassword] = useState(false)
   const [submitError, setSubmitError] = useState("");
   const [submitSuccess, setSubmitSuccess] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
@@ -145,22 +147,38 @@ export default function Page() {
                       <div className="grid gap-2">
                         <div className="flex items-center">
                           <Label htmlFor="password">Password</Label>
-                          <a
-                            href="#"
+                          
+                          <a href="#"
                             className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
                           >
                             Forgot your password?
                           </a>
                         </div>
-                        <Input 
-                          id="password" 
-                          type="password" 
-                          placeholder=".........." 
-                          value={form.password} 
-                          onChange={e => updateField("password", e.target.value)}
-                          disabled={isSubmitting}
-                        />
-                        {errors.password && <p role="alert" style={{ color: "#ff6467" }}>{errors.password}</p>}
+                        <div className="relative">
+                          <Input
+                            id="password"
+                            type={showPassword ? "text" : "password"}
+                            placeholder=".........."
+                            value={form.password}
+                            onChange={e => updateField("password", e.target.value)}
+                            disabled={isSubmitting}
+                            className="pr-10"
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="absolute right-0 top-0 h-full px-3 py-2 text-muted-foreground hover:text-foreground hover:bg-transparent"
+                            onClick={() => setShowPassword(prev => !prev)}
+                            disabled={isSubmitting}
+                            aria-label={showPassword ? "Hide password" : "Show password"}
+                          >
+                            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          </Button>
+                        </div>
+                        {errors.password && (
+                          <p role="alert" style={{ color: "#ff6467" }}>{errors.password}</p>
+                        )}
                       </div>
                       <label className="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground">
                         <input

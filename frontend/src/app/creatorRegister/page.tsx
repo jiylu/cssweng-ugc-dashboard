@@ -13,6 +13,7 @@ import { createUser } from "@/lib/users-api";
 
 // Shadecn
 import { Button } from "@/components/ui/button"
+import { Eye, EyeOff } from "lucide-react"
 import {
   Card,
   CardContent,
@@ -32,6 +33,8 @@ import { Input } from "@/components/ui/input"
 export default function Register() {
   const [form, setForm] = useState({ fname:"", lname:"", email: "", password: "", confirmPassword: "" });
   const [errors, setErrors] = useState({ fname:"", lname:"", email: "", password: "", confirmPassword: "" });
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false) 
   const [submitError, setSubmitError] = useState("");
   const [submitSuccess, setSubmitSuccess] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -187,33 +190,62 @@ export default function Register() {
                         : <FieldDescription>Choose a unique e-mail for your account.</FieldDescription>
                       }
                     </Field>
-
+                    
+                    {/* PASSWORD */}
                     <FieldGroup className="grid w-full grid-cols-2 mb-4">
                       {/* PASSWORD */}
                       <Field>
-                        <FieldLabel htmlFor="fieldgroup-password">Password</FieldLabel>
-                        <Input
-                          id="password"
-                          type="password"
-                          placeholder="Enter a valid password"
-                          value={form.password}
-                          onChange={handleChange}
-                          disabled={isSubmitting}
-                        />
+                        <FieldLabel htmlFor="password">Password</FieldLabel>
+                        <div className="relative">
+                          <Input
+                            id="password"
+                            type={showPassword ? "text" : "password"}
+                            placeholder="Enter a valid password"
+                            value={form.password}
+                            onChange={handleChange}
+                            disabled={isSubmitting}
+                            className="pr-10"
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="absolute right-0 top-0 h-full px-3 text-muted-foreground hover:text-foreground hover:bg-transparent"
+                            onClick={() => setShowPassword(prev => !prev)}
+                            disabled={isSubmitting}
+                            aria-label={showPassword ? "Hide password" : "Show password"}
+                          >
+                            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          </Button>
+                        </div>
                         {errors.password && <p role="alert" style={{ color: "#ff6467" }}>{errors.password}</p>}
                       </Field>
-            
-                      {/* CONFIM PASSWORD */}
+
+                      {/* CONFIRM PASSWORD */}
                       <Field>
-                        <FieldLabel htmlFor="fieldgroup-password">Confirm Password</FieldLabel>
-                        <Input
-                          id="confirmPassword"
-                          type="password"
-                          placeholder="Confirm password"
-                          value={form.confirmPassword}
-                          onChange={handleChange}
-                          disabled={isSubmitting}
-                        />
+                        <FieldLabel htmlFor="confirmPassword">Confirm Password</FieldLabel>
+                        <div className="relative">
+                          <Input
+                            id="confirmPassword"
+                            type={showConfirmPassword ? "text" : "password"}
+                            placeholder="Confirm password"
+                            value={form.confirmPassword}
+                            onChange={handleChange}
+                            disabled={isSubmitting}
+                            className="pr-10"
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="absolute right-0 top-0 h-full px-3 text-muted-foreground hover:text-foreground hover:bg-transparent"
+                            onClick={() => setShowConfirmPassword(prev => !prev)}
+                            disabled={isSubmitting}
+                            aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                          >
+                            {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          </Button>
+                        </div>
                         {errors.confirmPassword && <p role="alert" style={{ color: "#ff6467" }}>{errors.confirmPassword}</p>}
                       </Field>
                     </FieldGroup>
