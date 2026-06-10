@@ -42,7 +42,10 @@ export class CreateDeliverableDTO {
   @Min(0)
   pricing!: number;
 
-  @ApiProperty({ enum: DeliverableType, example: DeliverableType.COLLABORATION })
+  @ApiProperty({
+    enum: DeliverableType,
+    example: DeliverableType.COLLABORATION,
+  })
   @IsEnum(DeliverableType)
   deliverableType!: DeliverableType;
 }

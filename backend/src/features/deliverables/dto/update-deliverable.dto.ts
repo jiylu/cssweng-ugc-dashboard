@@ -41,7 +41,11 @@ export class UpdateDeliverableDTO {
   @Min(0)
   pricing?: number;
 
-  @ApiPropertyOptional({ enum: DeliverableType, example: DeliverableType.UGC, required: false })
+  @ApiPropertyOptional({
+    enum: DeliverableType,
+    example: DeliverableType.UGC,
+    required: false,
+  })
   @IsOptional()
   @IsEnum(DeliverableType)
   deliverableType?: DeliverableType;

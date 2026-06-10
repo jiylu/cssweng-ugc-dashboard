@@ -17,7 +17,7 @@ import { ActivityLogModule } from './features/activity-log/activity-log.module';
     ProposalsModule,
     DeliverablesModule,
     CampaignSetupModule,
-    ActivityLogModule
+    ActivityLogModule,
   ],
   controllers: [],
   providers: [],
