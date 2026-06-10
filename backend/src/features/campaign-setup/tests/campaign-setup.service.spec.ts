@@ -6,6 +6,8 @@ import { DeliverablesService } from 'src/features/deliverables/deliverables.serv
 import { ProposalsService } from 'src/features/proposals/proposals.service';
 import { CreateCampaignRequestDto } from '../dto/create-campaign-request-dto';
 import { DeliverableType } from '@prisma/client';
+import { EmailService } from 'src/features/email/email.service';
+import { ActivityLogService } from 'src/features/activity-log/activity-log.service';
 
 describe('CampaignSetupService', () => {
   let service: CampaignSetupService;
@@ -41,6 +43,16 @@ describe('CampaignSetupService', () => {
           useValue: mockDeliverableService,
         } as any,
         { provide: ProposalsService, useValue: mockProposalService } as any,
+        {
+          provide: EmailService,
+          useValue: {
+            sendProposalReminderEmail: jest.fn().mockResolvedValue(null),
+          },
+        },
+        {
+          provide: ActivityLogService,
+          useValue: { createActivityLog: jest.fn() },
+        },
       ],
     }).compile();
 

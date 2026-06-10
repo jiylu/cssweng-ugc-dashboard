@@ -6,6 +6,7 @@ import { DeliverablesModule } from '../deliverables/deliverables.module';
 import { CampaignSetupService } from './campaign-setup.service';
 import { CampaignSetupController } from './campaign-setup.controller';
 import { EmailModule } from '../email/email.module';
+import { ActivityLogModule } from '../activity-log/activity-log.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { EmailModule } from '../email/email.module';
     ProposalsModule,
     DeliverablesModule,
     EmailModule,
+    ActivityLogModule,
   ],
   providers: [CampaignSetupService],
   controllers: [CampaignSetupController],
