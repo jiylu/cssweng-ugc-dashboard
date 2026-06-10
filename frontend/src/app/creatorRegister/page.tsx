@@ -73,8 +73,8 @@ export default function Register() {
     // Password & Confirm Password
     if (!form.password) {
       newErrors.password = "Password is required";
-    } else if (form.password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters";
+    } else if (form.password.length < 6 || form.password.length > 20) {
+      newErrors.password = "Password must be at least 6-20 characters";
     } else if (!/[A-Z]/.test(form.password)) {
       newErrors.password = "Password must contain at least one uppercase letter.";
     } else if (!/[a-z]/.test(form.password)) {
