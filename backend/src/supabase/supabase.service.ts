@@ -1,5 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import * as WebSocket from 'ws';
+
+// Force the existence of a global WebSocket constructor
+(global as any).WebSocket = WebSocket;
 
 type Database = any;
 
