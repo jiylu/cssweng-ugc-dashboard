@@ -8,6 +8,14 @@ const apiDestinationBaseUrl = apiBaseUrl.endsWith("/api")
 
 const nextConfig: NextConfig = {
   devIndicators: false,
+  turbopack: {}, 
+  webpack: (config) => {
+    config.watchOptions = {
+      poll: 1000,
+      aggregateTimeout: 300,
+    };
+    return config;
+  },
   async rewrites() {
     return [
       {
