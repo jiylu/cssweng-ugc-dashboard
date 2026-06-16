@@ -25,5 +25,8 @@ services:
       - /app/.next 
     env_file:
       - ./frontend/.env
+    environment:
+      - WATCHPACK_POLLING=true
+      - CHOKIDAR_USEPOLLING=true
     depends_on:
       - backend
