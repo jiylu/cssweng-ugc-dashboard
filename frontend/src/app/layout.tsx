@@ -9,7 +9,7 @@ import { Toaster } from 'sonner';
 const andersonGrotesk = localFont({
   src: [
     {
-      path: './public/fonts/Anderson Grotesk/AndersonGrotesk.otf',
+      path: '../../public/fonts/Anderson Grotesk/AndersonGrotesk.otf',
       weight: '200',
       style: 'normal',
     },

@@ -1,7 +1,5 @@
 "use client"
 // Local
-import logo from './../public/Logo.svg'
-import logo2 from './../public/Logo-notext-purple.svg'
 import styles from './../ui/loginRegisterStyles/login.module.css';
 import { CheckCircle2, Loader2 } from "lucide-react";
 
@@ -87,7 +85,7 @@ export default function Page() {
         rememberMe,
       });
       setSubmitSuccess("Login successful. Taking you to your dashboard...");
-      window.setTimeout(() => router.push('/creatorDashboard'), 500);
+      window.setTimeout(() => router.push('/creator-dashboard'), 500);
     } catch (error) {
       setSubmitError(error instanceof Error ? error.message : "Unable to login.");
       setIsSubmitting(false);
@@ -105,7 +103,13 @@ export default function Page() {
             <div className={styles.orb1} />
             <div className={styles.orb2} />
 
-            <Image src={logo} alt="Logo" className="w-[200px] mb-10"/>
+            <Image 
+              src="/Logo.svg" 
+              alt="Logo" 
+              className="w-50 mb-10"
+              width={30}
+              height={30}
+            />
 
             <div className={styles.herotext}>
               <h2>Everything you need,<br /><span className="text-[#8811FF]">in one place.</span></h2>
@@ -115,7 +119,13 @@ export default function Page() {
 
           {/* RIGHT PANEL */}
           <div className={styles.loginpanel} >
-            <Image src={logo2} alt="Logo2" className="w-[50px]"/>
+            <Image 
+              src="/Logo-notext-purple.svg" 
+              alt="Logo2" 
+              className="w-30"
+              width={30}
+              height={30}  
+            />
             <h1 className={styles.h1text}>Welcome Back,</h1>
             <div className={styles.cardwrapper}>
               <Card className="w-full">

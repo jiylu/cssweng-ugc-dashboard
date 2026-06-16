@@ -20,12 +20,12 @@ import { Badge } from "@/components/ui/badge"
 import { Spinner } from "@/components/ui/spinner"
 
 // Lucide
-import { 
-    LayoutPanelTop, 
-    Megaphone, 
-    NotebookPen, 
-    Calendar, 
-    Settings, 
+import {
+    LayoutPanelTop,
+    Megaphone,
+    NotebookPen,
+    Calendar,
+    Settings,
     LogOut,
     StickyNote, // for drafts
     FilePen, // for create proposal
@@ -56,8 +56,8 @@ export default function CreateCampaignPage() {
     if (loading) return (
         <div className="flex mt-5 justify-center">
             <Badge variant="outline">
-            <Spinner data-icon="inline-start" />
-            Loading...
+                <Spinner data-icon="inline-start" />
+                Loading...
             </Badge>
         </div>
     );
@@ -70,7 +70,7 @@ export default function CreateCampaignPage() {
     };
 
     const updateDeliverable = (id: number, field: string, value: string) => {
-        setDeliverables(deliverables.map(item => 
+        setDeliverables(deliverables.map(item =>
             item.id === id ? { ...item, [field]: value } : item
         ));
     };
@@ -94,7 +94,7 @@ export default function CreateCampaignPage() {
     const addDeliverable = () => {
         const newId = deliverables.length > 0 ? Math.max(...deliverables.map(d => d.id)) + 1 : 1;
         setDeliverables([
-            ...deliverables, 
+            ...deliverables,
             { id: newId, deliverable_title: "", description: "", deliverable_type: "", deadline: "", pricing: "" }
         ]);
     };
@@ -103,7 +103,7 @@ export default function CreateCampaignPage() {
         setDeliverables(deliverables.map(item => {
             if (item.id === id) {
                 const currentVal = parseFloat(item.pricing.replace(/,/g, '') || "0");
-                const newVal = Math.max(0, currentVal + amount); 
+                const newVal = Math.max(0, currentVal + amount);
                 const formatted = newVal.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
                 return { ...item, pricing: formatted };
             }
@@ -112,47 +112,47 @@ export default function CreateCampaignPage() {
     };
 
     const buildPayload = (): CreateCampaignPayload => ({
-    campaign: {
-        ugcId: user.user_id,        
-        projectName: projectName,
-        description: campaignDescription,
-        startDate: new Date(startDate).toISOString(),
-        endDate: new Date(endDate).toISOString(),
-    },
-    deliverables: deliverables.map(({ id, ...rest }) => ({
-        deliverableTitle: rest.deliverable_title,
-        description: rest.description,
-        deliverableType: rest.deliverable_type as 'COLLABORATION' | 'UGC',
-        deadline: new Date(rest.deadline).toISOString(),
-        pricing: parseFloat(rest.pricing.replace(/,/g, '') || '0'),
-    })),
-    proposal: {
-        clientEmail: contactEmail,
-    },
+        campaign: {
+            ugcId: user.user_id,
+            projectName: projectName,
+            description: campaignDescription,
+            startDate: new Date(startDate).toISOString(),
+            endDate: new Date(endDate).toISOString(),
+        },
+        deliverables: deliverables.map(({ id, ...rest }) => ({
+            deliverableTitle: rest.deliverable_title,
+            description: rest.description,
+            deliverableType: rest.deliverable_type as 'COLLABORATION' | 'UGC',
+            deadline: new Date(rest.deadline).toISOString(),
+            pricing: parseFloat(rest.pricing.replace(/,/g, '') || '0'),
+        })),
+        proposal: {
+            clientEmail: contactEmail,
+        },
     });
 
     const handleSaveDraft = () => {
         if (!validateForm()) return;
         submitCampaign(
-        { payload: buildPayload() },
-        {
-            onSuccess: () => toast.success("Draft saved!"),
-            onError: (err) => toast.error(err.message),
-        }
+            { payload: buildPayload() },
+            {
+                onSuccess: () => toast.success("Draft saved!"),
+                onError: (err) => toast.error(err.message),
+            }
         );
     };
 
     const handleSendProposal = () => {
         if (!validateForm()) return;
         submitCampaign(
-        { payload: buildPayload() },
-        {
-            onSuccess: () => {
-            toast.success("Proposal sent!");
-            router.push('/creatorDashboard');
-            },
-            onError: (err) => toast.error(err.message),
-        }
+            { payload: buildPayload() },
+            {
+                onSuccess: () => {
+                    toast.success("Proposal sent!");
+                    router.push('/creatorDashboard');
+                },
+                onError: (err) => toast.error(err.message),
+            }
         );
     };
 
@@ -163,48 +163,48 @@ export default function CreateCampaignPage() {
 
     return (
         <main className="flex flex-row w-full h-screen overflow-hidden">
-        {/* LEFT PANEL */}
-        <section className={styles.leftpanel}>
-          <Image src={logo} alt="Logo" className="w-[150px] mt-10 mb-10"/>
-          <Separator />
+            {/* LEFT PANEL */}
+            <section className={styles.leftpanel}>
+                <Image src={logo} alt="Logo" className="w-[150px] mt-10 mb-10" />
+                <Separator />
 
-          {/* NAVIGATION */}
-          <div className={styles.navbtn}>
-            <Button type="button" onClick={() => router.push('/createCampaign')} className="cursor-pointer w-57 h-[50px] mt-10 mb-6 text-lg">
-              + New Campaign
-            </Button>
-            <div className="flex flex-col justify-start items-start">
-              <Button variant="ghost" onClick={() => router.push('/creatorDashboard')} className="justify-start items-center cursor-pointer w-57 h-[50px] text-lg">
-                <LayoutPanelTop />Dashboard
-              </Button>
-              <Button variant="ghost" className="justify-start items-center cursor-pointer w-57 h-[50px] text-lg">
-                <Megaphone />Campaigns
-              </Button>
-              <Button variant="ghostactive" onClick={() => router.push('/createCampaign')} className="justify-start items-center cursor-pointer w-57 h-[50px] text-lg">
-                <NotebookPen />Proposals
-              </Button>
-              <Button variant="ghost" className="justify-start items-center cursor-pointer w-57 h-[50px] text-lg">
-                <Calendar />Calendar
-              </Button>
-              <Button variant="ghost" className="justify-start items-center cursor-pointer w-57 h-[50px] text-lg">
-                <Settings />Settings
-              </Button>
-            </div>
-          </div>
+                {/* NAVIGATION */}
+                <div className={styles.navbtn}>
+                    <Button type="button" onClick={() => router.push('/createCampaign')} className="cursor-pointer w-57 h-[50px] mt-10 mb-6 text-lg">
+                        + New Campaign
+                    </Button>
+                    <div className="flex flex-col justify-start items-start">
+                        <Button variant="ghost" onClick={() => router.push('/creatorDashboard')} className="justify-start items-center cursor-pointer w-57 h-[50px] text-lg">
+                            <LayoutPanelTop />Dashboard
+                        </Button>
+                        <Button variant="ghost" className="justify-start items-center cursor-pointer w-57 h-[50px] text-lg">
+                            <Megaphone />Campaigns
+                        </Button>
+                        <Button variant="ghostactive" onClick={() => router.push('/createCampaign')} className="justify-start items-center cursor-pointer w-57 h-[50px] text-lg">
+                            <NotebookPen />Proposals
+                        </Button>
+                        <Button variant="ghost" className="justify-start items-center cursor-pointer w-57 h-[50px] text-lg">
+                            <Calendar />Calendar
+                        </Button>
+                        <Button variant="ghost" className="justify-start items-center cursor-pointer w-57 h-[50px] text-lg">
+                            <Settings />Settings
+                        </Button>
+                    </div>
+                </div>
 
-          {/* SIGN OUT */}
-          <div className="mt-auto mb-5 flex flex-col">
-            <Separator />
-            <Button variant="ghost" onClick={handleSignout} className="justify-start items-center cursor-pointer w-57 h-[50px] text-lg">
-              <LogOut />Sign Out
-            </Button>
-          </div>
-        </section>
+                {/* SIGN OUT */}
+                <div className="mt-auto mb-5 flex flex-col">
+                    <Separator />
+                    <Button variant="ghost" onClick={handleSignout} className="justify-start items-center cursor-pointer w-57 h-[50px] text-lg">
+                        <LogOut />Sign Out
+                    </Button>
+                </div>
+            </section>
 
             {/* RIGHT PANEL */}
             <section className={styles.rightpanel}>
                 <div className={styles.mainContainer}>
-                    
+
                     {/* TOP PART: Navigation Tabs & Profile */}
                     <div className={styles.topBar}>
                         <div className={styles.tabGroup}>
@@ -218,7 +218,7 @@ export default function CreateCampaignPage() {
                                 <Files size={18} className="mb-[4px]" /> SUBMITTED PROPOSALS
                             </button>
                         </div>
-                        
+
                         {/* <Image src={defaultprofile} alt="default" className="w-[40px] mr-5 rounded-full"/> */}
                     </div>
                     <Separator />
@@ -230,7 +230,7 @@ export default function CreateCampaignPage() {
                             Draft a proposal for your next client collaboration. Ensure all deliverables are clearly defined.
                         </p>
                     </div>
-                    
+
                     {/* CARDS */}
                     <div className={styles.cardsGrid}>
                         {/* Campaign Details */}
@@ -239,7 +239,7 @@ export default function CreateCampaignPage() {
                             <p className={styles.cardDescription}>
                                 Provide the core information, timeline, and an overview of this collaboration.
                             </p>
-                            
+
                             {/* Campaign Name */}
                             <div className={styles.inputGroup}>
                                 <label className={styles.label}>CAMPAIGN NAME</label>
@@ -253,23 +253,23 @@ export default function CreateCampaignPage() {
                             <div className={styles.dateRow}>
                                 <div className={styles.inputGroup}>
                                     <label className={styles.label}>CAMPAIGN START DATE</label>
-                                    
+
                                     <div className={`${styles.dateInputWrapper} relative flex items-center`}>
-                                        <Calendar size={16} 
-                                            className="text-[#78746e] shrink-0 cursor-pointer relative z-20 mb-[4px]" 
+                                        <Calendar size={16}
+                                            className="text-[#78746e] shrink-0 cursor-pointer relative z-20 mb-[4px]"
                                             onClick={() => {
                                                 if (startDateRef.current) {
                                                     startDateRef.current.focus();
-                                                    try { startDateRef.current.showPicker(); } catch(e) {}
+                                                    try { startDateRef.current.showPicker(); } catch (e) { }
                                                 }
-                                            }}/>
-                                        
-                                        <input 
+                                            }} />
+
+                                        <input
                                             ref={startDateRef}
-                                            type="date" 
+                                            type="date"
                                             value={startDate}
                                             onChange={(e) => setStartDate(e.target.value)}
-                                            data-empty={!startDate} 
+                                            data-empty={!startDate}
                                             className={`${styles.underlineInput} ${styles.brandedDateInput} w-full bg-transparent relative z-10 cursor-text`} />
                                         <span className={styles.customDatePlaceholder}>
                                             Set campaign start date
@@ -282,20 +282,20 @@ export default function CreateCampaignPage() {
 
                                 <div className={styles.inputGroup}>
                                     <label className={styles.label}>CAMPAIGN END DATE</label>
-                                    
+
                                     <div className={`${styles.dateInputWrapper} relative flex items-center`}>
-                                        <Calendar size={16} 
-                                            className="text-[#78746e] shrink-0 cursor-pointer relative z-20 mb-[4px]" 
+                                        <Calendar size={16}
+                                            className="text-[#78746e] shrink-0 cursor-pointer relative z-20 mb-[4px]"
                                             onClick={() => {
                                                 if (endDateRef.current) {
                                                     endDateRef.current.focus();
-                                                    try { endDateRef.current.showPicker(); } catch(e) {}
+                                                    try { endDateRef.current.showPicker(); } catch (e) { }
                                                 }
-                                            }}/>
-                                        
-                                        <input 
+                                            }} />
+
+                                        <input
                                             ref={endDateRef}
-                                            type="date" 
+                                            type="date"
                                             value={endDate}
                                             onChange={(e) => setEndDate(e.target.value)}
                                             data-empty={!endDate}
@@ -308,7 +308,7 @@ export default function CreateCampaignPage() {
                                         <p className=" text-xs mt-1" style={{ color: "#ff6467" }}>{errors.endDate}</p>
                                     )}
                                 </div>
-                                
+
                             </div>
 
                             {/* Campaign Description */}
@@ -327,7 +327,7 @@ export default function CreateCampaignPage() {
                             <p className={styles.cardDescription}>
                                 Enter the client's name and contact email to send them access to view this campaign proposal.
                             </p>
-                            
+
                             {/* Contact Person */}
                             <div className={styles.inputGroup}>
                                 <label className={styles.label}>CONTACT PERSON</label>
@@ -360,24 +360,24 @@ export default function CreateCampaignPage() {
                                 {deliverables.map((item, index) => (
                                     <div key={item.id} className={`${styles.tableGrid} ${styles.tableRow}`}>
                                         {/* name */}
-                                        <input 
+                                        <input
                                             type="text"
-                                            className={styles.underlineInput} 
+                                            className={styles.underlineInput}
                                             placeholder="Enter deliverable name"
                                             value={item.deliverable_title}
-                                            onChange={(e) => updateDeliverable(item.id, 'deliverable_title', e.target.value)}/>
+                                            onChange={(e) => updateDeliverable(item.id, 'deliverable_title', e.target.value)} />
 
                                         {/* description */}
-                                        <input 
+                                        <input
                                             type="text"
-                                            className={styles.underlineInput} 
+                                            className={styles.underlineInput}
                                             placeholder="Enter description"
                                             value={item.description}
-                                            onChange={(e) => updateDeliverable(item.id, 'description', e.target.value)}/>
+                                            onChange={(e) => updateDeliverable(item.id, 'description', e.target.value)} />
 
                                         {/* type */}
                                         <div className="relative w-full">
-                                            <select 
+                                            <select
                                                 className={`${styles.pillSelect} w-full pr-8`}
                                                 value={item.deliverable_type}
                                                 onChange={(e) => updateDeliverable(item.id, 'deliverable_type', e.target.value)}
@@ -391,8 +391,8 @@ export default function CreateCampaignPage() {
 
                                         {/* deadline */}
                                         <div className="relative flex items-center w-full">
-                                            <input 
-                                                type="date" 
+                                            <input
+                                                type="date"
                                                 value={item.deadline}
                                                 onChange={(e) => updateDeliverable(item.id, 'deadline', e.target.value)}
                                                 data-empty={!item.deadline}
@@ -408,8 +408,8 @@ export default function CreateCampaignPage() {
                                         {/* pricing */}
                                         <div className={styles.priceInputWrapper}>
                                             <span>PHP</span>
-                                            <input 
-                                                type="text" 
+                                            <input
+                                                type="text"
                                                 placeholder="0.00"
                                                 className="w-full bg-transparent outline-none"
                                                 value={item.pricing}
@@ -424,13 +424,13 @@ export default function CreateCampaignPage() {
                                                 <p className=" text-xs mt-1" style={{ color: "#ff6467" }}>{errors.pricing}</p>
                                             )}
                                             <div className="flex flex-col ml-1 shrink-0">
-                                                <ChevronUp 
-                                                    size={14} 
-                                                    className="cursor-pointer text-[#9ca3af] hover:text-[#6b1fa8] transition-colors" 
+                                                <ChevronUp
+                                                    size={14}
+                                                    className="cursor-pointer text-[#9ca3af] hover:text-[#6b1fa8] transition-colors"
                                                     onClick={() => adjustPrice(item.id, 1000)} />
-                                                <ChevronDown 
-                                                    size={14} 
-                                                    className="cursor-pointer text-[#9ca3af] hover:text-[#6b1fa8] transition-colors" 
+                                                <ChevronDown
+                                                    size={14}
+                                                    className="cursor-pointer text-[#9ca3af] hover:text-[#6b1fa8] transition-colors"
                                                     onClick={() => adjustPrice(item.id, -1000)} />
                                             </div>
                                         </div>
@@ -444,7 +444,7 @@ export default function CreateCampaignPage() {
                                 ))}
 
                                 <button className={styles.addDeliverableBtn} onClick={addDeliverable}>
-                                    <CirclePlus size={16} className="mb-[4px]"/> Add another deliverable
+                                    <CirclePlus size={16} className="mb-[4px]" /> Add another deliverable
                                 </button>
 
                             </div>
@@ -467,9 +467,9 @@ export default function CreateCampaignPage() {
                                 {isPending ? "Sending..." : "Send Proposal"}
                             </button>
                         </div>
-                    </div>                    
+                    </div>
                 </div>
-            </section>    
+            </section>
         </main>
     );
 }
