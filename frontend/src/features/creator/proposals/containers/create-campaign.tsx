@@ -16,7 +16,6 @@ import { useRouter } from "next/navigation"
 import { Badge } from "@/components/ui/badge";
 import { Spinner } from "@/components/ui/spinner";
 
-
 export default function CreateCampaign() {
   const form = useCampaignForm();
   const startDateRef = useRef<HTMLInputElement>(null);
@@ -57,7 +56,21 @@ export default function CreateCampaign() {
   });
 
   const handleSaveDraft = () => {
-    //if (!form.validateForm()) return;
+    if (!form.validateForm()) {
+        // todo: make the format presentable
+      const allErrors = Object.entries(form.errors)
+        .map(([field, err]) => {
+          const message = (err as { message?: string })?.message || err || "Invalid input";
+          return `${field}: ${message}`;
+        })
+        .join(", ");
+
+      if (allErrors) {
+        toast.error(allErrors);
+      }
+      return;
+    };
+
     submitCampaign(
       { payload: buildPayload() },
       {
@@ -68,7 +81,21 @@ export default function CreateCampaign() {
   };
 
   const handleSendProposal = () => {
-    //if (!form.validateForm()) return;
+    if (!form.validateForm()) {
+        // todo: make the format presentable
+      const allErrors = Object.entries(form.errors)
+        .map(([field, err]) => {
+          const message = (err as { message?: string })?.message || err || "Invalid input";
+          return `${field}: ${message}`;
+        })
+        .join(", ");
+
+      if (allErrors) {
+        toast.error(allErrors);
+      }
+      return;
+    };
+
     submitCampaign(
       { payload: buildPayload() },
       {
