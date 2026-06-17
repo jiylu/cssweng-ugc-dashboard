@@ -1,7 +1,7 @@
 import Image from 'next/image'
 // import logo from '../../../../public/Logo-black.svg';
 import { Separator } from '@/components/ui/separator'
-import CreatorNavigation from './creator-navigation'
+import CreatorNavigation from '../molecules/creator-navigation'
 import { Button } from '@/components/ui/button'
 import { LogOut } from 'lucide-react'
 import { useRouter } from 'next/navigation'

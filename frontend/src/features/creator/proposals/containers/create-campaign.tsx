@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import CreatorProposalsNavigation from "../components/proposals-nav";
-import CreatorSidebar from "../../dashboard/components/creator-sidebar";
+import CreatorSidebar from "../../../../components/organisms/creator-sidebar";
 import { useCampaignForm } from "../hooks/useCampaignForm";
 import CampaignDetailsSection from "../components/campaign-details-form";
 import ClientDetailsForm from "../components/client-details-form";
