@@ -1,6 +1,6 @@
 import { useState } from "react"
-import { validateCampaignForm } from "../../../../utils/validators"
-import { Deliverable } from "@/src/types/deliverables.types"
+import { Deliverable } from "@/src/features/creator/proposals/types/deliverables.types"
+import { validateCampaignForm } from "../utils/validators"
 
 export function useCampaignForm() {
   const [projectName, setProjectName] = useState("")

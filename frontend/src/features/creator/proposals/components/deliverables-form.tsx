@@ -7,7 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { cn } from "@/lib/utils";
 import Button from "@/src/components/atoms/button";
 import { Card } from "@/src/components/atoms/card";
-import { Deliverable } from "@/src/types/deliverables.types";
+import { Deliverable } from "@/src/features/creator/proposals/types/deliverables.types";
 import { format } from "date-fns"
 import { ChevronDown, ChevronUp } from "lucide-react";
 export interface DeliverablesFormProps {
