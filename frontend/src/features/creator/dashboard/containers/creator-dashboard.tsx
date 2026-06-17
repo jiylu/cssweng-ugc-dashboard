@@ -6,10 +6,26 @@ import CreatorAnalyticsCard from "../components/creator-analytics-card";
 import CreatorTodoCard from "../components/creator-todo-card";
 import Button from "@/src/components/atoms/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useAuth } from "@/src/app/hooks/useAuth";
+import { Badge } from "@/components/ui/badge";
+import { Spinner } from "@/components/ui/spinner";
 
 // TODO: Make CreatorDashboardProps interface para dynamic
 
+
 export default function CreatorDashboard() {
+  const { user, loading } = useAuth();
+  if (loading) return (
+    <div className="flex mt-5 justify-center">
+      <Badge variant="outline">
+        <Spinner data-icon="inline-start" />
+        Loading...
+      </Badge>
+    </div>
+  );
+
+  if (!user) return null;
+
   // TODO: Remove this if container is dynamic
   // template lang to
   const creatorDashboardStats = [
@@ -101,7 +117,7 @@ export default function CreatorDashboard() {
         <div className="bg-white rounded-xs shadow-[0_1px_2px_rgba(0,0,0,0.08)] p-6 w-full h-full">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-2xl font-bold">Ongoing Deliverables</h2>
-            <Button variant="ghost" className="gap-1">
+            <Button variant="ghost" className="flex items-center gap-1">
               <Filter size={16} /> Filter By
             </Button>
           </div>

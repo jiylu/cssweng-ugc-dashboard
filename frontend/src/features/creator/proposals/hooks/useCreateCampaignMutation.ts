@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
-import { postCampaign } from './../createCampaign/services/postCampaign';
-import { CreateCampaignPayload } from './../createCampaign/types/campaign';
+import { CreateCampaignPayload } from '../types/campaign-setup.types';
+import { postCampaign } from '../../../../services/postCampaign';
 
 export function useCreateCampaign() {
   return useMutation({

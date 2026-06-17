@@ -1,4 +1,4 @@
-import { CreateCampaignPayload, CreateCampaignResponse } from "./../types/campaign";
+import { CreateCampaignPayload, CreateCampaignResponse } from "../../../types/campaign";
 
 export async function postCampaign(
   payload: CreateCampaignPayload,

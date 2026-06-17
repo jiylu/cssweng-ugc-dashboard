@@ -11,7 +11,7 @@ export default function CreatorNavigation() {
         + New Campaign
       </Button>
       <div className="flex flex-col justify-start items-start">
-        <Button variant="ghost" onClick={() => router.push('/creatorDashboard')} className="justify-start items-center cursor-pointer w-57 h-12.5 text-lg">
+        <Button variant="ghost" onClick={() => router.push('/creator-dashboard')} className="justify-start items-center cursor-pointer w-57 h-12.5 text-lg">
           <LayoutPanelTop />Dashboard
         </Button>
         <Button variant="ghost" className="justify-start items-center cursor-pointer w-57 h-12.5 text-lg">
