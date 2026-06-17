@@ -89,8 +89,6 @@ export default function CampaignDetailsSection({ form, refs }: CampaignDetailsFo
               value={form.startDate}
               onChange={(e) => form.setStartDate(e.target.value)}
               data-empty={!form.startDate}
-              // FIX 1: Removed 'border-b border-border'
-              // FIX 2: Added '[&::-webkit-calendar-picker-indicator]:hidden'
               className="w-full border-0 py-1.25 text-sm text-foreground bg-transparent outline-none transition-colors duration-200 rounded-xs relative z-10 cursor-text [&::-webkit-calendar-picker-indicator]:hidden"
             />
 

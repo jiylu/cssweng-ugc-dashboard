@@ -6,12 +6,81 @@ import CampaignDetailsSection from "../components/campaign-details-form";
 import ClientDetailsForm from "../components/client-details-form";
 import { Separator } from "@/components/ui/separator";
 import DeliverablesForm from "../components/deliverables-form";
+import Button from "@/src/components/atoms/button";
+import { SendHorizontal } from "lucide-react";
+import { useAuth } from "@/src/app/hooks/useAuth";
+import { useCreateCampaign } from "../hooks/useCreateCampaignMutation";
+import { toast } from "sonner";
+import { CreateCampaignPayload } from "../types/campaign-setup.types";
+import { useRouter } from "next/navigation"
+import { Badge } from "@/components/ui/badge";
+import { Spinner } from "@/components/ui/spinner";
+
 
 export default function CreateCampaign() {
   const form = useCampaignForm();
   const startDateRef = useRef<HTMLInputElement>(null);
   const endDateRef = useRef<HTMLInputElement>(null);
-  
+  const { user, loading } = useAuth();
+  const { mutate: submitCampaign, isPending } = useCreateCampaign();
+  const router = useRouter();
+
+  if (loading) return (
+    <div className="flex mt-5 justify-center">
+      <Badge variant="outline">
+        <Spinner data-icon="inline-start" />
+        Loading...
+      </Badge>
+    </div>
+  );
+
+  if (!user) return null;
+
+  const buildPayload = (): CreateCampaignPayload => ({
+    campaign: {
+      ugcId: user.user_id,
+      projectName: form.projectName,
+      description: form.campaignDescription,
+      startDate: new Date(form.startDate).toISOString(),
+      endDate: new Date(form.endDate).toISOString(),
+    },
+    deliverables: form.deliverables.map(({ ...rest }) => ({
+      deliverableTitle: rest.deliverable_title,
+      description: rest.description,
+      deliverableType: rest.deliverable_type as 'COLLABORATION' | 'UGC',
+      deadline: new Date(rest.deadline).toISOString(),
+      pricing: parseFloat(rest.pricing.replace(/,/g, '') || '0'),
+    })),
+    proposal: {
+      clientEmail: form.contactEmail,
+    },
+  });
+
+  const handleSaveDraft = () => {
+    //if (!form.validateForm()) return;
+    submitCampaign(
+      { payload: buildPayload() },
+      {
+        onSuccess: () => toast.success("Draft saved!"),
+        onError: (err) => toast.error(err.message),
+      }
+    );
+  };
+
+  const handleSendProposal = () => {
+    //if (!form.validateForm()) return;
+    submitCampaign(
+      { payload: buildPayload() },
+      {
+        onSuccess: () => {
+          toast.success("Proposal sent!");
+          router.push('/creator-dashboard');
+        },
+        onError: (err) => toast.error(err.message),
+      }
+    );
+  };
+
   return (
     <main className="flex flex-row w-full h-screen overflow-hidden">
       <CreatorSidebar />
@@ -40,18 +109,41 @@ export default function CreateCampaign() {
               }}
             />
 
-            <ClientDetailsForm 
+            <ClientDetailsForm
               contactEmail={form.contactEmail}
               setContactEmail={form.setContactEmail}
               errors={form.errors}
             />
 
-            <DeliverablesForm />
+            <DeliverablesForm
+              deliverables={form.deliverables}
+              addDeliverable={form.addDeliverable}
+              updateDeliverable={form.updateDeliverable}
+              adjustPrice={form.adjustPrice}
+              errors={form.errors}
+            />
+
+            <div className="flex justify-end gap-4 mt-8 col-span-full">
+              <Button
+                variant="outline"
+                size="xl"
+                onClick={handleSaveDraft}
+                disabled={isPending}
+              >
+                {isPending ? "Saving..." : "Save Draft"}
+              </Button>
+              <Button
+                className="bg-[#6b1fa8] text-primary-foreground hover:bg-[#581982] hover:-translate-y-px transition-all duration-150"
+                size="xl"
+                onClick={handleSendProposal}
+                disabled={isPending}
+              >
+                <SendHorizontal size={16} className="mb-1" />
+                {isPending ? "Sending..." : "Send Proposal"}
+              </Button>
+            </div>
           </div>
         </div>
-
-
-
       </section>
     </main>
   )

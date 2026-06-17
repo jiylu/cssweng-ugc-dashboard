@@ -6,7 +6,7 @@ export const deliverableSchema = z.object({
       .max(50, "Deliverable name must be less than 50 characters."),
 
   description: z.string()
-      .min(1, "Deliverable description is required.")
+      .min(20, "Deliverable description is required.")
       .max(100, "Description must be less than 100 characters."),
   
   deliverableType: z.string()
