@@ -1,4 +1,4 @@
-import CreatorSidebar from "../components/creator-sidebar";
+import CreatorSidebar from "../../../../components/organisms/creator-sidebar";
 import Image from "next/image";
 import { Separator } from "@/components/ui/separator";
 import { CheckCircle, Filter, Megaphone, NotebookPen, TrendingUp } from "lucide-react";
