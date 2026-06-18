@@ -17,7 +17,7 @@ export default function CreatorNavigation() {
         <Button variant="ghost" className="justify-start items-center cursor-pointer w-57 h-12.5 text-lg">
           <Megaphone />Campaigns
         </Button>
-        <Button variant="ghostactive" onClick={() => router.push('/create-campaign')} className="justify-start items-center cursor-pointer w-57 h-12.5 text-lg">
+        <Button variant="ghost" onClick={() => router.push('/create-campaign')} className="justify-start items-center cursor-pointer w-57 h-12.5 text-lg">
           <NotebookPen />Proposals
         </Button>
         <Button variant="ghost" className="justify-start items-center cursor-pointer w-57 h-12.5 text-lg">
