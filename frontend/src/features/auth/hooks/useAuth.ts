@@ -17,7 +17,7 @@ export function useAuth(redirectIfUnauthenticated = true) {
         setUser(user);
       })
       .finally(() => setLoading(false));
-  }, []);
+  }, [redirectIfUnauthenticated, router]);
 
   return { user, loading };
 }
