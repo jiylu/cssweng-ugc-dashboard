@@ -8,7 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import DeliverablesForm from "../components/deliverables-form";
 import Button from "@/src/components/atoms/button";
 import { SendHorizontal } from "lucide-react";
-import { useAuth } from "@/src/app/hooks/useAuth";
+import { useAuth } from "@/src/features/auth/hooks/useAuth";
 import { useCreateCampaign } from "../hooks/useCreateCampaignMutation";
 import { toast } from "sonner";
 import { CreateCampaignPayload } from "../types/campaign-setup.types";

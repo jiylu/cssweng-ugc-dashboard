@@ -6,7 +6,7 @@ import CreatorAnalyticsCard from "../components/creator-analytics-card";
 import CreatorTodoCard from "../components/creator-todo-card";
 import Button from "@/src/components/atoms/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { useAuth } from "@/src/app/hooks/useAuth";
+import { useAuth } from "@/src/features/auth/hooks/useAuth";
 import { Badge } from "@/components/ui/badge";
 import { Spinner } from "@/components/ui/spinner";
 
