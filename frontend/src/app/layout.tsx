@@ -3,8 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
 import { cn } from "@/lib/utils";
-import Providers from "./../../components/providers/tanstackProvider"
 import { Toaster } from 'sonner';
+import Providers from "../providers/tanstackProvider";
 
 const andersonGrotesk = localFont({
   src: [

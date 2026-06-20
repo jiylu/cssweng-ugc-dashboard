@@ -1,21 +1,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { loginUser } from "@/lib/users-api";
-import { loginSchema } from "../schemas/login.schema";
-
-type LoginForm = {
-  email: string;
-  password: string;
-};
-
-type LoginErrors = {
-  email: string;
-  password: string;
-};
+import { loginUser } from "@/src/features/auth/services/users-api";
+import { LoginForm } from "../types/login-types";
+import { validateLoginFields } from "../utils/validators";
 
 export function useLogin() {
   const [form, setForm] = useState<LoginForm>({ email: "", password: "" });
-  const [errors, setErrors] = useState<LoginErrors>({ email: "", password: "" });
+  const [errors, setErrors] = useState<LoginForm>({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [submitSuccess, setSubmitSuccess] = useState("");
@@ -30,29 +21,14 @@ export function useLogin() {
     setForm(prev => ({ ...prev, [field]: value }));
   };
 
-  const validate = (): LoginErrors => {
-    const newErrors: LoginErrors = { email: "", password: "" };
-    const result = loginSchema.safeParse(form);
-
-    if (!result.success) {
-      for (const issue of result.error.issues) {
-        const field = issue.path[0] as keyof LoginErrors;
-        if (field && !newErrors[field]) {
-          newErrors[field] = issue.message;
-        }
-      }
-    }
-
-    return newErrors;
-  };
-
   const togglePasswordVisibility = () => setShowPassword(prev => !prev);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setSubmitError("");
     setSubmitSuccess("");
-    const newErrors = validate();
+
+    const newErrors = validateLoginFields(form);
 
     if (newErrors.email || newErrors.password) {
       setErrors(newErrors);

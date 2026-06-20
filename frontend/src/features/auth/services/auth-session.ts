@@ -1,4 +1,4 @@
-import { API_BASE_URL, parseApiError } from "@/lib/users-api";
+import { API_BASE_URL, parseApiError } from "@/src/features/auth/services/users-api";
 
 export type AuthUser = {
   user_id: string;

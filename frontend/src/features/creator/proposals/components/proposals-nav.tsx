@@ -1,4 +1,3 @@
-import { Separator } from "@/components/ui/separator";
 import Button from "@/src/components/atoms/button";
 import { FilePen, Files, StickyNote } from "lucide-react";
 //import Image from "next/image";

@@ -39,7 +39,11 @@ export default function LoginCard({ loginForm }: LoginCardProps) {
                   onChange={e => loginForm.updateField("email", e.target.value)}
                   disabled={loginForm.isSubmitting}
                 />
-                {loginForm.errors.email && <p role="alert" style={{ color: "#ff6467" }}>{loginForm.errors.email}</p>}
+                {loginForm.errors.email && (
+                  <p role="alert" className="text-[#ff6467] text-sm">
+                    {loginForm.errors.email}
+                  </p>
+                )}
               </div>
 
               {/* password input */}
@@ -126,7 +130,7 @@ export default function LoginCard({ loginForm }: LoginCardProps) {
                 type="button"
                 variant="outline"
                 className="cursor-pointer w-full"
-                onClick={() => router.push('/creatorRegister')}
+                onClick={() => router.push('/creator-register')}
                 disabled={loginForm.isSubmitting}
               >
                 Register
