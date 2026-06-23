@@ -22,7 +22,7 @@ export default function Login() {
           />
 
           <h1 className="text-[64px] text-[#141518] leading-tight tracking-[-0.5px]">
-            Welcome Back
+            Welcome back
           </h1>
 
           <LoginCard
