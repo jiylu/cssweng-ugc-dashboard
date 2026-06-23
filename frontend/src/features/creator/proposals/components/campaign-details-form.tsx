@@ -1,4 +1,6 @@
 import { Calendar } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 
 export interface CampaignDetailsFormProps {
   form: {
@@ -58,7 +60,7 @@ export default function CampaignDetailsSection({ form, refs }: CampaignDetailsFo
           CAMPAIGN NAME
         </label>
 
-        <input
+        <Input
           value={form.projectName}
           onChange={(e) => form.setProjectName(e.target.value)}
           type="text"
@@ -83,7 +85,7 @@ export default function CampaignDetailsSection({ form, refs }: CampaignDetailsFo
               onClick={openStartDatePicker}
             />
 
-            <input
+            <Input
               ref={startDateRef}
               type="date"
               value={form.startDate}
@@ -112,7 +114,7 @@ export default function CampaignDetailsSection({ form, refs }: CampaignDetailsFo
               onClick={openEndDatePicker}
             />
 
-            <input
+            <Input
               ref={endDateRef}
               type="date"
               value={form.endDate}
@@ -135,10 +137,10 @@ export default function CampaignDetailsSection({ form, refs }: CampaignDetailsFo
       <div className={"flex flex-col gap-0"}>
         <label className="text-sm text-muted-foreground uppercase tracking-[0.03em] mt-0">CAMPAIGN DESCRIPTION</label>
         
-        <textarea
+        <Textarea
           value={form.campaignDescription}
           onChange={(e) => form.setCampaignDescription(e.target.value)}
-          className="w-full min-h-25 resize-y border border-muted-foreground bg-transparent p-3 text-sm text-muted-foreground placeholder:text-muted-foreground outline-none transition-colors focus:border-ring focus:text-foreground"
+          className="w-full min-h-25 resize-y border border-muted-foreground bg-transparent p-3 text-sm text-muted-foreground placeholder:text-muted-foreground outline-none transition-colors focus:border-ring focus:text-foreground resize-none"
           placeholder="Enter Description"
         />
 
