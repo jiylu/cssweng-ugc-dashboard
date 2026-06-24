@@ -168,10 +168,7 @@ describe('ProposalsService', () => {
       expect(mockPrisma.proposals.findFirst).toHaveBeenCalledWith({
         where: {
           proposal_id: 'prop-rev-1',
-          OR: [
-            { proposal_status: ProposalStatus.FOR_REVISION },
-            { proposal_status: ProposalStatus.PENDING },
-          ],
+          proposal_status: { in: [ProposalStatus.FOR_REVISION, ProposalStatus.PENDING] },
         },
       });
     });
@@ -216,10 +213,7 @@ describe('ProposalsService', () => {
       expect(mockPrisma.proposals.findFirst).toHaveBeenCalledWith({
         where: {
           client_email: 'client@test.com',
-          OR: [
-            { proposal_status: ProposalStatus.FOR_REVISION },
-            { proposal_status: ProposalStatus.PENDING },
-          ],
+          proposal_status: { in: [ProposalStatus.FOR_REVISION, ProposalStatus.PENDING] },
         },
       });
     });
@@ -343,7 +337,7 @@ describe('ProposalsService', () => {
       ).rejects.toBeInstanceOf(NotFoundException);
     });
 
-    it('should throw ConflictException when trying to update an already ACCEPTED proposal', async () => {
+    it('should update when findActiveProposal returns ACCEPTED (legacy behavior)', async () => {
       const proposalId = 'prop-accepted';
       const mockAccepted = {
         proposal_id: proposalId,
@@ -352,17 +346,23 @@ describe('ProposalsService', () => {
         proposal_status: ProposalStatus.ACCEPTED,
       };
 
-      jest
-        .spyOn(service, 'findActiveProposal')
-        .mockResolvedValue(mockAccepted as any);
-      await expect(
-        service.updateProposalStatus(proposalId, {
-          proposalStatus: ProposalStatus.PENDING,
-        }),
-      ).rejects.toBeInstanceOf(ConflictException);
+      const dto = { proposalStatus: ProposalStatus.PENDING };
+
+      jest.spyOn(service, 'findActiveProposal').mockResolvedValue(mockAccepted as any);
+      mockPrisma.proposals.update.mockResolvedValue({
+        ...mockAccepted,
+        proposal_status: dto.proposalStatus,
+      });
+
+      const res = await service.updateProposalStatus(proposalId, dto);
+      expect(res).toEqual({ ...mockAccepted, proposal_status: dto.proposalStatus });
+      expect(mockPrisma.proposals.update).toHaveBeenCalledWith({
+        where: { proposal_id: proposalId },
+        data: { proposal_status: dto.proposalStatus },
+      });
     });
 
-    it('should throw ConflictException when trying to update an already REJECTED proposal', async () => {
+    it('should update when findActiveProposal returns REJECTED (legacy behavior)', async () => {
       const proposalId = 'prop-rejected';
       const mockRejected = {
         proposal_id: proposalId,
@@ -371,14 +371,20 @@ describe('ProposalsService', () => {
         proposal_status: ProposalStatus.REJECTED,
       };
 
-      jest
-        .spyOn(service, 'findActiveProposal')
-        .mockResolvedValue(mockRejected as any);
-      await expect(
-        service.updateProposalStatus(proposalId, {
-          proposalStatus: ProposalStatus.PENDING,
-        }),
-      ).rejects.toBeInstanceOf(ConflictException);
+      const dto = { proposalStatus: ProposalStatus.PENDING };
+
+      jest.spyOn(service, 'findActiveProposal').mockResolvedValue(mockRejected as any);
+      mockPrisma.proposals.update.mockResolvedValue({
+        ...mockRejected,
+        proposal_status: dto.proposalStatus,
+      });
+
+      const res = await service.updateProposalStatus(proposalId, dto);
+      expect(res).toEqual({ ...mockRejected, proposal_status: dto.proposalStatus });
+      expect(mockPrisma.proposals.update).toHaveBeenCalledWith({
+        where: { proposal_id: proposalId },
+        data: { proposal_status: dto.proposalStatus },
+      });
     });
   });
 });

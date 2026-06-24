@@ -22,6 +22,7 @@ describe('CampaignSetupService', () => {
 
   const mockDeliverableService = {
     createDeliverable: jest.fn(),
+    createManyDeliverables: jest.fn(),
   };
 
   const mockProposalService = {
@@ -114,9 +115,10 @@ describe('CampaignSetupService', () => {
 
       mockCampaignService.createCampaign.mockResolvedValue(mockCampaign);
       mockProposalService.createProposal.mockResolvedValue(mockProposal);
-      mockDeliverableService.createDeliverable
-        .mockResolvedValueOnce(mockDeliverable(1))
-        .mockResolvedValueOnce(mockDeliverable(2));
+      mockDeliverableService.createManyDeliverables.mockResolvedValue([
+        mockDeliverable(1),
+        mockDeliverable(2),
+      ]);
 
       const res = await service.createFullCampaignService(dto);
 
@@ -140,9 +142,10 @@ describe('CampaignSetupService', () => {
         {},
       );
 
-      expect(mockDeliverableService.createDeliverable).toHaveBeenCalledTimes(2);
-      expect(mockDeliverableService.createDeliverable).toHaveBeenCalledWith(
-        { ...dto.deliverables[0], campaignId: mockCampaign.campaign_id },
+      expect(mockDeliverableService.createManyDeliverables).toHaveBeenCalledTimes(1);
+      expect(mockDeliverableService.createManyDeliverables).toHaveBeenCalledWith(
+        mockCampaign.campaign_id,
+        dto.deliverables.map((d) => ({ ...d, campaignId: mockCampaign.campaign_id })),
         {},
       );
     });

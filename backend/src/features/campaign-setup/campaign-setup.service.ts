@@ -22,6 +22,10 @@ export class CampaignSetupService {
   private readonly logger = new Logger(CampaignSetupService.name);
 
   async createFullCampaignService(dto: CreateCampaignRequestDto) {
+    this.logger.debug(
+      `Creating create campaign transaction for campaign ${dto.campaign.projectName} for user ${dto.campaign.ugcId}`,
+    );
+
     const result = await this.prisma.$transaction(async (tx) => {
       const totalPrice = dto.deliverables.reduce(
         (sum, d) => sum + Number(d.pricing),
@@ -38,13 +42,13 @@ export class CampaignSetupService {
           { ...dto.proposal, campaignId: campaign.campaign_id },
           tx,
         ),
-        Promise.all(
-          dto.deliverables.map((d) =>
-            this.deliverableService.createDeliverable(
-              { ...d, campaignId: campaign.campaign_id },
-              tx,
-            ),
-          ),
+        this.deliverableService.createManyDeliverables(
+          campaign.campaign_id,
+          dto.deliverables.map((d) => ({
+            ...d,
+            campaignId: campaign.campaign_id,
+          })),
+          tx,
         ),
       ]);
 
