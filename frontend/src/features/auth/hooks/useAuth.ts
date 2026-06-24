@@ -1,23 +1,21 @@
-import { useEffect, useState } from "react";
-import { getCurrentUser, AuthUser } from "@/src/features/auth/services/auth-session";
-import { useRouter } from "next/navigation";
+import { useEffect } from "react"
+import { useQuery } from "@tanstack/react-query"
+import { getCurrentUser } from "@/src/features/auth/services/auth-session"
+import { useRouter } from "next/navigation"
 
 export function useAuth(redirectIfUnauthenticated = true) {
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [loading, setLoading] = useState(true);
-  const router = useRouter();
+  const router = useRouter()
+
+  const { data: user, isLoading } = useQuery({
+    queryKey: ["auth-user"],
+    queryFn: getCurrentUser,
+  })
 
   useEffect(() => {
-    getCurrentUser()
-      .then((user) => {
-        if (!user && redirectIfUnauthenticated) {
-          router.replace("/login");
-          return;
-        }
-        setUser(user);
-      })
-      .finally(() => setLoading(false));
-  }, [redirectIfUnauthenticated, router]);
+    if (!isLoading && !user && redirectIfUnauthenticated) {
+      router.replace("/login")
+    }
+  }, [user, isLoading, redirectIfUnauthenticated, router])
 
-  return { user, loading };
+  return { user: user ?? null, loading: isLoading }
 }
