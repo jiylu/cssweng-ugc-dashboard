@@ -130,10 +130,10 @@ export default function CreateCampaign() {
           <div className="grid grid-cols-2 gap-8 my-8">
             <CampaignDetailsSection
               form={form}
-              refs={{
-                startDateRef,
-                endDateRef,
-              }}
+              // refs={{
+              //   startDateRef,
+              //   endDateRef,
+              // }}
             />
 
             <ClientDetailsForm

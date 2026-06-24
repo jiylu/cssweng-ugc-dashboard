@@ -43,8 +43,14 @@ export function DatePickerInput({ value, onChange, placeholder = "mm/dd/yyyy" }:
               month={month}
               onMonthChange={setMonth}
               onSelect={(date: Date | undefined) => {
-                onChange(date ? date.toISOString() : "")
-                setInputText(formatDate(date))
+                if (date) {
+                  const utc = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()))
+                  onChange(utc.toISOString())
+                  setInputText(formatDate(date))
+                } else {
+                  onChange("")
+                  setInputText("")
+                }
                 setOpen(false)
               }}
             />
