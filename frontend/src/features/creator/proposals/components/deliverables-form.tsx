@@ -1,4 +1,3 @@
-//import { Input } from "@/components/ui/input";
 import { Calendar } from "@/components/ui/calendar";
 import { Input } from "@/components/ui/input";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group"
@@ -10,9 +9,8 @@ import { cn } from "@/lib/utils";
 import Button from "@/src/components/atoms/button";
 import { Card } from "@/src/components/atoms/card";
 import { Deliverable } from "@/src/features/creator/proposals/types/deliverables.types";
-import { format } from "date-fns"
 import { ChevronDown, ChevronUp } from "lucide-react";
-import { CalendarIcon } from "lucide-react";
+import { DatePickerInput } from "@/src/components/molecules/date-picker-input";
 export interface DeliverablesFormProps {
   deliverables: Deliverable[]
   errors: Record<string, string>;
@@ -96,30 +94,10 @@ export default function DeliverablesForm({ deliverables, addDeliverable, updateD
 
               {/* Deadline */}
               <TableCell>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      type="button"
-                      className={cn(
-                        "w-[212px] justify-between border-0 border-b border-border py-1 text-sm text-left bg-transparent outline-none transition-colors duration-200 hover:border-accent focus:border-accent",
-                        !item.deadline && "text-muted-foreground italic"
-                      )}
-                    >
-                      {item.deadline ? format(new Date(item.deadline), "PPP") : <span>Set a deadline</span>}
-                      <CalendarIcon/>
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={item.deadline ? new Date(item.deadline) : undefined}
-                      onSelect={(date) =>
-                        updateDeliverable(item.id, 'deadline', date ? date.toISOString() : '')
-                      }
-                    />
-                  </PopoverContent>
-                </Popover>
+                <DatePickerInput
+                  value={item.deadline}
+                  onChange={(iso) => updateDeliverable(item.id, 'deadline', iso)}
+                />
                 {errors.deadline && (
                   <p className="text-xs mt-1" style={{ color: "#ff6467" }}>{errors.deadline}</p>
                 )}
