@@ -7,6 +7,9 @@ export function isValidDate(date: Date | undefined) {
 
 export function formatDate(date: Date | undefined) {
   if (!date) return ""
-  if (date.getFullYear() < 1000) return ""
-  return date.toLocaleDateString("en-US", { month: "2-digit", day: "2-digit", year: "numeric" })
+  const year = date.getUTCFullYear()
+  if (year < 1000) return ""
+  const month = String(date.getUTCMonth() + 1).padStart(2, "0")
+  const day = String(date.getUTCDate()).padStart(2, "0")
+  return `${month}/${day}/${year}`
 }

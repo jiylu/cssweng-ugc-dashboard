@@ -7,15 +7,49 @@ export function useDatePickerInput(value: string, onChange: (iso: string) => voi
   const [month, setMonth] = React.useState<Date | undefined>(selectedDate)
   const [inputText, setInputText] = React.useState(formatDate(selectedDate))
 
-  function handleTextChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const raw = e.target.value
-    setInputText(raw)
-    const parsed = new Date(raw)
-    if (isValidDate(parsed)) {
-      setMonth(parsed)
-      onChange(parsed.toISOString())
-    }
+function handleTextChange(e: React.ChangeEvent<HTMLInputElement>) {
+  const raw = e.target.value
+  setInputText(raw)
+
+  if (!raw) {
+    onChange("")
+    return
   }
 
-  return { selectedDate, open, setOpen, month, setMonth, inputText, setInputText, handleTextChange }
+  const parts = raw.split("/")
+  if (parts.length === 3) {
+    const [month, day, year] = parts
+    const m = Number(month)
+    const d = Number(day)
+    const y = Number(year)
+
+    const utc = new Date(Date.UTC(y, m - 1, d))
+
+    // check if date rolled over (e.g. 11/31 becomes 12/01)
+    const isExact =
+      utc.getUTCFullYear() === y &&
+      utc.getUTCMonth() + 1 === m &&
+      utc.getUTCDate() === d
+
+    if (isValidDate(utc) && isExact) {
+      setMonth(utc)
+      onChange(utc.toISOString())
+    } else {
+      onChange("")
+    }
+  } else {
+    onChange("")
+  }
+}
+
+  return { 
+          selectedDate, 
+          open, 
+          setOpen, 
+          month, 
+          setMonth, 
+          inputText, 
+          setInputText, 
+          handleTextChange 
+         }
 }
