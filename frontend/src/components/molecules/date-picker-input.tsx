@@ -1,0 +1,55 @@
+"use client"
+import { CalendarIcon } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from "@/components/ui/input-group";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { useDatePickerInput, formatDate } from "@/src/hooks/useDatePickerInput";
+
+interface DatePickerInputProps {
+  value: string
+  onChange: (iso: string) => void
+  placeholder?: string
+}
+
+export function DatePickerInput({ value, onChange, placeholder = "mm/dd/yyyy" }: DatePickerInputProps) {
+  const { selectedDate, open, setOpen, month, setMonth, inputText, setInputText, handleTextChange } = useDatePickerInput(value, onChange)
+
+  return (
+    <InputGroup>
+      <InputGroupInput
+        value={inputText}
+        placeholder={placeholder}
+        onChange={handleTextChange}
+        onKeyDown={(e) => {
+          if (e.key === "ArrowDown") {
+            e.preventDefault()
+            setOpen(true)
+          }
+        }}
+      />
+      <InputGroupAddon align="inline-end">
+        <Popover open={open} onOpenChange={setOpen}>
+          <PopoverTrigger asChild>
+            <InputGroupButton variant="ghost" size="icon-xs" aria-label="Select date">
+              <CalendarIcon />
+              <span className="sr-only">Select date</span>
+            </InputGroupButton>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto overflow-hidden p-0" align="end" alignOffset={-8} sideOffset={10}>
+            <Calendar
+              mode="single"
+              selected={selectedDate}
+              month={month}
+              onMonthChange={setMonth}
+              onSelect={(date: Date | undefined) => {
+                onChange(date ? date.toISOString() : "")
+                setInputText(formatDate(date))
+                setOpen(false)
+              }}
+            />
+          </PopoverContent>
+        </Popover>
+      </InputGroupAddon>
+    </InputGroup>
+  )
+}
