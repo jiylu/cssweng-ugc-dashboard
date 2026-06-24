@@ -38,13 +38,13 @@ export class CampaignSetupService {
           { ...dto.proposal, campaignId: campaign.campaign_id },
           tx,
         ),
-        Promise.all(
-          dto.deliverables.map((d) =>
-            this.deliverableService.createDeliverable(
-              { ...d, campaignId: campaign.campaign_id },
-              tx,
-            ),
-          ),
+        this.deliverableService.createManyDeliverables(
+          campaign.campaign_id,
+          dto.deliverables.map((d) => ({
+            ...d,
+            campaignId: campaign.campaign_id,
+          })),
+          tx,
         ),
       ]);
 
