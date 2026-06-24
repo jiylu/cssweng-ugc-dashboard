@@ -87,25 +87,6 @@ describe('DeliverablesService', () => {
       });
     });
 
-    it('should throw NotFoundException when campaign id is invalid', async () => {
-      const dto: CreateDeliverableDTO = {
-        campaignId: 'missing-camp',
-        deliverableTitle: 'Title',
-        description: 'This description is long enough to pass DTO rules.',
-        deadline: new Date().toISOString(),
-        pricing: 100,
-        deliverableType: DeliverableType.COLLABORATION,
-      };
-
-      mockCampaignService.findOneCampaign.mockRejectedValue(
-        new NotFoundException(),
-      );
-
-      await expect(service.createDeliverable(dto)).rejects.toBeInstanceOf(
-        NotFoundException,
-      );
-    });
-
     it('should reject on invalid inputs', async () => {
       const dto: CreateDeliverableDTO = {
         campaignId: 'camp-1',
@@ -316,6 +297,157 @@ describe('DeliverablesService', () => {
           deliverable_type: dto.deliverableType,
         },
       });
+    });
+  });
+
+  describe('createManyDeliverables', () => {
+    it('should create one deliverable', async () => {
+      const campaignId = 'camp-1';
+      const deliverables = [
+        {
+          campaignId,
+          deliverableTitle: 'D1',
+          description: 'Description long enough for D1',
+          deadline: new Date().toISOString(),
+          pricing: 100,
+          deliverableType: DeliverableType.COLLABORATION,
+        },
+      ];
+
+      mockCampaignService.findOneCampaign.mockResolvedValue({
+        campaign_id: campaignId,
+      });
+
+      mockPrisma.deliverables.create.mockResolvedValueOnce({
+        deliverable_id: 'd1',
+        campaign_id: campaignId,
+        deliverable_title: deliverables[0].deliverableTitle,
+        description: deliverables[0].description,
+        deadline: new Date(deliverables[0].deadline),
+        pricing: new Prisma.Decimal(deliverables[0].pricing),
+        deliverable_type: deliverables[0].deliverableType,
+        created_at: new Date(),
+      });
+
+      const res = await service.createManyDeliverables(campaignId, deliverables);
+      expect(res).toHaveLength(1);
+      expect(mockPrisma.deliverables.create).toHaveBeenCalledTimes(1);
+    });
+
+    it('should create two deliverables', async () => {
+      const campaignId = 'camp-1';
+      const deliverables = Array.from({ length: 2 }).map((_, i) => ({
+        campaignId,
+        deliverableTitle: `D${i + 1}`,
+        description: `Description for D${i + 1} long enough`,
+        deadline: new Date().toISOString(),
+        pricing: 100 + i * 50,
+        deliverableType: DeliverableType.UGC,
+      }));
+
+      mockCampaignService.findOneCampaign.mockResolvedValue({
+        campaign_id: campaignId,
+      });
+
+      mockPrisma.deliverables.create
+        .mockResolvedValueOnce({
+          deliverable_id: 'd1',
+          campaign_id: campaignId,
+          deliverable_title: deliverables[0].deliverableTitle,
+          description: deliverables[0].description,
+          deadline: new Date(deliverables[0].deadline),
+          pricing: new Prisma.Decimal(deliverables[0].pricing),
+          deliverable_type: deliverables[0].deliverableType,
+          created_at: new Date(),
+        })
+        .mockResolvedValueOnce({
+          deliverable_id: 'd2',
+          campaign_id: campaignId,
+          deliverable_title: deliverables[1].deliverableTitle,
+          description: deliverables[1].description,
+          deadline: new Date(deliverables[1].deadline),
+          pricing: new Prisma.Decimal(deliverables[1].pricing),
+          deliverable_type: deliverables[1].deliverableType,
+          created_at: new Date(),
+        });
+
+      const res = await service.createManyDeliverables(campaignId, deliverables);
+      expect(res).toHaveLength(2);
+      expect(mockPrisma.deliverables.create).toHaveBeenCalledTimes(2);
+    });
+
+    it('should create three deliverables', async () => {
+      const campaignId = 'camp-1';
+      const deliverables = Array.from({ length: 3 }).map((_, i) => ({
+        campaignId,
+        deliverableTitle: `D${i + 1}`,
+        description: `Description for D${i + 1} long enough`,
+        deadline: new Date().toISOString(),
+        pricing: 100 + i * 25,
+        deliverableType: DeliverableType.VIDEO,
+      }));
+
+      mockCampaignService.findOneCampaign.mockResolvedValue({
+        campaign_id: campaignId,
+      });
+
+      mockPrisma.deliverables.create
+        .mockResolvedValueOnce({
+          deliverable_id: 'd1',
+          campaign_id: campaignId,
+          deliverable_title: deliverables[0].deliverableTitle,
+          description: deliverables[0].description,
+          deadline: new Date(deliverables[0].deadline),
+          pricing: new Prisma.Decimal(deliverables[0].pricing),
+          deliverable_type: deliverables[0].deliverableType,
+          created_at: new Date(),
+        })
+        .mockResolvedValueOnce({
+          deliverable_id: 'd2',
+          campaign_id: campaignId,
+          deliverable_title: deliverables[1].deliverableTitle,
+          description: deliverables[1].description,
+          deadline: new Date(deliverables[1].deadline),
+          pricing: new Prisma.Decimal(deliverables[1].pricing),
+          deliverable_type: deliverables[1].deliverableType,
+          created_at: new Date(),
+        })
+        .mockResolvedValueOnce({
+          deliverable_id: 'd3',
+          campaign_id: campaignId,
+          deliverable_title: deliverables[2].deliverableTitle,
+          description: deliverables[2].description,
+          deadline: new Date(deliverables[2].deadline),
+          pricing: new Prisma.Decimal(deliverables[2].pricing),
+          deliverable_type: deliverables[2].deliverableType,
+          created_at: new Date(),
+        });
+
+      const res = await service.createManyDeliverables(campaignId, deliverables);
+      expect(res).toHaveLength(3);
+      expect(mockPrisma.deliverables.create).toHaveBeenCalledTimes(3);
+    });
+
+    it("should reject when campaign id doesn't exist", async () => {
+      const campaignId = 'missing-camp';
+      const deliverables = [
+        {
+          campaignId,
+          deliverableTitle: 'D1',
+          description: 'Description',
+          deadline: new Date().toISOString(),
+          pricing: 100,
+          deliverableType: DeliverableType.COLLABORATION,
+        },
+      ];
+
+      mockCampaignService.findOneCampaign.mockRejectedValue(
+        new NotFoundException(),
+      );
+
+      await expect(
+        service.createManyDeliverables(campaignId, deliverables),
+      ).rejects.toBeInstanceOf(NotFoundException);
     });
   });
 });
