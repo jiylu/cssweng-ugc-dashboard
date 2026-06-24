@@ -25,7 +25,6 @@ function handleTextChange(e: React.ChangeEvent<HTMLInputElement>) {
 
     const utc = new Date(Date.UTC(y, m - 1, d))
 
-    // check if date rolled over (e.g. 11/31 becomes 12/01)
     const isExact =
       utc.getUTCFullYear() === y &&
       utc.getUTCMonth() + 1 === m &&
