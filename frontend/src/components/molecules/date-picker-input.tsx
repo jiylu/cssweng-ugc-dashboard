@@ -3,7 +3,8 @@ import { CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from "@/components/ui/input-group";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { useDatePickerInput, formatDate } from "@/src/hooks/useDatePickerInput";
+import { useDatePickerInput } from "@/src/hooks/useDatePickerInput";
+import { formatDate } from "@/src/utils/date"
 
 interface DatePickerInputProps {
   value: string
