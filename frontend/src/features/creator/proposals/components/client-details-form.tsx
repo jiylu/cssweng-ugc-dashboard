@@ -25,7 +25,7 @@ export default function ClientDetailsForm({ contactEmail, setContactEmail, error
 
         <Input
           type="text"
-          className="w-full border-0 border-b border-border py-1.25 text-sm text-foreground bg-transparent outline-none transition-colors duration-200"
+          className="border-muted"
           placeholder="Enter name of contact person"
         />
       </div>
@@ -39,7 +39,7 @@ export default function ClientDetailsForm({ contactEmail, setContactEmail, error
           value={contactEmail}
           onChange={(e) => setContactEmail(e.target.value)}
           type="email"
-          className="w-full border-0 border-b border-border py-1.25 text-sm text-foreground bg-transparent outline-none transition-colors duration-200"
+          className="border-muted"
           placeholder="Enter email of contact person"
         />
         {errors.contactEmail && (

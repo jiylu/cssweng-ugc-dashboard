@@ -52,7 +52,7 @@ export default function DeliverablesForm({ deliverables, addDeliverable, updateD
               {/* Deliverable Name */}
               <TableCell>
                 <Input
-                  className="w-62 border-0 border-b border-border py-1.25 text-sm text-foreground bg-transparent outline-none transition-colors duration-200"
+                  className="border-muted"
                   placeholder="Enter deliverable name"
                   value={item.deliverable_title}
                   onChange={(e) => updateDeliverable(item.id, 'deliverable_title', e.target.value)}
@@ -62,7 +62,7 @@ export default function DeliverablesForm({ deliverables, addDeliverable, updateD
               {/* Description */}
               <TableCell>
                 <Textarea
-                  className="w-62 min-h-[20px] border-0 border-b border-border py-1.25 text-sm text-foreground bg-transparent outline-none transition-colors duration-200 resize-none"
+                  className="w-62 min-h-[20px] border-muted resize-none"
                   placeholder="Enter description"
                   value={item.description}
                   onChange={(e) => updateDeliverable(item.id, 'description', e.target.value)}
@@ -106,8 +106,8 @@ export default function DeliverablesForm({ deliverables, addDeliverable, updateD
               {/* Pricing */}
               <TableCell>
                 <div className="flex flex-col">
-                  <div className="flex items-center gap-2 border-b border-border pb-1">
-                    <InputGroup className="max-w-xs border-0">
+                  <div className="flex items-center gap-2">
+                    <InputGroup className="max-w-xs border-muted">
                       <InputGroupInput 
                         placeholder="0.00" 
                         className="w-full border-0 p-0 h-auto text-sm text-foreground bg-transparent shadow-none focus-visible:ring-0"
