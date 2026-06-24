@@ -34,7 +34,7 @@ export default function CampaignDetailsSection({ form }: CampaignDetailsFormProp
           value={form.projectName}
           onChange={(e) => form.setProjectName(e.target.value)}
           type="text"
-          className="w-full border-0 border-b border-border py-1.25 text-sm text-foreground bg-transparent outline-none transition-colors duration-200"
+          className="border-muted"
           placeholder="Enter campaign name"
         />
         {form.errors.projectName && (
@@ -73,7 +73,7 @@ export default function CampaignDetailsSection({ form }: CampaignDetailsFormProp
         <Textarea
           value={form.campaignDescription}
           onChange={(e) => form.setCampaignDescription(e.target.value)}
-          className="w-full min-h-[100px] border border-muted-foreground bg-transparent p-3 text-sm text-muted-foreground placeholder:text-muted-foreground outline-none transition-colors focus:border-ring focus:text-foreground resize-none"
+          className="w-full min-h-[100px] border border-muted bg-transparent p-3 text-sm placeholder:text-muted-foreground outline-none transition-colors focus:border-ring focus:text-foreground resize-none"
           placeholder="Enter Description"
         />
         {form.errors.campaignDescription && (

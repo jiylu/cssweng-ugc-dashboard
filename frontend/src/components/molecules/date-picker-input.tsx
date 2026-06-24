@@ -16,7 +16,7 @@ export function DatePickerInput({ value, onChange, placeholder = "mm/dd/yyyy" }:
   const { selectedDate, open, setOpen, month, setMonth, inputText, setInputText, handleTextChange } = useDatePickerInput(value, onChange)
 
   return (
-    <InputGroup>
+    <InputGroup className="border-muted">
       <InputGroupInput
         value={inputText}
         placeholder={placeholder}
