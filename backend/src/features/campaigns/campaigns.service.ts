@@ -13,6 +13,7 @@ import { CampaignQueryDTO } from './dto/campaign-query-dto';
 import { UpdateCampaignStatusDto } from './dto/update-campaign-status-dto';
 import { UpdateCampaignClientDTO } from './dto/update-campaign-client.dto';
 import { UserService } from '../users/users.service';
+import { nanoid } from 'nanoid';
 
 @Injectable()
 export class CampaignsService {
@@ -31,8 +32,11 @@ export class CampaignsService {
     );
 
     await this.userService.getActiveUserById(dto.ugcId);
+    const publicId = nanoid(10);
+
     const campaign = await tx.campaigns.create({
       data: {
+        public_id: publicId,
         ugc_creator_id: dto.ugcId,
         project_name: dto.projectName,
         description: dto.description,
@@ -70,6 +74,32 @@ export class CampaignsService {
     }
 
     this.logger.log(`Found campaign ${campaign.campaign_id}`);
+    return campaign;
+  }
+
+  async findOneActiveCampaignByPublicId(publicId: string) {
+    this.logger.debug(`Finding active campaign with publicId ${publicId}`);
+
+    const campaign = await this.prisma.campaigns.findFirst({
+      where: {
+        public_id: publicId,
+        campaign_status: CampaignStatus.ACTIVE,
+      },
+    });
+
+    if (!campaign) {
+      this.logger.warn(`No active campaign found with publicId ${publicId}`);
+      throw new NotFoundException({
+        status: HttpStatus.NOT_FOUND,
+        code: 'CAMPAIGN_NOT_FOUND',
+        message: 'Campaign not found',
+      });
+    }
+
+    this.logger.log(
+      `Found active campaign with publicId ${publicId} with campaignId ${campaign.campaign_id}`,
+    );
+
     return campaign;
   }
 
