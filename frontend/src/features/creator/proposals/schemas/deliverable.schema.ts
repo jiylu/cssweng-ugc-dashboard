@@ -13,7 +13,7 @@ export const deliverableSchema = z.object({
     .min(1, "Please select a deliverable type."),
   
   deadline: z.string()
-    .min(1, "Please select a deadline."),
+    .min(1, "Please select a valid deadline."),
 
   pricing: z.string()
     .min(1, "Pricing is required."),

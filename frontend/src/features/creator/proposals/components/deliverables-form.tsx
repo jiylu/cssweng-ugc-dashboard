@@ -1,15 +1,14 @@
-//import { Input } from "@/components/ui/input";
-import { Calendar } from "@/components/ui/calendar";
 import { Input } from "@/components/ui/input";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group"
+import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import Button from "@/src/components/atoms/button";
 import { Card } from "@/src/components/atoms/card";
 import { Deliverable } from "@/src/features/creator/proposals/types/deliverables.types";
-import { format } from "date-fns"
 import { ChevronDown, ChevronUp } from "lucide-react";
+import { DatePickerInput } from "@/src/components/molecules/date-picker-input";
 export interface DeliverablesFormProps {
   deliverables: Deliverable[]
   errors: Record<string, string>;
@@ -35,7 +34,7 @@ export default function DeliverablesForm({ deliverables, addDeliverable, updateD
         <TableHeader>
           <TableRow className="hover:bg-transparent">
             <TableHead className="w-62">Deliverable</TableHead>
-            <TableHead>Description</TableHead>
+            <TableHead className="w-62">Description</TableHead>
             <TableHead>Type</TableHead>
             <TableHead>Deadline</TableHead>
             <TableHead>Price</TableHead>
@@ -50,8 +49,8 @@ export default function DeliverablesForm({ deliverables, addDeliverable, updateD
             >
               {/* Deliverable Name */}
               <TableCell>
-                <input
-                  className="w-62 border-0 border-b border-border py-1.25 text-sm text-foreground bg-transparent outline-none transition-colors duration-200"
+                <Input
+                  className="border-muted"
                   placeholder="Enter deliverable name"
                   value={item.deliverable_title}
                   onChange={(e) => updateDeliverable(item.id, 'deliverable_title', e.target.value)}
@@ -60,8 +59,8 @@ export default function DeliverablesForm({ deliverables, addDeliverable, updateD
 
               {/* Description */}
               <TableCell>
-                <input
-                  className="w-full border-0 border-b border-border py-1.25 text-sm text-foreground bg-transparent outline-none transition-colors duration-200"
+                <Textarea
+                  className="w-62 min-h-[20px] border-muted resize-none"
                   placeholder="Enter description"
                   value={item.description}
                   onChange={(e) => updateDeliverable(item.id, 'description', e.target.value)}
@@ -93,28 +92,10 @@ export default function DeliverablesForm({ deliverables, addDeliverable, updateD
 
               {/* Deadline */}
               <TableCell>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <button
-                      type="button"
-                      className={cn(
-                        "w-full border-0 border-b border-border py-1 text-sm text-left bg-transparent outline-none transition-colors duration-200 hover:border-accent focus:border-accent",
-                        !item.deadline && "text-muted-foreground italic"
-                      )}
-                    >
-                      {item.deadline ? format(new Date(item.deadline), "PPP") : "Set a deadline"}
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={item.deadline ? new Date(item.deadline) : undefined}
-                      onSelect={(date) =>
-                        updateDeliverable(item.id, 'deadline', date ? date.toISOString() : '')
-                      }
-                    />
-                  </PopoverContent>
-                </Popover>
+                <DatePickerInput
+                  value={item.deadline}
+                  onChange={(iso) => updateDeliverable(item.id, 'deadline', iso)}
+                />
                 {errors.deadline && (
                   <p className="text-xs mt-1" style={{ color: "#ff6467" }}>{errors.deadline}</p>
                 )}
@@ -123,20 +104,20 @@ export default function DeliverablesForm({ deliverables, addDeliverable, updateD
               {/* Pricing */}
               <TableCell>
                 <div className="flex flex-col">
-                  <div className="flex items-center gap-2 border-b border-border pb-1">
-                    <span className="text-sm text-foreground">PHP</span>
-                    <Input
-                      type="text"
-                      placeholder="0.00"
-                      className="w-full border-0 p-0 h-auto text-sm text-foreground bg-transparent shadow-none focus-visible:ring-0"
-                      value={item.pricing}
-                      onChange={(e) => {
-                        const val = e.target.value.replace(/[^0-9.]/g, '');
-                        const parts = val.split('.');
-                        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-                        updateDeliverable(item.id, 'pricing', parts.slice(0, 2).join('.'));
-                      }}
-                    />
+                  <div className="flex items-center gap-2">
+                    <InputGroup className="max-w-xs border-muted">
+                      <InputGroupInput 
+                        placeholder="0.00" 
+                        className="w-full border-0 p-0 h-auto text-sm text-foreground bg-transparent shadow-none focus-visible:ring-0"
+                        value={item.pricing}
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/[^0-9.]/g, '');
+                          const parts = val.split('.');
+                          parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                          updateDeliverable(item.id, 'pricing', parts.slice(0, 2).join('.'));
+                        }}/>
+                      <InputGroupAddon>PHP</InputGroupAddon>
+                    </InputGroup>
                     <div className="flex flex-col ml-1 shrink-0">
                       <ChevronUp
                         size={14}

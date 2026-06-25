@@ -88,7 +88,7 @@ export default function CreatorDashboard() {
 
         {/* GREET USER */}
         <div className="mt-7">
-          <h1 className={"text-[64px] text-[#141518] leading-tight tracking-[-0.5px] mb-8"}>Welcome Back, User</h1>
+          <h1 className={"text-[64px] text-[#141518] leading-tight tracking-[-0.5px] mb-8"}>Welcome back, User</h1>
         </div>
 
         {/* ANALYTICS */}
