@@ -11,6 +11,10 @@ import {
 import { UpdateCampaignClientDTO } from '../dto/update-campaign-client.dto';
 import { UserService } from 'src/features/users/users.service';
 
+jest.mock('nanoid', () => ({
+  nanoid: jest.fn(() => 'mock_public_id_1234567890'),
+}));
+
 describe('CampaignService', () => {
   let service: CampaignsService;
 
@@ -56,6 +60,7 @@ describe('CampaignService', () => {
     it('should create a campaign', async () => {
       const mockCampaign = {
         campaign_id: '123abc',
+        public_id: 'abc1234567',
         ugc_creator_id: 'ugc123abc',
         client_id: '',
         project_name: 'Test Project',
@@ -82,6 +87,7 @@ describe('CampaignService', () => {
       expect(res).toEqual(mockCampaign);
       expect(mockPrisma.campaigns.create).toHaveBeenCalledWith({
         data: {
+          public_id: expect.any(String),
           ugc_creator_id: '123abc',
           project_name: 'Test Project',
           description: 'Testing Project for Testing Purposes',
@@ -114,7 +120,9 @@ describe('CampaignService', () => {
     it('should return paginated campaigns with 15 mock data', async () => {
       const mockCampaigns = Array.from({ length: 15 }, (_, i) => ({
         campaign_id: `${i + 1}`,
+        public_id: `pub_id_${i + 1}`,
         ugc_creator_id: i % 2 === 0 ? 'ugcA' : 'ugcB',
+        client_id: '',
         project_name: `Project ${i + 1}`,
         description: `Description ${i + 1}`,
         pricing: new Prisma.Decimal(1000 + i * 100),
@@ -153,6 +161,7 @@ describe('CampaignService', () => {
     it('should return one active campaign for a client', async () => {
       const mockCampaign = {
         campaign_id: 'campClient1',
+        public_id: 'pub_client_1',
         ugc_creator_id: 'ugcA',
         client_id: 'client123',
         project_name: 'Client Project',
@@ -214,7 +223,9 @@ describe('CampaignService', () => {
 
       const mockCampaign = {
         campaign_id: campaignId,
+        public_id: 'pub_pending_1',
         ugc_creator_id: 'ugcA',
+        client_id: '',
         project_name: 'Test Project',
         description: 'Test Desc',
         pricing: new Prisma.Decimal(1000),
@@ -253,7 +264,9 @@ describe('CampaignService', () => {
 
       const mockCampaign = {
         campaign_id: campaignId,
+        public_id: 'pub_pending_2',
         ugc_creator_id: 'ugcA',
+        client_id: '',
         project_name: 'Test Project',
         description: 'Test Desc',
         pricing: new Prisma.Decimal(1000),
@@ -292,7 +305,9 @@ describe('CampaignService', () => {
 
       const mockCampaign = {
         campaign_id: campaignId,
+        public_id: 'pub_rejected_1',
         ugc_creator_id: 'ugcA',
+        client_id: '',
         project_name: 'Test Project',
         description: 'Test Desc',
         pricing: new Prisma.Decimal(1000),
@@ -318,7 +333,9 @@ describe('CampaignService', () => {
 
       const mockCampaign = {
         campaign_id: campaignId,
+        public_id: 'pub_completed_1',
         ugc_creator_id: 'ugcA',
+        client_id: '',
         project_name: 'Test Project',
         description: 'Test Desc',
         pricing: new Prisma.Decimal(1000),
@@ -346,7 +363,9 @@ describe('CampaignService', () => {
 
       const mockCampaign = {
         campaign_id: campaignId,
+        public_id: 'pub_camp123',
         ugc_creator_id: 'ugcA',
+        client_id: '',
         project_name: 'Test Project',
         description: 'Test Desc',
         pricing: new Prisma.Decimal(1000),
@@ -395,7 +414,9 @@ describe('CampaignService', () => {
 
       const mockCampaign = {
         campaign_id: campaignId,
+        public_id: 'pub_camp123_creator',
         ugc_creator_id: 'ugcA',
+        client_id: '',
         project_name: 'Test Project',
         description: 'Test Desc',
         pricing: new Prisma.Decimal(1000),
@@ -441,6 +462,7 @@ describe('CampaignService', () => {
       const campaignId = 'camp-with-client';
       const mockCampaign = {
         campaign_id: campaignId,
+        public_id: 'pub_camp_with_client',
         ugc_creator_id: 'ugcA',
         client_id: 'existing-client',
         project_name: 'Test Project',
@@ -463,7 +485,9 @@ describe('CampaignService', () => {
       const campaignId = 'camp123';
       const mockCampaign = {
         campaign_id: campaignId,
+        public_id: 'pub_camp123_2',
         ugc_creator_id: 'ugcA',
+        client_id: '',
         project_name: 'Test Project',
         description: 'Test Desc',
         pricing: new Prisma.Decimal(1000),
@@ -491,7 +515,9 @@ describe('CampaignService', () => {
       const campaignId = 'camp123';
       const mockCampaign = {
         campaign_id: campaignId,
+        public_id: 'pub_camp123_3',
         ugc_creator_id: 'ugcA',
+        client_id: '',
         project_name: 'Test Project',
         description: 'Test Desc',
         pricing: new Prisma.Decimal(1000),
@@ -515,6 +541,63 @@ describe('CampaignService', () => {
       await expect(
         service.updateCampaignClientId(campaignId, { clientId: 'client123' }),
       ).rejects.toBeInstanceOf(ConflictException);
+    });
+  });
+
+  describe('findOneActiveCampaignByPublicId', () => {
+    it('should return one active campaign by public_id', async () => {
+      const publicId = 'pub_active_1';
+      const mockCampaign = {
+        campaign_id: 'camp_active_1',
+        public_id: publicId,
+        ugc_creator_id: 'ugcA',
+        client_id: 'client123',
+        project_name: 'Active Campaign',
+        description: 'Active Campaign Desc',
+        pricing: new Prisma.Decimal(5000),
+        start_date: new Date(),
+        end_date: new Date(),
+        created_at: new Date(),
+        campaign_status: CampaignStatus.ACTIVE,
+      };
+
+      mockPrisma.campaigns.findFirst.mockResolvedValue(mockCampaign);
+
+      const res = await service.findOneActiveCampaignByPublicId(publicId);
+      expect(res).toEqual(mockCampaign);
+      expect(mockPrisma.campaigns.findFirst).toHaveBeenCalledWith({
+        where: {
+          public_id: publicId,
+          campaign_status: CampaignStatus.ACTIVE,
+        },
+      });
+    });
+
+    it('should throw NotFoundException when no active campaign found for public_id', async () => {
+      const publicId = 'pub_missing';
+
+      mockPrisma.campaigns.findFirst.mockResolvedValue(null);
+
+      await expect(
+        service.findOneActiveCampaignByPublicId(publicId),
+      ).rejects.toBeInstanceOf(NotFoundException);
+
+      expect(mockPrisma.campaigns.findFirst).toHaveBeenCalledWith({
+        where: {
+          public_id: publicId,
+          campaign_status: CampaignStatus.ACTIVE,
+        },
+      });
+    });
+
+    it('should throw NotFoundException when campaign exists but is not ACTIVE', async () => {
+      const publicId = 'pub_inactive_1';
+
+      mockPrisma.campaigns.findFirst.mockResolvedValue(null);
+
+      await expect(
+        service.findOneActiveCampaignByPublicId(publicId),
+      ).rejects.toBeInstanceOf(NotFoundException);
     });
   });
 });

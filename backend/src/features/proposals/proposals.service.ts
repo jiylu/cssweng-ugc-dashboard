@@ -12,6 +12,7 @@ import { Prisma, ProposalStatus, User } from '@prisma/client';
 import { UserService } from '../users/users.service';
 import { UpdateProposalCommentDTO } from './dto/update-proposal-comment.dto';
 import { UpdateProposalStatusDTO } from './dto/update-proposal-status.dto';
+import { nanoid } from 'nanoid';
 
 @Injectable()
 export class ProposalsService {
@@ -85,8 +86,11 @@ export class ProposalsService {
     await this.campaignService.findOneCampaign(dto.campaignId, tx);
     await this.assertClientHasNoActiveEngagement(dto.clientEmail);
 
+    const publicId = nanoid(10);
+
     const proposal = await tx.proposals.create({
       data: {
+        public_id: publicId,
         campaign_id: dto.campaignId,
         client_email: dto.clientEmail,
       },
@@ -116,6 +120,32 @@ export class ProposalsService {
 
     this.logger.debug(
       `Client ${clientEmail} has an active proposal ${activeProposal.proposal_id}`,
+    );
+
+    return activeProposal;
+  }
+
+  async findActiveProposalByPublicId(publicId: string) {
+    this.logger.debug(`Finding active proposal with publicId ${publicId}`);
+
+    const activeProposal = await this.prisma.proposals.findFirst({
+      where: {
+        public_id: publicId,
+        proposal_status: { in: this.ACTIVE_PROPOSAL_STATUSES },
+      },
+    });
+
+    if (!activeProposal) {
+      this.logger.warn(`No active proposal with publicId ${publicId} found.`);
+      throw new NotFoundException({
+        status: HttpStatus.NOT_FOUND,
+        code: 'ACTIVE_PROPOSAL_NOT_FOUND',
+        message: 'Active Proposal not Found',
+      });
+    }
+
+    this.logger.log(
+      `Active proposal with publicId ${publicId} found with proposalId ${activeProposal.public_id}`,
     );
 
     return activeProposal;
