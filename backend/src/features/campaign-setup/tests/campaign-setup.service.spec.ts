@@ -142,10 +142,17 @@ describe('CampaignSetupService', () => {
         {},
       );
 
-      expect(mockDeliverableService.createManyDeliverables).toHaveBeenCalledTimes(1);
-      expect(mockDeliverableService.createManyDeliverables).toHaveBeenCalledWith(
+      expect(
+        mockDeliverableService.createManyDeliverables,
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        mockDeliverableService.createManyDeliverables,
+      ).toHaveBeenCalledWith(
         mockCampaign.campaign_id,
-        dto.deliverables.map((d) => ({ ...d, campaignId: mockCampaign.campaign_id })),
+        dto.deliverables.map((d) => ({
+          ...d,
+          campaignId: mockCampaign.campaign_id,
+        })),
         {},
       );
     });

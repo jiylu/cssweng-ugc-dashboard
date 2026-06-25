@@ -329,7 +329,10 @@ describe('DeliverablesService', () => {
         created_at: new Date(),
       });
 
-      const res = await service.createManyDeliverables(campaignId, deliverables);
+      const res = await service.createManyDeliverables(
+        campaignId,
+        deliverables,
+      );
       expect(res).toHaveLength(1);
       expect(mockPrisma.deliverables.create).toHaveBeenCalledTimes(1);
     });
@@ -371,7 +374,10 @@ describe('DeliverablesService', () => {
           created_at: new Date(),
         });
 
-      const res = await service.createManyDeliverables(campaignId, deliverables);
+      const res = await service.createManyDeliverables(
+        campaignId,
+        deliverables,
+      );
       expect(res).toHaveLength(2);
       expect(mockPrisma.deliverables.create).toHaveBeenCalledTimes(2);
     });
@@ -384,7 +390,7 @@ describe('DeliverablesService', () => {
         description: `Description for D${i + 1} long enough`,
         deadline: new Date().toISOString(),
         pricing: 100 + i * 25,
-        deliverableType: DeliverableType.VIDEO,
+        deliverableType: DeliverableType.COLLABORATION,
       }));
 
       mockCampaignService.findOneCampaign.mockResolvedValue({
@@ -423,7 +429,10 @@ describe('DeliverablesService', () => {
           created_at: new Date(),
         });
 
-      const res = await service.createManyDeliverables(campaignId, deliverables);
+      const res = await service.createManyDeliverables(
+        campaignId,
+        deliverables,
+      );
       expect(res).toHaveLength(3);
       expect(mockPrisma.deliverables.create).toHaveBeenCalledTimes(3);
     });
