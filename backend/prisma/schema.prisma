@@ -18,12 +18,13 @@ model User {
   campaigns_as_creator Campaigns[] @relation("CreatorCampaigns")
   campaigns_as_client  Campaigns[] @relation("ClientCampaigns")
 
-  activity_logs          ActivityLog[] @relation("ActivityLogUser")
+  activity_logs ActivityLog[] @relation("ActivityLogUser")
   //targeted_activity_logs ActivityLog[] @relation("ActivityLogTargetUser")
 }
 
 model Campaigns {
   campaign_id     String         @id @default(uuid())
+  public_id       String         @unique @db.VarChar(10)
   ugc_creator_id  String
   client_id       String?
   project_name    String
@@ -34,14 +35,15 @@ model Campaigns {
   created_at      DateTime       @default(now())
   campaign_status CampaignStatus @default(ACTIVE)
 
-  creator   User       @relation("CreatorCampaigns", fields: [ugc_creator_id], references: [user_id])
-  client    User?      @relation("ClientCampaigns", fields: [client_id], references: [user_id])
-  proposals Proposals[]
+  creator      User           @relation("CreatorCampaigns", fields: [ugc_creator_id], references: [user_id])
+  client       User?          @relation("ClientCampaigns", fields: [client_id], references: [user_id])
+  proposals    Proposals[]
   deliverables Deliverables[]
 }
 
 model Proposals {
   proposal_id     String         @id @default(uuid())
+  public_id       String         @unique @db.VarChar(10)
   campaign_id     String
   client_email    String
   client_comments String         @default("")
@@ -51,31 +53,39 @@ model Proposals {
 }
 
 model Deliverables {
-  deliverable_id    String          @id @default(uuid())
-  campaign_id       String
-  deliverable_title String
-  description       String
-  deadline          DateTime
-  pricing           Decimal
-  deliverable_type  DeliverableType
+  deliverable_id String @id @default(uuid())
+  public_id      String @unique @db.VarChar(10)
+  campaign_id    String
+
+  quantity         Int
+  deliverable_type DeliverableType
+  platform         Platform
+  format           Format
+  description      String
+  deadline         DateTime
+  pricing          Decimal
 
   campaign Campaigns @relation(fields: [campaign_id], references: [campaign_id])
 }
 
 model ActivityLog {
-  log_id         String          @id @default(uuid())
-  user_id        String
-  target_user_id String?
-  entity_type    EntityType
-  entity_id      String
-  action         Action
-  title          String
-  message        String
-  is_read        Boolean
-  created_at     DateTime
+  log_id      String     @id @default(uuid())
+  user_id     String
+  entity_type EntityType
+  entity_id   String
+  action      Action
+  created_at  DateTime
 
-  user        User @relation("ActivityLogUser",       fields: [user_id],        references: [user_id])
-  //target_user User @relation("ActivityLogTargetUser", fields: [target_user_id], references: [user_id])
+  user User @relation("ActivityLogUser", fields: [user_id], references: [user_id])
+}
+
+model Notifications {
+  notification_id String   @id @default(uuid())
+  user_id         String
+  title           String
+  message         String
+  is_read         Boolean
+  created_at      DateTime @default(now())
 }
 
 enum UserRoles {
@@ -86,6 +96,21 @@ enum UserRoles {
 enum DeliverableType {
   COLLABORATION
   UGC
+}
+
+enum Platform {
+  TIKTOK
+  INSTAGRAM
+  FACEBOOK
+  YOUTUBE
+}
+
+enum Format {
+  SHORT_FORM
+  VIDEO
+  IMAGE_POST
+  CAROUSEL
+  STORY
 }
 
 enum CampaignStatus {
