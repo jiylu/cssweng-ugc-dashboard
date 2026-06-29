@@ -1,3 +1,5 @@
+jest.mock('nanoid', () => ({ nanoid: jest.fn(() => 'mock-pub-id') }));
+
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CampaignSetupService } from '../campaign-setup.service';
@@ -5,7 +7,7 @@ import { CampaignsService } from 'src/features/campaigns/campaigns.service';
 import { DeliverablesService } from 'src/features/deliverables/deliverables.service';
 import { ProposalsService } from 'src/features/proposals/proposals.service';
 import { CreateCampaignRequestDto } from '../dto/create-campaign-request-dto';
-import { DeliverableType } from '@prisma/client';
+import { DeliverableType, Format, Platform } from '@prisma/client';
 import { EmailService } from 'src/features/email/email.service';
 import { ActivityLogService } from 'src/features/activity-log/activity-log.service';
 
@@ -76,18 +78,22 @@ describe('CampaignSetupService', () => {
         },
         deliverables: [
           {
-            deliverableTitle: 'D1',
+            quantity: 2,
+            deliverableType: DeliverableType.COLLABORATION,
+            platform: Platform.FACEBOOK,
+            format: Format.VIDEO,
             description: 'Long enough description for d1',
             deadline: new Date('2026-06-15T00:00:00Z').toISOString(),
             pricing: 100,
-            deliverableType: DeliverableType.COLLABORATION,
           },
           {
-            deliverableTitle: 'D2',
+            quantity: 3,
+            deliverableType: DeliverableType.UGC,
+            platform: Platform.TIKTOK,
+            format: Format.SHORT_FORM,
             description: 'Long enough description for d2',
             deadline: new Date('2026-06-16T00:00:00Z').toISOString(),
             pricing: 200,
-            deliverableType: DeliverableType.UGC,
           },
         ],
         proposal: {
