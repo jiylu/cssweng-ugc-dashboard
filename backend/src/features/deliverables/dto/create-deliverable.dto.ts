@@ -1,4 +1,4 @@
-import { DeliverableType } from '@prisma/client';
+import { DeliverableType, Format, Platform } from '@prisma/client';
 import { Type } from 'class-transformer';
 import {
   IsDateString,
@@ -6,6 +6,7 @@ import {
   IsNotEmpty,
   IsNumber,
   IsString,
+  Max,
   MaxLength,
   Min,
   MinLength,
@@ -18,11 +19,32 @@ export class CreateDeliverableDTO {
   @IsNotEmpty()
   campaignId!: string;
 
-  @ApiProperty({ example: 'Short video deliverable' })
-  @IsString()
-  @IsNotEmpty()
-  @MaxLength(150)
-  deliverableTitle!: string;
+  @ApiProperty({ example: 5 })
+  @IsNumber()
+  @Min(1)
+  @Max(10)
+  quantity!: number;
+
+  @ApiProperty({
+    enum: DeliverableType,
+    example: DeliverableType.COLLABORATION,
+  })
+  @IsEnum(DeliverableType)
+  deliverableType!: DeliverableType;
+
+  @ApiProperty({
+    enum: Platform,
+    example: Platform.FACEBOOK,
+  })
+  @IsEnum(Platform)
+  platform!: Platform;
+
+  @ApiProperty({
+    enum: Format,
+    example: Format.CAROUSEL,
+  })
+  @IsEnum(Platform)
+  format!: Format;
 
   @ApiProperty({ example: 'Detailed description with at least 20 characters.' })
   @IsString()
@@ -41,11 +63,4 @@ export class CreateDeliverableDTO {
   @Type(() => Number)
   @Min(0)
   pricing!: number;
-
-  @ApiProperty({
-    enum: DeliverableType,
-    example: DeliverableType.COLLABORATION,
-  })
-  @IsEnum(DeliverableType)
-  deliverableType!: DeliverableType;
 }

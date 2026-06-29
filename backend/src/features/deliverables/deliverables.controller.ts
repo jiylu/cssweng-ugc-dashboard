@@ -12,9 +12,9 @@ export class DeliverablesController {
   constructor(private readonly deliverablesService: DeliverablesService) {}
 
   @ApiFindDeliverable()
-  @Get(':deliverableId')
-  findOne(@Param('deliverableId') deliverableId: string) {
-    return this.deliverablesService.findOneDeliverable(deliverableId);
+  @Get(':publicId')
+  findOne(@Param('publicId') publicId: string) {
+    return this.deliverablesService.findOneDeliverableByPublicId(publicId);
   }
 
   @ApiFindDeliverablesForCampaign()

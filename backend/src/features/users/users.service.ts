@@ -26,9 +26,9 @@ export class UserService {
   async createUser(dto: CreateUserDTO) {
     this.logger.debug(`Creating new ${dto.role} user ${dto.email}`);
 
-    const exisingUser = await this.findActiveUserByEmail(dto.email);
+    const existingUser = await this.findActiveUserByEmail(dto.email);
 
-    if (exisingUser) {
+    if (existingUser) {
       this.logger.warn(`Email ${dto.email} already exists in the database.`);
 
       throw new ConflictException({
