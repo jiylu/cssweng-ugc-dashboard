@@ -1,11 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { DeliverablesService } from '../deliverables.service';
-import { DeliverableType, Prisma } from '@prisma/client';
+import { DeliverableType, Format, Platform, Prisma } from '@prisma/client';
 import { CreateDeliverableDTO } from '../dto/create-deliverable.dto';
 import { NotFoundException } from '@nestjs/common';
 import { CampaignsService } from 'src/features/campaigns/campaigns.service';
 import { UpdateDeliverableDTO } from '../dto/update-deliverable.dto';
+
+jest.mock('nanoid', () => ({ nanoid: jest.fn(() => 'mock-pb-id') }));
 
 describe('DeliverablesService', () => {
   let service: DeliverablesService;
@@ -49,40 +51,44 @@ describe('DeliverablesService', () => {
     it('should create a deliverable successfully', async () => {
       const dto: CreateDeliverableDTO = {
         campaignId: 'camp-1',
-        deliverableTitle: 'Test Deliverable',
+        quantity: 5,
+        deliverableType: DeliverableType.COLLABORATION,
+        platform: Platform.FACEBOOK,
+        format: Format.VIDEO,
         description:
           'This is a test deliverable description with enough length.',
         deadline: new Date().toISOString(),
         pricing: 1500,
-        deliverableType: DeliverableType.COLLABORATION,
       };
 
       const mockDeliverable = {
         deliverable_id: 'del-1',
+        public_id: 'mock-pb-id',
         campaign_id: dto.campaignId,
-        deliverable_title: dto.deliverableTitle,
+        quantity: dto.quantity,
+        deliverable_type: dto.deliverableType,
+        platform: dto.platform,
+        format: dto.format,
         description: dto.description,
         deadline: new Date(dto.deadline),
         pricing: new Prisma.Decimal(dto.pricing),
-        deliverable_type: dto.deliverableType,
-        created_at: new Date(),
       };
 
-      mockCampaignService.findOneCampaign.mockResolvedValue({
-        campaign_id: dto.campaignId,
-      });
       mockPrisma.deliverables.create.mockResolvedValue(mockDeliverable);
 
       const res = await service.createDeliverable(dto);
       expect(res).toEqual(mockDeliverable);
       expect(mockPrisma.deliverables.create).toHaveBeenCalledWith({
         data: {
+          public_id: 'mock-pb-id',
           campaign_id: dto.campaignId,
-          deliverable_title: dto.deliverableTitle,
+          quantity: dto.quantity,
+          deliverable_type: dto.deliverableType,
+          platform: dto.platform,
+          format: dto.format,
           description: dto.description,
           deadline: new Date(dto.deadline),
           pricing: new Prisma.Decimal(dto.pricing),
-          deliverable_type: dto.deliverableType,
         },
       });
     });
@@ -90,16 +96,15 @@ describe('DeliverablesService', () => {
     it('should reject on invalid inputs', async () => {
       const dto: CreateDeliverableDTO = {
         campaignId: 'camp-1',
-        deliverableTitle: '', // invalid title
-        description: 'short', // invalid description (too short)
+        quantity: 1,
+        deliverableType: DeliverableType.COLLABORATION,
+        platform: Platform.TIKTOK,
+        format: Format.SHORT_FORM,
+        description: 'short',
         deadline: 'not-a-date',
         pricing: -100,
-        deliverableType: DeliverableType.COLLABORATION,
       };
 
-      mockCampaignService.findOneCampaign.mockResolvedValue({
-        campaign_id: dto.campaignId,
-      });
       mockPrisma.deliverables.create.mockRejectedValue(
         new Error('Invalid input'),
       );
@@ -110,22 +115,24 @@ describe('DeliverablesService', () => {
     });
   });
 
-  describe('findOneDeliverable', () => {
+  describe('findOneDeliverableByUID', () => {
     it('should return a deliverable when it exists', async () => {
       const mockDeliverable = {
         deliverable_id: 'del-1',
+        public_id: 'abc1234567',
         campaign_id: 'camp-1',
-        deliverable_title: 'Test Deliverable',
+        quantity: 3,
+        deliverable_type: DeliverableType.UGC,
+        platform: Platform.INSTAGRAM,
+        format: Format.IMAGE_POST,
         description: 'This is a sufficiently long description for testing.',
         deadline: new Date(),
         pricing: new Prisma.Decimal(1000),
-        deliverable_type: 'IMAGE',
-        created_at: new Date(),
       };
 
       mockPrisma.deliverables.findFirst.mockResolvedValue(mockDeliverable);
 
-      const res = await service.findOneDeliverable('del-1');
+      const res = await service.findOneDeliverableByUID('del-1');
       expect(res).toEqual(mockDeliverable);
       expect(mockPrisma.deliverables.findFirst).toHaveBeenCalledWith({
         where: { deliverable_id: 'del-1' },
@@ -135,7 +142,39 @@ describe('DeliverablesService', () => {
     it('should throw NotFoundException when deliverable does not exist', async () => {
       mockPrisma.deliverables.findFirst.mockResolvedValue(null);
       await expect(
-        service.findOneDeliverable('missing-del'),
+        service.findOneDeliverableByUID('missing-del'),
+      ).rejects.toBeInstanceOf(NotFoundException);
+    });
+  });
+
+  describe('findOneDeliverableByPublicId', () => {
+    it('should return a deliverable when found by public ID', async () => {
+      const mockDeliverable = {
+        deliverable_id: 'del-1',
+        public_id: 'abc1234567',
+        campaign_id: 'camp-1',
+        quantity: 2,
+        deliverable_type: DeliverableType.COLLABORATION,
+        platform: Platform.YOUTUBE,
+        format: Format.VIDEO,
+        description: 'This is a sufficiently long description for testing.',
+        deadline: new Date(),
+        pricing: new Prisma.Decimal(2000),
+      };
+
+      mockPrisma.deliverables.findFirst.mockResolvedValue(mockDeliverable);
+
+      const res = await service.findOneDeliverableByPublicId('abc1234567');
+      expect(res).toEqual(mockDeliverable);
+      expect(mockPrisma.deliverables.findFirst).toHaveBeenCalledWith({
+        where: { public_id: 'abc1234567' },
+      });
+    });
+
+    it('should throw NotFoundException when public ID not found', async () => {
+      mockPrisma.deliverables.findFirst.mockResolvedValue(null);
+      await expect(
+        service.findOneDeliverableByPublicId('nonexistent'),
       ).rejects.toBeInstanceOf(NotFoundException);
     });
   });
@@ -146,13 +185,15 @@ describe('DeliverablesService', () => {
       const mockDeliverables = [
         {
           deliverable_id: 'd1',
+          public_id: 'pub-d1-1234',
           campaign_id: campaignId,
-          deliverable_title: 'D1',
+          quantity: 1,
+          deliverable_type: DeliverableType.UGC,
+          platform: Platform.TIKTOK,
+          format: Format.SHORT_FORM,
           description: 'Description long enough for d1',
           deadline: new Date(),
           pricing: new Prisma.Decimal(500),
-          deliverable_type: 'VIDEO',
-          created_at: new Date(),
         },
       ];
 
@@ -193,13 +234,15 @@ describe('DeliverablesService', () => {
     it('should update only one field successfully', async () => {
       const existing = {
         deliverable_id: 'del-1',
+        public_id: 'pub-del-123',
         campaign_id: 'camp-1',
-        deliverable_title: 'Old Title',
+        quantity: 2,
+        deliverable_type: DeliverableType.COLLABORATION,
+        platform: Platform.FACEBOOK,
+        format: Format.CAROUSEL,
         description: 'Old description long enough.',
         deadline: new Date('2026-06-01T00:00:00Z'),
         pricing: new Prisma.Decimal(100),
-        deliverable_type: DeliverableType.COLLABORATION,
-        created_at: new Date(),
       };
 
       const updated = { ...existing, deliverable_title: 'New Title' };
@@ -220,13 +263,15 @@ describe('DeliverablesService', () => {
     it('should update two fields successfully', async () => {
       const existing = {
         deliverable_id: 'del-2',
+        public_id: 'pub-del-456',
         campaign_id: 'camp-1',
-        deliverable_title: 'Title',
+        quantity: 1,
+        deliverable_type: DeliverableType.COLLABORATION,
+        platform: Platform.INSTAGRAM,
+        format: Format.IMAGE_POST,
         description: 'Old description long enough.',
         deadline: new Date('2026-06-01T00:00:00Z'),
         pricing: new Prisma.Decimal(100),
-        deliverable_type: DeliverableType.COLLABORATION,
-        created_at: new Date(),
       };
 
       const dto = {
@@ -256,13 +301,15 @@ describe('DeliverablesService', () => {
     it('should update all fields successfully', async () => {
       const existing = {
         deliverable_id: 'del-3',
+        public_id: 'pub-del-789',
         campaign_id: 'camp-2',
-        deliverable_title: 'Old',
+        quantity: 4,
+        deliverable_type: DeliverableType.UGC,
+        platform: Platform.YOUTUBE,
+        format: Format.VIDEO,
         description: 'Old description long enough.',
         deadline: new Date('2026-06-01T00:00:00Z'),
         pricing: new Prisma.Decimal(100),
-        deliverable_type: DeliverableType.UGC,
-        created_at: new Date(),
       };
 
       const dto = {
@@ -303,14 +350,16 @@ describe('DeliverablesService', () => {
   describe('createManyDeliverables', () => {
     it('should create one deliverable', async () => {
       const campaignId = 'camp-1';
-      const deliverables = [
+      const deliverables: CreateDeliverableDTO[] = [
         {
           campaignId,
-          deliverableTitle: 'D1',
+          quantity: 2,
+          deliverableType: DeliverableType.COLLABORATION,
+          platform: Platform.FACEBOOK,
+          format: Format.VIDEO,
           description: 'Description long enough for D1',
           deadline: new Date().toISOString(),
           pricing: 100,
-          deliverableType: DeliverableType.COLLABORATION,
         },
       ];
 
@@ -320,13 +369,15 @@ describe('DeliverablesService', () => {
 
       mockPrisma.deliverables.create.mockResolvedValueOnce({
         deliverable_id: 'd1',
+        public_id: 'mock-pb-id',
         campaign_id: campaignId,
-        deliverable_title: deliverables[0].deliverableTitle,
+        quantity: deliverables[0].quantity,
+        deliverable_type: deliverables[0].deliverableType,
+        platform: deliverables[0].platform,
+        format: deliverables[0].format,
         description: deliverables[0].description,
         deadline: new Date(deliverables[0].deadline),
         pricing: new Prisma.Decimal(deliverables[0].pricing),
-        deliverable_type: deliverables[0].deliverableType,
-        created_at: new Date(),
       });
 
       const res = await service.createManyDeliverables(
@@ -339,13 +390,17 @@ describe('DeliverablesService', () => {
 
     it('should create two deliverables', async () => {
       const campaignId = 'camp-1';
-      const deliverables = Array.from({ length: 2 }).map((_, i) => ({
+      const deliverables: CreateDeliverableDTO[] = Array.from({
+        length: 2,
+      }).map((_, i) => ({
         campaignId,
-        deliverableTitle: `D${i + 1}`,
+        quantity: i + 1,
+        deliverableType: DeliverableType.UGC,
+        platform: Platform.TIKTOK,
+        format: Format.SHORT_FORM,
         description: `Description for D${i + 1} long enough`,
         deadline: new Date().toISOString(),
         pricing: 100 + i * 50,
-        deliverableType: DeliverableType.UGC,
       }));
 
       mockCampaignService.findOneCampaign.mockResolvedValue({
@@ -355,23 +410,27 @@ describe('DeliverablesService', () => {
       mockPrisma.deliverables.create
         .mockResolvedValueOnce({
           deliverable_id: 'd1',
+          public_id: 'mock-pb-id',
           campaign_id: campaignId,
-          deliverable_title: deliverables[0].deliverableTitle,
+          quantity: deliverables[0].quantity,
+          deliverable_type: deliverables[0].deliverableType,
+          platform: deliverables[0].platform,
+          format: deliverables[0].format,
           description: deliverables[0].description,
           deadline: new Date(deliverables[0].deadline),
           pricing: new Prisma.Decimal(deliverables[0].pricing),
-          deliverable_type: deliverables[0].deliverableType,
-          created_at: new Date(),
         })
         .mockResolvedValueOnce({
           deliverable_id: 'd2',
+          public_id: 'mock-pb-id',
           campaign_id: campaignId,
-          deliverable_title: deliverables[1].deliverableTitle,
+          quantity: deliverables[1].quantity,
+          deliverable_type: deliverables[1].deliverableType,
+          platform: deliverables[1].platform,
+          format: deliverables[1].format,
           description: deliverables[1].description,
           deadline: new Date(deliverables[1].deadline),
           pricing: new Prisma.Decimal(deliverables[1].pricing),
-          deliverable_type: deliverables[1].deliverableType,
-          created_at: new Date(),
         });
 
       const res = await service.createManyDeliverables(
@@ -384,13 +443,17 @@ describe('DeliverablesService', () => {
 
     it('should create three deliverables', async () => {
       const campaignId = 'camp-1';
-      const deliverables = Array.from({ length: 3 }).map((_, i) => ({
+      const deliverables: CreateDeliverableDTO[] = Array.from({
+        length: 3,
+      }).map((_, i) => ({
         campaignId,
-        deliverableTitle: `D${i + 1}`,
+        quantity: i + 1,
+        deliverableType: DeliverableType.COLLABORATION,
+        platform: Platform.INSTAGRAM,
+        format: Format.CAROUSEL,
         description: `Description for D${i + 1} long enough`,
         deadline: new Date().toISOString(),
         pricing: 100 + i * 25,
-        deliverableType: DeliverableType.COLLABORATION,
       }));
 
       mockCampaignService.findOneCampaign.mockResolvedValue({
@@ -400,33 +463,39 @@ describe('DeliverablesService', () => {
       mockPrisma.deliverables.create
         .mockResolvedValueOnce({
           deliverable_id: 'd1',
+          public_id: 'mock-pb-id',
           campaign_id: campaignId,
-          deliverable_title: deliverables[0].deliverableTitle,
+          quantity: deliverables[0].quantity,
+          deliverable_type: deliverables[0].deliverableType,
+          platform: deliverables[0].platform,
+          format: deliverables[0].format,
           description: deliverables[0].description,
           deadline: new Date(deliverables[0].deadline),
           pricing: new Prisma.Decimal(deliverables[0].pricing),
-          deliverable_type: deliverables[0].deliverableType,
-          created_at: new Date(),
         })
         .mockResolvedValueOnce({
           deliverable_id: 'd2',
+          public_id: 'mock-pb-id',
           campaign_id: campaignId,
-          deliverable_title: deliverables[1].deliverableTitle,
+          quantity: deliverables[1].quantity,
+          deliverable_type: deliverables[1].deliverableType,
+          platform: deliverables[1].platform,
+          format: deliverables[1].format,
           description: deliverables[1].description,
           deadline: new Date(deliverables[1].deadline),
           pricing: new Prisma.Decimal(deliverables[1].pricing),
-          deliverable_type: deliverables[1].deliverableType,
-          created_at: new Date(),
         })
         .mockResolvedValueOnce({
           deliverable_id: 'd3',
+          public_id: 'mock-pb-id',
           campaign_id: campaignId,
-          deliverable_title: deliverables[2].deliverableTitle,
+          quantity: deliverables[2].quantity,
+          deliverable_type: deliverables[2].deliverableType,
+          platform: deliverables[2].platform,
+          format: deliverables[2].format,
           description: deliverables[2].description,
           deadline: new Date(deliverables[2].deadline),
           pricing: new Prisma.Decimal(deliverables[2].pricing),
-          deliverable_type: deliverables[2].deliverableType,
-          created_at: new Date(),
         });
 
       const res = await service.createManyDeliverables(
@@ -439,14 +508,16 @@ describe('DeliverablesService', () => {
 
     it("should reject when campaign id doesn't exist", async () => {
       const campaignId = 'missing-camp';
-      const deliverables = [
+      const deliverables: CreateDeliverableDTO[] = [
         {
           campaignId,
-          deliverableTitle: 'D1',
-          description: 'Description',
+          quantity: 1,
+          deliverableType: DeliverableType.COLLABORATION,
+          platform: Platform.FACEBOOK,
+          format: Format.VIDEO,
+          description: 'Description long enough here',
           deadline: new Date().toISOString(),
           pricing: 100,
-          deliverableType: DeliverableType.COLLABORATION,
         },
       ];
 
