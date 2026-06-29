@@ -43,7 +43,7 @@ export class CreateDeliverableDTO {
     enum: Format,
     example: Format.CAROUSEL,
   })
-  @IsEnum(Platform)
+  @IsEnum(Format)
   format!: Format;
 
   @ApiProperty({ example: 'Detailed description with at least 20 characters.' })
