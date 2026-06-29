@@ -60,8 +60,6 @@ export class CampaignSetupService {
       entityType: EntityType.CAMPAIGN,
       entityId: result.campaign.campaign_id,
       action: Action.SUBMISSION,
-      title: `Campaign & Proposal Submission: ${dto.campaign.projectName}`,
-      message: `Succesfully Created Campaign & Proposal Submission: ${dto.campaign.projectName}`,
     });
 
     await this.emailService
