@@ -12,15 +12,15 @@ import { UpdateCampaignClientDTO } from '../dto/update-campaign-client.dto';
 export function ApiFindOneCampaign() {
   return applyDecorators(
     ApiOperation({
-      summary: 'Finds a campaign using a campaignId parameter',
+      summary: 'Finds a campaign using a publicId parameter',
       description:
-        'Retrieves a campaign by its campaignId path parameter. No request body. Refer to CreateCampaignDTO for the campaign schema/shape.',
+        'Retrieves a campaign by its publicId path parameter. No request body. Refer to CreateCampaignDTO for the campaign schema/shape.',
     }),
     ApiParam({
-      name: 'campaignId',
+      name: 'publicId',
       type: String,
-      description: 'UUID of the campaign to retrieve',
-      example: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+      description: 'Public Id of the campaign to retrieve',
+      example: 'x21E9dlf0F',
       required: true,
     }),
     ApiResponse({

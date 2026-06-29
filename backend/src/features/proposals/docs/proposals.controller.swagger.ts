@@ -6,15 +6,15 @@ import { UpdateProposalStatusDTO } from '../dto/update-proposal-status.dto';
 export function ApiFindProposal() {
   return applyDecorators(
     ApiOperation({
-      summary: 'Finds an active proposal by its ID',
+      summary: 'Finds an active proposal by its Public ID',
       description:
-        'Retrieves an active proposal by its proposalId path parameter. No request body. For mutation endpoints refer to UpdateProposalStatusDTO (status updates) and UpdateProposalCommentDTO (comment updates).',
+        'Retrieves an active proposal by its public Id path parameter. No request body. For mutation endpoints refer to UpdateProposalStatusDTO (status updates) and UpdateProposalCommentDTO (comment updates).',
     }),
     ApiParam({
-      name: 'proposalId',
+      name: 'publicId',
       type: String,
-      description: 'UUID of the proposal',
-      example: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+      description: 'Public id of the proposal',
+      example: 'e3Fx0pFGsF',
     }),
     ApiResponse({
       status: 200,

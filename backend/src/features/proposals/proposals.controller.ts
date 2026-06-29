@@ -14,9 +14,9 @@ export class ProposalsController {
   constructor(private readonly proposalsService: ProposalsService) {}
 
   @ApiFindProposal()
-  @Get(':proposalId')
-  findOneActive(@Param('proposalId') proposalId: string) {
-    return this.proposalsService.findActiveProposal(proposalId);
+  @Get(':publicId')
+  findOneActive(@Param('publicIdproposalId') publicId: string) {
+    return this.proposalsService.findActiveProposalByPublicId(publicId);
   }
 
   @ApiFindProposalByCampaign()
