@@ -22,6 +22,17 @@ model User {
   //targeted_activity_logs ActivityLog[] @relation("ActivityLogTargetUser")
 }
 
+model Clients {
+  client_id                 String @id @default(uuid())
+  user_id                   String @unique
+  company_legal_name        String
+  company_email             String
+  billable_person           String
+  contact_person            String
+  company_contact_no        Int
+  contact_person_contact_no Int
+}
+
 model Campaigns {
   campaign_id     String         @id @default(uuid())
   public_id       String         @unique @db.VarChar(10)
@@ -41,6 +52,36 @@ model Campaigns {
   deliverables Deliverables[]
 }
 
+model Contracts {
+  contract_id String   @id @default(uuid())
+  public_id   String   @unique @db.VarChar(10)
+  campaign_id String   @unique
+  is_signed   Boolean
+  signed_at   DateTime
+}
+
+model contract_terms {
+  contract_terms_id       String @id @default(uuid())
+  contract_id             String
+  revision_policy         Json
+  payment_terms           Json
+  usage_rights            Json
+  posting_requirements    Json
+  exclusivity             Json?
+  breach_cure_period_days Int
+  general_terms           Json
+  extra_notes             Json?
+}
+
+model contract_submission_history {
+  histoy_id      String               @id @default(uuid())
+  contract_id    String
+  action_status  ContractActionStatus
+  revision_notes String
+  created_at     DateTime
+  updated_at     DateTime
+}
+
 model Proposals {
   proposal_id     String         @id @default(uuid())
   public_id       String         @unique @db.VarChar(10)
@@ -57,15 +98,53 @@ model Deliverables {
   public_id      String @unique @db.VarChar(10)
   campaign_id    String
 
-  quantity         Int
-  deliverable_type DeliverableType
-  platform         Platform
-  format           Format
-  description      String
-  deadline         DateTime
-  pricing          Decimal
+  quantity            Int
+  deliverable_type    DeliverableType
+  deliverable_content String
+  requirements        String
+  due_date            DateTime
+  post_date           DateTime
+  pricing             Decimal
 
   campaign Campaigns @relation(fields: [campaign_id], references: [campaign_id])
+}
+
+model Submissions {
+  submission_id     String @id @default(uuid())
+  deliverable_id    String
+  deliverable_index Int
+}
+
+model SubmissionItems {
+  submission_item_id String           @id @default(uuid())
+  submission_id      String
+  public_id          String           @unique @db.VarChar(10)
+  is_video           Boolean
+  script_id          String?
+  content            String
+  submission_status  SubmissionStatus
+  client_comments    String
+  created_at         DateTime
+  updated_at         DateTime
+}
+
+model AddOns {
+  add_on_id   String  @id @default(uuid())
+  campaign_id String
+  add_on_name String
+  fee         Decimal
+  initials    String
+  opt_in      Boolean
+}
+
+model Scripts {
+  script_id         String           @id @default(uuid())
+  public_id         String           @unique @db.VarChar(10)
+  content           String
+  client_comments   String
+  submission_status SubmissionStatus
+  created_at        DateTime
+  updated_at        DateTime
 }
 
 model ActivityLog {
@@ -136,4 +215,17 @@ enum Action {
   SUBMISSION
   APPROVE
   SIGNED
+}
+
+enum ContractActionStatus {
+  DRAFT
+  REVISION_REQUESTED
+  CLIENT_SIGNED
+  FULLY_SIGNED
+}
+
+enum SubmissionStatus {
+  FOR_REVIEW
+  FOR_REVISION
+  APPROVED
 }
