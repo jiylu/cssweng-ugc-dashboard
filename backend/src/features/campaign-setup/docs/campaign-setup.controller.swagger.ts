@@ -7,7 +7,7 @@ export function ApiCreateFullCampaign() {
     ApiOperation({
       summary: 'Creates a campaign together with its proposal and deliverables',
       description:
-        'Takes a CreateCampaignRequestDto consisting of: campaign (ugcId, projectName, description, startDate, endDate), an array of deliverables (each: deliverableTitle, description, deadline, pricing, deliverableType), and a proposal (clientEmail). Pricing for the campaign is computed as the sum of deliverable pricing. The operation is executed inside a database transaction; on failure the whole operation is rolled back.',
+        'Takes a CreateCampaignRequestDto consisting of: campaign (ugcId, projectName, description, platforms, startDate, endDate), an array of deliverables (each: quantity, deliverableType, deliverableContent, requirements, dueDate, postDate, pricing), and a proposal (clientEmail). Pricing for the campaign is computed as the sum of deliverable pricing. The operation is executed inside a database transaction; on failure the whole operation is rolled back.',
     }),
     ApiBody({ type: CreateCampaignRequestDto }),
     ApiResponse({

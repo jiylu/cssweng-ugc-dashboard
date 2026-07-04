@@ -7,7 +7,7 @@ import { CampaignsService } from 'src/features/campaigns/campaigns.service';
 import { DeliverablesService } from 'src/features/deliverables/deliverables.service';
 import { ProposalsService } from 'src/features/proposals/proposals.service';
 import { CreateCampaignRequestDto } from '../dto/create-campaign-request-dto';
-import { DeliverableType, Format, Platform } from '@prisma/client';
+import { DeliverableType } from '@prisma/client';
 import { EmailService } from 'src/features/email/email.service';
 import { ActivityLogService } from 'src/features/activity-log/activity-log.service';
 
@@ -73,6 +73,7 @@ describe('CampaignSetupService', () => {
           ugcId: 'ugc-1',
           projectName: 'Test Project',
           description: 'A project for testing',
+          platforms: ['Instagram', 'Tiktok'],
           startDate: new Date('2026-06-10T00:00:00Z').toISOString(),
           endDate: new Date('2026-06-20T00:00:00Z').toISOString(),
         },
@@ -80,19 +81,19 @@ describe('CampaignSetupService', () => {
           {
             quantity: 2,
             deliverableType: DeliverableType.COLLABORATION,
-            platform: Platform.FACEBOOK,
-            format: Format.VIDEO,
-            description: 'Long enough description for d1',
-            deadline: new Date('2026-06-15T00:00:00Z').toISOString(),
+            deliverableContent: 'Instagram Reels',
+            requirements: 'Long enough description for d1',
+            dueDate: new Date('2026-06-15T00:00:00Z').toISOString(),
+            postDate: new Date('2026-06-16T00:00:00Z').toISOString(),
             pricing: 100,
           },
           {
             quantity: 3,
             deliverableType: DeliverableType.UGC,
-            platform: Platform.TIKTOK,
-            format: Format.SHORT_FORM,
-            description: 'Long enough description for d2',
-            deadline: new Date('2026-06-16T00:00:00Z').toISOString(),
+            deliverableContent: 'Tiktok Reels',
+            requirements: 'Long enough description for d2',
+            dueDate: new Date('2026-06-16T00:00:00Z').toISOString(),
+            postDate: new Date('2026-06-16T00:00:00Z').toISOString(),
             pricing: 200,
           },
         ],
@@ -169,6 +170,7 @@ describe('CampaignSetupService', () => {
           ugcId: 'ugc-1',
           projectName: 'Test Project',
           description: 'A project for testing',
+          platforms: ['Instagram', 'TikTok'],
           startDate: new Date().toISOString(),
           endDate: new Date().toISOString(),
         },

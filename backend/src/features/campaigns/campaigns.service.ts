@@ -41,6 +41,7 @@ export class CampaignsService {
         project_name: dto.projectName,
         description: dto.description,
         pricing: new Prisma.Decimal(dto.pricing),
+        platforms: dto.platforms,
         start_date: new Date(dto.startDate),
         end_date: new Date(dto.endDate),
       },
