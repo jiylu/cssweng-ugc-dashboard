@@ -34,18 +34,20 @@ model Clients {
 }
 
 model Campaigns {
-  campaign_id     String         @id @default(uuid())
-  public_id       String         @unique @db.VarChar(10)
+  campaign_id     String           @id @default(uuid())
+  public_id       String           @unique @db.VarChar(10)
   ugc_creator_id  String
   client_id       String?
   project_name    String
   description     String
+  currency        CampaignCurrency
+  tax             Decimal
   pricing         Decimal
   platforms       String[]
   start_date      DateTime
   end_date        DateTime
-  created_at      DateTime       @default(now())
-  campaign_status CampaignStatus @default(ACTIVE)
+  created_at      DateTime         @default(now())
+  campaign_status CampaignStatus   @default(ACTIVE)
 
   creator      User           @relation("CreatorCampaigns", fields: [ugc_creator_id], references: [user_id])
   client       User?          @relation("ClientCampaigns", fields: [client_id], references: [user_id])
@@ -182,6 +184,14 @@ enum CampaignStatus {
   ACTIVE
   REJECTED
   COMPLETED
+}
+
+enum CampaignCurrency {
+  CAD
+  USD
+  PHP
+  EUR
+  GBP
 }
 
 enum ProposalStatus {

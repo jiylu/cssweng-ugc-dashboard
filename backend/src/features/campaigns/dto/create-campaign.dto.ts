@@ -1,8 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { CampaignCurrency } from '@prisma/client';
 import { Type } from 'class-transformer';
 import {
   IsArray,
   IsDateString,
+  IsEnum,
   IsNotEmpty,
   IsNumber,
   IsString,
@@ -25,6 +27,18 @@ export class CreateCampaignDTO {
   @IsString()
   @MaxLength(600)
   description!: string;
+
+  @ApiProperty({
+    enum: CampaignCurrency,
+    example: CampaignCurrency.PHP,
+  })
+  @IsEnum(CampaignCurrency)
+  currency!: CampaignCurrency;
+
+  @IsNumber()
+  @Type(() => Number)
+  @Min(0)
+  tax!: number;
 
   @ApiProperty({ example: '55000.67' })
   @IsNumber()

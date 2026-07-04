@@ -40,6 +40,8 @@ export class CampaignsService {
         ugc_creator_id: dto.ugcId,
         project_name: dto.projectName,
         description: dto.description,
+        currency: dto.currency,
+        tax: dto.tax,
         pricing: new Prisma.Decimal(dto.pricing),
         platforms: dto.platforms,
         start_date: new Date(dto.startDate),
