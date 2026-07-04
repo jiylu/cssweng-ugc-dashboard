@@ -1,7 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CampaignsService } from '../campaigns.service';
-import { CampaignStatus, Prisma, UserRoles } from '@prisma/client';
+import {
+  CampaignCurrency,
+  CampaignStatus,
+  Prisma,
+  UserRoles,
+} from '@prisma/client';
 import { CreateCampaignDTO } from '../dto/create-campaign.dto';
 import {
   ConflictException,
@@ -77,6 +82,8 @@ describe('CampaignService', () => {
         ugcId: '123abc',
         projectName: 'Test Project',
         description: 'Testing Project for Testing Purposes',
+        currency: CampaignCurrency.PHP,
+        tax: 0,
         pricing: 10000,
         platforms: ['Instagram', 'TikTok'],
         startDate: new Date().toISOString(),
@@ -99,6 +106,8 @@ describe('CampaignService', () => {
           ugc_creator_id: '123abc',
           project_name: 'Test Project',
           description: 'Testing Project for Testing Purposes',
+          currency: CampaignCurrency.PHP,
+          tax: 0,
           pricing: new Prisma.Decimal(10000),
           platforms: ['Instagram', 'TikTok'],
           start_date: new Date(),
@@ -112,6 +121,8 @@ describe('CampaignService', () => {
         ugcId: 'missing-ugc',
         projectName: 'No UGC',
         description: 'Should fail',
+        currency: CampaignCurrency.PHP,
+        tax: 0,
         pricing: 500,
         platforms: ['Instagram'],
         startDate: new Date().toISOString(),
