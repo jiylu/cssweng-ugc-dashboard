@@ -66,6 +66,7 @@ describe('CampaignService', () => {
         project_name: 'Test Project',
         description: 'Testing Project for Testing Purposes',
         pricing: new Prisma.Decimal(10000),
+        platforms: ['Instagram', 'TikTok'],
         start_date: new Date(),
         end_date: new Date(),
         created_at: new Date(),
@@ -77,14 +78,21 @@ describe('CampaignService', () => {
         projectName: 'Test Project',
         description: 'Testing Project for Testing Purposes',
         pricing: 10000,
+        platforms: ['Instagram', 'TikTok'],
         startDate: new Date().toISOString(),
         endDate: new Date().toISOString(),
       };
 
+      mockUserService.getActiveUserById.mockResolvedValue({
+        user_id: '123abc',
+        is_active: true,
+        role: UserRoles.CREATOR,
+      });
       mockPrisma.campaigns.create.mockResolvedValue(mockCampaign);
 
       const res = await service.createCampaign(dto);
       expect(res).toEqual(mockCampaign);
+      expect(mockUserService.getActiveUserById).toHaveBeenCalledWith('123abc');
       expect(mockPrisma.campaigns.create).toHaveBeenCalledWith({
         data: {
           public_id: expect.any(String),
@@ -92,6 +100,7 @@ describe('CampaignService', () => {
           project_name: 'Test Project',
           description: 'Testing Project for Testing Purposes',
           pricing: new Prisma.Decimal(10000),
+          platforms: ['Instagram', 'TikTok'],
           start_date: new Date(),
           end_date: new Date(),
         },
@@ -104,11 +113,14 @@ describe('CampaignService', () => {
         projectName: 'No UGC',
         description: 'Should fail',
         pricing: 500,
+        platforms: ['Instagram'],
         startDate: new Date().toISOString(),
         endDate: new Date().toISOString(),
       };
 
-      mockPrisma.campaigns.create.mockRejectedValue(new NotFoundException());
+      mockUserService.getActiveUserById.mockRejectedValue(
+        new NotFoundException(),
+      );
 
       await expect(service.createCampaign(dto)).rejects.toBeInstanceOf(
         NotFoundException,
@@ -126,12 +138,18 @@ describe('CampaignService', () => {
         project_name: `Project ${i + 1}`,
         description: `Description ${i + 1}`,
         pricing: new Prisma.Decimal(1000 + i * 100),
+        platforms: ['Instagram'],
         start_date: new Date('2026-06-06T00:00:00.000Z'),
         end_date: new Date('2026-06-07T00:00:00.000Z'),
         created_at: new Date('2026-06-06T10:00:00.000Z'),
         campaign_status: CampaignStatus.ACTIVE,
       }));
 
+      mockUserService.getActiveUserById.mockResolvedValue({
+        user_id: 'ugcA',
+        is_active: true,
+        role: UserRoles.CREATOR,
+      });
       mockPrisma.campaigns.findMany.mockResolvedValue(mockCampaigns);
 
       const query = {
@@ -167,6 +185,7 @@ describe('CampaignService', () => {
         project_name: 'Client Project',
         description: 'Client Desc',
         pricing: new Prisma.Decimal(2000),
+        platforms: ['Instagram'],
         start_date: new Date(),
         end_date: new Date(),
         created_at: new Date(),
@@ -229,6 +248,7 @@ describe('CampaignService', () => {
         project_name: 'Test Project',
         description: 'Test Desc',
         pricing: new Prisma.Decimal(1000),
+        platforms: ['Instagram'],
         start_date: new Date(),
         end_date: new Date(),
         created_at: new Date(),
@@ -270,6 +290,7 @@ describe('CampaignService', () => {
         project_name: 'Test Project',
         description: 'Test Desc',
         pricing: new Prisma.Decimal(1000),
+        platforms: ['Instagram'],
         start_date: new Date(),
         end_date: new Date(),
         created_at: new Date(),
@@ -311,6 +332,7 @@ describe('CampaignService', () => {
         project_name: 'Test Project',
         description: 'Test Desc',
         pricing: new Prisma.Decimal(1000),
+        platforms: ['Instagram'],
         start_date: new Date(),
         end_date: new Date(),
         created_at: new Date(),
@@ -339,6 +361,7 @@ describe('CampaignService', () => {
         project_name: 'Test Project',
         description: 'Test Desc',
         pricing: new Prisma.Decimal(1000),
+        platforms: ['Instagram'],
         start_date: new Date(),
         end_date: new Date(),
         created_at: new Date(),
@@ -369,6 +392,7 @@ describe('CampaignService', () => {
         project_name: 'Test Project',
         description: 'Test Desc',
         pricing: new Prisma.Decimal(1000),
+        platforms: ['Instagram'],
         start_date: new Date(),
         end_date: new Date(),
         created_at: new Date(),
@@ -420,6 +444,7 @@ describe('CampaignService', () => {
         project_name: 'Test Project',
         description: 'Test Desc',
         pricing: new Prisma.Decimal(1000),
+        platforms: ['Instagram'],
         start_date: new Date(),
         end_date: new Date(),
         created_at: new Date(),
@@ -468,6 +493,7 @@ describe('CampaignService', () => {
         project_name: 'Test Project',
         description: 'Test Desc',
         pricing: new Prisma.Decimal(1000),
+        platforms: ['Instagram'],
         start_date: new Date(),
         end_date: new Date(),
         created_at: new Date(),
@@ -491,6 +517,7 @@ describe('CampaignService', () => {
         project_name: 'Test Project',
         description: 'Test Desc',
         pricing: new Prisma.Decimal(1000),
+        platforms: ['Instagram'],
         start_date: new Date(),
         end_date: new Date(),
         created_at: new Date(),
@@ -521,6 +548,7 @@ describe('CampaignService', () => {
         project_name: 'Test Project',
         description: 'Test Desc',
         pricing: new Prisma.Decimal(1000),
+        platforms: ['Instagram'],
         start_date: new Date(),
         end_date: new Date(),
         created_at: new Date(),
@@ -555,6 +583,7 @@ describe('CampaignService', () => {
         project_name: 'Active Campaign',
         description: 'Active Campaign Desc',
         pricing: new Prisma.Decimal(5000),
+        platforms: ['Instagram'],
         start_date: new Date(),
         end_date: new Date(),
         created_at: new Date(),

@@ -41,6 +41,7 @@ model Campaigns {
   project_name    String
   description     String
   pricing         Decimal
+  platforms       String[]
   start_date      DateTime
   end_date        DateTime
   created_at      DateTime       @default(now())
@@ -60,7 +61,7 @@ model Contracts {
   signed_at   DateTime
 }
 
-model contract_terms {
+model Contract_Terms {
   contract_terms_id       String @id @default(uuid())
   contract_id             String
   revision_policy         Json
@@ -73,7 +74,7 @@ model contract_terms {
   extra_notes             Json?
 }
 
-model contract_submission_history {
+model Contract_Submission_History {
   histoy_id      String               @id @default(uuid())
   contract_id    String
   action_status  ContractActionStatus
@@ -175,21 +176,6 @@ enum UserRoles {
 enum DeliverableType {
   COLLABORATION
   UGC
-}
-
-enum Platform {
-  TIKTOK
-  INSTAGRAM
-  FACEBOOK
-  YOUTUBE
-}
-
-enum Format {
-  SHORT_FORM
-  VIDEO
-  IMAGE_POST
-  CAROUSEL
-  STORY
 }
 
 enum CampaignStatus {

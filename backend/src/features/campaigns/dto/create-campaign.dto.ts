@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
+  IsArray,
   IsDateString,
   IsNotEmpty,
   IsNumber,
@@ -30,6 +31,11 @@ export class CreateCampaignDTO {
   @Type(() => Number)
   @Min(0)
   pricing!: number;
+
+  @ApiProperty({ example: '["Instagram", "Facebook", "TikTok"]' })
+  @IsArray()
+  @IsString({ each: true })
+  platforms!: string[];
 
   @ApiProperty({ example: '2026-06-07T00:00:00.000Z' })
   @IsDateString()
