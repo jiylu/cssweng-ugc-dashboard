@@ -1,0 +1,13 @@
+import { Module } from '@nestjs/common';
+import { PrismaModule } from 'src/prisma/prisma.module';
+import { CampaignsModule } from '../campaigns/campaigns.module';
+import { ContractsService } from './contracts.service';
+import { ContractsController } from './contracts.controller';
+
+@Module({
+  imports: [PrismaModule, CampaignsModule],
+  providers: [ContractsService],
+  controllers: [ContractsController],
+  exports: [],
+})
+export class ContractsModule {}
