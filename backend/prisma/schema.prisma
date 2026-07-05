@@ -56,16 +56,12 @@ model Campaigns {
 }
 
 model Contracts {
-  contract_id String   @id @default(uuid())
-  public_id   String   @unique @db.VarChar(10)
-  campaign_id String   @unique
-  is_signed   Boolean  @default(false)
+  contract_id String    @id @default(uuid())
+  public_id   String    @unique @db.VarChar(10)
+  campaign_id String    @unique
+  is_signed   Boolean   @default(false)
   signed_at   DateTime?
-}
 
-model Contract_Terms {
-  contract_terms_id       String @id @default(uuid())
-  contract_id             String
   revision_policy         Json
   payment_terms           Json
   usage_rights            Json
@@ -76,13 +72,26 @@ model Contract_Terms {
   extra_notes             Json?
 }
 
+// model Contract_Terms {
+//   contract_terms_id       String @id @default(uuid())
+//   contract_id             String
+//   revision_policy         Json
+//   payment_terms           Json
+//   usage_rights            Json
+//   posting_requirements    Json
+//   exclusivity             Json?
+//   breach_cure_period_days Int
+//   general_terms           Json
+//   extra_notes             Json?
+// }
+
 model Contract_Submission_History {
-  histoy_id      String               @id @default(uuid())
+  history_id     String               @id @default(uuid())
   contract_id    String
   action_status  ContractActionStatus
-  revision_notes String
-  created_at     DateTime
-  updated_at     DateTime
+  revision_notes String?
+  created_at     DateTime             @default(now())
+  updated_at     DateTime             @updatedAt
 }
 
 model Proposals {
