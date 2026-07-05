@@ -1,6 +1,7 @@
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { DatePickerInput } from "@/src/components/molecules/date-picker-input";
+import { PlatformsCheckbox } from "@/src/features/creator/proposals/components/platforms-checkbox";
 
 export interface CampaignDetailsFormProps {
   form: {
@@ -13,6 +14,8 @@ export interface CampaignDetailsFormProps {
     campaignDescription: string;
     setCampaignDescription: (v: string) => void;
     errors: Record<string, string>;
+    platforms: string[];
+    setPlatforms: (v: string[]) => void;
   }
 }
 
@@ -65,6 +68,16 @@ export default function CampaignDetailsSection({ form }: CampaignDetailsFormProp
             <p className="text-xs mt-1 text-[#ff6467]">{form.errors.endDate}</p>
           )}
         </div>
+      </div>
+
+      {/* Platforms */}
+      <div className="flex flex-col gap-2">
+        <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">PLATFORMS</label>
+        <PlatformsCheckbox
+          value={form.platforms}
+          onChange={form.setPlatforms}
+        />
+        {form.errors.platforms && <p className="text-xs mt-1 text-[#ff6467]">{form.errors.platforms}</p>}
       </div>
 
       {/* Campaign Description */}

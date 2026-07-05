@@ -1,3 +1,4 @@
+"use client"
 import { useRef } from "react";
 import CreatorProposalsNavigation from "../components/proposals-nav";
 import CreatorSidebar from "../../../../components/organisms/creator-sidebar";
@@ -15,11 +16,10 @@ import { CreateCampaignPayload } from "../types/campaign-setup.types";
 import { useRouter } from "next/navigation"
 import { Badge } from "@/components/ui/badge";
 import { Spinner } from "@/components/ui/spinner";
+import { ProposalProgressBar } from "../components/proposal-progress-bar";
 
 export default function CreateCampaign() {
   const form = useCampaignForm();
-  const startDateRef = useRef<HTMLInputElement>(null);
-  const endDateRef = useRef<HTMLInputElement>(null);
   const { user, loading } = useAuth();
   const { mutate: submitCampaign, isPending } = useCreateCampaign();
   const router = useRouter();
@@ -57,20 +57,17 @@ export default function CreateCampaign() {
 
   const handleSaveDraft = () => {
     if (!form.validateForm()) {
-        // todo: make the format presentable
       const allErrors = Object.entries(form.errors)
         .map(([field, err]) => {
           const message = (err as { message?: string })?.message || err || "Invalid input";
           return `${field}: ${message}`;
         })
         .join(", ");
-
       if (allErrors) {
         toast.error(allErrors);
       }
       return;
     };
-
     submitCampaign(
       { payload: buildPayload() },
       {
@@ -82,20 +79,17 @@ export default function CreateCampaign() {
 
   const handleSendProposal = () => {
     if (!form.validateForm()) {
-        // todo: make the format presentable
       const allErrors = Object.entries(form.errors)
         .map(([field, err]) => {
           const message = (err as { message?: string })?.message || err || "Invalid input";
           return `${field}: ${message}`;
         })
         .join(", ");
-
       if (allErrors) {
         toast.error(allErrors);
       }
       return;
     };
-
     submitCampaign(
       { payload: buildPayload() },
       {
@@ -118,7 +112,7 @@ export default function CreateCampaign() {
 
           {/* HEADER */}
           <div className="mt-5 mb-5">
-            <h1 className="text-[44px] text-weight">
+            <h1 className="text-[44px] font-normal">
               Create New Proposal
             </h1>
             <p className="text-[18px] text-muted-foreground">
@@ -126,53 +120,47 @@ export default function CreateCampaign() {
             </p>
           </div>
 
-          {/* FORMS */}
-          <div className="grid grid-cols-2 gap-8 my-8">
-            <CampaignDetailsSection
-              form={form}
-              // refs={{
-              //   startDateRef,
-              //   endDateRef,
-              // }}
-            />
+          {/* Progress Bar */}
+          <div className="justify-center">
+            <ProposalProgressBar activeStep={1} />
+          </div>
 
+          {/* Campaign Details + Client Info */}
+          <div className="grid grid-cols-2 gap-6 mb-6">
+            <CampaignDetailsSection form={form} />
             <ClientDetailsForm
               contactEmail={form.contactEmail}
               setContactEmail={form.setContactEmail}
               errors={form.errors}
             />
-
-            <DeliverablesForm
-              deliverables={form.deliverables}
-              addDeliverable={form.addDeliverable}
-              updateDeliverable={form.updateDeliverable}
-              adjustPrice={form.adjustPrice}
-              errors={form.errors}
-            />
-
-            <div className="flex justify-end gap-4 mt-8 col-span-full">
-              <Button
-                variant="outline"
-                size="xl"
-                onClick={handleSaveDraft}
-                disabled={isPending}
-              >
-                {isPending ? "Saving..." : "Save Draft"}
-              </Button>
-              <Button
-                className="bg-[#6b1fa8] text-primary-foreground hover:bg-[#581982] hover:-translate-y-px transition-all duration-150"
-                size="xl"
-                onClick={handleSendProposal}
-                disabled={isPending}
-              >
-                <SendHorizontal size={16} className="mb-1" />
-                {isPending ? "Sending..." : "Send Proposal"}
-              </Button>
-            </div>
           </div>
+
+          {/* Deliverables */}
+          <DeliverablesForm
+            deliverables={form.deliverables}
+            errors={form.errors}
+            addDeliverable={form.addDeliverable}
+            removeDeliverable={form.removeDeliverable}
+            updateDeliverable={form.updateDeliverable}
+            adjustPrice={form.adjustPrice}
+          />
+
+          {/* Bottom Actions */}
+          <div className="flex justify-end gap-3 mt-6 pb-8">
+            <Button variant="outline" onClick={handleSaveDraft} disabled={isPending}>
+              Save Draft
+            </Button>
+            <Button
+              onClick={handleSendProposal}
+              disabled={isPending}
+              className="bg-[#6b1fa8] hover:bg-[#5a1a8f] text-white flex items-center gap-2"
+            >
+              Contract Terms <SendHorizontal size={16} />
+            </Button>
+          </div>
+
         </div>
       </section>
     </main>
   )
-
 }

@@ -8,6 +8,7 @@ export function useCampaignForm() {
   const [endDate, setEndDate] = useState("")
   const [campaignDescription, setCampaignDescription] = useState("")
   const [contactEmail, setContactEmail] = useState("")
+  const [platforms, setPlatforms] = useState<string[]>([])
   const [deliverables, setDeliverables] = useState<Deliverable[]>([
     {
       id: 1,
@@ -16,6 +17,9 @@ export function useCampaignForm() {
       deliverable_type: "",
       deadline: "",
       pricing: "",
+      quantity: "1",
+      content_type: "",
+      post_date: "",
     },
   ])
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -35,6 +39,9 @@ export function useCampaignForm() {
         deliverable_type: "",
         deadline: "",
         pricing: "",
+        quantity: "1",
+        content_type: "",
+        post_date: "",
       },
     ])
   }
@@ -74,6 +81,10 @@ export function useCampaignForm() {
     )
   }
 
+  const removeDeliverable = (id: number) => {
+    setDeliverables(prev => prev.filter(item => item.id !== id))
+  }
+
   const validateForm = (): boolean => {
     const formData = {
       projectName,
@@ -81,6 +92,7 @@ export function useCampaignForm() {
       endDate,
       campaignDescription,
       contactEmail,
+      platforms,
       deliverables
     };
     const newErrors = validateCampaignForm(formData)
@@ -102,10 +114,13 @@ export function useCampaignForm() {
     setCampaignDescription,
     contactEmail,
     setContactEmail,
+    platforms, 
+    setPlatforms,
     deliverables,
     setDeliverables,
     updateDeliverable,
     addDeliverable,
+    removeDeliverable,
     adjustPrice,
     errors,
     validateForm,

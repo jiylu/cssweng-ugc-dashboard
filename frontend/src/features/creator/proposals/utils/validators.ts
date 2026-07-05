@@ -7,6 +7,7 @@ interface FormData {
     endDate: string;
     campaignDescription: string;
     contactEmail: string;
+    platforms: string[];
     deliverables: Deliverable[];
 }
 

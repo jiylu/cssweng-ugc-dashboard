@@ -5,4 +5,7 @@ export interface Deliverable {
   deliverable_type: string;
   deadline: string;
   pricing: string;
+  quantity?: string;
+  content_type?: string;
+  post_date?: string;
 }
