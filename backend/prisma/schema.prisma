@@ -59,8 +59,8 @@ model Contracts {
   contract_id String   @id @default(uuid())
   public_id   String   @unique @db.VarChar(10)
   campaign_id String   @unique
-  is_signed   Boolean
-  signed_at   DateTime
+  is_signed   Boolean  @default(false)
+  signed_at   DateTime?
 }
 
 model Contract_Terms {
