@@ -134,10 +134,11 @@ model SubmissionItems {
 model AddOns {
   add_on_id   String  @id @default(uuid())
   campaign_id String
+  public_id   String  @unique @db.VarChar(10)
   add_on_name String
   fee         Decimal
   initials    String
-  opt_in      Boolean
+  opt_in      Boolean @default(false)
 }
 
 model Scripts {
