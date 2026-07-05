@@ -29,4 +29,33 @@ export const campaignSchema = z.object({
 }, {
   message: "End date must be after start date.",
   path: ["endDate"]
+}).superRefine((data, ctx) => {
+  if (!data.startDate || !data.endDate) return
+
+  const start = new Date(data.startDate)
+  const end = new Date(data.endDate)
+
+  data.deliverables.forEach((d, index) => {
+    if (d.draftDeadline) {
+      const deadline = new Date(d.draftDeadline)
+      if (deadline < start || deadline > end) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Draft due date must be between campaign start and end date.",
+          path: ["deliverables", index, "draftDeadline"]
+        })
+      }
+    }
+
+    if (d.postDate) {
+      const postDate = new Date(d.postDate)
+      if (postDate < start || postDate > end) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Post date must be between campaign start and end date.",
+          path: ["deliverables", index, "postDate"]
+        })
+      }
+    }
+  })
 })

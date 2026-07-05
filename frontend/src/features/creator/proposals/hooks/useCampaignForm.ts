@@ -12,14 +12,14 @@ export function useCampaignForm() {
   const [deliverables, setDeliverables] = useState<Deliverable[]>([
     {
       id: 1,
-      deliverable_title: "",
+      deliverableTitle: "",
       description: "",
-      deliverable_type: "",
-      deadline: "",
+      deliverableType: "",
+      draftDeadline: "",
       pricing: "",
       quantity: "1",
-      content_type: "",
-      post_date: "",
+      contentType: "",
+      postDate: "",
     },
   ])
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -34,14 +34,14 @@ export function useCampaignForm() {
       ...deliverables,
       {
         id: newId,
-        deliverable_title: "",
+        deliverableTitle: "",
         description: "",
-        deliverable_type: "",
-        deadline: "",
+        deliverableType: "",
+        draftDeadline: "",
         pricing: "",
         quantity: "1",
-        content_type: "",
-        post_date: "",
+        contentType: "",
+        postDate: "",
       },
     ])
   }

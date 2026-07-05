@@ -1,11 +1,11 @@
 export interface Deliverable {
   id: number;
-  deliverable_title: string;
+  deliverableTitle: string;
   description: string;
-  deliverable_type: string;
-  deadline: string;
+  deliverableType: string;
+  draftDeadline: string;
   pricing: string;
-  quantity?: string;
-  content_type?: string;
-  post_date?: string;
+  quantity: string;
+  contentType: string;
+  postDate: string;
 }

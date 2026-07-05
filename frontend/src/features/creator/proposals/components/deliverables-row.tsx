@@ -52,7 +52,7 @@ export function DeliverableRow({ item, index, errors, onUpdate, onAdjustPrice, o
         {/* Type */}
         <div className="flex flex-col gap-1 w-40 shrink-0">
           <label className="text-xs text-muted-foreground uppercase tracking-[0.03em]">TYPE</label>
-          <Select value={item.deliverable_type} onValueChange={(v) => onUpdate('deliverable_type', v)}>
+          <Select value={item.deliverableType} onValueChange={(v) => onUpdate('deliverableType', v)}>
             <SelectTrigger className="text-sm bg-white border-border rounded-[3px]">
               <SelectValue placeholder="Set Type" />
             </SelectTrigger>
@@ -63,13 +63,13 @@ export function DeliverableRow({ item, index, errors, onUpdate, onAdjustPrice, o
               </SelectGroup>
             </SelectContent>
           </Select>
-          {e('deliverable_type') && <p className="text-xs mt-1 text-[#ff6467]">{e('deliverable_type')}</p>}
+          {e('deliverableType') && <p className="text-xs mt-1 text-[#ff6467]">{e('deliverableType')}</p>}
         </div>
 
         {/* Content Type */}
         <div className="flex flex-col gap-1 flex-1 min-w-[160px]">
           <label className="text-xs text-muted-foreground uppercase tracking-[0.03em]">CONTENT TYPE</label>
-          <Select value={item.content_type ?? ""} onValueChange={(v) => onUpdate('content_type', v)}>
+          <Select value={item.contentType ?? ""} onValueChange={(v) => onUpdate('contentType', v)}>
             <SelectTrigger className="text-sm bg-white border-border rounded-[3px]">
               <SelectValue placeholder="Set Platform/Content Type" />
             </SelectTrigger>
@@ -81,7 +81,7 @@ export function DeliverableRow({ item, index, errors, onUpdate, onAdjustPrice, o
               </SelectGroup>
             </SelectContent>
           </Select>
-          {e('content_type') && <p className="text-xs mt-1 text-[#ff6467]">{e('content_type')}</p>}
+          {e('contentType') && <p className="text-xs mt-1 text-[#ff6467]">{e('contentType')}</p>}
         </div>
       </div>
 
@@ -106,19 +106,19 @@ export function DeliverableRow({ item, index, errors, onUpdate, onAdjustPrice, o
           <div className="flex flex-col gap-1">
             <label className="text-xs text-muted-foreground">Draft Due Date</label>
             <DatePickerInput
-              value={item.deadline}
-              onChange={(iso) => onUpdate('deadline', iso)}
+              value={item.draftDeadline}
+              onChange={(iso) => onUpdate('draftDeadline', iso)}
             />
-            {e('deadline') && <p className="text-xs mt-1 text-[#ff6467]">{e('deadline')}</p>}
+            {e('draftDeadline') && <p className="text-xs mt-1 text-[#ff6467]">{e('draftDeadline')}</p>}
           </div>
 
           <div className="flex flex-col gap-1">
             <label className="text-xs text-muted-foreground">Post Date</label>
             <DatePickerInput
-              value={item.post_date ?? ""}
-              onChange={(iso) => onUpdate('post_date', iso)}
+              value={item.postDate ?? ""}
+              onChange={(iso) => onUpdate('postDate', iso)}
             />
-            {e('post_date') && <p className="text-xs mt-1 text-[#ff6467]">{e('post_date')}</p>}
+            {e('postDate') && <p className="text-xs mt-1 text-[#ff6467]">{e('postDate')}</p>}
           </div>
 
           <div className="flex flex-col gap-1">

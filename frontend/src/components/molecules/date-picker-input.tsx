@@ -43,16 +43,19 @@ export function DatePickerInput({ value, onChange, placeholder = "mm/dd/yyyy" }:
               month={month}
               onMonthChange={setMonth}
               onSelect={(date: Date | undefined) => {
-                if (date) {
-                  const utc = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()))
-                  onChange(utc.toISOString())
-                  setInputText(formatDate(date))
-                } else {
-                  onChange("")
-                  setInputText("")
-                }
-                setOpen(false)
-              }}
+              if (date) {
+                console.log("raw date from calendar:", date.toString())
+                console.log("date parts:", date.getFullYear(), date.getMonth(), date.getDate())
+                const utc = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()))
+                console.log("formatDate result:", formatDate(utc))
+                onChange(utc.toISOString())
+                setInputText(formatDate(utc))
+              } else {
+                onChange("")
+                setInputText("")
+              }
+              setOpen(false)
+            }}
             />
           </PopoverContent>
         </Popover>
