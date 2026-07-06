@@ -135,10 +135,11 @@ describe('GiftedProductsService', () => {
         buildMockGiftedProduct(dtos[0], 'gp-1'),
       );
 
-      const res = await service.createManyGiftedProducts(dtos);
+      const res = await service.createManyGiftedProducts('camp-1', dtos);
       expect(res).toHaveLength(1);
       expect(mockCampaignService.findOneCampaign).toHaveBeenCalledWith(
         'camp-1',
+        mockPrisma,
       );
       expect(mockPrisma.giftedProducts.create).toHaveBeenCalledTimes(1);
     });
@@ -156,7 +157,7 @@ describe('GiftedProductsService', () => {
         .mockResolvedValueOnce(buildMockGiftedProduct(dtos[0], 'gp-1'))
         .mockResolvedValueOnce(buildMockGiftedProduct(dtos[1], 'gp-2'));
 
-      const res = await service.createManyGiftedProducts(dtos);
+      const res = await service.createManyGiftedProducts('camp-1', dtos);
       expect(res).toHaveLength(2);
       expect(mockPrisma.giftedProducts.create).toHaveBeenCalledTimes(2);
     });
@@ -179,7 +180,7 @@ describe('GiftedProductsService', () => {
         .mockResolvedValueOnce(buildMockGiftedProduct(dtos[1], 'gp-2'))
         .mockResolvedValueOnce(buildMockGiftedProduct(dtos[2], 'gp-3'));
 
-      const res = await service.createManyGiftedProducts(dtos);
+      const res = await service.createManyGiftedProducts('camp-1', dtos);
       expect(res).toHaveLength(3);
       expect(mockPrisma.giftedProducts.create).toHaveBeenCalledTimes(3);
     });
@@ -194,7 +195,7 @@ describe('GiftedProductsService', () => {
       );
 
       await expect(
-        service.createManyGiftedProducts(dtos),
+        service.createManyGiftedProducts('missing-camp', dtos),
       ).rejects.toBeInstanceOf(NotFoundException);
     });
 
@@ -215,7 +216,7 @@ describe('GiftedProductsService', () => {
         campaign_id: 'camp-1',
       });
 
-      const res = await service.createManyGiftedProducts(dtos, mockTx as any);
+      const res = await service.createManyGiftedProducts('camp-1', dtos, mockTx as any);
       expect(res).toHaveLength(1);
       expect(mockTx.giftedProducts.create).toHaveBeenCalled();
       expect(mockPrisma.giftedProducts.create).not.toHaveBeenCalled();
