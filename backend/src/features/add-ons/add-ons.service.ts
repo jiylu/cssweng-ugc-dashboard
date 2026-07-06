@@ -11,6 +11,7 @@ import { Prisma } from '@prisma/client';
 import { nanoid } from 'nanoid';
 import { UpdateOptInDTO } from './dto/update-opt-in.dto';
 
+// TODO: Update Add Ons Details
 @Injectable()
 export class AddOnsService {
   private readonly logger = new Logger(AddOnsService.name);
@@ -153,6 +154,4 @@ export class AddOnsService {
 
     return updatedAddOn;
   }
-
-  // TODO: Update Add Ons Details
 }

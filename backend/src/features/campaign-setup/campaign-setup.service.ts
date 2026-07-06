@@ -33,10 +33,12 @@ export class CampaignSetupService {
     );
 
     const result = await this.prisma.$transaction(async (tx) => {
-      const totalPrice = dto.deliverables.reduce(
+      const initialPrice = dto.deliverables.reduce(
         (sum, d) => sum + Number(d.pricing),
         0,
       );
+
+      const totalPrice = initialPrice + initialPrice * (dto.campaign.tax / 100);
 
       const campaign = await this.campaignService.createCampaign(
         { ...dto.campaign, pricing: totalPrice },
