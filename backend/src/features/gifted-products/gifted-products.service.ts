@@ -9,6 +9,7 @@ import { CampaignsService } from '../campaigns/campaigns.service';
 import { CreateGiftedProductDTO } from './dto/create-gifted-product.dto';
 import { Prisma } from '@prisma/client';
 
+// TODO: Update and Delete Gifted Products
 @Injectable()
 export class GiftedProductsService {
   private readonly logger = new Logger(GiftedProductsService.name);
@@ -106,6 +107,4 @@ export class GiftedProductsService {
     this.logger.log(`Gifted product ${giftedProduct.gifted_product_id} found.`);
     return giftedProduct;
   }
-
-  // TODO: Update and Delete Gifted Products
 }

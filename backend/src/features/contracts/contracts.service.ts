@@ -10,6 +10,8 @@ import { CreateContractDTO } from './dto/create-contract.dto';
 import { Prisma } from '@prisma/client';
 import { nanoid } from 'nanoid';
 
+// TODO: Update Contract Details
+
 @Injectable()
 export class ContractsService {
   private readonly logger = new Logger(ContractsService.name);
@@ -118,6 +120,4 @@ export class ContractsService {
 
     return signedContract;
   }
-
-  // TODO: Update Contract Details
 }
