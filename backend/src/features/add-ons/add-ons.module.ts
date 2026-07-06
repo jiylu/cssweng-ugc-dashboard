@@ -8,6 +8,6 @@ import { PrismaModule } from 'src/prisma/prisma.module';
   imports: [PrismaModule, CampaignsModule],
   providers: [AddOnsService],
   controllers: [AddOnsController],
-  exports: [],
+  exports: [AddOnsService],
 })
 export class AddOnsModule {}
