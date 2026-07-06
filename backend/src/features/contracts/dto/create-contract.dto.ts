@@ -2,7 +2,9 @@ import { Type } from 'class-transformer';
 import {
   IsInt,
   IsNotEmpty,
+  IsOptional,
   IsString,
+  MaxLength,
   Min,
   ValidateNested,
 } from 'class-validator';
@@ -13,6 +15,7 @@ import { ExclusivityDTO } from './exclusivity.dto';
 import { ExpensesPurchasesDTO } from './expenses-purchases.dto';
 import { PaymentTermsDTO } from './payment-terms.dto';
 import { InvoiceRequirementsDTO } from './invoice-requirements.dto';
+import { GeneralTermsDTO } from './general-terms.dto';
 
 export class CreateContractDTO {
   @IsString()
@@ -50,4 +53,13 @@ export class CreateContractDTO {
   @ValidateNested()
   @Type(() => InvoiceRequirementsDTO)
   invoice_requirements!: InvoiceRequirementsDTO;
+
+  @ValidateNested()
+  @Type(() => GeneralTermsDTO)
+  general_terms!: GeneralTermsDTO;
+
+  @IsString()
+  @IsOptional()
+  @MaxLength(500)
+  extra_notes?: string;
 }

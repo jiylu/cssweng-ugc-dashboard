@@ -25,7 +25,12 @@ export class CreateGiftedProductDTO {
   @IsString()
   @IsNotEmpty()
   @MaxLength(200)
-  deliveryDetails!: string;
+  deliveryAddress!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(200)
+  deliveryInstructions!: string;
 
   @IsString()
   @IsNotEmpty()

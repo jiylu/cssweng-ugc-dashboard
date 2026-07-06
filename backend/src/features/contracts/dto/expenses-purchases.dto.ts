@@ -1,4 +1,4 @@
-import { IsInt, IsNotEmpty, IsString, Max, Min } from 'class-validator';
+import { IsInt, IsNotEmpty, IsString, MaxLength, Min } from 'class-validator';
 
 export class ExpensesPurchasesDTO {
   @IsInt()
@@ -7,6 +7,6 @@ export class ExpensesPurchasesDTO {
 
   @IsString()
   @IsNotEmpty()
-  @Max(500)
+  @MaxLength(500)
   gifted_product_terms!: string;
 }
