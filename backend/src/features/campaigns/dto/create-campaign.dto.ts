@@ -35,6 +35,10 @@ export class CreateCampaignDTO {
   @IsEnum(CampaignCurrency)
   currency!: CampaignCurrency;
 
+  @ApiProperty({
+    example: 12,
+    description: 'Tax percentage to apply to subtotal.',
+  })
   @IsNumber()
   @Type(() => Number)
   @Min(0)

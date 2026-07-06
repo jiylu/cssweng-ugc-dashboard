@@ -219,7 +219,11 @@ describe('GiftedProductsService', () => {
         campaign_id: 'camp-1',
       });
 
-      const res = await service.createManyGiftedProducts('camp-1', dtos, mockTx as any);
+      const res = await service.createManyGiftedProducts(
+        'camp-1',
+        dtos,
+        mockTx as any,
+      );
       expect(res).toHaveLength(1);
       expect(mockTx.giftedProducts.create).toHaveBeenCalled();
       expect(mockPrisma.giftedProducts.create).not.toHaveBeenCalled();
