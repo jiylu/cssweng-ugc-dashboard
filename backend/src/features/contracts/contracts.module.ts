@@ -8,6 +8,6 @@ import { ContractsController } from './contracts.controller';
   imports: [PrismaModule, CampaignsModule],
   providers: [ContractsService],
   controllers: [ContractsController],
-  exports: [],
+  exports: [ContractsService],
 })
 export class ContractsModule {}

@@ -248,9 +248,7 @@ describe('ContractsService', () => {
       mockCampaignService.findOneCampaign.mockResolvedValue({
         campaign_id: dto.campaignId,
       });
-      mockPrisma.contracts.create.mockRejectedValue(
-        new Error('Invalid input'),
-      );
+      mockPrisma.contracts.create.mockRejectedValue(new Error('Invalid input'));
 
       await expect(service.createContract(dto)).rejects.toThrow(
         'Invalid input',
@@ -378,9 +376,9 @@ describe('ContractsService', () => {
     it('should throw NotFoundException when contract to sign does not exist', async () => {
       mockPrisma.contracts.findFirst.mockResolvedValue(null);
 
-      await expect(
-        service.signContract('nonexistent'),
-      ).rejects.toBeInstanceOf(NotFoundException);
+      await expect(service.signContract('nonexistent')).rejects.toBeInstanceOf(
+        NotFoundException,
+      );
       expect(mockPrisma.contracts.update).not.toHaveBeenCalled();
     });
   });

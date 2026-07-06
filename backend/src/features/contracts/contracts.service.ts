@@ -24,7 +24,7 @@ export class ContractsService {
   ) {
     this.logger.debug(`Creating contract for campaign${dto.campaignId}`);
 
-    await this.campaignsService.findOneCampaign(dto.campaignId);
+    await this.campaignsService.findOneCampaign(dto.campaignId, tx);
 
     const publicId = nanoid(10);
 
@@ -118,4 +118,6 @@ export class ContractsService {
 
     return signedContract;
   }
+
+  // TODO: Update Contract Details
 }

@@ -74,6 +74,15 @@ model Contracts {
   // extra_notes              Json?
 }
 
+model GiftedProducts {
+  gifted_product_id String @id @default(uuid())
+  campaign_id String
+  product_name String
+  value Decimal
+  delivery_details String
+  ownership_terms String
+}
+
 // model Contract_Terms {
 //   contract_terms_id       String @id @default(uuid())
 //   contract_id             String
