@@ -119,7 +119,7 @@ describe('AddOnsService', () => {
         opt_in: false,
       });
 
-      const res = await service.createManyAddOns(addOns);
+      const res = await service.createManyAddOns('camp-1', addOns);
       expect(res).toHaveLength(1);
       expect(mockPrisma.addOns.create).toHaveBeenCalledTimes(1);
     });
@@ -164,7 +164,7 @@ describe('AddOnsService', () => {
           opt_in: false,
         });
 
-      const res = await service.createManyAddOns(addOns);
+      const res = await service.createManyAddOns('camp-1', addOns);
       expect(res).toHaveLength(2);
       expect(mockPrisma.addOns.create).toHaveBeenCalledTimes(2);
     });
@@ -212,7 +212,7 @@ describe('AddOnsService', () => {
           opt_in: false,
         });
 
-      const res = await service.createManyAddOns(addOns);
+      const res = await service.createManyAddOns('camp-1', addOns);
       expect(res).toHaveLength(3);
       expect(mockPrisma.addOns.create).toHaveBeenCalledTimes(3);
     });
@@ -231,7 +231,7 @@ describe('AddOnsService', () => {
         new NotFoundException(),
       );
 
-      await expect(service.createManyAddOns(addOns)).rejects.toBeInstanceOf(
+      await expect(service.createManyAddOns('missing-camp', addOns)).rejects.toBeInstanceOf(
         NotFoundException,
       );
     });

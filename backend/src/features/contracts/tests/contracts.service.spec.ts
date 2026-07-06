@@ -124,6 +124,7 @@ describe('ContractsService', () => {
       expect(res).toEqual(mockContract);
       expect(mockCampaignService.findOneCampaign).toHaveBeenCalledWith(
         dto.campaignId,
+        mockPrisma,
       );
       expect(mockPrisma.contracts.create).toHaveBeenCalledWith({
         data: {
@@ -269,6 +270,10 @@ describe('ContractsService', () => {
 
       const res = await service.createContract(dto, mockTx as any);
       expect(res).toEqual(mockContract);
+      expect(mockCampaignService.findOneCampaign).toHaveBeenCalledWith(
+        dto.campaignId,
+        mockTx,
+      );
       expect(mockTx.contracts.create).toHaveBeenCalled();
       expect(mockPrisma.contracts.create).not.toHaveBeenCalled();
     });
