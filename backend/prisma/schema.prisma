@@ -70,8 +70,8 @@ model Contracts {
   cancellation_period      Int
   payment_terms            Json
   invoice_requirements     Json
-  // general_terms            Json
-  // extra_notes              Json?
+  general_terms            Json
+  extra_notes              String?
 }
 
 model GiftedProducts {
@@ -79,7 +79,8 @@ model GiftedProducts {
   campaign_id String
   product_name String
   value Decimal
-  delivery_details String
+  delivery_address String
+  delivery_instructions String
   ownership_terms String
 }
 

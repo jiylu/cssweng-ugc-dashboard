@@ -29,7 +29,8 @@ export class GiftedProductsService {
         campaign_id: dto.campaignId,
         product_name: dto.productName,
         value: dto.value,
-        delivery_details: dto.deliveryDetails,
+        delivery_address: dto.deliveryAddress,
+        delivery_instructions: dto.deliveryInstructions,
         ownership_terms: dto.ownershipTerms,
       },
     });
