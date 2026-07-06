@@ -10,57 +10,41 @@ export class ActivityLogService {
     return this.prisma.activityLog.create({
       data: {
         user_id: dto.userId,
-        target_user_id: dto.targetUserId,
         entity_type: dto.entityType,
         entity_id: dto.entityId,
         action: dto.action,
-        title: dto.title,
-        message: dto.message,
-        is_read: dto.isRead || false,
         created_at: new Date(),
       },
     });
   }
 
-  async getLogsByUser(user_id: string) {
+  async getLogsByUser(userId: string) {
     return this.prisma.activityLog.findMany({
-      where: { user_id },
+      where: { user_id: userId },
       orderBy: { created_at: 'desc' },
       include: {
         user: true,
-        //target_user: true,
       },
     });
   }
 
-  async getLogsTargetingUser(target_user_id: string) {
-    return this.prisma.activityLog.findMany({
-      where: { target_user_id },
-      orderBy: { created_at: 'desc' },
-      include: {
-        user: true,
-        //target_user: true,
-      },
-    });
-  }
+  // async markAsRead(log_id: string) {
+  //   return this.prisma.activityLog.update({
+  //     where: { log_id },
+  //     data: { is_read: true },
+  //   });
+  // }
 
-  async markAsRead(log_id: string) {
-    return this.prisma.activityLog.update({
-      where: { log_id },
-      data: { is_read: true },
-    });
-  }
+  // async markAllAsRead(user_id: string) {
+  //   return this.prisma.activityLog.updateMany({
+  //     where: { user_id, is_read: false },
+  //     data: { is_read: true },
+  //   });
+  // }
 
-  async markAllAsRead(user_id: string) {
-    return this.prisma.activityLog.updateMany({
-      where: { user_id, is_read: false },
-      data: { is_read: true },
-    });
-  }
-
-  async getUnreadCount(user_id: string) {
-    return this.prisma.activityLog.count({
-      where: { user_id, is_read: false },
-    });
-  }
+  // async getUnreadCount(user_id: string) {
+  //   return this.prisma.activityLog.count({
+  //     where: { user_id, is_read: false },
+  //   });
+  // }
 }

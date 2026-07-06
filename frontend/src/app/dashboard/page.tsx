@@ -17,7 +17,7 @@ import {
   AuthUser,
   getCurrentUser,
   logoutUser,
-} from "@/lib/auth-session";
+} from "@/src/features/auth/services/auth-session";
 
 export default function Dashboard() {
   const router = useRouter();

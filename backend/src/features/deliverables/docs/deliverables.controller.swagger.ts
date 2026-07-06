@@ -6,14 +6,14 @@ import { CreateDeliverableDTO } from '../dto/create-deliverable.dto';
 export function ApiFindDeliverable() {
   return applyDecorators(
     ApiOperation({
-      summary: 'Finds a deliverable by id',
+      summary: 'Finds a deliverable by public id',
       description:
-        'Retrieves a single deliverable by its deliverableId path parameter. No request body. Refer to CreateDeliverableDTO for the deliverable resource shape; for updates use UpdateDeliverableDTO.',
+        'Retrieves a single deliverable by its publicId path parameter. No request body. Refer to CreateDeliverableDTO for the deliverable resource shape; for updates use UpdateDeliverableDTO.',
     }),
     ApiParam({
-      name: 'deliverableId',
+      name: 'publicId',
       type: String,
-      description: 'UUID of the deliverable',
+      description: 'publicId of the deliverable',
     }),
     ApiResponse({
       status: 200,

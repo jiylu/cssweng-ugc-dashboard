@@ -15,9 +15,9 @@ export class CampaignsController {
   constructor(private readonly campaignsService: CampaignsService) {}
 
   @ApiFindOneCampaign()
-  @Get(':campaignId')
-  findOne(@Param('campaignId') campaignId: string) {
-    return this.campaignsService.findOneCampaign(campaignId);
+  @Get(':publicId')
+  findOne(@Param('publicId') publicId: string) {
+    return this.campaignsService.findOneActiveCampaignByPublicId(publicId);
   }
 
   @ApiFindAllCampaigns()

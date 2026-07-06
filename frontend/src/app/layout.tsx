@@ -3,13 +3,13 @@ import { Geist, Geist_Mono } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
 import { cn } from "@/lib/utils";
-import Providers from "./../../components/providers/tanstackProvider"
 import { Toaster } from 'sonner';
+import Providers from "../providers/tanstackProvider";
 
 const andersonGrotesk = localFont({
   src: [
     {
-      path: './public/fonts/Anderson Grotesk/AndersonGrotesk.otf',
+      path: '../../public/fonts/Anderson Grotesk/AndersonGrotesk.otf',
       weight: '200',
       style: 'normal',
     },

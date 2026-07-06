@@ -6,6 +6,7 @@ import {
   IsNotEmpty,
   IsNumber,
   IsString,
+  Max,
   MaxLength,
   Min,
   MinLength,
@@ -18,29 +19,11 @@ export class CreateDeliverableDTO {
   @IsNotEmpty()
   campaignId!: string;
 
-  @ApiProperty({ example: 'Short video deliverable' })
-  @IsString()
-  @IsNotEmpty()
-  @MaxLength(150)
-  deliverableTitle!: string;
-
-  @ApiProperty({ example: 'Detailed description with at least 20 characters.' })
-  @IsString()
-  @IsNotEmpty()
-  @MinLength(20)
-  @MaxLength(1000)
-  description!: string;
-
-  @ApiProperty({ example: '2026-06-15T00:00:00.000Z' })
-  @IsDateString()
-  @IsNotEmpty()
-  deadline!: string;
-
-  @ApiProperty({ example: 1500 })
+  @ApiProperty({ example: 5 })
   @IsNumber()
-  @Type(() => Number)
-  @Min(0)
-  pricing!: number;
+  @Min(1)
+  @Max(10)
+  quantity!: number;
 
   @ApiProperty({
     enum: DeliverableType,
@@ -48,4 +31,33 @@ export class CreateDeliverableDTO {
   })
   @IsEnum(DeliverableType)
   deliverableType!: DeliverableType;
+
+  @ApiProperty({ example: 'Instagram Carousel' })
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(250)
+  deliverableContent!: string;
+
+  @ApiProperty({ example: '50 sec reel, with captions, highlighting product.' })
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(50)
+  @MaxLength(1000)
+  requirements!: string;
+
+  @ApiProperty({ example: '2026-06-15T00:00:00.000Z' })
+  @IsDateString()
+  @IsNotEmpty()
+  dueDate!: string;
+
+  @ApiProperty({ example: '2026-06-15T00:00:00.000Z' })
+  @IsDateString()
+  @IsNotEmpty()
+  postDate!: string;
+
+  @ApiProperty({ example: 1500 })
+  @IsNumber()
+  @Type(() => Number)
+  @Min(0)
+  pricing!: number;
 }

@@ -1,7 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { CampaignCurrency } from '@prisma/client';
 import { Type } from 'class-transformer';
 import {
+  IsArray,
   IsDateString,
+  IsEnum,
   IsNotEmpty,
   IsNumber,
   IsString,
@@ -17,7 +20,7 @@ export class CreateCampaignDTO {
 
   @ApiProperty({ example: 'New Project' })
   @IsString()
-  @MaxLength(50)
+  @MaxLength(150)
   projectName!: string;
 
   @ApiProperty({ example: 'This is my new project.' })
@@ -25,11 +28,28 @@ export class CreateCampaignDTO {
   @MaxLength(600)
   description!: string;
 
+  @ApiProperty({
+    enum: CampaignCurrency,
+    example: CampaignCurrency.PHP,
+  })
+  @IsEnum(CampaignCurrency)
+  currency!: CampaignCurrency;
+
+  @IsNumber()
+  @Type(() => Number)
+  @Min(0)
+  tax!: number;
+
   @ApiProperty({ example: '55000.67' })
   @IsNumber()
   @Type(() => Number)
   @Min(0)
   pricing!: number;
+
+  @ApiProperty({ example: '["Instagram", "Facebook", "TikTok"]' })
+  @IsArray()
+  @IsString({ each: true })
+  platforms!: string[];
 
   @ApiProperty({ example: '2026-06-07T00:00:00.000Z' })
   @IsDateString()

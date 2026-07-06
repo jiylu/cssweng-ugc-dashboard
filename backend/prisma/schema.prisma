@@ -18,30 +18,96 @@ model User {
   campaigns_as_creator Campaigns[] @relation("CreatorCampaigns")
   campaigns_as_client  Campaigns[] @relation("ClientCampaigns")
 
-  activity_logs          ActivityLog[] @relation("ActivityLogUser")
+  activity_logs ActivityLog[] @relation("ActivityLogUser")
   //targeted_activity_logs ActivityLog[] @relation("ActivityLogTargetUser")
 }
 
+model Clients {
+  client_id                 String @id @default(uuid())
+  user_id                   String @unique
+  company_legal_name        String
+  company_email             String
+  billable_person           String
+  contact_person            String
+  company_contact_no        Int
+  contact_person_contact_no Int
+}
+
 model Campaigns {
-  campaign_id     String         @id @default(uuid())
+  campaign_id     String           @id @default(uuid())
+  public_id       String           @unique @db.VarChar(10)
   ugc_creator_id  String
   client_id       String?
   project_name    String
   description     String
+  currency        CampaignCurrency
+  tax             Decimal
   pricing         Decimal
+  platforms       String[]
   start_date      DateTime
   end_date        DateTime
-  created_at      DateTime       @default(now())
-  campaign_status CampaignStatus @default(ACTIVE)
+  created_at      DateTime         @default(now())
+  campaign_status CampaignStatus   @default(ACTIVE)
 
-  creator   User       @relation("CreatorCampaigns", fields: [ugc_creator_id], references: [user_id])
-  client    User?      @relation("ClientCampaigns", fields: [client_id], references: [user_id])
-  proposals Proposals[]
+  creator      User           @relation("CreatorCampaigns", fields: [ugc_creator_id], references: [user_id])
+  client       User?          @relation("ClientCampaigns", fields: [client_id], references: [user_id])
+  proposals    Proposals[]
   deliverables Deliverables[]
+}
+
+model Contracts {
+  contract_id String    @id @default(uuid())
+  public_id   String    @unique @db.VarChar(10)
+  campaign_id String    @unique
+  is_signed   Boolean   @default(false)
+  signed_at   DateTime?
+
+  revision_policy          Json
+  usage_rights             Json
+  posting_requirements     Json
+  exclusivity              Json?
+  expenses_purchases_terms Json?
+  cancellation_period      Int
+  payment_terms            Json
+  invoice_requirements     Json
+  // general_terms            Json
+  // extra_notes              Json?
+}
+
+model GiftedProducts {
+  gifted_product_id String @id @default(uuid())
+  campaign_id String
+  product_name String
+  value Decimal
+  delivery_details String
+  ownership_terms String
+}
+
+// model Contract_Terms {
+//   contract_terms_id       String @id @default(uuid())
+//   contract_id             String
+//   revision_policy         Json
+//   payment_terms           Json
+//   usage_rights            Json
+//   posting_requirements    Json
+//   exclusivity             Json?
+//   breach_cure_period_days Int
+//   general_terms           Json
+//   extra_notes             Json?
+// }
+
+model Contract_Submission_History {
+  history_id     String               @id @default(uuid())
+  contract_id    String
+  action_status  ContractActionStatus
+  revision_notes String?
+  created_at     DateTime             @default(now())
+  updated_at     DateTime             @updatedAt
 }
 
 model Proposals {
   proposal_id     String         @id @default(uuid())
+  public_id       String         @unique @db.VarChar(10)
   campaign_id     String
   client_email    String
   client_comments String         @default("")
@@ -51,31 +117,78 @@ model Proposals {
 }
 
 model Deliverables {
-  deliverable_id    String          @id @default(uuid())
-  campaign_id       String
-  deliverable_title String
-  description       String
-  deadline          DateTime
-  pricing           Decimal
-  deliverable_type  DeliverableType
+  deliverable_id String @id @default(uuid())
+  public_id      String @unique @db.VarChar(10)
+  campaign_id    String
+
+  quantity            Int
+  deliverable_type    DeliverableType
+  deliverable_content String
+  requirements        String
+  due_date            DateTime
+  post_date           DateTime
+  pricing             Decimal
 
   campaign Campaigns @relation(fields: [campaign_id], references: [campaign_id])
 }
 
-model ActivityLog {
-  log_id         String          @id @default(uuid())
-  user_id        String
-  target_user_id String?
-  entity_type    EntityType
-  entity_id      String
-  action         Action
-  title          String
-  message        String
-  is_read        Boolean
-  created_at     DateTime
+model Submissions {
+  submission_id     String @id @default(uuid())
+  deliverable_id    String
+  deliverable_index Int
+}
 
-  user        User @relation("ActivityLogUser",       fields: [user_id],        references: [user_id])
-  //target_user User @relation("ActivityLogTargetUser", fields: [target_user_id], references: [user_id])
+model SubmissionItems {
+  submission_item_id String           @id @default(uuid())
+  submission_id      String
+  public_id          String           @unique @db.VarChar(10)
+  is_video           Boolean
+  script_id          String?
+  content            String
+  submission_status  SubmissionStatus
+  client_comments    String
+  created_at         DateTime
+  updated_at         DateTime
+}
+
+model AddOns {
+  add_on_id   String  @id @default(uuid())
+  campaign_id String
+  public_id   String  @unique @db.VarChar(10)
+  add_on_name String
+  fee         Decimal
+  initials    String
+  opt_in      Boolean @default(false)
+}
+
+model Scripts {
+  script_id         String           @id @default(uuid())
+  public_id         String           @unique @db.VarChar(10)
+  content           String
+  client_comments   String
+  submission_status SubmissionStatus
+  created_at        DateTime
+  updated_at        DateTime
+}
+
+model ActivityLog {
+  log_id      String     @id @default(uuid())
+  user_id     String
+  entity_type EntityType
+  entity_id   String
+  action      Action
+  created_at  DateTime
+
+  user User @relation("ActivityLogUser", fields: [user_id], references: [user_id])
+}
+
+model Notifications {
+  notification_id String   @id @default(uuid())
+  user_id         String
+  title           String
+  message         String
+  is_read         Boolean
+  created_at      DateTime @default(now())
 }
 
 enum UserRoles {
@@ -92,6 +205,14 @@ enum CampaignStatus {
   ACTIVE
   REJECTED
   COMPLETED
+}
+
+enum CampaignCurrency {
+  CAD
+  USD
+  PHP
+  EUR
+  GBP
 }
 
 enum ProposalStatus {
@@ -111,4 +232,17 @@ enum Action {
   SUBMISSION
   APPROVE
   SIGNED
+}
+
+enum ContractActionStatus {
+  DRAFT
+  REVISION_REQUESTED
+  CLIENT_SIGNED
+  FULLY_SIGNED
+}
+
+enum SubmissionStatus {
+  FOR_REVIEW
+  FOR_REVISION
+  APPROVED
 }
