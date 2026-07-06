@@ -32,6 +32,18 @@ export class ContractsService {
       data: {
         public_id: publicId,
         campaign_id: dto.campaignId,
+        revision_policy: { ...dto.revision_policy },
+        usage_rights: { ...dto.usage_rights },
+        posting_requirements: {
+          ...dto.posting_requirements,
+        },
+        exclusivity: dto.exclusivity ? { ...dto.exclusivity } : undefined,
+        expenses_purchases_terms: dto.expenses_purchases_terms
+          ? { ...dto.expenses_purchases_terms }
+          : undefined,
+        cancellation_period: dto.cancellation_period,
+        payment_terms: { ...dto.payment_terms },
+        invoice_requirements: { ...dto.invoice_requirements },
       },
     });
 
