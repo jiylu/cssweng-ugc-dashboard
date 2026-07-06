@@ -1,8 +1,8 @@
 import { Card } from "@/src/components/atoms/card"
 import { Button } from "@/components/ui/button"
 import { Plus } from "lucide-react"
-import { Deliverable } from "../types/deliverables.types"
-import { DeliverableRow } from "./deliverables-row"
+import { Deliverable } from "@/src/features/creator/proposals/types/deliverables.types"
+import { DeliverableRow } from "@/src/features/creator/proposals/components/deliverables/deliverables-row"
 
 export interface DeliverablesFormProps {
   deliverables: Deliverable[]

@@ -1,22 +1,21 @@
 "use client"
-import { useRef } from "react";
 import CreatorProposalsNavigation from "../components/proposals-nav";
 import CreatorSidebar from "../../../../components/organisms/creator-sidebar";
 import { useCampaignForm } from "../hooks/useCampaignForm";
-import CampaignDetailsSection from "../components/campaign-details-form";
-import ClientDetailsForm from "../components/client-details-form";
+import CampaignDetailsSection from "@/src/features/creator/proposals/components/campaign-details/campaign-details-form";
+import ClientDetailsForm from "@/src/features/creator/proposals/components/client-details/client-details-form";
 import { Separator } from "@/components/ui/separator";
-import DeliverablesForm from "../components/deliverables-form";
+import DeliverablesForm from "@/src/features/creator/proposals/components/deliverables/deliverables-form";
 import Button from "@/src/components/atoms/button";
 import { SendHorizontal } from "lucide-react";
 import { useAuth } from "@/src/features/auth/hooks/useAuth";
-import { useCreateCampaign } from "../hooks/useCreateCampaignMutation";
+import { useCreateCampaign } from "@/src/features/creator/proposals/hooks/useCreateCampaignMutation";
 import { toast } from "sonner";
-import { CreateCampaignPayload } from "../types/campaign-setup.types";
+import { CreateCampaignPayload } from "@/src/features/creator/proposals/types/campaign-setup.types";
 import { useRouter } from "next/navigation"
 import { Badge } from "@/components/ui/badge";
 import { Spinner } from "@/components/ui/spinner";
-import { ProposalProgressBar } from "../components/proposal-progress-bar";
+import { ProposalProgressBar } from "@/src/features/creator/proposals/components/proposal-progress-bar";
 
 export default function CreateCampaign() {
   const form = useCampaignForm();
@@ -44,10 +43,10 @@ export default function CreateCampaign() {
       endDate: new Date(form.endDate).toISOString(),
     },
     deliverables: form.deliverables.map(({ ...rest }) => ({
-      deliverableTitle: rest.deliverable_title,
+      deliverableTitle: rest.deliverableTitle,
       description: rest.description,
-      deliverableType: rest.deliverable_type as 'COLLABORATION' | 'UGC',
-      deadline: new Date(rest.deadline).toISOString(),
+      deliverableType: rest.deliverableType as 'COLLABORATION' | 'UGC',
+      deadline: new Date(rest.draftDeadline).toISOString(),
       pricing: parseFloat(rest.pricing.replace(/,/g, '') || '0'),
     })),
     proposal: {

@@ -1,7 +1,7 @@
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { DatePickerInput } from "@/src/components/molecules/date-picker-input";
-import { PlatformsCheckbox } from "@/src/features/creator/proposals/components/platforms-checkbox";
+import { PlatformsCheckbox } from "@/src/features/creator/proposals/components/campaign-details/platforms-checkbox";
 
 export interface CampaignDetailsFormProps {
   form: {

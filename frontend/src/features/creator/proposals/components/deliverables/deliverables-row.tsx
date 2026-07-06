@@ -4,7 +4,7 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectVa
 import { DatePickerInput } from "@/src/components/molecules/date-picker-input"
 import { Trash2, ChevronUp, ChevronDown } from "lucide-react"
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group"
-import { Deliverable } from "../types/deliverables.types"
+import { Deliverable } from "@/src/features/creator/proposals/types/deliverables.types"
 
 interface DeliverableRowProps {
   item: Deliverable
