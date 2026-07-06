@@ -13,8 +13,7 @@ import { useCreateCampaign } from "../hooks/useCreateCampaignMutation";
 import { toast } from "sonner";
 import { CreateCampaignPayload } from "../types/campaign-setup.types";
 import { useRouter } from "next/navigation"
-import { Badge } from "@/components/ui/badge";
-import { Spinner } from "@/components/ui/spinner";
+import LogoLoader from "@/src/components/molecules/logo-loader";
 
 export default function CreateCampaign() {
   const form = useCampaignForm();
@@ -24,14 +23,7 @@ export default function CreateCampaign() {
   const { mutate: submitCampaign, isPending } = useCreateCampaign();
   const router = useRouter();
 
-  if (loading) return (
-    <div className="flex mt-5 justify-center">
-      <Badge variant="outline">
-        <Spinner data-icon="inline-start" />
-        Loading...
-      </Badge>
-    </div>
-  );
+  if (loading) return <LogoLoader label="Loading proposal form" />;
 
   if (!user) return null;
 

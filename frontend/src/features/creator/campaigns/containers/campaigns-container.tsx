@@ -3,13 +3,12 @@ import CreatorSidebar from "../../../../components/organisms/creator-sidebar";
 import { useRouter } from "next/navigation"
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/src/features/auth/hooks/useAuth";
-import { Badge } from "@/components/ui/badge";
-import { Spinner } from "@/components/ui/spinner";
 import { useState } from "react"
 import { CampaignTabs } from "@/src/features/creator/campaigns/components/campaign-tabs"
 import { CampaignList } from "@/src/features/creator/campaigns/components/campaign-list"
 import { Button } from "@/components/ui/button"
 import { useCampaigns } from "@/src/features/creator/campaigns/hooks/useCampaign"
+import LogoLoader from "@/src/components/molecules/logo-loader";
 
 export default function Campaigns() {
   const { user, loading } = useAuth();
@@ -18,14 +17,7 @@ export default function Campaigns() {
   const { data, isLoading, isError } = useCampaigns(user?.user_id ?? "", page)
   const router = useRouter();
 
-  if (loading || isLoading) return (
-    <div className="flex mt-5 justify-center">
-      <Badge variant="outline">
-        <Spinner data-icon="inline-start" />
-        Loading...
-      </Badge>
-    </div>
-  );
+  if (loading || isLoading) return <LogoLoader label="Loading campaigns" />;
 
   if (isError) return <p>Something went wrong.</p>;
   if (!user) return null;
