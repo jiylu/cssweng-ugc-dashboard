@@ -1,6 +1,4 @@
-const configuredApiUrl =
-  process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ??
-  "http://localhost:8080";
+const configuredApiUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ?? "http://localhost:8080";
 
 export const API_BASE_URL = configuredApiUrl
   ? configuredApiUrl.endsWith("/api")
@@ -28,6 +26,7 @@ export type LoginUserResponse = {
     email: string;
     first_name: string;
     last_name: string;
+    role: "CLIENT" | "CREATOR";
   };
 };
 
