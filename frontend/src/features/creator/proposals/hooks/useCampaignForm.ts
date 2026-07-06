@@ -23,6 +23,7 @@ export function useCampaignForm() {
     },
   ])
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const [activeStep, setActiveStep] = useState(1)
 
   const addDeliverable = () => {
     const newId =
@@ -124,5 +125,7 @@ export function useCampaignForm() {
     adjustPrice,
     errors,
     validateForm,
+    activeStep,
+    setActiveStep
   }
 }

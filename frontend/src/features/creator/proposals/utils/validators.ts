@@ -1,5 +1,7 @@
 import { campaignSchema } from "../schemas/campaign.schema";
 import { Deliverable } from "../types/deliverables.types";
+import { contractTermsSchema } from "../schemas/contract-terms.schema";
+import { ContractTermsData } from "../types/contract-terms.types";
 
 interface FormData {
     projectName: string;
@@ -21,6 +23,21 @@ export const validateCampaignForm = (data: FormData) => {
   for (const issue of result.error.issues) {
     const path = issue.path.join('.');
     errors[path] = issue.message; 
+  }
+
+  return errors;
+}
+
+export const validateContractTerms = (data: ContractTermsData) => {
+  const result = contractTermsSchema.safeParse(data);
+
+  if (result.success) return {};
+
+  const errors: Record<string, string> = {};
+
+  for (const issue of result.error.issues) {
+    const path = issue.path.join('.');
+    errors[path] = issue.message;
   }
 
   return errors;
