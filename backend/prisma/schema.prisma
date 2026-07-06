@@ -62,14 +62,16 @@ model Contracts {
   is_signed   Boolean   @default(false)
   signed_at   DateTime?
 
-  revision_policy         Json
-  payment_terms           Json
-  usage_rights            Json
-  posting_requirements    Json
-  exclusivity             Json?
-  breach_cure_period_days Int
-  general_terms           Json
-  extra_notes             Json?
+  revision_policy          Json
+  usage_rights             Json
+  posting_requirements     Json
+  exclusivity              Json?
+  expenses_purchases_terms Json?
+  cancellation_period      Int
+  payment_terms            Json
+  invoice_requirements     Json
+  // general_terms            Json
+  // extra_notes              Json?
 }
 
 // model Contract_Terms {

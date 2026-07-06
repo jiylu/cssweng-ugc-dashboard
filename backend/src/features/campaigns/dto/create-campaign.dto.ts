@@ -20,7 +20,7 @@ export class CreateCampaignDTO {
 
   @ApiProperty({ example: 'New Project' })
   @IsString()
-  @MaxLength(50)
+  @MaxLength(150)
   projectName!: string;
 
   @ApiProperty({ example: 'This is my new project.' })
