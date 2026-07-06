@@ -69,7 +69,10 @@ describe('CampaignSetupService', () => {
         },
         {
           provide: GiftedProductsService,
-          useValue: { createGiftedProduct: jest.fn(), createManyGiftedProducts: jest.fn() },
+          useValue: {
+            createGiftedProduct: jest.fn(),
+            createManyGiftedProducts: jest.fn(),
+          },
         },
       ],
     }).compile();
@@ -118,12 +121,34 @@ describe('CampaignSetupService', () => {
           clientEmail: 'client@test.com',
         },
         contract: {
-          revision_policy: { revision_rounds: 3, revision_window_days: 7, auto_approve_after_days: 5 },
-          usage_rights: { is_exclusive: true, is_transferrable: false, organic_usage: 'Brand may repost creator content on owned channels.', territory: 'Worldwide', restrictions: 'None' },
-          posting_requirements: { content_retention_months: 12, partnership_tags: '#ad' },
+          revision_policy: {
+            revision_rounds: 3,
+            revision_window_days: 7,
+            auto_approve_after_days: 5,
+          },
+          usage_rights: {
+            is_exclusive: true,
+            is_transferrable: false,
+            organic_usage:
+              'Brand may repost creator content on owned channels.',
+            territory: 'Worldwide',
+            restrictions: 'None',
+          },
+          posting_requirements: {
+            content_retention_months: 12,
+            partnership_tags: '#ad',
+          },
           cancellation_period: 30,
-          payment_terms: { payment_schedule: 1, payment_method: 'Bank Transfer' },
-          invoice_requirements: { name: 'Test', email: 'test@test.com', campaign_name: 'Test', payment_details: 'Bank' },
+          payment_terms: {
+            payment_schedule: 1,
+            payment_method: 'Bank Transfer',
+          },
+          invoice_requirements: {
+            name: 'Test',
+            email: 'test@test.com',
+            campaign_name: 'Test',
+            payment_details: 'Bank',
+          },
         },
       };
 
@@ -204,12 +229,34 @@ describe('CampaignSetupService', () => {
         deliverables: [],
         proposal: { clientEmail: 'client@test.com' },
         contract: {
-          revision_policy: { revision_rounds: 3, revision_window_days: 7, auto_approve_after_days: 5 },
-          usage_rights: { is_exclusive: true, is_transferrable: false, organic_usage: 'Brand may repost creator content on owned channels.', territory: 'Worldwide', restrictions: 'None' },
-          posting_requirements: { content_retention_months: 12, partnership_tags: '#ad' },
+          revision_policy: {
+            revision_rounds: 3,
+            revision_window_days: 7,
+            auto_approve_after_days: 5,
+          },
+          usage_rights: {
+            is_exclusive: true,
+            is_transferrable: false,
+            organic_usage:
+              'Brand may repost creator content on owned channels.',
+            territory: 'Worldwide',
+            restrictions: 'None',
+          },
+          posting_requirements: {
+            content_retention_months: 12,
+            partnership_tags: '#ad',
+          },
           cancellation_period: 30,
-          payment_terms: { payment_schedule: 1, payment_method: 'Bank Transfer' },
-          invoice_requirements: { name: 'Test', email: 'test@test.com', campaign_name: 'Test', payment_details: 'Bank' },
+          payment_terms: {
+            payment_schedule: 1,
+            payment_method: 'Bank Transfer',
+          },
+          invoice_requirements: {
+            name: 'Test',
+            email: 'test@test.com',
+            campaign_name: 'Test',
+            payment_details: 'Bank',
+          },
         },
       };
 

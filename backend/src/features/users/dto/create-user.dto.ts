@@ -10,20 +10,24 @@ import {
 } from 'class-validator';
 
 export class CreateUserDTO {
+  @ApiProperty({ example: 'creator@example.com' })
   @IsEmail()
   @IsNotEmpty()
   email!: string;
 
+  @ApiProperty({ example: 'StrongPass123' })
   @IsString()
   @IsNotEmpty()
   @MinLength(6)
   password!: string;
 
+  @ApiProperty({ example: 'Alyssa' })
   @IsString()
   @IsNotEmpty()
   @MaxLength(50)
   firstName!: string;
 
+  @ApiProperty({ example: 'Cruz' })
   @IsString()
   @IsNotEmpty()
   @MaxLength(50)
