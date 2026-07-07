@@ -16,6 +16,7 @@ import { useRouter } from "next/navigation"
 import { Badge } from "@/components/ui/badge";
 import { Spinner } from "@/components/ui/spinner";
 import { ProposalProgressBar } from "@/src/features/creator/proposals/components/proposal-progress-bar";
+import AddOnsForm from "../components/add-ons/add-ons-form";
 
 export default function CreateCampaign() {
   const form = useCampaignForm();
@@ -143,6 +144,17 @@ export default function CreateCampaign() {
             updateDeliverable={form.updateDeliverable}
             adjustPrice={form.adjustPrice}
           />
+
+          {/* Add-ons EVERYTHING IS HARDCODED PA */}
+          <div className="mt-6">
+            <AddOnsForm 
+              currency="PHP" // HARD CODED PA
+              addOns={[]} // NO DATA YET
+              onAddCustom={() => console.log("Clicked add custom button")}
+              onRemove={(id) => console.log("Removed ", id)}
+              onAdjustPrice={(id, amount) => console.log("Adjusted price for", id, amount)}
+            /> 
+          </div>
 
           {/* Bottom Actions */}
           <div className="flex justify-end gap-3 mt-6 pb-8">
