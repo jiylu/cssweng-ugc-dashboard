@@ -1,4 +1,5 @@
 import {
+  ConflictException,
   HttpStatus,
   Injectable,
   Logger,
@@ -8,8 +9,8 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { CampaignsService } from '../campaigns/campaigns.service';
 import { CreateGiftedProductDTO } from './dto/create-gifted-product.dto';
 import { Prisma } from '@prisma/client';
+import { UpdateGiftedProductDTO } from './dto/update-gifted-product.dto';
 
-// TODO: Update and Delete Gifted Products
 @Injectable()
 export class GiftedProductsService {
   private readonly logger = new Logger(GiftedProductsService.name);
@@ -72,6 +73,7 @@ export class GiftedProductsService {
     const giftedProducts = await this.prisma.giftedProducts.findMany({
       where: {
         campaign_id: campaignId,
+        is_deleted: false,
       },
     });
 
@@ -87,12 +89,16 @@ export class GiftedProductsService {
     return giftedProducts;
   }
 
-  async findOneGiftedProduct(giftedProductId: string) {
+  async findOneGiftedProduct(
+    giftedProductId: string,
+    tx: Prisma.TransactionClient | PrismaService = this.prisma,
+  ) {
     this.logger.debug(`Finding gifted product ${giftedProductId}`);
 
-    const giftedProduct = await this.prisma.giftedProducts.findFirst({
+    const giftedProduct = await tx.giftedProducts.findFirst({
       where: {
         gifted_product_id: giftedProductId,
+        is_deleted: false,
       },
     });
 
@@ -107,5 +113,72 @@ export class GiftedProductsService {
 
     this.logger.log(`Gifted product ${giftedProduct.gifted_product_id} found.`);
     return giftedProduct;
+  }
+
+  async updateGiftedProductDetails(
+    giftedProductId: string,
+    dto: UpdateGiftedProductDTO,
+    tx: Prisma.TransactionClient | PrismaService = this.prisma,
+  ) {
+    this.logger.debug(`Updating gifted product ${giftedProductId}`);
+
+    await this.findOneGiftedProduct(giftedProductId, tx);
+
+    const updatedGiftedProduct = await tx.giftedProducts.update({
+      where: { gifted_product_id: giftedProductId },
+      data: {
+        ...(dto.productName !== undefined && {
+          product_name: dto.productName,
+        }),
+        ...(dto.value !== undefined && { value: dto.value }),
+        ...(dto.deliveryAddress !== undefined && {
+          delivery_address: dto.deliveryAddress,
+        }),
+        ...(dto.deliveryInstructions !== undefined && {
+          delivery_instructions: dto.deliveryInstructions,
+        }),
+        ...(dto.ownershipTerms !== undefined && {
+          ownership_terms: dto.ownershipTerms,
+        }),
+      },
+    });
+
+    this.logger.log(`Gifted product ${giftedProductId} updated successfully`);
+
+    return updatedGiftedProduct;
+  }
+
+  async deleteGiftedProduct(
+    giftedProductId: string,
+    tx: Prisma.TransactionClient | PrismaService = this.prisma,
+  ) {
+    this.logger.debug(`Deleting gifted product ${giftedProductId}`);
+
+    const giftedProduct = await this.findOneGiftedProduct(giftedProductId, tx);
+
+    if (giftedProduct.is_deleted) {
+      this.logger.debug(
+        `Gifted product ${giftedProduct.gifted_product_id} is already deleted.`,
+      );
+
+      throw new ConflictException({
+        status: HttpStatus.CONFLICT,
+        code: 'GIFTED_PRODUCT_ALREADY_DELETED',
+        message: 'Gifted product is already deleted',
+      });
+    }
+
+    const deletedGiftedProduct = await tx.giftedProducts.update({
+      where: { gifted_product_id: giftedProduct.gifted_product_id },
+      data: {
+        is_deleted: true,
+      },
+    });
+
+    this.logger.log(
+      `Successfully deleted gifted product ${deletedGiftedProduct.gifted_product_id}`,
+    );
+
+    return deletedGiftedProduct;
   }
 }

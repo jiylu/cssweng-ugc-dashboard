@@ -12,10 +12,10 @@ import { CampaignStatus, Prisma, UserRoles } from '@prisma/client';
 import { CampaignQueryDTO } from './dto/campaign-query-dto';
 import { UpdateCampaignStatusDto } from './dto/update-campaign-status-dto';
 import { UpdateCampaignClientDTO } from './dto/update-campaign-client.dto';
+import { UpdateCampaignDetailsDTO } from './dto/update-campaign-details.dto';
 import { UserService } from '../users/users.service';
 import { nanoid } from 'nanoid';
 
-// TODO: ADD UPDATE PRICING
 @Injectable()
 export class CampaignsService {
   private readonly logger = new Logger(CampaignsService.name);
@@ -261,6 +261,50 @@ export class CampaignsService {
     this.logger.log(
       `Updated client id for campaign ${campaignId} to client id ${dto.clientId}.`,
     );
+
+    return updatedCampaign;
+  }
+
+  async updateCampaignDetails(
+    campaignId: string,
+    dto: UpdateCampaignDetailsDTO,
+    tx: Prisma.TransactionClient | PrismaService = this.prisma,
+  ) {
+    this.logger.debug(`Updating campaign details for ${campaignId}`);
+
+    await this.findOneCampaign(campaignId, tx);
+
+    const updatedCampaign = await tx.campaigns.update({
+      where: { campaign_id: campaignId },
+      data: {
+        ...(dto.projectName !== undefined && {
+          project_name: dto.projectName,
+        }),
+        ...(dto.description !== undefined && {
+          description: dto.description,
+        }),
+        ...(dto.currency !== undefined && {
+          currency: dto.currency,
+        }),
+        ...(dto.tax !== undefined && {
+          tax: dto.tax,
+        }),
+        ...(dto.pricing !== undefined && {
+          pricing: new Prisma.Decimal(dto.pricing),
+        }),
+        ...(dto.platforms !== undefined && {
+          platforms: dto.platforms,
+        }),
+        ...(dto.startDate !== undefined && {
+          start_date: new Date(dto.startDate),
+        }),
+        ...(dto.endDate !== undefined && {
+          end_date: new Date(dto.endDate),
+        }),
+      },
+    });
+
+    this.logger.log(`Campaign details for ${campaignId} updated successfully`);
 
     return updatedCampaign;
   }
