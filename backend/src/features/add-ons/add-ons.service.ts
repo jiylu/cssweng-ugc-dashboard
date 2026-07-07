@@ -92,12 +92,16 @@ export class AddOnsService {
     return addOns;
   }
 
-  async findOneAddOnByUID(addOnId: string) {
+  async findOneAddOnByUID(
+    addOnId: string,
+    tx: Prisma.TransactionClient | PrismaService = this.prisma,
+  ) {
     this.logger.debug(`Finding add-on with UID ${addOnId}.`);
 
-    const addOn = await this.prisma.addOns.findFirst({
+    const addOn = await tx.addOns.findFirst({
       where: {
         add_on_id: addOnId,
+        is_deleted: false,
       },
     });
 
@@ -121,6 +125,7 @@ export class AddOnsService {
     const addOn = await this.prisma.addOns.findFirst({
       where: {
         public_id: publicId,
+        is_deleted: false,
       },
     });
 
@@ -144,7 +149,9 @@ export class AddOnsService {
     const oldAddOn = await this.findOneAddOnByUID(addOnId);
 
     const updatedAddOn = await this.prisma.addOns.update({
-      where: { add_on_id: addOnId },
+      where: {
+        add_on_id: addOnId,
+      },
       data: {
         opt_in: dto.optIn,
       },
@@ -157,12 +164,16 @@ export class AddOnsService {
     return updatedAddOn;
   }
 
-  async updateAddOnDetails(addOnId: string, dto: UpdateAddOnDTO) {
+  async updateAddOnDetails(
+    addOnId: string,
+    dto: UpdateAddOnDTO,
+    tx: Prisma.TransactionClient | PrismaService = this.prisma,
+  ) {
     this.logger.debug(`Updating add-on ${addOnId}`);
 
-    await this.findOneAddOnByUID(addOnId);
+    await this.findOneAddOnByUID(addOnId, tx);
 
-    const updatedAddOn = await this.prisma.addOns.update({
+    const updatedAddOn = await tx.addOns.update({
       where: { add_on_id: addOnId },
       data: {
         ...(dto.addOnName !== undefined && { add_on_name: dto.addOnName }),
@@ -177,10 +188,10 @@ export class AddOnsService {
     return updatedAddOn;
   }
 
-  async deleteAddOn(publicId: string) {
-    this.logger.debug(`Deleting add-on ${publicId}`);
+  async deleteAddOn(addOnId: string) {
+    this.logger.debug(`Deleting add-on ${addOnId}`);
 
-    const addOn = await this.findOneAddOnByPublicId(publicId);
+    const addOn = await this.findOneAddOnByUID(addOnId);
 
     if (addOn.is_deleted) {
       this.logger.debug(

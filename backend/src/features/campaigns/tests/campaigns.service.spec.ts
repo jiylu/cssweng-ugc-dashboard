@@ -15,6 +15,7 @@ import {
 } from '@nestjs/common';
 import { UpdateCampaignClientDTO } from '../dto/update-campaign-client.dto';
 import { UserService } from 'src/features/users/users.service';
+import { UpdateCampaignDetailsDTO } from '../dto/update-campaign-details.dto';
 
 jest.mock('nanoid', () => ({
   nanoid: jest.fn(() => 'mock_public_id_1234567890'),
@@ -59,6 +60,7 @@ describe('CampaignService', () => {
 
   afterEach(() => {
     jest.useRealTimers();
+    jest.resetAllMocks();
   });
 
   describe('create', () => {
@@ -580,6 +582,174 @@ describe('CampaignService', () => {
       await expect(
         service.updateCampaignClientId(campaignId, { clientId: 'client123' }),
       ).rejects.toBeInstanceOf(ConflictException);
+    });
+  });
+
+  describe('updateCampaignDetails', () => {
+    it('should update all editable campaign details', async () => {
+      const campaignId = 'camp-details-1';
+      const existingCampaign = {
+        campaign_id: campaignId,
+        public_id: 'pub_details_1',
+        ugc_creator_id: 'ugcA',
+        client_id: '',
+        project_name: 'Old Project',
+        description: 'Old Description',
+        currency: CampaignCurrency.PHP,
+        tax: new Prisma.Decimal(0),
+        pricing: new Prisma.Decimal(1000),
+        platforms: ['Instagram'],
+        start_date: new Date('2026-06-01T00:00:00.000Z'),
+        end_date: new Date('2026-06-10T00:00:00.000Z'),
+        created_at: new Date(),
+        campaign_status: CampaignStatus.ACTIVE,
+      };
+      const dto: UpdateCampaignDetailsDTO = {
+        projectName: 'Updated Project',
+        description: 'Updated Description',
+        currency: CampaignCurrency.USD,
+        tax: 12,
+        pricing: 2500,
+        platforms: ['Instagram', 'TikTok'],
+        startDate: '2026-07-01T00:00:00.000Z',
+        endDate: '2026-07-15T00:00:00.000Z',
+      };
+      const updatedCampaign = {
+        ...existingCampaign,
+        project_name: dto.projectName,
+        description: dto.description,
+        currency: dto.currency,
+        tax: dto.tax,
+        pricing: new Prisma.Decimal(dto.pricing ?? 0),
+        platforms: dto.platforms,
+        start_date: new Date(dto.startDate ?? 0),
+        end_date: new Date(dto.endDate ?? 0),
+      };
+
+      mockPrisma.campaigns.findFirst.mockResolvedValue(existingCampaign);
+      mockPrisma.campaigns.update.mockResolvedValue(updatedCampaign);
+
+      const res = await service.updateCampaignDetails(campaignId, dto);
+
+      expect(res).toEqual(updatedCampaign);
+      expect(mockPrisma.campaigns.findFirst).toHaveBeenCalledWith({
+        where: { campaign_id: campaignId },
+      });
+      expect(mockPrisma.campaigns.update).toHaveBeenCalledWith({
+        where: { campaign_id: campaignId },
+        data: {
+          project_name: dto.projectName,
+          description: dto.description,
+          currency: dto.currency,
+          tax: dto.tax,
+          pricing: new Prisma.Decimal(dto.pricing ?? 0),
+          platforms: dto.platforms,
+          start_date: new Date(dto.startDate ?? 0),
+          end_date: new Date(dto.endDate ?? 0),
+        },
+      });
+    });
+
+    it('should update only provided fields and preserve zero values', async () => {
+      const campaignId = 'camp-details-2';
+      const existingCampaign = {
+        campaign_id: campaignId,
+        public_id: 'pub_details_2',
+        ugc_creator_id: 'ugcA',
+        client_id: '',
+        project_name: 'Old Project',
+        description: 'Old Description',
+        currency: CampaignCurrency.PHP,
+        tax: new Prisma.Decimal(12),
+        pricing: new Prisma.Decimal(1000),
+        platforms: ['Instagram'],
+        start_date: new Date('2026-06-01T00:00:00.000Z'),
+        end_date: new Date('2026-06-10T00:00:00.000Z'),
+        created_at: new Date(),
+        campaign_status: CampaignStatus.ACTIVE,
+      };
+      const dto: UpdateCampaignDetailsDTO = {
+        tax: 0,
+        pricing: 0,
+      };
+      const updatedCampaign = {
+        ...existingCampaign,
+        tax: dto.tax,
+        pricing: new Prisma.Decimal(dto.pricing ?? 0),
+      };
+
+      mockPrisma.campaigns.findFirst.mockResolvedValue(existingCampaign);
+      mockPrisma.campaigns.update.mockResolvedValue(updatedCampaign);
+
+      const res = await service.updateCampaignDetails(campaignId, dto);
+
+      expect(res).toEqual(updatedCampaign);
+      expect(mockPrisma.campaigns.update).toHaveBeenCalledWith({
+        where: { campaign_id: campaignId },
+        data: {
+          tax: 0,
+          pricing: new Prisma.Decimal(0),
+        },
+      });
+    });
+
+    it('should throw NotFoundException when campaign does not exist', async () => {
+      mockPrisma.campaigns.findFirst.mockResolvedValue(null);
+
+      await expect(
+        service.updateCampaignDetails('missing-camp', {
+          projectName: 'Updated Project',
+        }),
+      ).rejects.toBeInstanceOf(NotFoundException);
+      expect(mockPrisma.campaigns.update).not.toHaveBeenCalled();
+    });
+
+    it('should use the provided transaction client', async () => {
+      const campaignId = 'camp-details-tx';
+      const existingCampaign = {
+        campaign_id: campaignId,
+        public_id: 'pub_details_tx',
+        ugc_creator_id: 'ugcA',
+        client_id: '',
+        project_name: 'Old Project',
+        description: 'Old Description',
+        currency: CampaignCurrency.PHP,
+        tax: new Prisma.Decimal(12),
+        pricing: new Prisma.Decimal(1000),
+        platforms: ['Instagram'],
+        start_date: new Date('2026-06-01T00:00:00.000Z'),
+        end_date: new Date('2026-06-10T00:00:00.000Z'),
+        created_at: new Date(),
+        campaign_status: CampaignStatus.ACTIVE,
+      };
+      const updatedCampaign = {
+        ...existingCampaign,
+        project_name: 'Updated In Transaction',
+      };
+      const mockTx = {
+        campaigns: {
+          findFirst: jest.fn().mockResolvedValue(existingCampaign),
+          update: jest.fn().mockResolvedValue(updatedCampaign),
+        },
+      };
+
+      const res = await service.updateCampaignDetails(
+        campaignId,
+        { projectName: 'Updated In Transaction' },
+        mockTx as any,
+      );
+
+      expect(res).toEqual(updatedCampaign);
+      expect(mockTx.campaigns.findFirst).toHaveBeenCalledWith({
+        where: { campaign_id: campaignId },
+      });
+      expect(mockTx.campaigns.update).toHaveBeenCalledWith({
+        where: { campaign_id: campaignId },
+        data: {
+          project_name: 'Updated In Transaction',
+        },
+      });
+      expect(mockPrisma.campaigns.update).not.toHaveBeenCalled();
     });
   });
 

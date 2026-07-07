@@ -73,10 +73,13 @@ export class DeliverablesService {
     return createdDeliverables;
   }
 
-  async findOneDeliverableByUID(deliverableId: string) {
+  async findOneDeliverableByUID(
+    deliverableId: string,
+    tx: Prisma.TransactionClient | PrismaService = this.prisma,
+  ) {
     this.logger.debug(`Finding deliverable with UID ${deliverableId}.`);
 
-    const deliverable = await this.prisma.deliverables.findFirst({
+    const deliverable = await tx.deliverables.findFirst({
       where: {
         deliverable_id: deliverableId,
         is_deleted: false,
@@ -149,12 +152,13 @@ export class DeliverablesService {
   async updateDeliverableDetails(
     deliverableId: string,
     dto: UpdateDeliverableDTO,
+    tx: Prisma.TransactionClient | PrismaService = this.prisma,
   ) {
     this.logger.debug(`Updating deliverable ${deliverableId}`);
 
-    await this.findOneDeliverableByUID(deliverableId);
+    await this.findOneDeliverableByUID(deliverableId, tx);
 
-    const updatedDeliverable = await this.prisma.deliverables.update({
+    const updatedDeliverable = await tx.deliverables.update({
       where: { deliverable_id: deliverableId },
       data: {
         ...(dto.quantity !== undefined && { quantity: dto.quantity }),
@@ -182,10 +186,10 @@ export class DeliverablesService {
     return updatedDeliverable;
   }
 
-  async deleteDeliverable(publicId: string) {
-    this.logger.debug(`Deleting deliverable ${publicId}`);
+  async deleteDeliverable(deliverableId: string) {
+    this.logger.debug(`Deleting deliverable ${deliverableId}`);
 
-    const deliverable = await this.findOneDeliverableByPublicId(publicId);
+    const deliverable = await this.findOneDeliverableByUID(deliverableId);
 
     if (deliverable.is_deleted) {
       this.logger.debug(
