@@ -1,6 +1,7 @@
 import {
   IsBoolean,
   IsNotEmpty,
+  IsOptional,
   IsString,
   MaxLength,
   MinLength,
@@ -31,7 +32,7 @@ export class UsageRightsDTO {
       'Paid social boosting is allowed for up to 90 days from original post date.',
   })
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   @MinLength(50)
   @MaxLength(500)
   paid_usage_ads?: string;
@@ -41,7 +42,7 @@ export class UsageRightsDTO {
       'Spark Ads may be run for 60 days provided ad copy is pre-approved by creator.',
   })
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   @MinLength(50)
   @MaxLength(500)
   whitelisting_spark_ads?: string;
