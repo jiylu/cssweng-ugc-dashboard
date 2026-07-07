@@ -22,6 +22,14 @@ export class CreateAddOnDTO {
   @MaxLength(500)
   addOnName!: string;
 
+  @ApiProperty({
+    example: 'Describe your add-on',
+  })
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(500)
+  description!: string;
+
   @ApiProperty({ example: 2500 })
   @IsNumber()
   @Type(() => Number)

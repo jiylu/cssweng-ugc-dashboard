@@ -157,6 +157,7 @@ model AddOns {
   campaign_id String
   public_id   String  @unique @db.VarChar(10)
   add_on_name String
+  description String
   fee         Decimal
   initials    String
   opt_in      Boolean @default(false)
