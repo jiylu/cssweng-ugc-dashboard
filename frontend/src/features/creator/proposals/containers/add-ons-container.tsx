@@ -5,24 +5,23 @@ import AddOnsForm from "@/src/features/creator/proposals/components/add-ons/add-
 import { useAddOns } from "@/src/features/creator/proposals/hooks/useAddOns"
 
 interface AddOnsContainerProps {
-  onBack: () => void
-  onNext: () => void
+    addOns: ReturnType<typeof useAddOns>
+    onBack: () => void
+    onNext: () => void
 }
 
-export function AddOnsContainer({ onBack, onNext }: AddOnsContainerProps) {
-    const { addOns, addCustom, removeAddOn, adjustPrice, updateAddOn, errors, validateForm } = useAddOns()
-
+export function AddOnsContainer({ addOns, onBack, onNext }: AddOnsContainerProps) {
     return (
     <>
         <div className="mt-6">  
             <AddOnsForm
                 currency="PHP"
-                addOns={addOns}
-                onAddCustom={addCustom}
-                onRemove={removeAddOn}
-                onAdjustPrice={adjustPrice}
-                onUpdateAddOn={updateAddOn}
-                errors={errors}
+                addOns={addOns.addOns}
+                onAddCustom={addOns.addCustom}
+                onRemove={addOns.removeAddOn}
+                onAdjustPrice={addOns.adjustPrice}
+                onUpdateAddOn={addOns.updateAddOn}
+                errors={addOns.errors}
             />
             </div>
 
@@ -33,7 +32,7 @@ export function AddOnsContainer({ onBack, onNext }: AddOnsContainerProps) {
             </Button>
             <Button
                 onClick={() => {
-                    if (validateForm()) onNext()
+                    if (addOns.validateForm()) onNext()
                 }}
                 className="bg-[#6b1fa8] hover:bg-[#5a1a8f] text-white flex items-center gap-2"
             >

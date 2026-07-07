@@ -2,7 +2,9 @@ import z from "zod";
 import { deliverableSchema } from "./deliverable.schema";
 
 const platformEntrySchema = z.object({
-  platform: z.string().min(1),
+  platform: z.string()
+    .min(1, "Handle is required."),
+
   handle: z.string()
     .min(1, "Handle is required.")
     .refine((val) => val.startsWith("@"), "Handle must start with @"),
@@ -24,7 +26,7 @@ export const campaignSchema = z.object({
 
   campaignDescription: z.string()
     .min(1, "Description is required.")
-    .max(300, "Description must not be less than 300 characters."),
+    .max(500, "Description must not be less than 300 characters."),
 
   contactEmail: z.email("Enter a valid email address")
     .min(1, "Contact email is required."),
