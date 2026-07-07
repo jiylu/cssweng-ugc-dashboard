@@ -2,20 +2,14 @@
 import CreatorProposalsNavigation from "@/src/features/creator/proposals/components/proposals-nav";
 import CreatorSidebar from "@/src/components/organisms/creator-sidebar";
 import { useCampaignForm } from "../hooks/useCampaignForm";
-import CampaignDetailsSection from "@/src/features/creator/proposals/components/campaign-details/campaign-details-form";
-import ClientDetailsForm from "@/src/features/creator/proposals/components/client-details/client-details-form";
 import { Separator } from "@/components/ui/separator";
-import DeliverablesForm from "@/src/features/creator/proposals/components/deliverables/deliverables-form";
-import Button from "@/src/components/atoms/button";
-import { ArrowRight } from "lucide-react";
 import { useAuth } from "@/src/features/auth/hooks/useAuth";
 import { useCreateCampaign } from "@/src/features/creator/proposals/hooks/useCreateCampaignMutation";
 import { toast } from "sonner";
 import { CreateCampaignPayload } from "@/src/features/creator/proposals/types/campaign-setup.types";
 import { useRouter } from "next/navigation"
-import { Badge } from "@/components/ui/badge";
-import { Spinner } from "@/components/ui/spinner";
 import { ProposalProgressBar } from "@/src/features/creator/proposals/components/proposal-progress-bar";
+import { CampaignDeliverablesContainer } from "@/src/features/creator/proposals/containers/campaign-deliverables-container";
 import { ContractTermsContainer } from "@/src/features/creator/proposals/containers/contract-terms-container";
 import { PaymentTermsContainer } from "@/src/features/creator/proposals/containers/payment-terms-container";
 import { AddOnsContainer } from "@/src/features/creator/proposals/containers/add-ons-container";
@@ -127,38 +121,10 @@ export default function CreateCampaign() {
 
           {/* Step 1 - Campaign & Deliverables */}
           {form.activeStep === 1 && (
-            <>
-              <div className="grid grid-cols-2 gap-6 mb-6">
-                <CampaignDetailsSection form={form} />
-                <ClientDetailsForm
-                  contactEmail={form.contactEmail}
-                  setContactEmail={form.setContactEmail}
-                  errors={form.errors}
-                />
-              </div>
-
-              <DeliverablesForm
-                deliverables={form.deliverables}
-                errors={form.errors}
-                addDeliverable={form.addDeliverable}
-                removeDeliverable={form.removeDeliverable}
-                updateDeliverable={form.updateDeliverable}
-              />
-
-              <div className="flex justify-end gap-3 mt-6 pb-8">
-                {/* <Button variant="outline" onClick={handleSaveDraft} disabled={isPending}>
-                  Save Draft
-                </Button> */}
-                <Button
-                  onClick={() => {
-                    if (form.validateForm()) form.setActiveStep(2)
-                  }}
-                  className="bg-[#6b1fa8] hover:bg-[#5a1a8f] text-white flex items-center gap-2"
-                >
-                  Contract Terms  <ArrowRight size={16} />
-                </Button>
-              </div>
-            </>
+            <CampaignDeliverablesContainer
+              form={form}
+              onNext={() => form.setActiveStep(2)}
+            />
           )}
 
           {/* Step 2 - Contract Terms */}
