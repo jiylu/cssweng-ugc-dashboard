@@ -1,6 +1,13 @@
 import z from "zod";
 import { deliverableSchema } from "./deliverable.schema";
 
+const platformEntrySchema = z.object({
+  platform: z.string().min(1),
+  handle: z.string()
+    .min(1, "Handle is required.")
+    .refine((val) => val.startsWith("@"), "Handle must start with @"),
+})
+
 export const campaignSchema = z.object({
   projectName: z.string()
     .min(1, "Campaign name is required.")
@@ -12,24 +19,29 @@ export const campaignSchema = z.object({
   endDate: z.string()
     .min(1, "End date is invalid or empty."),
 
+  currency: z.string()
+    .min(1, "Currency is required."),
+
   campaignDescription: z.string()
-      .min(1, "Description is required.")
-      .max(300, "Description must not be less than 300 characters."),
+    .min(1, "Description is required.")
+    .max(300, "Description must not be less than 300 characters."),
 
   contactEmail: z.email("Enter a valid email address")
     .min(1, "Contact email is required."),
 
-  platforms: z.array(z.string())
+  platforms: z.array(platformEntrySchema)
     .min(1, "At least one platform is required."),
 
   deliverables: z.array(deliverableSchema).min(1),
-}).refine((data) => {
+})
+.refine((data) => {
   if (!data.startDate || !data.endDate) return true
   return new Date(data.endDate) > new Date(data.startDate)
 }, {
   message: "End date must be after start date.",
   path: ["endDate"]
-}).superRefine((data, ctx) => {
+})
+.superRefine((data, ctx) => {
   if (!data.startDate || !data.endDate) return
 
   const start = new Date(data.startDate)

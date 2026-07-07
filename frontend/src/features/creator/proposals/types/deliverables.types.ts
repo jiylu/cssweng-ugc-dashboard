@@ -6,6 +6,7 @@ export interface Deliverable {
   draftDeadline: string;
   pricing: string;
   quantity: string;
+  platform: string;
   contentType: string;
   postDate: string;
 }

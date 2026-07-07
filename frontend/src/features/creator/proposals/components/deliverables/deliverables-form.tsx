@@ -10,10 +10,9 @@ export interface DeliverablesFormProps {
   addDeliverable: () => void
   removeDeliverable: (id: number) => void
   updateDeliverable: (id: number, field: keyof Deliverable, value: string) => void
-  adjustPrice: (id: number, amount: number) => void
 }
 
-export default function DeliverablesForm({ deliverables, addDeliverable, removeDeliverable, updateDeliverable, adjustPrice, errors }: DeliverablesFormProps) {
+export default function DeliverablesForm({ deliverables, addDeliverable, removeDeliverable, updateDeliverable, errors }: DeliverablesFormProps) {
   const totalPrice = deliverables.reduce((sum, d) => sum + parseFloat(d.pricing.replace(/,/g, '') || '0'), 0)
 
   return (
@@ -28,7 +27,6 @@ export default function DeliverablesForm({ deliverables, addDeliverable, removeD
             index={index}
             errors={errors}
             onUpdate={(field, value) => updateDeliverable(item.id, field, value)}
-            onAdjustPrice={(amount) => adjustPrice(item.id, amount)}
             onRemove={() => removeDeliverable(item.id)}
           />
         ))}
