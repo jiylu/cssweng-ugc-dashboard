@@ -56,10 +56,13 @@ export class ContractsService {
     return contract;
   }
 
-  async findContractByUID(contractId: string) {
+  async findContractByUID(
+    contractId: string,
+    tx: Prisma.TransactionClient | PrismaService = this.prisma,
+  ) {
     this.logger.debug(`Finding contract ${contractId}`);
 
-    const contract = await this.prisma.contracts.findFirst({
+    const contract = await tx.contracts.findFirst({
       where: {
         contract_id: contractId,
       },
@@ -122,12 +125,16 @@ export class ContractsService {
     return signedContract;
   }
 
-  async updateContractDetails(contractId: string, dto: UpdateContractDTO) {
+  async updateContractDetails(
+    contractId: string,
+    dto: UpdateContractDTO,
+    tx: Prisma.TransactionClient | PrismaService = this.prisma,
+  ) {
     this.logger.debug(`Updating contract ${contractId}`);
 
-    await this.findContractByUID(contractId);
+    await this.findContractByUID(contractId, tx);
 
-    const updatedContract = await this.prisma.contracts.update({
+    const updatedContract = await tx.contracts.update({
       where: { contract_id: contractId },
       data: {
         ...(dto.revision_policy !== undefined && {

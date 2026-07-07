@@ -186,10 +186,13 @@ export class DeliverablesService {
     return updatedDeliverable;
   }
 
-  async deleteDeliverable(deliverableId: string) {
+  async deleteDeliverable(
+    deliverableId: string,
+    tx: Prisma.TransactionClient | PrismaService = this.prisma,
+  ) {
     this.logger.debug(`Deleting deliverable ${deliverableId}`);
 
-    const deliverable = await this.findOneDeliverableByUID(deliverableId);
+    const deliverable = await this.findOneDeliverableByUID(deliverableId, tx);
 
     if (deliverable.is_deleted) {
       this.logger.debug(
@@ -203,7 +206,7 @@ export class DeliverablesService {
       });
     }
 
-    const deletedDeliverable = await this.prisma.deliverables.update({
+    const deletedDeliverable = await tx.deliverables.update({
       where: { deliverable_id: deliverable.deliverable_id },
       data: {
         is_deleted: true,

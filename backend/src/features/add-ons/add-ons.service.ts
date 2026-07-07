@@ -77,6 +77,7 @@ export class AddOnsService {
     const addOns = await this.prisma.addOns.findMany({
       where: {
         campaign_id: campaignId,
+        is_deleted: false,
       },
     });
 
@@ -188,10 +189,13 @@ export class AddOnsService {
     return updatedAddOn;
   }
 
-  async deleteAddOn(addOnId: string) {
+  async deleteAddOn(
+    addOnId: string,
+    tx: Prisma.TransactionClient | PrismaService = this.prisma,
+  ) {
     this.logger.debug(`Deleting add-on ${addOnId}`);
 
-    const addOn = await this.findOneAddOnByUID(addOnId);
+    const addOn = await this.findOneAddOnByUID(addOnId, tx);
 
     if (addOn.is_deleted) {
       this.logger.debug(
@@ -205,7 +209,7 @@ export class AddOnsService {
       });
     }
 
-    const deletedAddOn = await this.prisma.addOns.update({
+    const deletedAddOn = await tx.addOns.update({
       where: { add_on_id: addOn.add_on_id },
       data: {
         is_deleted: true,

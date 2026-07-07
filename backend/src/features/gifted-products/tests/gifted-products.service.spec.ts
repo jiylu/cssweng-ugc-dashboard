@@ -256,7 +256,7 @@ describe('GiftedProductsService', () => {
       const res = await service.findGiftedProductsForCampaign(campaignId);
       expect(res).toEqual(mockProducts);
       expect(mockPrisma.giftedProducts.findMany).toHaveBeenCalledWith({
-        where: { campaign_id: campaignId },
+        where: { campaign_id: campaignId, is_deleted: false },
       });
     });
 
@@ -297,7 +297,7 @@ describe('GiftedProductsService', () => {
       const res = await service.findOneGiftedProduct('gp-1');
       expect(res).toEqual(mockProduct);
       expect(mockPrisma.giftedProducts.findFirst).toHaveBeenCalledWith({
-        where: { gifted_product_id: 'gp-1' },
+        where: { gifted_product_id: 'gp-1', is_deleted: false },
       });
     });
 
@@ -340,7 +340,7 @@ describe('GiftedProductsService', () => {
 
       expect(res).toEqual(updatedProduct);
       expect(mockPrisma.giftedProducts.findFirst).toHaveBeenCalledWith({
-        where: { gifted_product_id: 'gp-1' },
+        where: { gifted_product_id: 'gp-1', is_deleted: false },
       });
       expect(mockPrisma.giftedProducts.update).toHaveBeenCalledWith({
         where: { gifted_product_id: 'gp-1' },

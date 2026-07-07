@@ -73,6 +73,7 @@ export class GiftedProductsService {
     const giftedProducts = await this.prisma.giftedProducts.findMany({
       where: {
         campaign_id: campaignId,
+        is_deleted: false,
       },
     });
 
@@ -88,12 +89,16 @@ export class GiftedProductsService {
     return giftedProducts;
   }
 
-  async findOneGiftedProduct(giftedProductId: string) {
+  async findOneGiftedProduct(
+    giftedProductId: string,
+    tx: Prisma.TransactionClient | PrismaService = this.prisma,
+  ) {
     this.logger.debug(`Finding gifted product ${giftedProductId}`);
 
-    const giftedProduct = await this.prisma.giftedProducts.findFirst({
+    const giftedProduct = await tx.giftedProducts.findFirst({
       where: {
         gifted_product_id: giftedProductId,
+        is_deleted: false,
       },
     });
 
@@ -113,12 +118,13 @@ export class GiftedProductsService {
   async updateGiftedProductDetails(
     giftedProductId: string,
     dto: UpdateGiftedProductDTO,
+    tx: Prisma.TransactionClient | PrismaService = this.prisma,
   ) {
     this.logger.debug(`Updating gifted product ${giftedProductId}`);
 
-    await this.findOneGiftedProduct(giftedProductId);
+    await this.findOneGiftedProduct(giftedProductId, tx);
 
-    const updatedGiftedProduct = await this.prisma.giftedProducts.update({
+    const updatedGiftedProduct = await tx.giftedProducts.update({
       where: { gifted_product_id: giftedProductId },
       data: {
         ...(dto.productName !== undefined && {
@@ -142,10 +148,13 @@ export class GiftedProductsService {
     return updatedGiftedProduct;
   }
 
-  async deleteGiftedProduct(giftedProductId: string) {
+  async deleteGiftedProduct(
+    giftedProductId: string,
+    tx: Prisma.TransactionClient | PrismaService = this.prisma,
+  ) {
     this.logger.debug(`Deleting gifted product ${giftedProductId}`);
 
-    const giftedProduct = await this.findOneGiftedProduct(giftedProductId);
+    const giftedProduct = await this.findOneGiftedProduct(giftedProductId, tx);
 
     if (giftedProduct.is_deleted) {
       this.logger.debug(
@@ -154,12 +163,12 @@ export class GiftedProductsService {
 
       throw new ConflictException({
         status: HttpStatus.CONFLICT,
-        code: 'DELIVERABLE_ALREADY_DELETED',
-        message: 'Deliverable is already deleted',
+        code: 'GIFTED_PRODUCT_ALREADY_DELETED',
+        message: 'Gifted product is already deleted',
       });
     }
 
-    const deletedGiftedProduct = await this.prisma.giftedProducts.update({
+    const deletedGiftedProduct = await tx.giftedProducts.update({
       where: { gifted_product_id: giftedProduct.gifted_product_id },
       data: {
         is_deleted: true,

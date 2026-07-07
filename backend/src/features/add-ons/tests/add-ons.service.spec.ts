@@ -278,7 +278,7 @@ describe('AddOnsService', () => {
       const res = await service.findAddOnsForCampaign(campaignId);
       expect(res).toEqual(mockAddOns);
       expect(mockPrisma.addOns.findMany).toHaveBeenCalledWith({
-        where: { campaign_id: campaignId },
+        where: { campaign_id: campaignId, is_deleted: false },
       });
     });
 
@@ -322,7 +322,7 @@ describe('AddOnsService', () => {
       const res = await service.findOneAddOnByUID('addon-1');
       expect(res).toEqual(mockAddOn);
       expect(mockPrisma.addOns.findFirst).toHaveBeenCalledWith({
-        where: { add_on_id: 'addon-1' },
+        where: { add_on_id: 'addon-1', is_deleted: false },
       });
     });
 
@@ -351,7 +351,7 @@ describe('AddOnsService', () => {
       const res = await service.findOneAddOnByPublicId('abc1234567');
       expect(res).toEqual(mockAddOn);
       expect(mockPrisma.addOns.findFirst).toHaveBeenCalledWith({
-        where: { public_id: 'abc1234567' },
+        where: { public_id: 'abc1234567', is_deleted: false },
       });
     });
 
