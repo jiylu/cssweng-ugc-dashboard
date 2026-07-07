@@ -51,6 +51,7 @@ describe('AddOnsService', () => {
       const dto: CreateAddOnDTO = {
         campaignId: 'camp-1',
         addOnName: 'Photography',
+        description: 'Description description',
         fee: 500,
         initials: 'PH',
       };
@@ -73,6 +74,7 @@ describe('AddOnsService', () => {
         data: {
           campaign_id: dto.campaignId,
           public_id: 'mock-pb-id',
+          description: 'Description description',
           add_on_name: dto.addOnName,
           fee: dto.fee,
           initials: dto.initials,
@@ -84,6 +86,7 @@ describe('AddOnsService', () => {
       const dto: CreateAddOnDTO = {
         campaignId: 'camp-1',
         addOnName: '',
+        description: 'asdasdadasdsadsad',
         fee: -100,
         initials: '',
       };
@@ -100,6 +103,7 @@ describe('AddOnsService', () => {
         {
           campaignId: 'camp-1',
           addOnName: 'Photography',
+          description: 'Description description',
           fee: 500,
           initials: 'PH',
         },
@@ -129,12 +133,14 @@ describe('AddOnsService', () => {
         {
           campaignId: 'camp-1',
           addOnName: 'Photography',
+          description: 'Description description',
           fee: 500,
           initials: 'PH',
         },
         {
           campaignId: 'camp-1',
           addOnName: 'Videography',
+          description: 'Description description',
           fee: 1000,
           initials: 'VD',
         },
@@ -174,6 +180,7 @@ describe('AddOnsService', () => {
         (_, i) => ({
           campaignId: 'camp-1',
           addOnName: `Add-On ${i + 1}`,
+          description: 'Description description',
           fee: 100 + i * 50,
           initials: `A${i + 1}`,
         }),
@@ -222,6 +229,7 @@ describe('AddOnsService', () => {
         {
           campaignId: 'missing-camp',
           addOnName: 'Photography',
+          description: 'Description description',
           fee: 500,
           initials: 'PH',
         },
