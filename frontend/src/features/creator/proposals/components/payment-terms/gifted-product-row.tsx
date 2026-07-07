@@ -3,6 +3,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group"
 import { ChevronUp, ChevronDown, Trash2 } from "lucide-react"
 import { GiftedProduct } from "@/src/features/creator/proposals/types/payment-terms.types"
+import { adjustPriceValue } from "@/src/features/creator/proposals/utils/formatPrice"
 
 interface GiftedProductRowProps {
   item: GiftedProduct
@@ -60,16 +61,12 @@ export function GiftedProductRow({ item, index, errors, onUpdate, onRemove }: Gi
                 </InputGroup>
                 {e('value') && <p className="text-xs mt-1 text-[#ff6467]">{e('value')}</p>}
                 <div className="flex flex-col shrink-0">
-                <ChevronUp size={12} className="cursor-pointer text-muted-foreground hover:text-[#6b1fa8]" onClick={() => {
-                    const current = parseFloat(item.value.replace(/,/g, '') || '0')
-                    const newVal = (current + 1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-                    onUpdate('value', newVal)
-                }} />
-                <ChevronDown size={12} className="cursor-pointer text-muted-foreground hover:text-[#6b1fa8]" onClick={() => {
-                    const current = parseFloat(item.value.replace(/,/g, '') || '0')
-                    const newVal = Math.max(0, current - 1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-                    onUpdate('value', newVal)
-                }} />
+                <ChevronUp size={12} className="cursor-pointer text-muted-foreground hover:text-[#6b1fa8]" 
+                    onClick={() => onUpdate('value', adjustPriceValue(item.value, 1000))} 
+                />
+                <ChevronDown size={12} className="cursor-pointer text-muted-foreground hover:text-[#6b1fa8]" 
+                    onClick={() => onUpdate('value', adjustPriceValue(item.value, -1000))} 
+                />
                 </div>
             </div>
             </div>
