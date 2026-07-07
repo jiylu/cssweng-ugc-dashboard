@@ -31,8 +31,8 @@ export interface CreateCampaignPayload {
       is_exclusive: boolean
       is_transferrable: boolean
       organic_usage: string
-      paid_usage_ads: string
-      whitelisting_spark_ads: string
+      // paid_usage_ads: string
+      // whitelisting_spark_ads: string
       territory: string
       restrictions: string
     }
@@ -43,6 +43,7 @@ export interface CreateCampaignPayload {
     exclusivity: {
       category: string
       startDate: string
+      endDate: string
       territory: string
       brandlist: string
       exclusivity_fee: number
@@ -60,7 +61,7 @@ export interface CreateCampaignPayload {
       name: string
       email: string
       campaign_name: string
-      tax_number: string
+      // tax_number: string
       payment_details: string
     }
     general_terms: {
@@ -71,6 +72,7 @@ export interface CreateCampaignPayload {
   }
   addOns: {
     addOnName: string
+    description: string
     fee: number
     initials: string
   }[]

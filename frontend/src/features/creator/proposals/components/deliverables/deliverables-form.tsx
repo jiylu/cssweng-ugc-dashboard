@@ -46,7 +46,7 @@ export default function DeliverablesForm({ deliverables, addDeliverable, removeD
         <Card className="px-6 py-3 flex items-center gap-4">
           <span className="text-sm text-muted-foreground">Total Price</span>
           <span className="text-2xl font-medium text-foreground">
-            PHP {totalPrice.toLocaleString("en-US", { minimumFractionDigits: 0 })}
+            PHP {totalPrice.toLocaleString("en-US", { minimumFractionDigits: 2 })}
           </span>
         </Card>
       </div>
