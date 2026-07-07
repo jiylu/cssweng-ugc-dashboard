@@ -16,9 +16,9 @@ import { useRouter } from "next/navigation"
 import { Badge } from "@/components/ui/badge";
 import { Spinner } from "@/components/ui/spinner";
 import { ProposalProgressBar } from "@/src/features/creator/proposals/components/proposal-progress-bar";
-import AddOnsForm from "../components/add-ons/add-ons-form";
 import { ContractTermsContainer } from "@/src/features/creator/proposals/containers/contract-terms-container";
 import { PaymentTermsContainer } from "@/src/features/creator/proposals/containers/payment-terms-container";
+import { AddOnsContainer } from "@/src/features/creator/proposals/containers/add-ons-container";
 
 export default function CreateCampaign() {
   const form = useCampaignForm();
@@ -177,30 +177,10 @@ export default function CreateCampaign() {
           
           {/* Step 3 - Add-ons */}
           {form.activeStep === 3 && (
-            <>
-              <div className="mt-6">
-                <AddOnsForm
-                  currency="PHP" // HARD CODED PA
-                  addOns={[]} // NO DATA YET
-                  onAddCustom={() => console.log("Clicked add custom button")}
-                  onRemove={(id) => console.log("Removed ", id)}
-                  onAdjustPrice={(id, amount) => console.log("Adjusted price for", id, amount)}
-                />
-              </div>
-
-              {/* Bottom Actions */}
-              <div className="flex justify-between mt-6 pb-8">
-                <Button variant="outline" onClick={() => form.setActiveStep(2)}>
-                  Back
-                </Button>
-                <Button
-                  onClick={() => form.setActiveStep(4)}
-                  className="bg-[#6b1fa8] hover:bg-[#5a1a8f] text-white flex items-center gap-2"
-                >
-                  Payment Terms <ArrowRight size={16} />
-                </Button>
-              </div>
-            </>
+            <AddOnsContainer
+              onBack={() => form.setActiveStep(2)}
+              onNext={() => form.setActiveStep(4)}
+            />
           )}
 
           {/* Step 4 - Payment Terms */}

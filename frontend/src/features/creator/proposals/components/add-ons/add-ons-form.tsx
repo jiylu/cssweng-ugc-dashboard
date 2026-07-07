@@ -29,7 +29,7 @@ export default function AddOnsForm({ currency, addOns, onAddCustom, onRemove, on
             <div className="col-span-4 text-right pr-12">Fee</div>
         </div>
 
-        {/* Rows) */}
+        {/* Rows */}
         <div className="flex flex-col">
             {addOns.map((addon) => (
             <AddOnRow 
