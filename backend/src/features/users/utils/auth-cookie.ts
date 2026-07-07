@@ -29,7 +29,9 @@ export function serializeExpiredAuthCookie() {
   return `${AUTH_COOKIE_NAME}=; Path=/; HttpOnly; SameSite=Lax${getSecureCookieAttribute()}; Max-Age=0`;
 }
 
-export function parseAuthCookie(cookieHeader?: string): AuthCookiePayload | null {
+export function parseAuthCookie(
+  cookieHeader?: string,
+): AuthCookiePayload | null {
   const rawCookie = cookieHeader
     ?.split('; ')
     .find((cookie) => cookie.startsWith(`${AUTH_COOKIE_NAME}=`));

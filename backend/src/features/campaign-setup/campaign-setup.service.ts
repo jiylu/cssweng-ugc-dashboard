@@ -4,12 +4,10 @@ import { DeliverablesService } from '../deliverables/deliverables.service';
 import { ProposalsService } from '../proposals/proposals.service';
 import { CreateCampaignRequestDto } from './dto/create-campaign-request-dto';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { EmailService } from '../email/email.service';
-import { ActivityLogService } from '../activity-log/activity-log.service';
-import { Action, EntityType } from '@prisma/client';
 import { ContractsService } from '../contracts/contracts.service';
 import { AddOnsService } from '../add-ons/add-ons.service';
 import { GiftedProductsService } from '../gifted-products/gifted-products.service';
+import { EmailService } from '../email/email.service';
 
 @Injectable()
 export class CampaignSetupService {
@@ -18,11 +16,10 @@ export class CampaignSetupService {
     private campaignService: CampaignsService,
     private deliverableService: DeliverablesService,
     private proposalService: ProposalsService,
-    private emailService: EmailService,
-    private activityLogService: ActivityLogService,
     private contractService: ContractsService,
     private addOnService: AddOnsService,
     private giftedProductsService: GiftedProductsService,
+    private emailService: EmailService,
   ) {}
 
   private readonly logger = new Logger(CampaignSetupService.name);
@@ -85,6 +82,11 @@ export class CampaignSetupService {
             : Promise.resolve([]),
         ]);
 
+      await this.emailService.sendProposalReminderEmail(
+        dto.proposal.clientEmail,
+        dto.campaign.projectName,
+      );
+
       return {
         campaign,
         proposal,
@@ -95,23 +97,6 @@ export class CampaignSetupService {
       };
     });
 
-    // TODO: Move these below to controller.
-
-    await this.activityLogService.createActivityLog({
-      userId: dto.campaign.ugcId,
-      entityType: EntityType.CAMPAIGN,
-      entityId: result.campaign.campaign_id,
-      action: Action.SUBMISSION,
-    });
-
-    await this.emailService
-      .sendProposalReminderEmail({
-        clientEmail: dto.proposal.clientEmail,
-        projectName: dto.campaign.projectName,
-      })
-      .catch((err) => {
-        this.logger.warn('Failed to send proposal reminder email', err);
-      });
     return result;
   }
 }
