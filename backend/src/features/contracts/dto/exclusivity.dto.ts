@@ -21,6 +21,11 @@ export class ExclusivityDTO {
   @IsNotEmpty()
   startDate!: string;
 
+  @ApiProperty({ example: '2026-07-01T00:00:00.000Z' })
+  @IsDateString()
+  @IsNotEmpty()
+  endDate!: string;
+
   @ApiProperty({ example: 'Southeast Asia' })
   @IsString()
   @IsNotEmpty()
