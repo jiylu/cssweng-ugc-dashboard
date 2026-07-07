@@ -1,6 +1,5 @@
 import { applyDecorators } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
-import { UpdateGiftedProductDTO } from '../dto/update-gifted-product.dto';
+import { ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 
 export function ApiFindGiftedProductById() {
   return applyDecorators(
@@ -46,37 +45,6 @@ export function ApiFindGiftedProductsForCampaign() {
     ApiResponse({
       status: 404,
       description: 'Campaign not found.',
-    }),
-  );
-}
-
-export function ApiUpdateGiftedProductDetails() {
-  return applyDecorators(
-    ApiOperation({
-      summary: 'Update gifted product details',
-      description:
-        'Updates editable gifted product fields using UpdateGiftedProductDTO. ' +
-        'UpdateGiftedProductDTO is derived from CreateGiftedProductDTO with `campaignId` omitted and all remaining fields optional. ' +
-        'Only fields included in the payload are updated.',
-    }),
-    ApiParam({
-      name: 'giftedProductId',
-      type: String,
-      description: 'UUID of the gifted product',
-      example: '550e8400-e29b-41d4-a716-446655440010',
-    }),
-    ApiBody({ type: UpdateGiftedProductDTO, required: false }),
-    ApiResponse({
-      status: 200,
-      description: 'Gifted product details updated successfully.',
-    }),
-    ApiResponse({
-      status: 404,
-      description: 'Gifted product not found.',
-    }),
-    ApiResponse({
-      status: 400,
-      description: 'Invalid request payload.',
     }),
   );
 }

@@ -19,7 +19,7 @@ export class AddOnsService {
   constructor(
     private prisma: PrismaService,
     private campaignsService: CampaignsService,
-  ) { }
+  ) {}
 
   async createAddOn(
     dto: CreateAddOnDTO,
