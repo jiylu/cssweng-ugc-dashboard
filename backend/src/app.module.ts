@@ -10,6 +10,7 @@ import { ActivityLogModule } from './features/activity-log/activity-log.module';
 import { AddOnsModule } from './features/add-ons/add-ons.module';
 import { ContractsModule } from './features/contracts/contracts.module';
 import { GiftedProductsModule } from './features/gifted-products/gifted-products.module';
+import { NotificationsModule } from './features/notifications/notifications.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { GiftedProductsModule } from './features/gifted-products/gifted-products
     AddOnsModule,
     ContractsModule,
     GiftedProductsModule,
+    NotificationsModule,
   ],
   controllers: [],
   providers: [],
