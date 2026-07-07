@@ -5,17 +5,17 @@ import { DatePickerInput } from "@/src/components/molecules/date-picker-input"
 import { Trash2, ChevronUp, ChevronDown } from "lucide-react"
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group"
 import { Deliverable } from "@/src/features/creator/proposals/types/deliverables.types"
+import { adjustPriceValue } from "@/src/features/creator/proposals/utils/formatPrice"
 
 interface DeliverableRowProps {
   item: Deliverable
   index: number
   errors: Record<string, string>
   onUpdate: (field: keyof Deliverable, value: string) => void
-  onAdjustPrice: (amount: number) => void
   onRemove: () => void
 }
 
-export function DeliverableRow({ item, index, errors, onUpdate, onAdjustPrice, onRemove }: DeliverableRowProps) {
+export function DeliverableRow({ item, index, errors, onUpdate, onRemove }: DeliverableRowProps) {
   const e = (field: string) => errors[`deliverables.${index}.${field}`]
 
   return (
@@ -42,8 +42,12 @@ export function DeliverableRow({ item, index, errors, onUpdate, onAdjustPrice, o
               className="border-0 p-0 h-auto text-sm shadow-none focus-visible:ring-0 w-10 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             />
             <div className="flex flex-col shrink-0">
-              <ChevronUp size={12} className="cursor-pointer text-muted-foreground hover:text-foreground" onClick={() => onUpdate('quantity', String(Number(item.quantity ?? 1) + 1))} />
-              <ChevronDown size={12} className="cursor-pointer text-muted-foreground hover:text-foreground" onClick={() => onUpdate('quantity', String(Math.max(1, Number(item.quantity ?? 1) - 1)))} />
+              <ChevronUp size={12} className="cursor-pointer text-muted-foreground hover:text-foreground" 
+                onClick={() => onUpdate('quantity', String(Number(item.quantity ?? 1) + 1))} 
+              />
+              <ChevronDown size={12} className="cursor-pointer text-muted-foreground hover:text-foreground" 
+                onClick={() => onUpdate('quantity', String(Math.max(1, Number(item.quantity ?? 1) - 1)))} 
+              />
             </div>
           </div>
           {e('quantity') && <p className="text-xs mt-1 text-[#ff6467]">{e('quantity')}</p>}
@@ -139,8 +143,12 @@ export function DeliverableRow({ item, index, errors, onUpdate, onAdjustPrice, o
                 <InputGroupAddon>PHP</InputGroupAddon>
               </InputGroup>
               <div className="flex flex-col shrink-0">
-                <ChevronUp size={12} className="cursor-pointer text-muted-foreground hover:text-[#6b1fa8]" onClick={() => onAdjustPrice(1000)} />
-                <ChevronDown size={12} className="cursor-pointer text-muted-foreground hover:text-[#6b1fa8]" onClick={() => onAdjustPrice(-1000)} />
+                <ChevronUp size={12} className="cursor-pointer text-muted-foreground hover:text-[#6b1fa8]" 
+                  onClick={() => onUpdate('pricing', adjustPriceValue(item.pricing, 1000))} 
+                />
+                <ChevronDown size={12} className="cursor-pointer text-muted-foreground hover:text-[#6b1fa8]" 
+                  onClick={() => onUpdate('pricing', adjustPriceValue(item.pricing, -1000))} 
+                />
               </div>
             </div>
             {e('pricing') && <p className="text-xs mt-1 text-[#ff6467]">{e('pricing')}</p>}

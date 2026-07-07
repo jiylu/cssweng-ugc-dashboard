@@ -147,7 +147,6 @@ export default function CreateCampaign() {
                 addDeliverable={form.addDeliverable}
                 removeDeliverable={form.removeDeliverable}
                 updateDeliverable={form.updateDeliverable}
-                adjustPrice={form.adjustPrice}
               />
 
               <div className="flex justify-end gap-3 mt-6 pb-8">

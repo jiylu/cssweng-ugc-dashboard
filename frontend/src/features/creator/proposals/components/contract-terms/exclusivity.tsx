@@ -5,6 +5,7 @@ import { Separator } from "@/components/ui/separator"
 import { DatePickerInput } from "@/src/components/molecules/date-picker-input"
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group"
 import { ChevronUp, ChevronDown } from "lucide-react"
+import { adjustPriceValue } from "@/src/features/creator/proposals/utils/formatPrice"
 
 interface ExclusivityProps {
   hasExclusivity: boolean
@@ -103,8 +104,12 @@ export function Exclusivity({
                   <InputGroupAddon>PHP</InputGroupAddon>
                 </InputGroup>
                 <div className="flex flex-col shrink-0">
-                  <ChevronUp size={12} className="cursor-pointer text-muted-foreground hover:text-[#6b1fa8]" onClick={() => {}} />
-                  <ChevronDown size={12} className="cursor-pointer text-muted-foreground hover:text-[#6b1fa8]" onClick={() => {}} />
+                  <ChevronUp size={12} className="cursor-pointer text-muted-foreground hover:text-[#6b1fa8]" 
+                    onClick={() => setExclusivityFee(adjustPriceValue(exclusivityFee, 1000))}
+                  />
+                  <ChevronDown size={12} className="cursor-pointer text-muted-foreground hover:text-[#6b1fa8]" 
+                    onClick={() => setExclusivityFee(adjustPriceValue(exclusivityFee, -1000))} 
+                  />
                 </div>
                 {errors.exclusivityFee && <p className="text-xs mt-1 text-[#ff6467]">{errors.exclusivityFee}</p>}
               </div>

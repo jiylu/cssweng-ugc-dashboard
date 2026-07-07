@@ -59,29 +59,6 @@ export function useCampaignForm() {
     )
   }
 
-  const adjustPrice = (id: number, amount: number) => {
-    setDeliverables(prev =>
-      prev.map(item => {
-        if (item.id !== id) return item
-
-        const currentVal = parseFloat(
-          item.pricing.replace(/,/g, "") || "0"
-        )
-
-        const newVal = Math.max(0, currentVal + amount)
-
-        const formatted = newVal
-          .toString()
-          .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-
-        return {
-          ...item,
-          pricing: formatted,
-        }
-      })
-    )
-  }
-
   const removeDeliverable = (id: number) => {
     setDeliverables(prev => prev.filter(item => item.id !== id))
   }
@@ -122,7 +99,6 @@ export function useCampaignForm() {
     updateDeliverable,
     addDeliverable,
     removeDeliverable,
-    adjustPrice,
     errors,
     validateForm,
     activeStep,
