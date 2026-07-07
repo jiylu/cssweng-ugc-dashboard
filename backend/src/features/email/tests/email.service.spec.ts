@@ -25,6 +25,7 @@ describe('EmailService', () => {
 
       const res = await service.sendProposalReminderEmail({
         clientEmail: 'client@test.com',
+        proposalPublicId: 'proposal-123',
         projectName: 'Summer Campaign',
       });
 
@@ -35,6 +36,7 @@ describe('EmailService', () => {
     it('should send a proposal reminder email through Resend', async () => {
       process.env.RESEND_API_KEY = 'test-api-key';
       process.env.RESEND_FROM_EMAIL = 'Acseoft <hello@example.com>';
+      process.env.FRONTEND_URL = 'https://app.example.com';
       fetchMock.mockResolvedValue({
         ok: true,
         json: jest.fn().mockResolvedValue({ id: 'email-1' }),
@@ -42,6 +44,7 @@ describe('EmailService', () => {
 
       const res = await service.sendProposalReminderEmail({
         clientEmail: 'client@test.com',
+        proposalPublicId: 'proposal-123',
         projectName: 'Summer Campaign',
       });
 
@@ -68,10 +71,16 @@ describe('EmailService', () => {
 
       expect(body.from).toBe('Acseoft <hello@example.com>');
       expect(body.to).toBe('client@test.com');
-      expect(body.subject).toBe('New proposal reminder: Summer Campaign');
+      expect(body.subject).toBe('Register to review proposal: Summer Campaign');
       expect(body.text).toContain('Summer Campaign');
-      expect(body.html).toContain('Proposal reminder');
-      expect(body.html).not.toContain('<a ');
+      expect(body.text).toContain(
+        'https://app.example.com/client-register?proposalId=proposal-123&email=client%40test.com',
+      );
+      expect(body.html).toContain('Client registration');
+      expect(body.html).toContain('<a ');
+      expect(body.html).toContain(
+        'https://app.example.com/client-register?proposalId=proposal-123&amp;email=client%40test.com',
+      );
     });
 
     it('should escape the project name in the html template', async () => {
@@ -83,6 +92,7 @@ describe('EmailService', () => {
 
       await service.sendProposalReminderEmail({
         clientEmail: 'client@test.com',
+        proposalPublicId: 'proposal-123',
         projectName: '<script>alert("x")</script>',
       });
 
@@ -106,6 +116,7 @@ describe('EmailService', () => {
       await expect(
         service.sendProposalReminderEmail({
           clientEmail: 'client@test.com',
+          proposalPublicId: 'proposal-123',
           projectName: 'Summer Campaign',
         }),
       ).rejects.toThrow('Invalid sender');

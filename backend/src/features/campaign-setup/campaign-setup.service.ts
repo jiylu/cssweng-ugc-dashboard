@@ -65,6 +65,7 @@ export class CampaignSetupService {
     await this.emailService
       .sendProposalReminderEmail({
         clientEmail: dto.proposal.clientEmail,
+        proposalPublicId: result.proposal.public_id,
         projectName: dto.campaign.projectName,
       })
       .catch((err) => {

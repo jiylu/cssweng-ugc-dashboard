@@ -15,7 +15,7 @@ export class ProposalsController {
 
   @ApiFindProposal()
   @Get(':publicId')
-  findOneActive(@Param('publicIdproposalId') publicId: string) {
+  findOneActive(@Param('publicId') publicId: string) {
     return this.proposalsService.findActiveProposalByPublicId(publicId);
   }
 

@@ -20,7 +20,11 @@ const protectedRoutes: Array<{
   { path: "/create-campaign", roles: ["CREATOR"] },
 ];
 
-const guestOnlyRoutes = [LOGIN_ROUTE, "/creator-register"];
+const guestOnlyRoutes = [
+  LOGIN_ROUTE,
+  "/creator-register",
+  "/client-register",
+];
 
 function getApiBaseUrl() {
   const configuredUrl =
