@@ -43,6 +43,7 @@ export default function CreateCampaign() {
       description: form.campaignDescription,
       startDate: new Date(form.startDate).toISOString(),
       endDate: new Date(form.endDate).toISOString(),
+      platforms: form.platforms
     },
     deliverables: form.deliverables.map(({ ...rest }) => ({
       deliverableTitle: rest.deliverableTitle,

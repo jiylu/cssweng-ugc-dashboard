@@ -17,11 +17,11 @@ export function GiftedProductRow({ item, index, errors, onUpdate, onRemove }: Gi
     const e = (field: string) => errors[`giftedProducts.${index}.${field}`]
 
     return (
-    <div className="bg-[#F2F0EA] border border-border rounded-[3px] p-5 flex flex-col gap-4 relative">
+    <div className="bg-[#F2F0EA] border border-border rounded-[3px] p-5 flex gap-4 relative">
         <button
             type="button"
             onClick={onRemove}
-            className="absolute top-4 right-4 text-muted-foreground hover:text-destructive transition-colors"
+            className="absolute top-1 right-1 text-muted-foreground hover:text-destructive transition-colors"
         >
             <Trash2 size={16} />
         </button>

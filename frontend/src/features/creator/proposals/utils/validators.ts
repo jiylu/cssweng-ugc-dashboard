@@ -9,9 +9,10 @@ interface FormData {
     projectName: string;
     startDate: string;
     endDate: string;
+    currency: string
     campaignDescription: string;
     contactEmail: string;
-    platforms: string[];
+    platforms: { platform: string; handle: string }[]
     deliverables: Deliverable[];
 }
 

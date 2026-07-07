@@ -1,107 +1,35 @@
 import { useState } from "react"
-import { Deliverable } from "@/src/features/creator/proposals/types/deliverables.types"
+import { useCampaignDetails } from "./useCampaignDetails"
+import { useDeliverables } from "./useDeliverables"
 import { validateCampaignForm } from "../utils/validators"
 
 export function useCampaignForm() {
-  const [projectName, setProjectName] = useState("")
-  const [startDate, setStartDate] = useState("")
-  const [endDate, setEndDate] = useState("")
-  const [campaignDescription, setCampaignDescription] = useState("")
-  const [contactEmail, setContactEmail] = useState("")
-  const [platforms, setPlatforms] = useState<string[]>([])
-  const [deliverables, setDeliverables] = useState<Deliverable[]>([
-    {
-      id: 1,
-      deliverableTitle: "",
-      description: "",
-      deliverableType: "",
-      draftDeadline: "",
-      pricing: "",
-      quantity: "1",
-      contentType: "",
-      postDate: "",
-    },
-  ])
+  const campaignDetails = useCampaignDetails()
+  const deliverables = useDeliverables()
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [activeStep, setActiveStep] = useState(1)
 
-  const addDeliverable = () => {
-    const newId =
-      deliverables.length > 0
-        ? Math.max(...deliverables.map(d => d.id)) + 1
-        : 1
-
-    setDeliverables([
-      ...deliverables,
-      {
-        id: newId,
-        deliverableTitle: "",
-        description: "",
-        deliverableType: "",
-        draftDeadline: "",
-        pricing: "",
-        quantity: "1",
-        contentType: "",
-        postDate: "",
-      },
-    ])
-  }
-
-  const updateDeliverable = (
-    id: number,
-    field: keyof Deliverable,
-    value: string
-  ) => {
-    setDeliverables(prev =>
-      prev.map(item =>
-        item.id === id ? { ...item, [field]: value } : item
-      )
-    )
-  }
-
-  const removeDeliverable = (id: number) => {
-    setDeliverables(prev => prev.filter(item => item.id !== id))
-  }
-
-  const validateForm = (): boolean => {
-    const formData = {
-      projectName,
-      startDate,
-      endDate,
-      campaignDescription,
-      contactEmail,
-      platforms,
-      deliverables
-    };
-    const newErrors = validateCampaignForm(formData)
-
+  function validateForm(): boolean {
+    const newErrors = validateCampaignForm({
+      projectName: campaignDetails.projectName,
+      startDate: campaignDetails.startDate,
+      endDate: campaignDetails.endDate,
+      currency: campaignDetails.currency,
+      campaignDescription: campaignDetails.campaignDescription,
+      contactEmail: campaignDetails.contactEmail,
+      platforms: campaignDetails.platforms,
+      deliverables: deliverables.deliverables,
+    })
     setErrors(newErrors)
-
     return Object.keys(newErrors).length === 0
   }
 
-
   return {
-    projectName,
-    setProjectName,
-    startDate,
-    setStartDate,
-    endDate,
-    setEndDate,
-    campaignDescription,
-    setCampaignDescription,
-    contactEmail,
-    setContactEmail,
-    platforms, 
-    setPlatforms,
-    deliverables,
-    setDeliverables,
-    updateDeliverable,
-    addDeliverable,
-    removeDeliverable,
+    ...campaignDetails,
+    ...deliverables,
     errors,
     validateForm,
     activeStep,
-    setActiveStep
+    setActiveStep,
   }
 }

@@ -5,6 +5,10 @@ export interface CreateCampaignPayload {
     description: string;
     startDate: string;
     endDate: string;
+    platforms: {
+      platform: string;
+      handle: string;
+    }[];
   };
   deliverables: {
     deliverableTitle: string;
@@ -22,4 +26,9 @@ export interface CreateCampaignResponse {
   campaign_id: string;
   campaign_status: 'ACTIVE' | 'REJECTED' | 'COMPLETED';
   created_at: string;
+}
+
+export interface PlatformEntry {
+  platform: string
+  handle: string
 }

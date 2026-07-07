@@ -1,3 +1,4 @@
+import { platform } from "os";
 import z from "zod";
 
 export const deliverableSchema = z.object({
@@ -20,6 +21,9 @@ export const deliverableSchema = z.object({
 
   quantity: z.string()
     .min(1, "Quantity is required."),
+
+  platform: z.string()
+    .min(1, "Platform is required."),
 
   contentType: z.string()
     .min(1, "Content type is required."),
