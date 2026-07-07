@@ -1,5 +1,11 @@
-import { IsEmail, IsNotEmpty, IsString, MaxLength } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  MaxLength,
+} from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class InvoiceRequirementsDTO {
   @ApiProperty({ example: 'Asceoft Marketing Inc.' })
@@ -19,10 +25,10 @@ export class InvoiceRequirementsDTO {
   @IsNotEmpty()
   campaign_name!: string;
 
-  @ApiProperty({ example: 'TIN-123-456-789-000' })
+  @ApiPropertyOptional({ example: 'TIN-123-456-789-000' })
   @IsString()
   @MaxLength(150)
-  @IsNotEmpty()
+  @IsOptional()
   tax_number?: string;
 
   @ApiProperty({

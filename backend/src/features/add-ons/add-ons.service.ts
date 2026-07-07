@@ -33,6 +33,7 @@ export class AddOnsService {
         campaign_id: dto.campaignId,
         public_id: publicId,
         add_on_name: dto.addOnName,
+        description: dto.description,
         fee: dto.fee,
         initials: dto.initials,
       },

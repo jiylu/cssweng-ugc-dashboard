@@ -1,11 +1,12 @@
 import {
   IsBoolean,
   IsNotEmpty,
+  IsOptional,
   IsString,
   MaxLength,
   MinLength,
 } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class UsageRightsDTO {
   @ApiProperty({ example: true })
@@ -26,22 +27,22 @@ export class UsageRightsDTO {
   @MaxLength(500)
   organic_usage!: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     example:
       'Paid social boosting is allowed for up to 90 days from original post date.',
   })
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   @MinLength(50)
   @MaxLength(500)
   paid_usage_ads?: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     example:
       'Spark Ads may be run for 60 days provided ad copy is pre-approved by creator.',
   })
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   @MinLength(50)
   @MaxLength(500)
   whitelisting_spark_ads?: string;

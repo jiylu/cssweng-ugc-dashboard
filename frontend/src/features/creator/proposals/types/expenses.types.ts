@@ -1,5 +1,5 @@
 export interface ExpensesData {
   reimbursementDays: number
-  giftedProductTerms?: string
+  giftedProductTerms: string
   cancellationDays: number
 }

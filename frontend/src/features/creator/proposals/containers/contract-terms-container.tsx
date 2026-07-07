@@ -9,13 +9,12 @@ import { GeneralTerms } from "@/src/features/creator/proposals/components/contra
 import { useContractTerms } from "@/src/features/creator/proposals/hooks/useContractTerms"
 
 interface ContractTermsContainerProps {
+  contractTerms: ReturnType<typeof useContractTerms>
   onBack: () => void
   onNext: () => void
 }
 
-export function ContractTermsContainer({ onBack, onNext }: ContractTermsContainerProps) {
-  const contractTerms = useContractTerms()
-
+export function ContractTermsContainer({ contractTerms, onBack, onNext }: ContractTermsContainerProps) {
   return (
     <>
       <div className="flex flex-col gap-6">

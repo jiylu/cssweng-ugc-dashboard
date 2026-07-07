@@ -1,26 +1,27 @@
 "use client"
 import { ArrowLeft, ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import AddOnsForm from "../components/add-ons/add-ons-form";
-import { useContractTerms } from "@/src/features/creator/proposals/hooks/useContractTerms"
+import AddOnsForm from "@/src/features/creator/proposals/components/add-ons/add-ons-form";
+import { useAddOns } from "@/src/features/creator/proposals/hooks/useAddOns"
 
 interface AddOnsContainerProps {
-  onBack: () => void
-  onNext: () => void
+    addOns: ReturnType<typeof useAddOns>
+    onBack: () => void
+    onNext: () => void
 }
 
-export function AddOnsContainer({ onBack, onNext }: AddOnsContainerProps) {
-  const contractTerms = useContractTerms()
-
-  return (
+export function AddOnsContainer({ addOns, onBack, onNext }: AddOnsContainerProps) {
+    return (
     <>
-        <div className="mt-6">
+        <div className="mt-6">  
             <AddOnsForm
-                currency="PHP" // HARD CODED PA
-                addOns={[]} // NO DATA YET
-                onAddCustom={() => console.log("Clicked add custom button")}
-                onRemove={(id) => console.log("Removed ", id)}
-                onAdjustPrice={(id, amount) => console.log("Adjusted price for", id, amount)}
+                currency="PHP"
+                addOns={addOns.addOns}
+                onAddCustom={addOns.addCustom}
+                onRemove={addOns.removeAddOn}
+                onAdjustPrice={addOns.adjustPrice}
+                onUpdateAddOn={addOns.updateAddOn}
+                errors={addOns.errors}
             />
             </div>
 
@@ -30,12 +31,14 @@ export function AddOnsContainer({ onBack, onNext }: AddOnsContainerProps) {
                 <ArrowLeft size={16} /> Back
             </Button>
             <Button
-                onClick={onNext}
+                onClick={() => {
+                    if (addOns.validateForm()) onNext()
+                }}
                 className="bg-[#6b1fa8] hover:bg-[#5a1a8f] text-white flex items-center gap-2"
             >
                 Payment Terms <ArrowRight size={16} />
             </Button>
         </div>
     </>
-  )
+    )
 }

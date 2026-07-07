@@ -7,16 +7,14 @@ import { PriceSummarySection } from "@/src/features/creator/proposals/components
 import { usePaymentTerms } from "@/src/features/creator/proposals/hooks/usePaymentTerms"
 
 interface PaymentTermsContainerProps {
+  paymentTerms: ReturnType<typeof usePaymentTerms>
   onBack: () => void
-  onNext: () => void
   onSaveDraft: () => void
   onSubmit: () => void
   isPending: boolean
 }
 
-export function PaymentTermsContainer({ onBack, onNext, onSaveDraft, onSubmit, isPending }: PaymentTermsContainerProps) {
-  const paymentTerms = usePaymentTerms()
-
+export function PaymentTermsContainer({ paymentTerms, onBack, onSaveDraft, onSubmit, isPending }: PaymentTermsContainerProps) {
   return (
     <>
     <div className="flex flex-col gap-6">
