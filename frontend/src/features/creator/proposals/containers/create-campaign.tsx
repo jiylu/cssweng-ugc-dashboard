@@ -13,6 +13,10 @@ import { CampaignDeliverablesContainer } from "@/src/features/creator/proposals/
 import { ContractTermsContainer } from "@/src/features/creator/proposals/containers/contract-terms-container";
 import { PaymentTermsContainer } from "@/src/features/creator/proposals/containers/payment-terms-container";
 import { AddOnsContainer } from "@/src/features/creator/proposals/containers/add-ons-container";
+import { buildProposalPayload } from "@/src/features/creator/proposals/utils/buildProposalPayload"
+import { useContractTerms } from "@/src/features/creator/proposals/hooks/useContractTerms"
+import { usePaymentTerms } from "@/src/features/creator/proposals/hooks/usePaymentTerms"
+import { useAddOns } from "@/src/features/creator/proposals/hooks/useAddOns"
 import LogoLoader from "@/src/components/molecules/logo-loader";
 
 export default function CreateCampaign() {
@@ -20,31 +24,21 @@ export default function CreateCampaign() {
   const { user, loading } = useAuth();
   const { mutate: submitCampaign, isPending } = useCreateCampaign();
   const router = useRouter();
+  const contractTerms = useContractTerms()
+  const paymentTerms = usePaymentTerms()
+  const addOns = useAddOns()
 
   if (loading) return <LogoLoader label="Loading proposal form" />;
 
   if (!user) return null;
 
-  const buildPayload = (): CreateCampaignPayload => ({
-    campaign: {
-      ugcId: user.user_id,
-      projectName: form.projectName,
-      description: form.campaignDescription,
-      startDate: new Date(form.startDate).toISOString(),
-      endDate: new Date(form.endDate).toISOString(),
-      platforms: form.platforms
-    },
-    deliverables: form.deliverables.map(({ ...rest }) => ({
-      deliverableTitle: rest.deliverableTitle,
-      description: rest.description,
-      deliverableType: rest.deliverableType as 'COLLABORATION' | 'UGC',
-      deadline: new Date(rest.draftDeadline).toISOString(),
-      pricing: parseFloat(rest.pricing.replace(/,/g, '') || '0'),
-    })),
-    proposal: {
-      clientEmail: form.contactEmail,
-    },
-  });
+  const buildPayload = () => buildProposalPayload({
+    userId: user.user_id,
+    form,
+    contractTerms,
+    paymentTerms,
+    addOns,
+  })
 
   const handleSaveDraft = () => {
     if (!form.validateForm()) {
@@ -130,6 +124,7 @@ export default function CreateCampaign() {
           {/* Step 2 - Contract Terms */}
           {form.activeStep === 2 && (
             <ContractTermsContainer
+              contractTerms={contractTerms}
               onBack={() => form.setActiveStep(1)}
               onNext={() => form.setActiveStep(3)}
             />
@@ -138,6 +133,7 @@ export default function CreateCampaign() {
           {/* Step 3 - Add-ons */}
           {form.activeStep === 3 && (
             <AddOnsContainer
+              addOns={addOns}
               onBack={() => form.setActiveStep(2)}
               onNext={() => form.setActiveStep(4)}
             />
@@ -146,8 +142,8 @@ export default function CreateCampaign() {
           {/* Step 4 - Payment Terms */}
           {form.activeStep === 4 && (
             <PaymentTermsContainer
+              paymentTerms={paymentTerms}
               onBack={() => form.setActiveStep(3)}
-              onNext={() => form.setActiveStep(4)}
               onSaveDraft={handleSaveDraft}
               onSubmit={handleSendProposal}
               isPending={isPending}

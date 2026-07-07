@@ -32,9 +32,6 @@ export function CampaignDeliverablesContainer({ form, onNext }: CampaignDelivera
             />
 
             <div className="flex justify-end gap-3 mt-6 pb-8">
-            {/* <Button variant="outline" onClick={handleSaveDraft} disabled={isPending}>
-                Save Draft
-            </Button> */}
             <Button
                 onClick={() => {
                     if (form.validateForm()) {onNext}

@@ -1,6 +1,5 @@
 export interface Deliverable {
   id: number;
-  deliverableTitle: string;
   description: string;
   deliverableType: string;
   draftDeadline: string;

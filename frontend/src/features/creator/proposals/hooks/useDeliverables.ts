@@ -4,7 +4,6 @@ import { adjustPriceValue } from "../utils/formatPrice"
 
 const emptyDeliverable = (id: number): Deliverable => ({
   id,
-  deliverableTitle: "",
   description: "",
   deliverableType: "",
   draftDeadline: "",
