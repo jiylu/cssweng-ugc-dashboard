@@ -38,7 +38,7 @@ export function GiftedProductRow({ item, index, errors, onUpdate, onRemove }: Gi
                     placeholder="Enter Product Name"
                     className="border-border rounded-[3px] text-sm bg-white"
                 />
-                {e('productName') && <p className="text-xs mt-1 text-[#ff6467]">{e('productName')}</p>}
+                <p className="text-xs mt-1 text-[#ff6467] min-h-[16px]">{e('productName') ?? ""}</p>
                 </div>
 
                 {/* Value */}
@@ -59,16 +59,16 @@ export function GiftedProductRow({ item, index, errors, onUpdate, onRemove }: Gi
                         />
                         <InputGroupAddon>PHP</InputGroupAddon>
                     </InputGroup>
-                    {e('value') && <p className="text-xs mt-1 text-[#ff6467]">{e('value')}</p>}
                     <div className="flex flex-col shrink-0">
-                    <ChevronUp size={12} className="cursor-pointer text-muted-foreground hover:text-[#6b1fa8]" 
-                        onClick={() => onUpdate('value', adjustPriceValue(item.value, 1000))} 
-                    />
-                    <ChevronDown size={12} className="cursor-pointer text-muted-foreground hover:text-[#6b1fa8]" 
-                        onClick={() => onUpdate('value', adjustPriceValue(item.value, -1000))} 
-                    />
+                        <ChevronUp size={12} className="cursor-pointer text-muted-foreground hover:text-[#6b1fa8]" 
+                            onClick={() => onUpdate('value', adjustPriceValue(item.value, 1000))} 
+                        />
+                        <ChevronDown size={12} className="cursor-pointer text-muted-foreground hover:text-[#6b1fa8]" 
+                            onClick={() => onUpdate('value', adjustPriceValue(item.value, -1000))} 
+                        />
                     </div>
                 </div>
+                <p className="text-xs mt-1 text-[#ff6467] min-h-[16px]">{e('value') ?? ""}</p>
             </div>
         </div>
 
