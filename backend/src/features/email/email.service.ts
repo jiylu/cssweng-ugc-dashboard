@@ -10,19 +10,19 @@ import nodemailer from 'nodemailer';
 export class EmailService {
   private readonly logger = new Logger(EmailService.name);
   private readonly transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
+    host: 'smtp.zoho.com',
     port: 587,
     secure: false,
     auth: {
-      user: process.env.GMAIL_USER,
-      pass: process.env.GMAIL_APP_PASSWORD,
+      user: process.env.ZOHO_USER,
+      pass: process.env.ZOHO_APP_PASSWORD,
     },
   });
 
   async sendProposalReminderEmail(clientEmail: string, projectName: string) {
     try {
       await this.transporter.sendMail({
-        from: `Asceoft Notifications <${process.env.GMAIL_USER}>`,
+        from: `Asceoft Notifications <${process.env.ZOHO_USER}>`,
         to: clientEmail,
         subject: `New Proposal Reminder: ${projectName}`,
         text: `A content creator has sent you a proposal for "${projectName}". Please check your Acseoft dashboard when you have a moment.`,
