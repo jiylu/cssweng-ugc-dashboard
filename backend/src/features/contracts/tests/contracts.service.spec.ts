@@ -88,6 +88,10 @@ describe('ContractsService', () => {
       tax_number: '123-456-789',
       payment_details: 'BDO Savings 001234567890',
     },
+    general_terms: {
+      governed_by: 'Laws of the Republic of the Philippines',
+      disputes_handled_in: 'Makati City courts',
+    },
     ...overrides,
   });
 
@@ -107,6 +111,7 @@ describe('ContractsService', () => {
     cancellation_period: dto.cancellation_period,
     payment_terms: { ...dto.payment_terms },
     invoice_requirements: { ...dto.invoice_requirements },
+    general_terms: { ...dto.general_terms },
   });
 
   // ── createContract ────────────────────────────────────────────────
@@ -139,7 +144,7 @@ describe('ContractsService', () => {
           cancellation_period: dto.cancellation_period,
           payment_terms: { ...dto.payment_terms },
           invoice_requirements: { ...dto.invoice_requirements },
-          general_terms: {},
+          general_terms: { ...dto.general_terms },
           extra_notes: undefined,
         },
       });
@@ -229,7 +234,7 @@ describe('ContractsService', () => {
           cancellation_period: dto.cancellation_period,
           payment_terms: { ...dto.payment_terms },
           invoice_requirements: { ...dto.invoice_requirements },
-          general_terms: {},
+          general_terms: { ...dto.general_terms },
           extra_notes: undefined,
         },
       });
@@ -342,6 +347,45 @@ describe('ContractsService', () => {
       mockPrisma.contracts.findFirst.mockResolvedValue(null);
       await expect(
         service.findContractByPublicId('nonexistent'),
+      ).rejects.toBeInstanceOf(NotFoundException);
+    });
+  });
+
+  describe('findContractByCampaignId', () => {
+    it('should return a contract when found by campaign ID', async () => {
+      const mockContract = {
+        contract_id: 'contract-1',
+        public_id: 'abc1234567',
+        campaign_id: 'camp-1',
+        is_signed: false,
+        signed_at: null,
+        revision_policy: { revision_rounds: 3 },
+        cancellation_period: 30,
+      };
+
+      mockCampaignService.findOneCampaign.mockResolvedValue({
+        campaign_id: 'camp-1',
+      });
+      mockPrisma.contracts.findFirst.mockResolvedValue(mockContract);
+
+      const res = await service.findContractByCampaignId('camp-1');
+      expect(res).toEqual(mockContract);
+      expect(mockCampaignService.findOneCampaign).toHaveBeenCalledWith(
+        'camp-1',
+      );
+      expect(mockPrisma.contracts.findFirst).toHaveBeenCalledWith({
+        where: { campaign_id: 'camp-1' },
+      });
+    });
+
+    it('should throw NotFoundException when no contract exists for campaign', async () => {
+      mockCampaignService.findOneCampaign.mockResolvedValue({
+        campaign_id: 'camp-1',
+      });
+      mockPrisma.contracts.findFirst.mockResolvedValue(null);
+
+      await expect(
+        service.findContractByCampaignId('camp-1'),
       ).rejects.toBeInstanceOf(NotFoundException);
     });
   });

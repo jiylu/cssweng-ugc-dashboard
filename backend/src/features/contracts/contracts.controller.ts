@@ -1,6 +1,7 @@
 import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
 import { ContractsService } from './contracts.service';
 import {
+  ApiFindContractByCampaignId,
   ApiFindContractByPublicId,
   ApiSignContract,
   ApiUpdateContractDetails,
@@ -15,6 +16,12 @@ export class ContractsController {
   @Get(':publicId')
   findOne(@Param('publicId') publicId: string) {
     return this.contractsService.findContractByPublicId(publicId);
+  }
+
+  @ApiFindContractByCampaignId()
+  @Get('/campaign/:campaignId')
+  findOneByCampaignId(@Param('campaignId') campaignId: string) {
+    return this.contractsService.findContractByCampaignId(campaignId);
   }
 
   @ApiSignContract()

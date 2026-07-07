@@ -35,6 +35,35 @@ export function ApiFindContractByPublicId() {
   );
 }
 
+export function ApiFindContractByCampaignId() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Find a contract by campaign ID',
+      description:
+        'Retrieves the contract linked to a campaign using the campaign’s internal UUID. The campaign is validated first, then the matching contract is returned. This is the lookup used by campaign setup flows.',
+    }),
+    ApiParam({
+      name: 'campaignId',
+      type: String,
+      description: 'Internal UUID of the campaign',
+      example: '550e8400-e29b-41d4-a716-446655440000',
+    }),
+    ApiResponse({
+      status: 200,
+      description: 'Contract retrieved successfully.',
+    }),
+    ApiResponse({
+      status: 404,
+      description:
+        'Contract not found for the given campaign ID, or the campaign does not exist.',
+    }),
+    ApiResponse({
+      status: 500,
+      description: 'Internal server error.',
+    }),
+  );
+}
+
 export function ApiSignContract() {
   return applyDecorators(
     ApiOperation({

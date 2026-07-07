@@ -105,6 +105,31 @@ export class ContractsService {
     return contract;
   }
 
+  async findContractByCampaignId(campaignId: string) {
+    this.logger.debug(`Finding contract with campaignId ${campaignId}`);
+
+    await this.campaignsService.findOneCampaign(campaignId);
+
+    const contract = await this.prisma.contracts.findFirst({
+      where: {
+        campaign_id: campaignId,
+      },
+    });
+
+    if (!contract) {
+      this.logger.warn(`Contract with campaignid ${campaignId} not found`);
+      throw new NotFoundException({
+        status: HttpStatus.NOT_FOUND,
+        code: 'CONTRACT_NOT_FOUND',
+        message: 'Contract not found',
+      });
+    }
+
+    this.logger.log(`Found contract ${contract.contract_id}`);
+
+    return contract;
+  }
+
   async signContract(publicId: string) {
     this.logger.debug(`Signing contract ${publicId}`);
 
