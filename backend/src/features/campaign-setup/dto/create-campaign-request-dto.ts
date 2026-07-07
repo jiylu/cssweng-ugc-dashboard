@@ -51,15 +51,32 @@ export class CreateCampaignRequestDto {
   @Type(() => ProposalSetupDto)
   proposal!: ProposalSetupDto;
 
+  @ApiProperty({
+    type: ContractSetupDto,
+    description:
+      "Contract details (omit 'campaignId'). Includes revision policy, usage rights, payment terms, invoice requirements, and other legal terms.",
+  })
   @ValidateNested()
   @Type(() => ContractSetupDto)
   contract!: ContractSetupDto;
 
+  @ApiProperty({
+    type: [AddOnSetupDto],
+    required: false,
+    description:
+      "Optional add-ons array (omit 'campaignId' for each). Each item includes addOnName, fee, and initials.",
+  })
   @IsOptional()
   @ValidateNested({ each: true })
   @Type(() => AddOnSetupDto)
   addOns?: AddOnSetupDto[];
 
+  @ApiProperty({
+    type: [GiftedProductSetupDto],
+    required: false,
+    description:
+      "Optional gifted products array (omit 'campaignId' for each). Each item includes productName, value, deliveryAddress, deliveryInstructions, and ownershipTerms.",
+  })
   @IsOptional()
   @ValidateNested({ each: true })
   @Type(() => GiftedProductSetupDto)

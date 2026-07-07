@@ -46,6 +46,8 @@ export class ContractsService {
         cancellation_period: dto.cancellation_period,
         payment_terms: { ...dto.payment_terms },
         invoice_requirements: { ...dto.invoice_requirements },
+        general_terms: { ...dto.general_terms },
+        extra_notes: dto.extra_notes ?? undefined,
       },
     });
 

@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { loginUser } from "@/src/features/auth/services/users-api";
 import { LoginForm } from "../types/login-types";
 import { validateLoginFields } from "../utils/validators";
+import { getAuthenticatedHomeRoute } from "../utils/auth-routes";
 
 export function useLogin() {
   const [form, setForm] = useState<LoginForm>({ email: "", password: "" });
@@ -16,9 +17,9 @@ export function useLogin() {
   const { mutate: login, isPending, error, isSuccess } = useMutation({
     // PROD: Keep credentials included so the backend can set the HttpOnly auth cookie; do not store access tokens in frontend storage for security
     mutationFn: () => loginUser({ ...form, rememberMe }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["auth-user"] });
-      window.setTimeout(() => router.push("/creator-dashboard"), 500);
+    onSuccess: ({ user }) => {
+      queryClient.setQueryData(["auth-user"], user);
+      router.replace(getAuthenticatedHomeRoute(user));
     },
   });
 

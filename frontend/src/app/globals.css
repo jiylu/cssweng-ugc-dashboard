@@ -63,7 +63,7 @@
   --muted-foreground: #f2f2f0;
   --accent: #aafb79;
   --accent-foreground: #141518;
-  --destructive: #22d34c;
+  --destructive: #6b1fa8;
   --border: #2a2c33;
   --input: oklch(1 0 0 / 15%);
   --ring: #aafb79;
@@ -98,7 +98,7 @@
   --muted-foreground: #78746e;
   --accent: #6b1fa8;
   --accent-foreground: #ffffff;
-  --destructive: #1f8a4a;
+  --destructive: #6b1fa8;
   --border: #d8d4cb;
   --input: #141518;
   --ring: #6b1fa8;
@@ -129,3 +129,4 @@
     @apply font-sans;
   }
 }
+

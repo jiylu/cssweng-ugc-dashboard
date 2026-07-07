@@ -231,9 +231,9 @@ describe('AddOnsService', () => {
         new NotFoundException(),
       );
 
-      await expect(service.createManyAddOns('missing-camp', addOns)).rejects.toBeInstanceOf(
-        NotFoundException,
-      );
+      await expect(
+        service.createManyAddOns('missing-camp', addOns),
+      ).rejects.toBeInstanceOf(NotFoundException);
     });
   });
 

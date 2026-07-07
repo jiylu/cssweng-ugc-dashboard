@@ -52,7 +52,8 @@ describe('GiftedProductsService', () => {
     campaignId: 'camp-1',
     productName: 'Sample Skincare Set',
     value: 2500,
-    deliveryDetails: 'Ship to creator address within 5 business days',
+    deliveryAddress: '123 Creator St, Manila',
+    deliveryInstructions: 'Ship within 5 business days',
     ownershipTerms: 'Creator keeps the product after the campaign ends',
     ...overrides,
   });
@@ -65,7 +66,8 @@ describe('GiftedProductsService', () => {
     campaign_id: dto.campaignId,
     product_name: dto.productName,
     value: dto.value,
-    delivery_details: dto.deliveryDetails,
+    delivery_address: dto.deliveryAddress,
+    delivery_instructions: dto.deliveryInstructions,
     ownership_terms: dto.ownershipTerms,
   });
 
@@ -85,7 +87,8 @@ describe('GiftedProductsService', () => {
           campaign_id: dto.campaignId,
           product_name: dto.productName,
           value: dto.value,
-          delivery_details: dto.deliveryDetails,
+          delivery_address: dto.deliveryAddress,
+          delivery_instructions: dto.deliveryInstructions,
           ownership_terms: dto.ownershipTerms,
         },
       });
@@ -216,7 +219,11 @@ describe('GiftedProductsService', () => {
         campaign_id: 'camp-1',
       });
 
-      const res = await service.createManyGiftedProducts('camp-1', dtos, mockTx as any);
+      const res = await service.createManyGiftedProducts(
+        'camp-1',
+        dtos,
+        mockTx as any,
+      );
       expect(res).toHaveLength(1);
       expect(mockTx.giftedProducts.create).toHaveBeenCalled();
       expect(mockPrisma.giftedProducts.create).not.toHaveBeenCalled();
