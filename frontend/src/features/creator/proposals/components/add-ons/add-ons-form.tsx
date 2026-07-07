@@ -3,21 +3,23 @@ import { Plus } from "lucide-react";
 import { AddOnRow, type CurrencyEnum } from "./add-ons-row";
 
 export interface AddOnItem {
-  id: string;
-  title: string;
-  desc: string;
-  fee?: number;
+    id: string;
+    title: string;
+    desc: string;
+    fee?: number;
 }
 
 export interface AddOnFormProps {
-  currency: CurrencyEnum; 
-  addOns: AddOnItem[];
-  onAddCustom: () => void;
-  onRemove: (id: string) => void;
-  onAdjustPrice?: (id: string, amount: number) => void;
+    currency: CurrencyEnum; 
+    addOns: AddOnItem[];
+    errors: Record<string, string>;
+    onAddCustom: () => void;
+    onRemove: (id: string) => void;
+    onAdjustPrice?: (id: string, amount: number) => void;
+    onUpdateAddOn?: (id: string, field: keyof AddOnItem, value: string | number) => void;
 }
 
-export default function AddOnsForm({ currency, addOns, onAddCustom, onRemove, onAdjustPrice }: AddOnFormProps) {
+export default function AddOnsForm({ currency, addOns, onAddCustom, onRemove, onAdjustPrice, onUpdateAddOn, errors }: AddOnFormProps) {
     return (
         <div className="bg-white border border-border rounded-[3px] p-5.5 flex flex-col gap-2">
         <h2 className="text-[26px] font-normal text-foreground mb-4">Campaign Add-Ons</h2>
@@ -31,18 +33,22 @@ export default function AddOnsForm({ currency, addOns, onAddCustom, onRemove, on
 
         {/* Rows */}
         <div className="flex flex-col">
-            {addOns.map((addon) => (
+            {addOns.map((addon, index) => (
             <AddOnRow 
                 key={addon.id}
+                index={index}
+                errors={errors}
                 id={addon.id}
-                defaultTitle={addon.title}
-                defaultDesc={addon.desc}
+                title={addon.title}
+                desc={addon.desc}
                 fee={addon.fee}
-                titlePlaceholder="Add-on Name" 
-                descPlaceholder="Description"
                 currency={currency}
                 onRemove={() => onRemove(addon.id)}
-                onAdjustPrice={(amount) => onAdjustPrice?.(addon.id, amount)}/>
+                onAdjustPrice={(amount) => onAdjustPrice?.(addon.id, amount)}
+                onTitleChange={(value) => onUpdateAddOn?.(addon.id, 'title', value)}
+                onDescChange={(value) => onUpdateAddOn?.(addon.id, 'desc', value)}
+                onFeeChange={(value) => onUpdateAddOn?.(addon.id, 'fee', value)}
+        />
             ))}
         </div>
 
