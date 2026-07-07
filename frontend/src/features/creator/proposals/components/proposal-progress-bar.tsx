@@ -4,7 +4,7 @@ const STEPS = [
   { number: 1, label: "Campaign & Deliverables" },
   { number: 2, label: "Contract Terms" },
   { number: 3, label: "Add-Ons" },
-  { number: 4, label: "Payment Terms"}
+  { number: 4, label: "Payment Terms" },
 ]
 
 export function ProposalProgressBar({ activeStep, onStepChange }: { activeStep: number, onStepChange?: (step: number) => void }) {
