@@ -48,7 +48,7 @@ export function ApiCreateDeliverable() {
     ApiOperation({
       summary: 'Creates a deliverable',
       description:
-        'Creates a deliverable for a campaign. Request body must follow CreateDeliverableDTO (campaignId, deliverableTitle, description, deadline, pricing, deliverableType). The endpoint verifies the referenced campaign exists before creating the deliverable.',
+        'Creates a deliverable for a campaign. Request body must follow CreateDeliverableDTO (campaignId, quantity, deliverableType, deliverableContent, requirements, dueDate, postDate, pricing). The endpoint verifies the referenced campaign exists before creating the deliverable.',
     }),
     ApiBody({ type: CreateDeliverableDTO }),
     ApiResponse({

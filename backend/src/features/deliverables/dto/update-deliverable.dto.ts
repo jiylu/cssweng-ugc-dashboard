@@ -6,6 +6,7 @@ import {
   IsNumber,
   IsOptional,
   IsString,
+  Max,
   MaxLength,
   Min,
   MinLength,
@@ -13,40 +14,51 @@ import {
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
 export class UpdateDeliverableDTO {
-  @ApiPropertyOptional({ example: 'Updated title', required: false })
+  @ApiPropertyOptional({ example: 5 })
   @IsOptional()
-  @IsString()
-  @MaxLength(150)
-  deliverableTitle?: string;
+  @IsNumber()
+  @Type(() => Number)
+  @Min(1)
+  @Max(10)
+  quantity?: number;
 
   @ApiPropertyOptional({
-    example: 'Updated description with sufficient length',
-    required: false,
+    enum: DeliverableType,
+    example: DeliverableType.COLLABORATION,
+  })
+  @IsOptional()
+  @IsEnum(DeliverableType)
+  deliverableType?: DeliverableType;
+
+  @ApiPropertyOptional({ example: 'Instagram Carousel' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(250)
+  deliverableContent?: string;
+
+  @ApiPropertyOptional({
+    example: '50 sec reel, with captions, highlighting product.',
   })
   @IsOptional()
   @IsString()
-  @MinLength(20)
+  @MinLength(50)
   @MaxLength(1000)
-  description?: string;
+  requirements?: string;
 
-  @ApiPropertyOptional({ example: '2026-07-01T00:00:00.000Z', required: false })
+  @ApiPropertyOptional({ example: '2026-06-15T00:00:00.000Z' })
   @IsOptional()
   @IsDateString()
-  deadline?: string;
+  dueDate?: string;
 
-  @ApiPropertyOptional({ example: 999, required: false })
+  @ApiPropertyOptional({ example: '2026-06-15T00:00:00.000Z' })
+  @IsOptional()
+  @IsDateString()
+  postDate?: string;
+
+  @ApiPropertyOptional({ example: 1500 })
   @IsOptional()
   @IsNumber()
   @Type(() => Number)
   @Min(0)
   pricing?: number;
-
-  @ApiPropertyOptional({
-    enum: DeliverableType,
-    example: DeliverableType.UGC,
-    required: false,
-  })
-  @IsOptional()
-  @IsEnum(DeliverableType)
-  deliverableType?: DeliverableType;
 }

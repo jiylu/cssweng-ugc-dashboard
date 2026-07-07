@@ -1,4 +1,5 @@
 import {
+  ConflictException,
   HttpStatus,
   Injectable,
   Logger,
@@ -78,6 +79,7 @@ export class DeliverablesService {
     const deliverable = await this.prisma.deliverables.findFirst({
       where: {
         deliverable_id: deliverableId,
+        is_deleted: false,
       },
     });
 
@@ -101,6 +103,7 @@ export class DeliverablesService {
     const deliverable = await this.prisma.deliverables.findFirst({
       where: {
         public_id: publicId,
+        is_deleted: false,
       },
     });
 
@@ -128,6 +131,7 @@ export class DeliverablesService {
     const campaignDeliverables = await this.prisma.deliverables.findMany({
       where: {
         campaign_id: campaignId,
+        is_deleted: false,
       },
       orderBy: {
         due_date: 'asc',
@@ -153,18 +157,58 @@ export class DeliverablesService {
     const updatedDeliverable = await this.prisma.deliverables.update({
       where: { deliverable_id: deliverableId },
       data: {
-        ...(dto.deliverableTitle && {
-          deliverable_title: dto.deliverableTitle,
+        ...(dto.quantity !== undefined && { quantity: dto.quantity }),
+        ...(dto.deliverableType !== undefined && {
+          deliverable_type: dto.deliverableType,
         }),
-        ...(dto.description && { description: dto.description }),
-        ...(dto.deadline && { deadline: new Date(dto.deadline) }),
-        ...(dto.pricing && { pricing: new Prisma.Decimal(dto.pricing) }),
-        ...(dto.deliverableType && { deliverable_type: dto.deliverableType }),
+        ...(dto.deliverableContent !== undefined && {
+          deliverable_content: dto.deliverableContent,
+        }),
+        ...(dto.requirements !== undefined && {
+          requirements: dto.requirements,
+        }),
+        ...(dto.dueDate !== undefined && { due_date: new Date(dto.dueDate) }),
+        ...(dto.postDate !== undefined && {
+          post_date: new Date(dto.postDate),
+        }),
+        ...(dto.pricing !== undefined && {
+          pricing: new Prisma.Decimal(dto.pricing),
+        }),
       },
     });
 
     this.logger.log(`Deliverable ${deliverableId} updated successfully`);
 
     return updatedDeliverable;
+  }
+
+  async deleteDeliverable(publicId: string) {
+    this.logger.debug(`Deleting deliverable ${publicId}`);
+
+    const deliverable = await this.findOneDeliverableByPublicId(publicId);
+
+    if (deliverable.is_deleted) {
+      this.logger.debug(
+        `Deliverable ${deliverable.deliverable_id} is already deleted.`,
+      );
+
+      throw new ConflictException({
+        status: HttpStatus.CONFLICT,
+        code: 'DELIVERABLE_ALREADY_DELETED',
+        message: 'Deliverable is already deleted',
+      });
+    }
+
+    const deletedDeliverable = await this.prisma.deliverables.update({
+      where: { deliverable_id: deliverable.deliverable_id },
+      data: {
+        is_deleted: true,
+      },
+    });
+
+    this.logger.log(
+      `Sucessfully deleted deliverable ${deletedDeliverable.deliverable_id}`,
+    );
+    return deletedDeliverable;
   }
 }

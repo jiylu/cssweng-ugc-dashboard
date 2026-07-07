@@ -1,4 +1,5 @@
 import {
+  ConflictException,
   HttpStatus,
   Injectable,
   Logger,
@@ -10,7 +11,6 @@ import { CreateGiftedProductDTO } from './dto/create-gifted-product.dto';
 import { Prisma } from '@prisma/client';
 import { UpdateGiftedProductDTO } from './dto/update-gifted-product.dto';
 
-// TODO: Delete Gifted Products
 @Injectable()
 export class GiftedProductsService {
   private readonly logger = new Logger(GiftedProductsService.name);
@@ -140,5 +140,36 @@ export class GiftedProductsService {
     this.logger.log(`Gifted product ${giftedProductId} updated successfully`);
 
     return updatedGiftedProduct;
+  }
+
+  async deleteGiftedProduct(giftedProductId: string) {
+    this.logger.debug(`Deleting gifted product ${giftedProductId}`);
+
+    const giftedProduct = await this.findOneGiftedProduct(giftedProductId);
+
+    if (giftedProduct.is_deleted) {
+      this.logger.debug(
+        `Gifted product ${giftedProduct.gifted_product_id} is already deleted.`,
+      );
+
+      throw new ConflictException({
+        status: HttpStatus.CONFLICT,
+        code: 'DELIVERABLE_ALREADY_DELETED',
+        message: 'Deliverable is already deleted',
+      });
+    }
+
+    const deletedGiftedProduct = await this.prisma.giftedProducts.update({
+      where: { gifted_product_id: giftedProduct.gifted_product_id },
+      data: {
+        is_deleted: true,
+      },
+    });
+
+    this.logger.log(
+      `Successfully deleted gifted product ${deletedGiftedProduct.gifted_product_id}`,
+    );
+
+    return deletedGiftedProduct;
   }
 }

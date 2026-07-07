@@ -1,4 +1,5 @@
 import {
+  ConflictException,
   HttpStatus,
   Injectable,
   Logger,
@@ -18,7 +19,7 @@ export class AddOnsService {
   constructor(
     private prisma: PrismaService,
     private campaignsService: CampaignsService,
-  ) {}
+  ) { }
 
   async createAddOn(
     dto: CreateAddOnDTO,
@@ -174,5 +175,36 @@ export class AddOnsService {
     this.logger.log(`Add-on ${addOnId} updated successfully`);
 
     return updatedAddOn;
+  }
+
+  async deleteAddOn(publicId: string) {
+    this.logger.debug(`Deleting add-on ${publicId}`);
+
+    const addOn = await this.findOneAddOnByPublicId(publicId);
+
+    if (addOn.is_deleted) {
+      this.logger.debug(
+        `Add-on with id ${addOn.add_on_id} is already deleted.`,
+      );
+
+      throw new ConflictException({
+        status: HttpStatus.CONFLICT,
+        code: 'ADD-ON_ALREADY_DELETED',
+        message: 'Add-on is already deleted',
+      });
+    }
+
+    const deletedAddOn = await this.prisma.addOns.update({
+      where: { add_on_id: addOn.add_on_id },
+      data: {
+        is_deleted: true,
+      },
+    });
+
+    this.logger.log(
+      `Successfully deleted add-on with id ${deletedAddOn.add_on_id}`,
+    );
+
+    return deletedAddOn;
   }
 }

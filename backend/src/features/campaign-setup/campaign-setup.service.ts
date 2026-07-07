@@ -99,4 +99,10 @@ export class CampaignSetupService {
 
     return result;
   }
+
+  // async updateCampaignSetup(campaignId: string) {
+  //   return this.prisma.$transaction(async (tx) => {
+
+  //   })
+  // }
 }
