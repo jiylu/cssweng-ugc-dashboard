@@ -7,6 +7,9 @@ import { ProposalsModule } from './features/proposals/proposals.module';
 import { DeliverablesModule } from './features/deliverables/deliverables.module';
 import { CampaignSetupModule } from './features/campaign-setup/campaign-setup.module';
 import { ActivityLogModule } from './features/activity-log/activity-log.module';
+import { AddOnsModule } from './features/add-ons/add-ons.module';
+import { ContractsModule } from './features/contracts/contracts.module';
+import { GiftedProductsModule } from './features/gifted-products/gifted-products.module';
 
 @Module({
   imports: [
@@ -18,6 +21,9 @@ import { ActivityLogModule } from './features/activity-log/activity-log.module';
     DeliverablesModule,
     CampaignSetupModule,
     ActivityLogModule,
+    AddOnsModule,
+    ContractsModule,
+    GiftedProductsModule,
   ],
   controllers: [],
   providers: [],

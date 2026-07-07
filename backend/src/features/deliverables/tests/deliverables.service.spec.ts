@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { DeliverablesService } from '../deliverables.service';
-import { DeliverableType, Format, Platform, Prisma } from '@prisma/client';
+import { DeliverableType, Prisma } from '@prisma/client';
 import { CreateDeliverableDTO } from '../dto/create-deliverable.dto';
 import { NotFoundException } from '@nestjs/common';
 import { CampaignsService } from 'src/features/campaigns/campaigns.service';
@@ -53,11 +53,11 @@ describe('DeliverablesService', () => {
         campaignId: 'camp-1',
         quantity: 5,
         deliverableType: DeliverableType.COLLABORATION,
-        platform: Platform.FACEBOOK,
-        format: Format.VIDEO,
-        description:
-          'This is a test deliverable description with enough length.',
-        deadline: new Date().toISOString(),
+        deliverableContent: 'Instagram Carousel',
+        requirements:
+          'This is a test deliverable requirement with enough length to pass validation.',
+        dueDate: new Date().toISOString(),
+        postDate: new Date().toISOString(),
         pricing: 1500,
       };
 
@@ -67,10 +67,10 @@ describe('DeliverablesService', () => {
         campaign_id: dto.campaignId,
         quantity: dto.quantity,
         deliverable_type: dto.deliverableType,
-        platform: dto.platform,
-        format: dto.format,
-        description: dto.description,
-        deadline: new Date(dto.deadline),
+        deliverable_content: dto.deliverableContent,
+        requirements: dto.requirements,
+        due_date: new Date(dto.dueDate),
+        post_date: new Date(dto.postDate),
         pricing: new Prisma.Decimal(dto.pricing),
       };
 
@@ -84,10 +84,10 @@ describe('DeliverablesService', () => {
           campaign_id: dto.campaignId,
           quantity: dto.quantity,
           deliverable_type: dto.deliverableType,
-          platform: dto.platform,
-          format: dto.format,
-          description: dto.description,
-          deadline: new Date(dto.deadline),
+          deliverable_content: dto.deliverableContent,
+          requirements: dto.requirements,
+          due_date: new Date(dto.dueDate),
+          post_date: new Date(dto.postDate),
           pricing: new Prisma.Decimal(dto.pricing),
         },
       });
@@ -98,10 +98,10 @@ describe('DeliverablesService', () => {
         campaignId: 'camp-1',
         quantity: 1,
         deliverableType: DeliverableType.COLLABORATION,
-        platform: Platform.TIKTOK,
-        format: Format.SHORT_FORM,
-        description: 'short',
-        deadline: 'not-a-date',
+        deliverableContent: 'Short',
+        requirements: 'short',
+        dueDate: 'not-a-date',
+        postDate: 'not-a-date',
         pricing: -100,
       };
 
@@ -123,10 +123,10 @@ describe('DeliverablesService', () => {
         campaign_id: 'camp-1',
         quantity: 3,
         deliverable_type: DeliverableType.UGC,
-        platform: Platform.INSTAGRAM,
-        format: Format.IMAGE_POST,
-        description: 'This is a sufficiently long description for testing.',
-        deadline: new Date(),
+        deliverable_content: 'Instagram Image Post',
+        requirements: 'This is a sufficiently long requirement for testing.',
+        due_date: new Date(),
+        post_date: new Date(),
         pricing: new Prisma.Decimal(1000),
       };
 
@@ -155,10 +155,10 @@ describe('DeliverablesService', () => {
         campaign_id: 'camp-1',
         quantity: 2,
         deliverable_type: DeliverableType.COLLABORATION,
-        platform: Platform.YOUTUBE,
-        format: Format.VIDEO,
-        description: 'This is a sufficiently long description for testing.',
-        deadline: new Date(),
+        deliverable_content: 'YouTube Video',
+        requirements: 'This is a sufficiently long requirement for testing.',
+        due_date: new Date(),
+        post_date: new Date(),
         pricing: new Prisma.Decimal(2000),
       };
 
@@ -189,10 +189,10 @@ describe('DeliverablesService', () => {
           campaign_id: campaignId,
           quantity: 1,
           deliverable_type: DeliverableType.UGC,
-          platform: Platform.TIKTOK,
-          format: Format.SHORT_FORM,
-          description: 'Description long enough for d1',
-          deadline: new Date(),
+          deliverable_content: 'TikTok Short Form',
+          requirements: 'Requirement long enough for d1',
+          due_date: new Date(),
+          post_date: new Date(),
           pricing: new Prisma.Decimal(500),
         },
       ];
@@ -206,7 +206,7 @@ describe('DeliverablesService', () => {
       expect(res).toEqual(mockDeliverables);
       expect(mockPrisma.deliverables.findMany).toHaveBeenCalledWith({
         where: { campaign_id: campaignId },
-        orderBy: { deadline: 'asc' },
+        orderBy: { due_date: 'asc', post_date: 'asc' },
       });
     });
 
@@ -238,10 +238,10 @@ describe('DeliverablesService', () => {
         campaign_id: 'camp-1',
         quantity: 2,
         deliverable_type: DeliverableType.COLLABORATION,
-        platform: Platform.FACEBOOK,
-        format: Format.CAROUSEL,
-        description: 'Old description long enough.',
-        deadline: new Date('2026-06-01T00:00:00Z'),
+        deliverable_content: 'Facebook Carousel',
+        requirements: 'Old requirements long enough.',
+        due_date: new Date('2026-06-01T00:00:00Z'),
+        post_date: new Date('2026-06-05T00:00:00Z'),
         pricing: new Prisma.Decimal(100),
       };
 
@@ -267,10 +267,10 @@ describe('DeliverablesService', () => {
         campaign_id: 'camp-1',
         quantity: 1,
         deliverable_type: DeliverableType.COLLABORATION,
-        platform: Platform.INSTAGRAM,
-        format: Format.IMAGE_POST,
-        description: 'Old description long enough.',
-        deadline: new Date('2026-06-01T00:00:00Z'),
+        deliverable_content: 'Instagram Image Post',
+        requirements: 'Old requirements long enough.',
+        due_date: new Date('2026-06-01T00:00:00Z'),
+        post_date: new Date('2026-06-05T00:00:00Z'),
         pricing: new Prisma.Decimal(100),
       };
 
@@ -305,10 +305,10 @@ describe('DeliverablesService', () => {
         campaign_id: 'camp-2',
         quantity: 4,
         deliverable_type: DeliverableType.UGC,
-        platform: Platform.YOUTUBE,
-        format: Format.VIDEO,
-        description: 'Old description long enough.',
-        deadline: new Date('2026-06-01T00:00:00Z'),
+        deliverable_content: 'YouTube Video',
+        requirements: 'Old requirements long enough.',
+        due_date: new Date('2026-06-01T00:00:00Z'),
+        post_date: new Date('2026-06-05T00:00:00Z'),
         pricing: new Prisma.Decimal(100),
       };
 
@@ -355,10 +355,10 @@ describe('DeliverablesService', () => {
           campaignId,
           quantity: 2,
           deliverableType: DeliverableType.COLLABORATION,
-          platform: Platform.FACEBOOK,
-          format: Format.VIDEO,
-          description: 'Description long enough for D1',
-          deadline: new Date().toISOString(),
+          deliverableContent: 'Facebook Video',
+          requirements: 'Requirement long enough for D1',
+          dueDate: new Date().toISOString(),
+          postDate: new Date().toISOString(),
           pricing: 100,
         },
       ];
@@ -373,10 +373,10 @@ describe('DeliverablesService', () => {
         campaign_id: campaignId,
         quantity: deliverables[0].quantity,
         deliverable_type: deliverables[0].deliverableType,
-        platform: deliverables[0].platform,
-        format: deliverables[0].format,
-        description: deliverables[0].description,
-        deadline: new Date(deliverables[0].deadline),
+        deliverable_content: deliverables[0].deliverableContent,
+        requirements: deliverables[0].requirements,
+        due_date: new Date(deliverables[0].dueDate),
+        post_date: new Date(deliverables[0].postDate),
         pricing: new Prisma.Decimal(deliverables[0].pricing),
       });
 
@@ -396,10 +396,10 @@ describe('DeliverablesService', () => {
         campaignId,
         quantity: i + 1,
         deliverableType: DeliverableType.UGC,
-        platform: Platform.TIKTOK,
-        format: Format.SHORT_FORM,
-        description: `Description for D${i + 1} long enough`,
-        deadline: new Date().toISOString(),
+        deliverableContent: `TikTok Content ${i + 1}`,
+        requirements: `Requirement for D${i + 1} long enough`,
+        dueDate: new Date().toISOString(),
+        postDate: new Date().toISOString(),
         pricing: 100 + i * 50,
       }));
 
@@ -414,10 +414,10 @@ describe('DeliverablesService', () => {
           campaign_id: campaignId,
           quantity: deliverables[0].quantity,
           deliverable_type: deliverables[0].deliverableType,
-          platform: deliverables[0].platform,
-          format: deliverables[0].format,
-          description: deliverables[0].description,
-          deadline: new Date(deliverables[0].deadline),
+          deliverable_content: deliverables[0].deliverableContent,
+          requirements: deliverables[0].requirements,
+          due_date: new Date(deliverables[0].dueDate),
+          post_date: new Date(deliverables[0].postDate),
           pricing: new Prisma.Decimal(deliverables[0].pricing),
         })
         .mockResolvedValueOnce({
@@ -426,10 +426,10 @@ describe('DeliverablesService', () => {
           campaign_id: campaignId,
           quantity: deliverables[1].quantity,
           deliverable_type: deliverables[1].deliverableType,
-          platform: deliverables[1].platform,
-          format: deliverables[1].format,
-          description: deliverables[1].description,
-          deadline: new Date(deliverables[1].deadline),
+          deliverable_content: deliverables[1].deliverableContent,
+          requirements: deliverables[1].requirements,
+          due_date: new Date(deliverables[1].dueDate),
+          post_date: new Date(deliverables[1].postDate),
           pricing: new Prisma.Decimal(deliverables[1].pricing),
         });
 
@@ -449,10 +449,10 @@ describe('DeliverablesService', () => {
         campaignId,
         quantity: i + 1,
         deliverableType: DeliverableType.COLLABORATION,
-        platform: Platform.INSTAGRAM,
-        format: Format.CAROUSEL,
-        description: `Description for D${i + 1} long enough`,
-        deadline: new Date().toISOString(),
+        deliverableContent: `Instagram Content ${i + 1}`,
+        requirements: `Requirement for D${i + 1} long enough`,
+        dueDate: new Date().toISOString(),
+        postDate: new Date().toISOString(),
         pricing: 100 + i * 25,
       }));
 
@@ -467,10 +467,10 @@ describe('DeliverablesService', () => {
           campaign_id: campaignId,
           quantity: deliverables[0].quantity,
           deliverable_type: deliverables[0].deliverableType,
-          platform: deliverables[0].platform,
-          format: deliverables[0].format,
-          description: deliverables[0].description,
-          deadline: new Date(deliverables[0].deadline),
+          deliverable_content: deliverables[0].deliverableContent,
+          requirements: deliverables[0].requirements,
+          due_date: new Date(deliverables[0].dueDate),
+          post_date: new Date(deliverables[0].postDate),
           pricing: new Prisma.Decimal(deliverables[0].pricing),
         })
         .mockResolvedValueOnce({
@@ -479,10 +479,10 @@ describe('DeliverablesService', () => {
           campaign_id: campaignId,
           quantity: deliverables[1].quantity,
           deliverable_type: deliverables[1].deliverableType,
-          platform: deliverables[1].platform,
-          format: deliverables[1].format,
-          description: deliverables[1].description,
-          deadline: new Date(deliverables[1].deadline),
+          deliverable_content: deliverables[1].deliverableContent,
+          requirements: deliverables[1].requirements,
+          due_date: new Date(deliverables[1].dueDate),
+          post_date: new Date(deliverables[1].postDate),
           pricing: new Prisma.Decimal(deliverables[1].pricing),
         })
         .mockResolvedValueOnce({
@@ -491,10 +491,10 @@ describe('DeliverablesService', () => {
           campaign_id: campaignId,
           quantity: deliverables[2].quantity,
           deliverable_type: deliverables[2].deliverableType,
-          platform: deliverables[2].platform,
-          format: deliverables[2].format,
-          description: deliverables[2].description,
-          deadline: new Date(deliverables[2].deadline),
+          deliverable_content: deliverables[2].deliverableContent,
+          requirements: deliverables[2].requirements,
+          due_date: new Date(deliverables[2].dueDate),
+          post_date: new Date(deliverables[2].postDate),
           pricing: new Prisma.Decimal(deliverables[2].pricing),
         });
 
@@ -513,10 +513,10 @@ describe('DeliverablesService', () => {
           campaignId,
           quantity: 1,
           deliverableType: DeliverableType.COLLABORATION,
-          platform: Platform.FACEBOOK,
-          format: Format.VIDEO,
-          description: 'Description long enough here',
-          deadline: new Date().toISOString(),
+          deliverableContent: 'Facebook Video',
+          requirements: 'Requirement long enough here',
+          dueDate: new Date().toISOString(),
+          postDate: new Date().toISOString(),
           pricing: 100,
         },
       ];

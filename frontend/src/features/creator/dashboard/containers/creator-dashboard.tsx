@@ -7,22 +7,14 @@ import CreatorTodoCard from "../components/creator-todo-card";
 import Button from "@/src/components/atoms/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useAuth } from "@/src/features/auth/hooks/useAuth";
-import { Badge } from "@/components/ui/badge";
-import { Spinner } from "@/components/ui/spinner";
+import LogoLoader from "@/src/components/molecules/logo-loader";
 
 // TODO: Make CreatorDashboardProps interface para dynamic
 
 
 export default function CreatorDashboard() {
   const { user, loading } = useAuth();
-  if (loading) return (
-    <div className="flex mt-5 justify-center">
-      <Badge variant="outline">
-        <Spinner data-icon="inline-start" />
-        Loading...
-      </Badge>
-    </div>
-  );
+  if (loading) return <LogoLoader label="Loading creator dashboard" />;
 
   if (!user) return null;
 
@@ -88,7 +80,7 @@ export default function CreatorDashboard() {
 
         {/* GREET USER */}
         <div className="mt-7">
-          <h1 className={"text-[64px] text-[#141518] leading-tight tracking-[-0.5px] mb-8"}>Welcome back, User</h1>
+          <h1 className={"text-[64px] text-[#141518] leading-tight tracking-[-0.5px] mb-8"}>Welcome back, {user?.first_name ?? "User"}</h1>
         </div>
 
         {/* ANALYTICS */}

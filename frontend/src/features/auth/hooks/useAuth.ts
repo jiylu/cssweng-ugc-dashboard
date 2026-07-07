@@ -9,6 +9,7 @@ export function useAuth(redirectIfUnauthenticated = true) {
   const { data: user, isLoading } = useQuery({
     queryKey: ["auth-user"],
     queryFn: getCurrentUser,
+    staleTime: 60 * 1000,
   })
 
   useEffect(() => {

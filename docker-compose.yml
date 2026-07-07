@@ -26,6 +26,7 @@ services:
     env_file:
       - ./frontend/.env
     environment:
+      - INTERNAL_API_URL=http://backend:8080
       - WATCHPACK_POLLING=true
       - CHOKIDAR_USEPOLLING=true
     depends_on:

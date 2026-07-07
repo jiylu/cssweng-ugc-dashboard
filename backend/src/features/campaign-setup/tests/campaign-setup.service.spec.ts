@@ -7,9 +7,12 @@ import { CampaignsService } from 'src/features/campaigns/campaigns.service';
 import { DeliverablesService } from 'src/features/deliverables/deliverables.service';
 import { ProposalsService } from 'src/features/proposals/proposals.service';
 import { CreateCampaignRequestDto } from '../dto/create-campaign-request-dto';
-import { DeliverableType, Format, Platform } from '@prisma/client';
+import { DeliverableType } from '@prisma/client';
 import { EmailService } from 'src/features/email/email.service';
 import { ActivityLogService } from 'src/features/activity-log/activity-log.service';
+import { ContractsService } from 'src/features/contracts/contracts.service';
+import { AddOnsService } from 'src/features/add-ons/add-ons.service';
+import { GiftedProductsService } from 'src/features/gifted-products/gifted-products.service';
 
 describe('CampaignSetupService', () => {
   let service: CampaignSetupService;
@@ -56,6 +59,21 @@ describe('CampaignSetupService', () => {
           provide: ActivityLogService,
           useValue: { createActivityLog: jest.fn() },
         },
+        {
+          provide: ContractsService,
+          useValue: { createContract: jest.fn() },
+        },
+        {
+          provide: AddOnsService,
+          useValue: { createAddOn: jest.fn(), createManyAddOns: jest.fn() },
+        },
+        {
+          provide: GiftedProductsService,
+          useValue: {
+            createGiftedProduct: jest.fn(),
+            createManyGiftedProducts: jest.fn(),
+          },
+        },
       ],
     }).compile();
 
@@ -73,6 +91,9 @@ describe('CampaignSetupService', () => {
           ugcId: 'ugc-1',
           projectName: 'Test Project',
           description: 'A project for testing',
+          currency: 'PHP',
+          tax: 10,
+          platforms: ['Instagram', 'Tiktok'],
           startDate: new Date('2026-06-10T00:00:00Z').toISOString(),
           endDate: new Date('2026-06-20T00:00:00Z').toISOString(),
         },
@@ -80,28 +101,58 @@ describe('CampaignSetupService', () => {
           {
             quantity: 2,
             deliverableType: DeliverableType.COLLABORATION,
-            platform: Platform.FACEBOOK,
-            format: Format.VIDEO,
-            description: 'Long enough description for d1',
-            deadline: new Date('2026-06-15T00:00:00Z').toISOString(),
+            deliverableContent: 'Instagram Reels',
+            requirements: 'Long enough description for d1',
+            dueDate: new Date('2026-06-15T00:00:00Z').toISOString(),
+            postDate: new Date('2026-06-16T00:00:00Z').toISOString(),
             pricing: 100,
           },
           {
             quantity: 3,
             deliverableType: DeliverableType.UGC,
-            platform: Platform.TIKTOK,
-            format: Format.SHORT_FORM,
-            description: 'Long enough description for d2',
-            deadline: new Date('2026-06-16T00:00:00Z').toISOString(),
+            deliverableContent: 'Tiktok Reels',
+            requirements: 'Long enough description for d2',
+            dueDate: new Date('2026-06-16T00:00:00Z').toISOString(),
+            postDate: new Date('2026-06-16T00:00:00Z').toISOString(),
             pricing: 200,
           },
         ],
         proposal: {
           clientEmail: 'client@test.com',
         },
+        contract: {
+          revision_policy: {
+            revision_rounds: 3,
+            revision_window_days: 7,
+            auto_approve_after_days: 5,
+          },
+          usage_rights: {
+            is_exclusive: true,
+            is_transferrable: false,
+            organic_usage:
+              'Brand may repost creator content on owned channels.',
+            territory: 'Worldwide',
+            restrictions: 'None',
+          },
+          posting_requirements: {
+            content_retention_months: 12,
+            partnership_tags: '#ad',
+          },
+          cancellation_period: 30,
+          payment_terms: {
+            payment_schedule: 1,
+            payment_method: 'Bank Transfer',
+          },
+          invoice_requirements: {
+            name: 'Test',
+            email: 'test@test.com',
+            campaign_name: 'Test',
+            payment_details: 'Bank',
+          },
+        },
       };
 
-      const totalPrice = 100 + 200;
+      const totalPrice = 300 + 300 * (10 / 100);
 
       const mockCampaign = {
         campaign_id: 'camp-1',
@@ -169,11 +220,44 @@ describe('CampaignSetupService', () => {
           ugcId: 'ugc-1',
           projectName: 'Test Project',
           description: 'A project for testing',
+          currency: 'PHP',
+          tax: 10,
+          platforms: ['Instagram', 'TikTok'],
           startDate: new Date().toISOString(),
           endDate: new Date().toISOString(),
         },
         deliverables: [],
         proposal: { clientEmail: 'client@test.com' },
+        contract: {
+          revision_policy: {
+            revision_rounds: 3,
+            revision_window_days: 7,
+            auto_approve_after_days: 5,
+          },
+          usage_rights: {
+            is_exclusive: true,
+            is_transferrable: false,
+            organic_usage:
+              'Brand may repost creator content on owned channels.',
+            territory: 'Worldwide',
+            restrictions: 'None',
+          },
+          posting_requirements: {
+            content_retention_months: 12,
+            partnership_tags: '#ad',
+          },
+          cancellation_period: 30,
+          payment_terms: {
+            payment_schedule: 1,
+            payment_method: 'Bank Transfer',
+          },
+          invoice_requirements: {
+            name: 'Test',
+            email: 'test@test.com',
+            campaign_name: 'Test',
+            payment_details: 'Bank',
+          },
+        },
       };
 
       mockCampaignService.createCampaign.mockRejectedValue(new Error('boom'));
