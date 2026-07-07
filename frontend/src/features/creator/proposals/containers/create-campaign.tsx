@@ -19,6 +19,7 @@ import { ProposalProgressBar } from "@/src/features/creator/proposals/components
 import { ContractTermsContainer } from "@/src/features/creator/proposals/containers/contract-terms-container";
 import { PaymentTermsContainer } from "@/src/features/creator/proposals/containers/payment-terms-container";
 import { AddOnsContainer } from "@/src/features/creator/proposals/containers/add-ons-container";
+import LogoLoader from "@/src/components/molecules/logo-loader";
 
 export default function CreateCampaign() {
   const form = useCampaignForm();
@@ -26,14 +27,7 @@ export default function CreateCampaign() {
   const { mutate: submitCampaign, isPending } = useCreateCampaign();
   const router = useRouter();
 
-  if (loading) return (
-    <div className="flex mt-5 justify-center">
-      <Badge variant="outline">
-        <Spinner data-icon="inline-start" />
-        Loading...
-      </Badge>
-    </div>
-  );
+  if (loading) return <LogoLoader label="Loading proposal form" />;
 
   if (!user) return null;
 
@@ -197,4 +191,5 @@ export default function CreateCampaign() {
       </section>
     </main>
   )
+
 }

@@ -15,6 +15,7 @@ import { UpdateCampaignClientDTO } from './dto/update-campaign-client.dto';
 import { UserService } from '../users/users.service';
 import { nanoid } from 'nanoid';
 
+// TODO: ADD UPDATE PRICING
 @Injectable()
 export class CampaignsService {
   private readonly logger = new Logger(CampaignsService.name);
@@ -40,7 +41,10 @@ export class CampaignsService {
         ugc_creator_id: dto.ugcId,
         project_name: dto.projectName,
         description: dto.description,
+        currency: dto.currency,
+        tax: dto.tax,
         pricing: new Prisma.Decimal(dto.pricing),
+        platforms: dto.platforms,
         start_date: new Date(dto.startDate),
         end_date: new Date(dto.endDate),
       },

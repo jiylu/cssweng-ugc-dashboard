@@ -1,4 +1,4 @@
-import { DeliverableType, Format, Platform } from '@prisma/client';
+import { DeliverableType } from '@prisma/client';
 import { Type } from 'class-transformer';
 import {
   IsDateString,
@@ -32,31 +32,28 @@ export class CreateDeliverableDTO {
   @IsEnum(DeliverableType)
   deliverableType!: DeliverableType;
 
-  @ApiProperty({
-    enum: Platform,
-    example: Platform.FACEBOOK,
-  })
-  @IsEnum(Platform)
-  platform!: Platform;
-
-  @ApiProperty({
-    enum: Format,
-    example: Format.CAROUSEL,
-  })
-  @IsEnum(Format)
-  format!: Format;
-
-  @ApiProperty({ example: 'Detailed description with at least 20 characters.' })
+  @ApiProperty({ example: 'Instagram Carousel' })
   @IsString()
   @IsNotEmpty()
-  @MinLength(20)
+  @MaxLength(250)
+  deliverableContent!: string;
+
+  @ApiProperty({ example: '50 sec reel, with captions, highlighting product.' })
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(50)
   @MaxLength(1000)
-  description!: string;
+  requirements!: string;
 
   @ApiProperty({ example: '2026-06-15T00:00:00.000Z' })
   @IsDateString()
   @IsNotEmpty()
-  deadline!: string;
+  dueDate!: string;
+
+  @ApiProperty({ example: '2026-06-15T00:00:00.000Z' })
+  @IsDateString()
+  @IsNotEmpty()
+  postDate!: string;
 
   @ApiProperty({ example: 1500 })
   @IsNumber()

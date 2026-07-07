@@ -34,17 +34,20 @@ model Clients {
 }
 
 model Campaigns {
-  campaign_id     String         @id @default(uuid())
-  public_id       String         @unique @db.VarChar(10)
+  campaign_id     String           @id @default(uuid())
+  public_id       String           @unique @db.VarChar(10)
   ugc_creator_id  String
   client_id       String?
   project_name    String
   description     String
+  currency        CampaignCurrency
+  tax             Decimal
   pricing         Decimal
+  platforms       String[]
   start_date      DateTime
   end_date        DateTime
-  created_at      DateTime       @default(now())
-  campaign_status CampaignStatus @default(ACTIVE)
+  created_at      DateTime         @default(now())
+  campaign_status CampaignStatus   @default(ACTIVE)
 
   creator      User           @relation("CreatorCampaigns", fields: [ugc_creator_id], references: [user_id])
   client       User?          @relation("ClientCampaigns", fields: [client_id], references: [user_id])
@@ -53,33 +56,54 @@ model Campaigns {
 }
 
 model Contracts {
-  contract_id String   @id @default(uuid())
-  public_id   String   @unique @db.VarChar(10)
-  campaign_id String   @unique
-  is_signed   Boolean
-  signed_at   DateTime
+  contract_id String    @id @default(uuid())
+  public_id   String    @unique @db.VarChar(10)
+  campaign_id String    @unique
+  is_signed   Boolean   @default(false)
+  signed_at   DateTime?
+
+  revision_policy          Json
+  usage_rights             Json
+  posting_requirements     Json
+  exclusivity              Json?
+  expenses_purchases_terms Json?
+  cancellation_period      Int
+  payment_terms            Json
+  invoice_requirements     Json
+  general_terms            Json
+  extra_notes              String?
 }
 
-model contract_terms {
-  contract_terms_id       String @id @default(uuid())
-  contract_id             String
-  revision_policy         Json
-  payment_terms           Json
-  usage_rights            Json
-  posting_requirements    Json
-  exclusivity             Json?
-  breach_cure_period_days Int
-  general_terms           Json
-  extra_notes             Json?
+model GiftedProducts {
+  gifted_product_id String @id @default(uuid())
+  campaign_id String
+  product_name String
+  value Decimal
+  delivery_address String
+  delivery_instructions String
+  ownership_terms String
 }
 
-model contract_submission_history {
-  histoy_id      String               @id @default(uuid())
+// model Contract_Terms {
+//   contract_terms_id       String @id @default(uuid())
+//   contract_id             String
+//   revision_policy         Json
+//   payment_terms           Json
+//   usage_rights            Json
+//   posting_requirements    Json
+//   exclusivity             Json?
+//   breach_cure_period_days Int
+//   general_terms           Json
+//   extra_notes             Json?
+// }
+
+model Contract_Submission_History {
+  history_id     String               @id @default(uuid())
   contract_id    String
   action_status  ContractActionStatus
-  revision_notes String
-  created_at     DateTime
-  updated_at     DateTime
+  revision_notes String?
+  created_at     DateTime             @default(now())
+  updated_at     DateTime             @updatedAt
 }
 
 model Proposals {
@@ -131,10 +155,11 @@ model SubmissionItems {
 model AddOns {
   add_on_id   String  @id @default(uuid())
   campaign_id String
+  public_id   String  @unique @db.VarChar(10)
   add_on_name String
   fee         Decimal
   initials    String
-  opt_in      Boolean
+  opt_in      Boolean @default(false)
 }
 
 model Scripts {
@@ -177,25 +202,18 @@ enum DeliverableType {
   UGC
 }
 
-enum Platform {
-  TIKTOK
-  INSTAGRAM
-  FACEBOOK
-  YOUTUBE
-}
-
-enum Format {
-  SHORT_FORM
-  VIDEO
-  IMAGE_POST
-  CAROUSEL
-  STORY
-}
-
 enum CampaignStatus {
   ACTIVE
   REJECTED
   COMPLETED
+}
+
+enum CampaignCurrency {
+  CAD
+  USD
+  PHP
+  EUR
+  GBP
 }
 
 enum ProposalStatus {

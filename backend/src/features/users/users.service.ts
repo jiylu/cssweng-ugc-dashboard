@@ -127,51 +127,6 @@ export class UserService {
     };
   }
 
-  async getUserFromAccessToken(accessToken: string) {
-    this.logger.debug(`Getting user from access token`);
-
-    const { data, error } =
-      await this.supabase.client.auth.getUser(accessToken);
-
-    if (error || !data.user) {
-      this.logger.warn(
-        `Invalid access token: ${error?.message ?? 'No user returned'}`,
-      );
-
-      throw new UnauthorizedException({
-        code: 'INVALID_SESSION',
-        message: error?.message ?? 'Invalid session',
-      });
-    }
-
-    this.logger.debug(`Retrieved user ${data.user.id} from access token`);
-    return this.getActiveUserById(data.user.id);
-  }
-
-  async refreshSession(refreshToken: string) {
-    this.logger.debug(`Refreshing session`);
-
-    const { data, error } = await this.supabase.client.auth.refreshSession({
-      refresh_token: refreshToken,
-    });
-
-    if (error || !data.user || !data.session) {
-      this.logger.warn(
-        `Session refresh failed: ${error?.message ?? 'No user or session returned'}`,
-      );
-
-      throw new UnauthorizedException({
-        code: 'SESSION_REFRESH_FAILED',
-        message: error?.message ?? 'Unable to refresh session',
-      });
-    }
-
-    const user = await this.getActiveUserById(data.user.id);
-
-    this.logger.log(`Session refreshed for user ${user.user_id}`);
-    return { user, session: data.session };
-  }
-
   async findActiveUserByEmail(email: string) {
     this.logger.debug(`Finding active user with email ${email}`);
 

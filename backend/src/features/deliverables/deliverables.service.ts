@@ -25,7 +25,7 @@ export class DeliverablesService {
     tx: Prisma.TransactionClient | PrismaService = this.prisma,
   ) {
     this.logger.debug(
-      `Creating deliverable for campaign ${dto.campaignId} with quantity ${dto.quantity} deliverable type ${dto.deliverableType} for platform ${dto.platform} with format ${dto.format}`,
+      `Creating deliverable ${dto.deliverableType} ${dto.deliverableContent} for campaign ${dto.campaignId}`,
     );
 
     const publicId = nanoid(10);
@@ -36,10 +36,10 @@ export class DeliverablesService {
         campaign_id: dto.campaignId,
         quantity: dto.quantity,
         deliverable_type: dto.deliverableType,
-        platform: dto.platform,
-        format: dto.format,
-        description: dto.description,
-        deadline: new Date(dto.deadline),
+        deliverable_content: dto.deliverableContent,
+        requirements: dto.requirements,
+        due_date: new Date(dto.dueDate),
+        post_date: new Date(dto.postDate),
         pricing: new Prisma.Decimal(dto.pricing),
       },
     });
@@ -130,7 +130,8 @@ export class DeliverablesService {
         campaign_id: campaignId,
       },
       orderBy: {
-        deadline: 'asc',
+        due_date: 'asc',
+        post_date: 'asc',
       },
     });
 

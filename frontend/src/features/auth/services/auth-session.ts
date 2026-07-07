@@ -1,14 +1,7 @@
 import { API_BASE_URL, parseApiError } from "@/src/features/auth/services/users-api";
-
-export type AuthUser = {
-  user_id: string;
-  email: string;
-  first_name: string;
-  last_name: string;
-};
+import { authUserSchema, type AuthUser } from "@/src/features/auth/schemas/auth-user.schema";
 
 export async function getCurrentUser(): Promise<AuthUser | null> {
-  // PROD: Keep this endpoint (FOR NOW) in dev, but replace the temporary dashboard behavior with real route middleware/guards once protected pages exist.
   const response = await fetch(`${API_BASE_URL}/users/me`, {
     credentials: "include",
   });
@@ -21,7 +14,13 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
     throw new Error(await parseApiError(response, "Unable to load session."));
   }
 
-  return response.json();
+  const user = authUserSchema.safeParse(await response.json());
+
+  if (!user.success) {
+    throw new Error("Unable to validate session user.");
+  }
+
+  return user.data;
 }
 
 export async function logoutUser() {
