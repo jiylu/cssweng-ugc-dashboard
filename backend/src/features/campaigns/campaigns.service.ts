@@ -151,7 +151,7 @@ export class CampaignsService {
       orderBy: { created_at: 'desc' },
     });
 
-    this.logger.debug(
+    this.logger.log(
       `Found ${campaigns.length} campaigns for creator ${query.creatorId}`,
     );
 

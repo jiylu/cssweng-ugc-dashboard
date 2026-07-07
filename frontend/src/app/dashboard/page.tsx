@@ -14,14 +14,15 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import {
-  AuthUser,
   getCurrentUser,
   logoutUser,
 } from "@/src/features/auth/services/auth-session";
 
+type CurrentUser = Awaited<ReturnType<typeof getCurrentUser>>;
+
 export default function Dashboard() {
   const router = useRouter();
-  const [user, setUser] = useState<AuthUser | null>(null);
+  const [user, setUser] = useState<CurrentUser | null>(null);
   const [hasCheckedSession, setHasCheckedSession] = useState(false);
   const [sessionError, setSessionError] = useState("");
 
