@@ -56,33 +56,54 @@ model Campaigns {
 }
 
 model Contracts {
-  contract_id String   @id @default(uuid())
-  public_id   String   @unique @db.VarChar(10)
-  campaign_id String   @unique
-  is_signed   Boolean
-  signed_at   DateTime
+  contract_id String    @id @default(uuid())
+  public_id   String    @unique @db.VarChar(10)
+  campaign_id String    @unique
+  is_signed   Boolean   @default(false)
+  signed_at   DateTime?
+
+  revision_policy          Json
+  usage_rights             Json
+  posting_requirements     Json
+  exclusivity              Json?
+  expenses_purchases_terms Json?
+  cancellation_period      Int
+  payment_terms            Json
+  invoice_requirements     Json
+  general_terms            Json
+  extra_notes              String?
 }
 
-model Contract_Terms {
-  contract_terms_id       String @id @default(uuid())
-  contract_id             String
-  revision_policy         Json
-  payment_terms           Json
-  usage_rights            Json
-  posting_requirements    Json
-  exclusivity             Json?
-  breach_cure_period_days Int
-  general_terms           Json
-  extra_notes             Json?
+model GiftedProducts {
+  gifted_product_id String @id @default(uuid())
+  campaign_id String
+  product_name String
+  value Decimal
+  delivery_address String
+  delivery_instructions String
+  ownership_terms String
 }
+
+// model Contract_Terms {
+//   contract_terms_id       String @id @default(uuid())
+//   contract_id             String
+//   revision_policy         Json
+//   payment_terms           Json
+//   usage_rights            Json
+//   posting_requirements    Json
+//   exclusivity             Json?
+//   breach_cure_period_days Int
+//   general_terms           Json
+//   extra_notes             Json?
+// }
 
 model Contract_Submission_History {
-  histoy_id      String               @id @default(uuid())
+  history_id     String               @id @default(uuid())
   contract_id    String
   action_status  ContractActionStatus
-  revision_notes String
-  created_at     DateTime
-  updated_at     DateTime
+  revision_notes String?
+  created_at     DateTime             @default(now())
+  updated_at     DateTime             @updatedAt
 }
 
 model Proposals {

@@ -11,6 +11,7 @@ import { Prisma } from '@prisma/client';
 import { nanoid } from 'nanoid';
 import { UpdateOptInDTO } from './dto/update-opt-in.dto';
 
+// TODO: Update Add Ons Details
 @Injectable()
 export class AddOnsService {
   private readonly logger = new Logger(AddOnsService.name);
@@ -45,6 +46,7 @@ export class AddOnsService {
   }
 
   async createManyAddOns(
+    campaignId: string,
     addOns: CreateAddOnDTO[],
     tx: Prisma.TransactionClient | PrismaService = this.prisma,
   ) {
@@ -52,7 +54,7 @@ export class AddOnsService {
       `Creating ${addOns.length} add-ons for campaign ${addOns[0].campaignId}`,
     );
 
-    await this.campaignsService.findOneCampaign(addOns[0].campaignId);
+    await this.campaignsService.findOneCampaign(campaignId, tx);
 
     const createdAddOns = await Promise.all(
       addOns.map((a) => this.createAddOn(a, tx)),

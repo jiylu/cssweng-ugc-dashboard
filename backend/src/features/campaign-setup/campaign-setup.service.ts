@@ -7,6 +7,9 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { EmailService } from '../email/email.service';
 import { ActivityLogService } from '../activity-log/activity-log.service';
 import { Action, EntityType } from '@prisma/client';
+import { ContractsService } from '../contracts/contracts.service';
+import { AddOnsService } from '../add-ons/add-ons.service';
+import { GiftedProductsService } from '../gifted-products/gifted-products.service';
 
 @Injectable()
 export class CampaignSetupService {
@@ -17,6 +20,9 @@ export class CampaignSetupService {
     private proposalService: ProposalsService,
     private emailService: EmailService,
     private activityLogService: ActivityLogService,
+    private contractService: ContractsService,
+    private addOnService: AddOnsService,
+    private giftedProductsService: GiftedProductsService,
   ) {}
 
   private readonly logger = new Logger(CampaignSetupService.name);
@@ -27,33 +33,69 @@ export class CampaignSetupService {
     );
 
     const result = await this.prisma.$transaction(async (tx) => {
-      const totalPrice = dto.deliverables.reduce(
+      const initialPrice = dto.deliverables.reduce(
         (sum, d) => sum + Number(d.pricing),
         0,
       );
+
+      const totalPrice = initialPrice + initialPrice * (dto.campaign.tax / 100);
 
       const campaign = await this.campaignService.createCampaign(
         { ...dto.campaign, pricing: totalPrice },
         tx,
       );
 
-      const [proposal, deliverables] = await Promise.all([
-        this.proposalService.createProposal(
-          { ...dto.proposal, campaignId: campaign.campaign_id },
-          tx,
-        ),
-        this.deliverableService.createManyDeliverables(
-          campaign.campaign_id,
-          dto.deliverables.map((d) => ({
-            ...d,
-            campaignId: campaign.campaign_id,
-          })),
-          tx,
-        ),
-      ]);
+      const [proposal, deliverables, contract, addOns, giftedProducts] =
+        await Promise.all([
+          this.proposalService.createProposal(
+            { ...dto.proposal, campaignId: campaign.campaign_id },
+            tx,
+          ),
+          this.deliverableService.createManyDeliverables(
+            campaign.campaign_id,
+            dto.deliverables.map((d) => ({
+              ...d,
+              campaignId: campaign.campaign_id,
+            })),
+            tx,
+          ),
+          this.contractService.createContract(
+            { ...dto.contract, campaignId: campaign.campaign_id },
+            tx,
+          ),
+          dto.addOns?.length
+            ? this.addOnService.createManyAddOns(
+                campaign.campaign_id,
+                dto.addOns.map((a) => ({
+                  ...a,
+                  campaignId: campaign.campaign_id,
+                })),
+                tx,
+              )
+            : Promise.resolve([]),
+          dto.giftedProducts?.length
+            ? this.giftedProductsService.createManyGiftedProducts(
+                campaign.campaign_id,
+                dto.giftedProducts.map((g) => ({
+                  ...g,
+                  campaignId: campaign.campaign_id,
+                })),
+                tx,
+              )
+            : Promise.resolve([]),
+        ]);
 
-      return { campaign, proposal, deliverables };
+      return {
+        campaign,
+        proposal,
+        deliverables,
+        contract,
+        addOns,
+        giftedProducts,
+      };
     });
+
+    // TODO: Move these below to controller.
 
     await this.activityLogService.createActivityLog({
       userId: dto.campaign.ugcId,
