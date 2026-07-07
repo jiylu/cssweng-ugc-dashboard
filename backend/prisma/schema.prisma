@@ -75,13 +75,13 @@ model Contracts {
 }
 
 model GiftedProducts {
-  gifted_product_id String @id @default(uuid())
-  campaign_id String
-  product_name String
-  value Decimal
-  delivery_address String
+  gifted_product_id     String  @id @default(uuid())
+  campaign_id           String
+  product_name          String
+  value                 Decimal
+  delivery_address      String
   delivery_instructions String
-  ownership_terms String
+  ownership_terms       String
 }
 
 // model Contract_Terms {
@@ -189,7 +189,7 @@ model Notifications {
   user_id         String
   title           String
   message         String
-  is_read         Boolean
+  is_read         Boolean  @default(false)
   created_at      DateTime @default(now())
 }
 
