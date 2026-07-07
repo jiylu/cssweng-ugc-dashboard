@@ -18,7 +18,7 @@ export function PaymentInvoicingSection({ paymentSchedule, setPaymentSchedule, p
 
       <div className="grid grid-cols-2 gap-4">
         <div className="flex flex-col gap-1">
-          <label className="text-xs text-muted-foreground uppercase tracking-[0.03em]">PAYMENT SCHEDULE</label>
+          <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">PAYMENT SCHEDULE</label>
           <Select value={paymentSchedule} onValueChange={setPaymentSchedule}>
             <SelectTrigger className="border-border rounded-[3px] text-sm">
               <SelectValue placeholder="Select Payment Schedule" />
@@ -34,7 +34,7 @@ export function PaymentInvoicingSection({ paymentSchedule, setPaymentSchedule, p
         </div>
 
         <div className="flex flex-col gap-1">
-          <label className="text-xs text-muted-foreground uppercase tracking-[0.03em]">PAYMENT METHOD</label>
+          <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">PAYMENT METHOD</label>
           <Select value={paymentMethod} onValueChange={setPaymentMethod}>
             <SelectTrigger className="border-border rounded-[3px] text-sm">
               <SelectValue placeholder="Select Payment Method" />
