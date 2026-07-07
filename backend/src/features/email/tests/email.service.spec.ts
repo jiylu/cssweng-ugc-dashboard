@@ -1,114 +1,90 @@
+import { BadRequestException, HttpStatus } from '@nestjs/common';
+import nodemailer from 'nodemailer';
 import { EmailService } from '../email.service';
+
+jest.mock('nodemailer', () => ({
+  __esModule: true,
+  default: {
+    createTransport: jest.fn(),
+  },
+}));
 
 describe('EmailService', () => {
   const originalEnv = process.env;
-  const originalFetch = global.fetch;
   let service: EmailService;
-  let fetchMock: jest.Mock;
+  let sendMailMock: jest.Mock;
 
   beforeEach(() => {
-    process.env = { ...originalEnv };
-    fetchMock = jest.fn();
-    global.fetch = fetchMock;
+    process.env = {
+      ...originalEnv,
+      GMAIL_USER: 'hello@example.com',
+      GMAIL_APP_PASSWORD: 'app-password',
+    };
+
+    sendMailMock = jest.fn().mockResolvedValue(undefined);
+    (nodemailer.createTransport as jest.Mock).mockReturnValue({
+      sendMail: sendMailMock,
+    });
+
     service = new EmailService();
   });
 
   afterEach(() => {
     process.env = originalEnv;
-    global.fetch = originalFetch;
+    jest.clearAllMocks();
     jest.restoreAllMocks();
   });
 
   describe('sendProposalReminderEmail', () => {
-    it('should skip sending when RESEND_API_KEY is not configured', async () => {
-      delete process.env.RESEND_API_KEY;
-
-      const res = await service.sendProposalReminderEmail({
-        clientEmail: 'client@test.com',
-        projectName: 'Summer Campaign',
+    it('should initialize nodemailer transporter with gmail settings', () => {
+      expect(nodemailer.createTransport).toHaveBeenCalledWith({
+        host: 'smtp.gmail.com',
+        port: 587,
+        secure: false,
+        auth: {
+          user: 'hello@example.com',
+          pass: 'app-password',
+        },
       });
-
-      expect(res).toBeNull();
-      expect(fetchMock).not.toHaveBeenCalled();
     });
 
-    it('should send a proposal reminder email through Resend', async () => {
-      process.env.RESEND_API_KEY = 'test-api-key';
-      process.env.RESEND_FROM_EMAIL = 'Acseoft <hello@example.com>';
-      fetchMock.mockResolvedValue({
-        ok: true,
-        json: jest.fn().mockResolvedValue({ id: 'email-1' }),
-      });
-
-      const res = await service.sendProposalReminderEmail({
-        clientEmail: 'client@test.com',
-        projectName: 'Summer Campaign',
-      });
-
-      expect(res).toEqual({ id: 'email-1' });
-      expect(fetchMock).toHaveBeenCalledWith(
-        'https://api.resend.com/emails',
-        expect.objectContaining({
-          method: 'POST',
-          headers: {
-            Authorization: 'Bearer test-api-key',
-            'Content-Type': 'application/json',
-          },
-        }),
-      );
-
-      const [, options] = fetchMock.mock.calls[0] as [string, { body: string }];
-      const body = JSON.parse(options.body) as {
-        from: string;
-        to: string;
-        subject: string;
-        text: string;
-        html: string;
-      };
-
-      expect(body.from).toBe('Acseoft <hello@example.com>');
-      expect(body.to).toBe('client@test.com');
-      expect(body.subject).toBe('New proposal reminder: Summer Campaign');
-      expect(body.text).toContain('Summer Campaign');
-      expect(body.html).toContain('Proposal reminder');
-      expect(body.html).not.toContain('<a ');
-    });
-
-    it('should escape the project name in the html template', async () => {
-      process.env.RESEND_API_KEY = 'test-api-key';
-      fetchMock.mockResolvedValue({
-        ok: true,
-        json: jest.fn().mockResolvedValue({ id: 'email-1' }),
-      });
-
-      await service.sendProposalReminderEmail({
-        clientEmail: 'client@test.com',
-        projectName: '<script>alert("x")</script>',
-      });
-
-      const [, options] = fetchMock.mock.calls[0] as [string, { body: string }];
-      const body = JSON.parse(options.body) as { html: string };
-
-      expect(body.html).toContain(
-        '&lt;script&gt;alert(&quot;x&quot;)&lt;/script&gt;',
-      );
-      expect(body.html).not.toContain('<script>');
-    });
-
-    it('should throw when Resend rejects the email request', async () => {
-      process.env.RESEND_API_KEY = 'test-api-key';
-      fetchMock.mockResolvedValue({
-        ok: false,
-        status: 422,
-        json: jest.fn().mockResolvedValue({ message: 'Invalid sender' }),
-      });
-
+    it('should send a proposal reminder email through nodemailer', async () => {
       await expect(
-        service.sendProposalReminderEmail({
-          clientEmail: 'client@test.com',
-          projectName: 'Summer Campaign',
+        service.sendProposalReminderEmail('client@test.com', 'Summer Campaign'),
+      ).resolves.toBeUndefined();
+
+      expect(sendMailMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          from: 'Asceoft Notifications <hello@example.com>',
+          to: 'client@test.com',
+          subject: 'New Proposal Reminder: Summer Campaign',
         }),
-      ).rejects.toThrow('Invalid sender');
+      );
+
+      const [mailOptions] = sendMailMock.mock.calls[0] as [
+        { text: string; html: string },
+      ];
+      expect(mailOptions.text).toContain('Summer Campaign');
+      expect(mailOptions.html).toContain('Proposal reminder');
+      expect(mailOptions.html).toContain('<strong>Summer Campaign</strong>');
+    });
+
+    it('should throw a BadRequestException when sendMail fails', async () => {
+      sendMailMock.mockRejectedValue(new Error('smtp failed'));
+
+      try {
+        await service.sendProposalReminderEmail(
+          'client@test.com',
+          'Summer Campaign',
+        );
+      } catch (error) {
+        expect(error).toBeInstanceOf(BadRequestException);
+        expect((error as BadRequestException).getResponse()).toEqual({
+          status: HttpStatus.BAD_REQUEST,
+          code: 'UNABLE_TO_SEND_EMAIL',
+          message: 'Unable to send email',
+        });
+      }
     });
   });
 });
