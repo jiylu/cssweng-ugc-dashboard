@@ -16,7 +16,7 @@ export function PaymentInvoicingSection({ paymentSchedule, setPaymentSchedule, p
       <h2 className="text-2xl font-normal text-foreground">Payment & Invoicing</h2>
       <Separator />
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="flex flex-row gap-4">
         <div className="flex flex-col gap-1">
           <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">PAYMENT SCHEDULE</label>
           <Select value={paymentSchedule} onValueChange={setPaymentSchedule}>
@@ -24,10 +24,10 @@ export function PaymentInvoicingSection({ paymentSchedule, setPaymentSchedule, p
               <SelectValue placeholder="Select Payment Schedule" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="due_on_final_delivery">Due on Final Delivery</SelectItem>
-              <SelectItem value="net_15">Net 15</SelectItem>
-              <SelectItem value="net_30">Net 30</SelectItem>
-              <SelectItem value="50_50">50% Initial Deposit, 50% Due on Final Delivery</SelectItem>
+              <SelectItem value="DUE_FINAL_DELIVERY">Due on Final Delivery</SelectItem>
+              <SelectItem value="NET_15">Net 15</SelectItem>
+              <SelectItem value="NET_30">Net 30</SelectItem>
+              <SelectItem value="50_DEPOSIT_50_FINAL">50% Initial Deposit, 50% Due on Final Delivery</SelectItem>
             </SelectContent>
           </Select>
           {errors.paymentSchedule && <p className="text-xs mt-1 text-[#ff6467]">{errors.paymentSchedule}</p>}

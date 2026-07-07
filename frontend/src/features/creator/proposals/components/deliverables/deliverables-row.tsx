@@ -60,7 +60,7 @@ export function DeliverableRow({ item, index, errors, onUpdate, onRemove }: Deli
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>
-                  <SelectItem value="Partnership">Partnership</SelectItem>
+                  <SelectItem value="COLLABORATION">COLLABORATION</SelectItem>
                   <SelectItem value="UGC">UGC</SelectItem>
                 </SelectGroup>
               </SelectContent>

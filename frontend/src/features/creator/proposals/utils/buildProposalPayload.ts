@@ -46,8 +46,8 @@ export function buildProposalPayload({ userId, form, contractTerms, paymentTerms
         is_exclusive: contractTerms.hasExclusivity,
         is_transferrable: false,
         organic_usage: contractTerms.includedOrganicUsage,
-        paid_usage_ads: "",
-        whitelisting_spark_ads: "",
+        // paid_usage_ads: "",
+        // whitelisting_spark_ads: "",
         territory: contractTerms.territory,
         restrictions: contractTerms.restrictions,
       },
@@ -59,6 +59,9 @@ export function buildProposalPayload({ userId, form, contractTerms, paymentTerms
         category: contractTerms.exclusivityCategory,
         startDate: contractTerms.exclusivityStartDate
           ? new Date(contractTerms.exclusivityStartDate).toISOString()
+          : "",
+        endDate: contractTerms.exclusivityEndDate
+          ? new Date(contractTerms.exclusivityEndDate).toISOString()
           : "",
         territory: contractTerms.exclusivityTerritory,
         brandlist: contractTerms.exclusivityCompetitorList,
@@ -74,11 +77,11 @@ export function buildProposalPayload({ userId, form, contractTerms, paymentTerms
         payment_method: paymentTerms.paymentMethod,
       },
       invoice_requirements: {
-        name: "",
-        email: "",
+        name: "TEMPORARY_NAME",
+        email: form.contactEmail,
         campaign_name: form.projectName,
-        tax_number: "",
-        payment_details: "",
+        // tax_number: "",
+        payment_details: "TEMPORARY_PAYMENT_DETAILS",
       },
       general_terms: {
         governed_by: contractTerms.governingLaw,
@@ -88,6 +91,7 @@ export function buildProposalPayload({ userId, form, contractTerms, paymentTerms
     },
     addOns: addOns.addOns.map((a) => ({
       addOnName: a.title,
+      description: a.desc ?? "",
       fee: a.fee ?? 0,
       initials: a.title.split(" ").map((w) => w[0]).join("").toUpperCase(),
     })),

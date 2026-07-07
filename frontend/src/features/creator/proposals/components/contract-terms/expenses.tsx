@@ -51,7 +51,9 @@ export function Expenses({
           <div className="flex flex-col gap-1">
             <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">GIFTED PRODUCT TERMS</label>
             <Textarea
-              placeholder="(Optional) Enter gifted product terms"
+              placeholder="Enter gifted product terms. N/A if none."
+              value={giftedProductTerms}
+              onChange={(e) => setGiftedProductTerms(e.target.value)}
               className="resize-none min-h-[80px] border border-border rounded-[3px] text-sm bg-transparent"
             />
             <p className="text-xs text-muted-foreground italic">NOTE: If gifted products are part of the compensation, any return, resale, damage, warranty, or repayment terms must be clearly listed here.</p>

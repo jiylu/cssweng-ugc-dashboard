@@ -7,7 +7,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { ContractsService } from '../contracts/contracts.service';
 import { AddOnsService } from '../add-ons/add-ons.service';
 import { GiftedProductsService } from '../gifted-products/gifted-products.service';
-import { EmailService } from '../email/email.service';
+// import { EmailService } from '../email/email.service';
 
 @Injectable()
 export class CampaignSetupService {
@@ -19,7 +19,7 @@ export class CampaignSetupService {
     private contractService: ContractsService,
     private addOnService: AddOnsService,
     private giftedProductsService: GiftedProductsService,
-    private emailService: EmailService,
+    // private emailService: EmailService,
   ) {}
 
   private readonly logger = new Logger(CampaignSetupService.name);
@@ -82,10 +82,10 @@ export class CampaignSetupService {
             : Promise.resolve([]),
         ]);
 
-      await this.emailService.sendProposalReminderEmail(
-        dto.proposal.clientEmail,
-        dto.campaign.projectName,
-      );
+      // await this.emailService.sendProposalReminderEmail(
+      //   dto.proposal.clientEmail,
+      //   dto.campaign.projectName,
+      // );
 
       return {
         campaign,
