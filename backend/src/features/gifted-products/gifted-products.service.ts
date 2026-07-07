@@ -8,8 +8,9 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { CampaignsService } from '../campaigns/campaigns.service';
 import { CreateGiftedProductDTO } from './dto/create-gifted-product.dto';
 import { Prisma } from '@prisma/client';
+import { UpdateGiftedProductDTO } from './dto/update-gifted-product.dto';
 
-// TODO: Update and Delete Gifted Products
+// TODO: Delete Gifted Products
 @Injectable()
 export class GiftedProductsService {
   private readonly logger = new Logger(GiftedProductsService.name);
@@ -107,5 +108,37 @@ export class GiftedProductsService {
 
     this.logger.log(`Gifted product ${giftedProduct.gifted_product_id} found.`);
     return giftedProduct;
+  }
+
+  async updateGiftedProductDetails(
+    giftedProductId: string,
+    dto: UpdateGiftedProductDTO,
+  ) {
+    this.logger.debug(`Updating gifted product ${giftedProductId}`);
+
+    await this.findOneGiftedProduct(giftedProductId);
+
+    const updatedGiftedProduct = await this.prisma.giftedProducts.update({
+      where: { gifted_product_id: giftedProductId },
+      data: {
+        ...(dto.productName !== undefined && {
+          product_name: dto.productName,
+        }),
+        ...(dto.value !== undefined && { value: dto.value }),
+        ...(dto.deliveryAddress !== undefined && {
+          delivery_address: dto.deliveryAddress,
+        }),
+        ...(dto.deliveryInstructions !== undefined && {
+          delivery_instructions: dto.deliveryInstructions,
+        }),
+        ...(dto.ownershipTerms !== undefined && {
+          ownership_terms: dto.ownershipTerms,
+        }),
+      },
+    });
+
+    this.logger.log(`Gifted product ${giftedProductId} updated successfully`);
+
+    return updatedGiftedProduct;
   }
 }
