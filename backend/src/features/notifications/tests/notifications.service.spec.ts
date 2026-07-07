@@ -63,7 +63,9 @@ describe('NotificationsService', () => {
       const result = await service.createNotification(dto);
 
       expect(result).toEqual(mockNotification);
-      expect(mockUserService.getActiveUserById).toHaveBeenCalledWith(dto.userId);
+      expect(mockUserService.getActiveUserById).toHaveBeenCalledWith(
+        dto.userId,
+      );
       expect(mockPrisma.notifications.create).toHaveBeenCalledWith({
         data: {
           user_id: dto.userId,
