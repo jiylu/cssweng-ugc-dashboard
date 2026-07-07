@@ -13,6 +13,8 @@ import { ActivityLogService } from 'src/features/activity-log/activity-log.servi
 import { ContractsService } from 'src/features/contracts/contracts.service';
 import { AddOnsService } from 'src/features/add-ons/add-ons.service';
 import { GiftedProductsService } from 'src/features/gifted-products/gifted-products.service';
+import { UpdateCampaignSetupDto } from '../dto/update-campaign-setup.dto';
+import { PAYMENT_SCHEDULE } from 'src/features/contracts/dto/payment-terms.dto';
 
 describe('CampaignSetupService', () => {
   let service: CampaignSetupService;
@@ -23,15 +25,38 @@ describe('CampaignSetupService', () => {
 
   const mockCampaignService = {
     createCampaign: jest.fn(),
+    findOneCampaign: jest.fn(),
+    updateCampaignDetails: jest.fn(),
   };
 
   const mockDeliverableService = {
     createDeliverable: jest.fn(),
     createManyDeliverables: jest.fn(),
+    updateDeliverableDetails: jest.fn(),
+    deleteDeliverable: jest.fn(),
   };
 
   const mockProposalService = {
     createProposal: jest.fn(),
+  };
+
+  const mockContractService = {
+    createContract: jest.fn(),
+    updateContractDetails: jest.fn(),
+  };
+
+  const mockAddOnService = {
+    createAddOn: jest.fn(),
+    createManyAddOns: jest.fn(),
+    updateAddOnDetails: jest.fn(),
+    deleteAddOn: jest.fn(),
+  };
+
+  const mockGiftedProductsService = {
+    createGiftedProduct: jest.fn(),
+    createManyGiftedProducts: jest.fn(),
+    updateGiftedProductDetails: jest.fn(),
+    deleteGiftedProduct: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -61,18 +86,15 @@ describe('CampaignSetupService', () => {
         },
         {
           provide: ContractsService,
-          useValue: { createContract: jest.fn() },
+          useValue: mockContractService,
         },
         {
           provide: AddOnsService,
-          useValue: { createAddOn: jest.fn(), createManyAddOns: jest.fn() },
+          useValue: mockAddOnService,
         },
         {
           provide: GiftedProductsService,
-          useValue: {
-            createGiftedProduct: jest.fn(),
-            createManyGiftedProducts: jest.fn(),
-          },
+          useValue: mockGiftedProductsService,
         },
       ],
     }).compile();
@@ -140,7 +162,7 @@ describe('CampaignSetupService', () => {
           },
           cancellation_period: 30,
           payment_terms: {
-            payment_schedule: 1,
+            payment_schedule: PAYMENT_SCHEDULE.NET_30,
             payment_method: 'Bank Transfer',
           },
           invoice_requirements: {
@@ -148,6 +170,10 @@ describe('CampaignSetupService', () => {
             email: 'test@test.com',
             campaign_name: 'Test',
             payment_details: 'Bank',
+          },
+          general_terms: {
+            governed_by: 'Laws of the Republic of the Philippines',
+            disputes_handled_in: 'Makati City courts',
           },
         },
       };
@@ -248,7 +274,7 @@ describe('CampaignSetupService', () => {
           },
           cancellation_period: 30,
           payment_terms: {
-            payment_schedule: 1,
+            payment_schedule: PAYMENT_SCHEDULE.NET_30,
             payment_method: 'Bank Transfer',
           },
           invoice_requirements: {
@@ -256,6 +282,10 @@ describe('CampaignSetupService', () => {
             email: 'test@test.com',
             campaign_name: 'Test',
             payment_details: 'Bank',
+          },
+          general_terms: {
+            governed_by: 'Laws of the Republic of the Philippines',
+            disputes_handled_in: 'Makati City courts',
           },
         },
       };
@@ -265,6 +295,200 @@ describe('CampaignSetupService', () => {
       await expect(service.createFullCampaignService(dto)).rejects.toThrow(
         'boom',
       );
+    });
+  });
+
+  describe('updateCampaignSetup', () => {
+    it('should update campaign setup in one transaction', async () => {
+      const tx = { tx: true };
+      mockPrisma.$transaction.mockImplementation((cb: any) =>
+        Promise.resolve(cb(tx)),
+      );
+
+      const campaignId = 'camp-1';
+      const dto: UpdateCampaignSetupDto = {
+        campaign: {
+          projectName: 'Updated Campaign',
+          pricing: 5000,
+        },
+        contract: {
+          contractId: 'contract-1',
+          extra_notes: 'Updated notes',
+        },
+        deliverables: {
+          create: [
+            {
+              quantity: 1,
+              deliverableType: DeliverableType.UGC,
+              deliverableContent: 'TikTok Video',
+              requirements:
+                'Updated deliverable requirements with enough detail here.',
+              dueDate: '2026-07-01T00:00:00.000Z',
+              postDate: '2026-07-05T00:00:00.000Z',
+              pricing: 1000,
+            },
+          ],
+          update: [
+            {
+              deliverableId: 'del-1',
+              pricing: 1500,
+            },
+          ],
+          delete: ['del-2'],
+        },
+        giftedProducts: {
+          create: [
+            {
+              productName: 'Vitamin C Serum',
+              value: 1500,
+              deliveryAddress: '123 Sample St, Makati City',
+              deliveryInstructions: 'Call before delivery.',
+              ownershipTerms: 'Creator keeps product.',
+            },
+          ],
+          update: [
+            {
+              giftedProductId: 'gp-1',
+              value: 1800,
+            },
+          ],
+          delete: ['gp-2'],
+        },
+        addOns: {
+          create: [
+            {
+              addOnName: 'Extra Story Set',
+              description: 'Three additional IG stories',
+              fee: 5000,
+              initials: 'ESS',
+            },
+          ],
+          update: [
+            {
+              addOnId: 'addon-1',
+              fee: 6500,
+            },
+          ],
+          delete: ['addon-2'],
+        },
+      };
+
+      const updatedCampaign = { campaign_id: campaignId };
+      const updatedContract = { contract_id: 'contract-1' };
+      const createdDeliverables = [{ deliverable_id: 'del-new' }];
+      const updatedDeliverables = [{ deliverable_id: 'del-1' }];
+      const deletedDeliverables = [{ deliverable_id: 'del-2' }];
+      const createdGiftedProducts = [{ gifted_product_id: 'gp-new' }];
+      const updatedGiftedProducts = [{ gifted_product_id: 'gp-1' }];
+      const deletedGiftedProducts = [{ gifted_product_id: 'gp-2' }];
+      const createdAddOns = [{ add_on_id: 'addon-new' }];
+      const updatedAddOns = [{ add_on_id: 'addon-1' }];
+      const deletedAddOns = [{ add_on_id: 'addon-2' }];
+
+      mockCampaignService.findOneCampaign.mockResolvedValue({
+        campaign_id: campaignId,
+      });
+      mockCampaignService.updateCampaignDetails.mockResolvedValue(
+        updatedCampaign,
+      );
+      mockContractService.updateContractDetails.mockResolvedValue(
+        updatedContract,
+      );
+      mockDeliverableService.createManyDeliverables.mockResolvedValue(
+        createdDeliverables,
+      );
+      mockDeliverableService.updateDeliverableDetails.mockResolvedValue(
+        updatedDeliverables[0],
+      );
+      mockDeliverableService.deleteDeliverable.mockResolvedValue(
+        deletedDeliverables[0],
+      );
+      mockGiftedProductsService.createManyGiftedProducts.mockResolvedValue(
+        createdGiftedProducts,
+      );
+      mockGiftedProductsService.updateGiftedProductDetails.mockResolvedValue(
+        updatedGiftedProducts[0],
+      );
+      mockGiftedProductsService.deleteGiftedProduct.mockResolvedValue(
+        deletedGiftedProducts[0],
+      );
+      mockAddOnService.createManyAddOns.mockResolvedValue(createdAddOns);
+      mockAddOnService.updateAddOnDetails.mockResolvedValue(updatedAddOns[0]);
+      mockAddOnService.deleteAddOn.mockResolvedValue(deletedAddOns[0]);
+
+      const res = await service.updateCampaignSetup(campaignId, dto);
+
+      expect(res).toEqual({
+        campaign: updatedCampaign,
+        contract: updatedContract,
+        deliverables: {
+          created: createdDeliverables,
+          updated: updatedDeliverables,
+          deleted: deletedDeliverables,
+        },
+        giftedProducts: {
+          created: createdGiftedProducts,
+          updated: updatedGiftedProducts,
+          deleted: deletedGiftedProducts,
+        },
+        addOns: {
+          created: createdAddOns,
+          updated: updatedAddOns,
+          deleted: deletedAddOns,
+        },
+      });
+      expect(mockCampaignService.findOneCampaign).toHaveBeenCalledWith(
+        campaignId,
+        tx,
+      );
+      expect(mockCampaignService.updateCampaignDetails).toHaveBeenCalledWith(
+        campaignId,
+        dto.campaign,
+        tx,
+      );
+      expect(mockContractService.updateContractDetails).toHaveBeenCalledWith(
+        'contract-1',
+        dto.contract,
+        tx,
+      );
+      expect(
+        mockDeliverableService.createManyDeliverables,
+      ).toHaveBeenCalledWith(
+        campaignId,
+        [{ ...dto.deliverables?.create?.[0], campaignId }],
+        tx,
+      );
+      expect(
+        mockDeliverableService.updateDeliverableDetails,
+      ).toHaveBeenCalledWith('del-1', dto.deliverables?.update?.[0], tx);
+      expect(mockDeliverableService.deleteDeliverable).toHaveBeenCalledWith(
+        'del-2',
+        tx,
+      );
+      expect(
+        mockGiftedProductsService.createManyGiftedProducts,
+      ).toHaveBeenCalledWith(
+        campaignId,
+        [{ ...dto.giftedProducts?.create?.[0], campaignId }],
+        tx,
+      );
+      expect(
+        mockGiftedProductsService.updateGiftedProductDetails,
+      ).toHaveBeenCalledWith('gp-1', dto.giftedProducts?.update?.[0], tx);
+      expect(
+        mockGiftedProductsService.deleteGiftedProduct,
+      ).toHaveBeenCalledWith('gp-2', tx);
+      expect(mockAddOnService.createManyAddOns).toHaveBeenCalledWith(
+        campaignId,
+        [{ ...dto.addOns?.create?.[0], campaignId }],
+        tx,
+      );
+      expect(mockAddOnService.updateAddOnDetails).toHaveBeenCalledWith(
+        'addon-1',
+        dto.addOns?.update?.[0],
+        tx,
+      );
+      expect(mockAddOnService.deleteAddOn).toHaveBeenCalledWith('addon-2', tx);
     });
   });
 });

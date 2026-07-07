@@ -5,6 +5,7 @@ import { CreateAddOnDTO } from '../dto/create-add-on-dto';
 import { NotFoundException } from '@nestjs/common';
 import { CampaignsService } from 'src/features/campaigns/campaigns.service';
 import { UpdateOptInDTO } from '../dto/update-opt-in.dto';
+import { UpdateAddOnDTO } from '../dto/update-add-on.dto';
 
 jest.mock('nanoid', () => ({ nanoid: jest.fn(() => 'mock-pb-id') }));
 
@@ -277,7 +278,7 @@ describe('AddOnsService', () => {
       const res = await service.findAddOnsForCampaign(campaignId);
       expect(res).toEqual(mockAddOns);
       expect(mockPrisma.addOns.findMany).toHaveBeenCalledWith({
-        where: { campaign_id: campaignId },
+        where: { campaign_id: campaignId, is_deleted: false },
       });
     });
 
@@ -321,7 +322,7 @@ describe('AddOnsService', () => {
       const res = await service.findOneAddOnByUID('addon-1');
       expect(res).toEqual(mockAddOn);
       expect(mockPrisma.addOns.findFirst).toHaveBeenCalledWith({
-        where: { add_on_id: 'addon-1' },
+        where: { add_on_id: 'addon-1', is_deleted: false },
       });
     });
 
@@ -350,7 +351,7 @@ describe('AddOnsService', () => {
       const res = await service.findOneAddOnByPublicId('abc1234567');
       expect(res).toEqual(mockAddOn);
       expect(mockPrisma.addOns.findFirst).toHaveBeenCalledWith({
-        where: { public_id: 'abc1234567' },
+        where: { public_id: 'abc1234567', is_deleted: false },
       });
     });
 
@@ -418,6 +419,61 @@ describe('AddOnsService', () => {
       await expect(
         service.updateAddOnOptIn('missing-addon', { optIn: true }),
       ).rejects.toBeInstanceOf(NotFoundException);
+    });
+  });
+
+  describe('updateAddOnDetails', () => {
+    it('should update add-on details successfully', async () => {
+      const existing = {
+        add_on_id: 'addon-1',
+        public_id: 'pub-ao-1234',
+        campaign_id: 'camp-1',
+        add_on_name: 'Photography',
+        description: 'Old description',
+        fee: 500,
+        initials: 'PH',
+        opt_in: false,
+      };
+
+      const dto: UpdateAddOnDTO = {
+        addOnName: 'Videography',
+        description: 'Updated description',
+        fee: 1000,
+        initials: 'VD',
+      };
+
+      const updated = {
+        ...existing,
+        add_on_name: dto.addOnName,
+        description: dto.description,
+        fee: dto.fee,
+        initials: dto.initials,
+      };
+
+      mockPrisma.addOns.findFirst.mockResolvedValue(existing);
+      mockPrisma.addOns.update.mockResolvedValue(updated);
+
+      const res = await service.updateAddOnDetails('addon-1', dto);
+      expect(res).toEqual(updated);
+      expect(mockPrisma.addOns.update).toHaveBeenCalledWith({
+        where: { add_on_id: 'addon-1' },
+        data: {
+          add_on_name: 'Videography',
+          description: 'Updated description',
+          fee: 1000,
+          initials: 'VD',
+        },
+      });
+    });
+
+    it('should throw NotFoundException when add-on does not exist', async () => {
+      mockPrisma.addOns.findFirst.mockResolvedValue(null);
+      await expect(
+        service.updateAddOnDetails('missing-addon', {
+          addOnName: 'Updated Add-on',
+        }),
+      ).rejects.toBeInstanceOf(NotFoundException);
+      expect(mockPrisma.addOns.update).not.toHaveBeenCalled();
     });
   });
 });

@@ -1,6 +1,7 @@
 import { applyDecorators } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { CreateCampaignRequestDto } from '../dto/create-campaign-request-dto';
+import { UpdateCampaignSetupDto } from '../dto/update-campaign-setup.dto';
 
 export function ApiCreateFullCampaign() {
   return applyDecorators(
@@ -141,6 +142,131 @@ export function ApiCreateFullCampaign() {
       status: 500,
       description:
         'Internal server error while processing setup. Transaction is rolled back and no partial records are persisted.',
+    }),
+  );
+}
+
+export function ApiUpdateCampaignSetup() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Update full campaign setup in one transaction',
+      description:
+        'Updates campaign details, contract details, and nested deliverables, add-ons, and gifted products in one database transaction using UpdateCampaignSetupDto. Nested resource groups support create, update, and delete arrays. Deletes are soft deletes for supported resources. If any sub-step fails, all writes are rolled back.',
+    }),
+    ApiParam({
+      name: 'campaignId',
+      type: String,
+      description: 'UUID of the campaign being updated',
+      example: '550e8400-e29b-41d4-a716-446655440000',
+    }),
+    ApiBody({
+      type: UpdateCampaignSetupDto,
+      required: false,
+      description:
+        'Partial campaign setup update payload. Include only the sections and operations that should be changed.',
+      examples: {
+        setupUpdate: {
+          summary: 'Update campaign, contract, and nested resources',
+          value: {
+            campaign: {
+              projectName: 'Updated Summer Glow 2026',
+              description: 'Updated campaign details.',
+              currency: 'PHP',
+              tax: 12,
+              pricing: 55000,
+              platforms: ['Instagram', 'TikTok'],
+              startDate: '2026-07-15T00:00:00.000Z',
+              endDate: '2026-08-15T00:00:00.000Z',
+            },
+            contract: {
+              contractId: '550e8400-e29b-41d4-a716-446655440010',
+              extra_notes: 'Updated notes after client review.',
+            },
+            deliverables: {
+              create: [
+                {
+                  quantity: 1,
+                  deliverableType: 'UGC',
+                  deliverableContent: 'TikTok usage video',
+                  requirements:
+                    'Show product use clearly with captions and brand tag.',
+                  dueDate: '2026-07-22T00:00:00.000Z',
+                  postDate: '2026-07-24T00:00:00.000Z',
+                  pricing: 7500,
+                },
+              ],
+              update: [
+                {
+                  deliverableId: '550e8400-e29b-41d4-a716-446655440011',
+                  pricing: 9000,
+                },
+              ],
+              delete: ['550e8400-e29b-41d4-a716-446655440012'],
+            },
+            giftedProducts: {
+              create: [
+                {
+                  productName: 'Hydrating Night Cream',
+                  value: 1800,
+                  deliveryAddress: '123 Sample St, Makati City',
+                  deliveryInstructions: 'Deliver weekdays, 9AM-5PM.',
+                  ownershipTerms:
+                    'Creator keeps gifted items unless campaign is canceled.',
+                },
+              ],
+              update: [
+                {
+                  giftedProductId: '550e8400-e29b-41d4-a716-446655440013',
+                  value: 2000,
+                },
+              ],
+              delete: ['550e8400-e29b-41d4-a716-446655440014'],
+            },
+            addOns: {
+              create: [
+                {
+                  addOnName: 'Paid usage rights extension',
+                  description: 'Extend paid usage rights for three months.',
+                  fee: 3000,
+                  initials: 'PUR',
+                },
+              ],
+              update: [
+                {
+                  addOnId: '550e8400-e29b-41d4-a716-446655440015',
+                  fee: 3500,
+                },
+              ],
+              delete: ['550e8400-e29b-41d4-a716-446655440016'],
+            },
+          },
+        },
+      },
+    }),
+    ApiResponse({
+      status: 200,
+      description:
+        'Campaign setup updated successfully. Response groups created, updated, and deleted nested resources.',
+    }),
+    ApiResponse({
+      status: 400,
+      description:
+        'Invalid request payload (DTO validation failed) or malformed nested object structure.',
+    }),
+    ApiResponse({
+      status: 404,
+      description:
+        'Campaign or nested resource not found. Transaction is rolled back.',
+    }),
+    ApiResponse({
+      status: 409,
+      description:
+        'Conflict in update constraints, such as attempting to delete an already deleted resource.',
+    }),
+    ApiResponse({
+      status: 500,
+      description:
+        'Internal server error while processing update. Transaction is rolled back and no partial records are persisted.',
     }),
   );
 }

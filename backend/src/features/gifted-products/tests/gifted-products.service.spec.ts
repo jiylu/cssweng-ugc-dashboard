@@ -4,6 +4,7 @@ import { GiftedProductsService } from '../gifted-products.service';
 import { NotFoundException } from '@nestjs/common';
 import { CampaignsService } from 'src/features/campaigns/campaigns.service';
 import { CreateGiftedProductDTO } from '../dto/create-gifted-product.dto';
+import { UpdateGiftedProductDTO } from '../dto/update-gifted-product.dto';
 
 jest.mock('nanoid', () => ({ nanoid: jest.fn(() => 'mock-pb-id') }));
 
@@ -15,6 +16,7 @@ describe('GiftedProductsService', () => {
       create: jest.fn(),
       findFirst: jest.fn(),
       findMany: jest.fn(),
+      update: jest.fn(),
     },
   };
 
@@ -254,7 +256,7 @@ describe('GiftedProductsService', () => {
       const res = await service.findGiftedProductsForCampaign(campaignId);
       expect(res).toEqual(mockProducts);
       expect(mockPrisma.giftedProducts.findMany).toHaveBeenCalledWith({
-        where: { campaign_id: campaignId },
+        where: { campaign_id: campaignId, is_deleted: false },
       });
     });
 
@@ -295,7 +297,7 @@ describe('GiftedProductsService', () => {
       const res = await service.findOneGiftedProduct('gp-1');
       expect(res).toEqual(mockProduct);
       expect(mockPrisma.giftedProducts.findFirst).toHaveBeenCalledWith({
-        where: { gifted_product_id: 'gp-1' },
+        where: { gifted_product_id: 'gp-1', is_deleted: false },
       });
     });
 
@@ -304,6 +306,90 @@ describe('GiftedProductsService', () => {
       await expect(
         service.findOneGiftedProduct('missing-gp'),
       ).rejects.toBeInstanceOf(NotFoundException);
+    });
+  });
+
+  // ── updateGiftedProductDetails ───────────────────────────────────
+
+  describe('updateGiftedProductDetails', () => {
+    it('should update gifted product details successfully', async () => {
+      const existingProduct = buildMockGiftedProduct(
+        buildCreateGiftedProductDTO(),
+        'gp-1',
+      );
+      const dto: UpdateGiftedProductDTO = {
+        productName: 'Updated Skincare Set',
+        value: 0,
+        deliveryAddress: '456 Updated St, Manila',
+        deliveryInstructions: 'Leave with building reception',
+        ownershipTerms: 'Creator keeps the product permanently',
+      };
+      const updatedProduct = {
+        ...existingProduct,
+        product_name: dto.productName,
+        value: dto.value,
+        delivery_address: dto.deliveryAddress,
+        delivery_instructions: dto.deliveryInstructions,
+        ownership_terms: dto.ownershipTerms,
+      };
+
+      mockPrisma.giftedProducts.findFirst.mockResolvedValue(existingProduct);
+      mockPrisma.giftedProducts.update.mockResolvedValue(updatedProduct);
+
+      const res = await service.updateGiftedProductDetails('gp-1', dto);
+
+      expect(res).toEqual(updatedProduct);
+      expect(mockPrisma.giftedProducts.findFirst).toHaveBeenCalledWith({
+        where: { gifted_product_id: 'gp-1', is_deleted: false },
+      });
+      expect(mockPrisma.giftedProducts.update).toHaveBeenCalledWith({
+        where: { gifted_product_id: 'gp-1' },
+        data: {
+          product_name: dto.productName,
+          value: dto.value,
+          delivery_address: dto.deliveryAddress,
+          delivery_instructions: dto.deliveryInstructions,
+          ownership_terms: dto.ownershipTerms,
+        },
+      });
+    });
+
+    it('should update only provided fields', async () => {
+      const existingProduct = buildMockGiftedProduct(
+        buildCreateGiftedProductDTO(),
+        'gp-2',
+      );
+      const dto: UpdateGiftedProductDTO = {
+        deliveryInstructions: 'Deliver after 6PM',
+      };
+      const updatedProduct = {
+        ...existingProduct,
+        delivery_instructions: dto.deliveryInstructions,
+      };
+
+      mockPrisma.giftedProducts.findFirst.mockResolvedValue(existingProduct);
+      mockPrisma.giftedProducts.update.mockResolvedValue(updatedProduct);
+
+      const res = await service.updateGiftedProductDetails('gp-2', dto);
+
+      expect(res).toEqual(updatedProduct);
+      expect(mockPrisma.giftedProducts.update).toHaveBeenCalledWith({
+        where: { gifted_product_id: 'gp-2' },
+        data: {
+          delivery_instructions: dto.deliveryInstructions,
+        },
+      });
+    });
+
+    it('should throw NotFoundException when gifted product does not exist', async () => {
+      mockPrisma.giftedProducts.findFirst.mockResolvedValue(null);
+
+      await expect(
+        service.updateGiftedProductDetails('missing-gp', {
+          productName: 'Updated Skincare Set',
+        }),
+      ).rejects.toBeInstanceOf(NotFoundException);
+      expect(mockPrisma.giftedProducts.update).not.toHaveBeenCalled();
     });
   });
 });

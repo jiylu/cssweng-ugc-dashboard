@@ -135,7 +135,7 @@ describe('DeliverablesService', () => {
       const res = await service.findOneDeliverableByUID('del-1');
       expect(res).toEqual(mockDeliverable);
       expect(mockPrisma.deliverables.findFirst).toHaveBeenCalledWith({
-        where: { deliverable_id: 'del-1' },
+        where: { deliverable_id: 'del-1', is_deleted: false },
       });
     });
 
@@ -167,7 +167,7 @@ describe('DeliverablesService', () => {
       const res = await service.findOneDeliverableByPublicId('abc1234567');
       expect(res).toEqual(mockDeliverable);
       expect(mockPrisma.deliverables.findFirst).toHaveBeenCalledWith({
-        where: { public_id: 'abc1234567' },
+        where: { public_id: 'abc1234567', is_deleted: false },
       });
     });
 
@@ -205,7 +205,7 @@ describe('DeliverablesService', () => {
       const res = await service.findDeliverablesForCampaign(campaignId);
       expect(res).toEqual(mockDeliverables);
       expect(mockPrisma.deliverables.findMany).toHaveBeenCalledWith({
-        where: { campaign_id: campaignId },
+        where: { campaign_id: campaignId, is_deleted: false },
         orderBy: { due_date: 'asc', post_date: 'asc' },
       });
     });
@@ -226,7 +226,7 @@ describe('DeliverablesService', () => {
       mockPrisma.deliverables.findFirst.mockResolvedValue(null);
       await expect(
         service.updateDeliverableDetails('missing-del', {
-          deliverableTitle: 'New',
+          deliverableContent: 'New Instagram Carousel',
         } as any),
       ).rejects.toBeInstanceOf(NotFoundException);
     });
@@ -245,18 +245,18 @@ describe('DeliverablesService', () => {
         pricing: new Prisma.Decimal(100),
       };
 
-      const updated = { ...existing, deliverable_title: 'New Title' };
+      const updated = { ...existing, quantity: 3 };
 
       mockPrisma.deliverables.findFirst.mockResolvedValue(existing);
       mockPrisma.deliverables.update.mockResolvedValue(updated);
 
       const res = await service.updateDeliverableDetails('del-1', {
-        deliverableTitle: 'New Title',
+        quantity: 3,
       });
       expect(res).toEqual(updated);
       expect(mockPrisma.deliverables.update).toHaveBeenCalledWith({
         where: { deliverable_id: 'del-1' },
-        data: { deliverable_title: 'New Title' },
+        data: { quantity: 3 },
       });
     });
 
@@ -275,13 +275,13 @@ describe('DeliverablesService', () => {
       };
 
       const dto = {
-        description: 'New description with enough length.',
-        pricing: 250,
+        deliverableContent: 'Updated Instagram Image Post',
+        pricing: 0,
       } as UpdateDeliverableDTO;
       const updated = {
         ...existing,
-        description: dto.description,
-        pricing: new Prisma.Decimal(dto.pricing || 0),
+        deliverable_content: dto.deliverableContent,
+        pricing: new Prisma.Decimal(dto.pricing ?? 0),
       };
 
       mockPrisma.deliverables.findFirst.mockResolvedValue(existing);
@@ -292,8 +292,8 @@ describe('DeliverablesService', () => {
       expect(mockPrisma.deliverables.update).toHaveBeenCalledWith({
         where: { deliverable_id: 'del-2' },
         data: {
-          description: dto.description,
-          pricing: new Prisma.Decimal(dto.pricing || 0),
+          deliverable_content: dto.deliverableContent,
+          pricing: new Prisma.Decimal(dto.pricing ?? 0),
         },
       });
     });
@@ -313,20 +313,25 @@ describe('DeliverablesService', () => {
       };
 
       const dto = {
-        deliverableTitle: 'New All',
-        description: 'Completely new description that is long enough.',
-        deadline: new Date('2026-07-01T00:00:00Z').toISOString(),
-        pricing: 999,
+        quantity: 5,
         deliverableType: DeliverableType.COLLABORATION,
+        deliverableContent: 'Updated YouTube Video',
+        requirements:
+          'Updated requirements with enough detail to satisfy validation expectations.',
+        dueDate: new Date('2026-07-01T00:00:00Z').toISOString(),
+        postDate: new Date('2026-07-05T00:00:00Z').toISOString(),
+        pricing: 999,
       } as UpdateDeliverableDTO;
 
       const updated = {
         ...existing,
-        deliverable_title: dto.deliverableTitle,
-        description: dto.description,
-        deadline: new Date(dto.deadline || 0),
-        pricing: new Prisma.Decimal(dto.pricing || 0),
+        quantity: dto.quantity,
         deliverable_type: dto.deliverableType,
+        deliverable_content: dto.deliverableContent,
+        requirements: dto.requirements,
+        due_date: new Date(dto.dueDate || 0),
+        post_date: new Date(dto.postDate || 0),
+        pricing: new Prisma.Decimal(dto.pricing || 0),
       };
 
       mockPrisma.deliverables.findFirst.mockResolvedValue(existing);
@@ -337,11 +342,13 @@ describe('DeliverablesService', () => {
       expect(mockPrisma.deliverables.update).toHaveBeenCalledWith({
         where: { deliverable_id: 'del-3' },
         data: {
-          deliverable_title: dto.deliverableTitle,
-          description: dto.description,
-          deadline: new Date(dto.deadline || 0),
-          pricing: new Prisma.Decimal(dto.pricing || 0),
+          quantity: dto.quantity,
           deliverable_type: dto.deliverableType,
+          deliverable_content: dto.deliverableContent,
+          requirements: dto.requirements,
+          due_date: new Date(dto.dueDate || 0),
+          post_date: new Date(dto.postDate || 0),
+          pricing: new Prisma.Decimal(dto.pricing || 0),
         },
       });
     });
