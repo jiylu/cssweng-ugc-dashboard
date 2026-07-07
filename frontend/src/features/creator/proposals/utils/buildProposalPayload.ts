@@ -55,22 +55,28 @@ export function buildProposalPayload({ userId, form, contractTerms, paymentTerms
         content_retention_months: contractTerms.contentRetention,
         partnership_tags: contractTerms.partnershipTags,
       },
-      exclusivity: {
-        category: contractTerms.exclusivityCategory,
-        startDate: contractTerms.exclusivityStartDate
-          ? new Date(contractTerms.exclusivityStartDate).toISOString()
-          : "",
-        endDate: contractTerms.exclusivityEndDate
-          ? new Date(contractTerms.exclusivityEndDate).toISOString()
-          : "",
-        territory: contractTerms.exclusivityTerritory,
-        brandlist: contractTerms.exclusivityCompetitorList,
-        exclusivity_fee: parseFloat(contractTerms.exclusivityFee.replace(/,/g, '') || '0'),
-      },
-      expenses_purchases_terms: {
-        reimbursement_period: contractTerms.reimbursementDays,
-        gifted_product_terms: contractTerms.giftedProductTerms,
-      },
+      ...(contractTerms.hasExclusivity && {
+        exclusivity: {
+          category: contractTerms.exclusivityCategory,
+          startDate: contractTerms.exclusivityStartDate
+            ? new Date(contractTerms.exclusivityStartDate).toISOString()
+            : "",
+          endDate: contractTerms.exclusivityEndDate
+            ? new Date(contractTerms.exclusivityEndDate).toISOString()
+            : "",
+          territory: contractTerms.exclusivityTerritory,
+          brandlist: contractTerms.exclusivityCompetitorList,
+          exclusivity_fee: parseFloat(
+            contractTerms.exclusivityFee.replace(/,/g, "") || "0"
+          ),
+        },
+      }),
+      ...(contractTerms.giftedProductTerms && {
+        expenses_purchases_terms: {
+          reimbursement_period: contractTerms.reimbursementDays,
+          gifted_product_terms: contractTerms.giftedProductTerms,
+        },
+      }),
       cancellation_period: contractTerms.cancellationDays,
       payment_terms: {
         payment_schedule: paymentTerms.paymentSchedule,
