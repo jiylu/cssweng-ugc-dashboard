@@ -5,6 +5,7 @@ import { NotFoundException } from '@nestjs/common';
 import { CampaignsService } from 'src/features/campaigns/campaigns.service';
 import { CreateContractDTO } from '../dto/create-contract.dto';
 import { PAYMENT_SCHEDULE } from '../dto/payment-terms.dto';
+import { UpdateContractDTO } from '../dto/update-contract.dto';
 
 jest.mock('nanoid', () => ({ nanoid: jest.fn(() => 'mock-pb-id') }));
 
@@ -388,6 +389,61 @@ describe('ContractsService', () => {
       await expect(service.signContract('nonexistent')).rejects.toBeInstanceOf(
         NotFoundException,
       );
+      expect(mockPrisma.contracts.update).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('updateContractDetails', () => {
+    it('should update provided contract fields successfully', async () => {
+      const existingContract = {
+        contract_id: 'contract-1',
+        campaign_id: 'camp-1',
+      };
+      const dto: UpdateContractDTO = {
+        cancellation_period: 14,
+        payment_terms: {
+          payment_schedule: PAYMENT_SCHEDULE.NET_15,
+          payment_method: 'GCash',
+        },
+        extra_notes: 'Updated terms',
+      };
+      const updatedContract = {
+        ...existingContract,
+        cancellation_period: 14,
+        payment_terms: {
+          payment_schedule: PAYMENT_SCHEDULE.NET_15,
+          payment_method: 'GCash',
+        },
+        extra_notes: 'Updated terms',
+      };
+
+      mockPrisma.contracts.findFirst.mockResolvedValue(existingContract);
+      mockPrisma.contracts.update.mockResolvedValue(updatedContract);
+
+      const res = await service.updateContractDetails('contract-1', dto);
+
+      expect(res).toEqual(updatedContract);
+      expect(mockPrisma.contracts.update).toHaveBeenCalledWith({
+        where: { contract_id: 'contract-1' },
+        data: {
+          cancellation_period: 14,
+          payment_terms: {
+            payment_schedule: PAYMENT_SCHEDULE.NET_15,
+            payment_method: 'GCash',
+          },
+          extra_notes: 'Updated terms',
+        },
+      });
+    });
+
+    it('should throw NotFoundException when contract does not exist', async () => {
+      mockPrisma.contracts.findFirst.mockResolvedValue(null);
+
+      await expect(
+        service.updateContractDetails('missing-contract', {
+          cancellation_period: 21,
+        }),
+      ).rejects.toBeInstanceOf(NotFoundException);
       expect(mockPrisma.contracts.update).not.toHaveBeenCalled();
     });
   });

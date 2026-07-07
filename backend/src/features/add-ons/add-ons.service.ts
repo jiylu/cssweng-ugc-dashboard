@@ -10,8 +10,8 @@ import { CreateAddOnDTO } from './dto/create-add-on-dto';
 import { Prisma } from '@prisma/client';
 import { nanoid } from 'nanoid';
 import { UpdateOptInDTO } from './dto/update-opt-in.dto';
+import { UpdateAddOnDTO } from './dto/update-add-on.dto';
 
-// TODO: Update Add Ons Details
 @Injectable()
 export class AddOnsService {
   private readonly logger = new Logger(AddOnsService.name);
@@ -152,6 +152,26 @@ export class AddOnsService {
     this.logger.log(
       `AddOn ${oldAddOn.add_on_id} opt-in updated from ${oldAddOn.opt_in} to ${updatedAddOn.opt_in}`,
     );
+
+    return updatedAddOn;
+  }
+
+  async updateAddOnDetails(addOnId: string, dto: UpdateAddOnDTO) {
+    this.logger.debug(`Updating add-on ${addOnId}`);
+
+    await this.findOneAddOnByUID(addOnId);
+
+    const updatedAddOn = await this.prisma.addOns.update({
+      where: { add_on_id: addOnId },
+      data: {
+        ...(dto.addOnName !== undefined && { add_on_name: dto.addOnName }),
+        ...(dto.description !== undefined && { description: dto.description }),
+        ...(dto.fee !== undefined && { fee: dto.fee }),
+        ...(dto.initials !== undefined && { initials: dto.initials }),
+      },
+    });
+
+    this.logger.log(`Add-on ${addOnId} updated successfully`);
 
     return updatedAddOn;
   }

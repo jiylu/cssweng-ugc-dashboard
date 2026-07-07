@@ -9,8 +9,7 @@ import { CampaignsService } from '../campaigns/campaigns.service';
 import { CreateContractDTO } from './dto/create-contract.dto';
 import { Prisma } from '@prisma/client';
 import { nanoid } from 'nanoid';
-
-// TODO: Update Contract Details
+import { UpdateContractDTO } from './dto/update-contract.dto';
 
 @Injectable()
 export class ContractsService {
@@ -121,5 +120,51 @@ export class ContractsService {
     );
 
     return signedContract;
+  }
+
+  async updateContractDetails(contractId: string, dto: UpdateContractDTO) {
+    this.logger.debug(`Updating contract ${contractId}`);
+
+    await this.findContractByUID(contractId);
+
+    const updatedContract = await this.prisma.contracts.update({
+      where: { contract_id: contractId },
+      data: {
+        ...(dto.revision_policy !== undefined && {
+          revision_policy: { ...dto.revision_policy },
+        }),
+        ...(dto.usage_rights !== undefined && {
+          usage_rights: { ...dto.usage_rights },
+        }),
+        ...(dto.posting_requirements !== undefined && {
+          posting_requirements: { ...dto.posting_requirements },
+        }),
+        ...(dto.exclusivity !== undefined && {
+          exclusivity: { ...dto.exclusivity },
+        }),
+        ...(dto.expenses_purchases_terms !== undefined && {
+          expenses_purchases_terms: { ...dto.expenses_purchases_terms },
+        }),
+        ...(dto.cancellation_period !== undefined && {
+          cancellation_period: dto.cancellation_period,
+        }),
+        ...(dto.payment_terms !== undefined && {
+          payment_terms: { ...dto.payment_terms },
+        }),
+        ...(dto.invoice_requirements !== undefined && {
+          invoice_requirements: { ...dto.invoice_requirements },
+        }),
+        ...(dto.general_terms !== undefined && {
+          general_terms: { ...dto.general_terms },
+        }),
+        ...(dto.extra_notes !== undefined && {
+          extra_notes: dto.extra_notes,
+        }),
+      },
+    });
+
+    this.logger.log(`Contract ${contractId} updated successfully`);
+
+    return updatedContract;
   }
 }

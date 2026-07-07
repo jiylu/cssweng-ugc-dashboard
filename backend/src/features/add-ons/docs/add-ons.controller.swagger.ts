@@ -1,6 +1,7 @@
 import { applyDecorators } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { UpdateOptInDTO } from '../dto/update-opt-in.dto';
+import { UpdateAddOnDTO } from '../dto/update-add-on.dto';
 
 export function ApiFindAddOnByPublicId() {
   return applyDecorators(
@@ -67,6 +68,37 @@ export function ApiUpdateAddOnOptIn() {
     ApiResponse({
       status: 200,
       description: 'Add-on opt-in state updated successfully.',
+    }),
+    ApiResponse({
+      status: 404,
+      description: 'Add-on not found.',
+    }),
+    ApiResponse({
+      status: 400,
+      description: 'Invalid request payload.',
+    }),
+  );
+}
+
+export function ApiUpdateAddOnDetails() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Update add-on details',
+      description:
+        'Updates editable add-on fields using UpdateAddOnDTO. ' +
+        'UpdateAddOnDTO is derived from CreateAddOnDTO with `campaignId` omitted and all remaining fields optional. ' +
+        'Only fields included in the payload are updated.',
+    }),
+    ApiParam({
+      name: 'addOnId',
+      type: String,
+      description: 'UUID of the add-on',
+      example: '550e8400-e29b-41d4-a716-446655440001',
+    }),
+    ApiBody({ type: UpdateAddOnDTO, required: false }),
+    ApiResponse({
+      status: 200,
+      description: 'Add-on details updated successfully.',
     }),
     ApiResponse({
       status: 404,

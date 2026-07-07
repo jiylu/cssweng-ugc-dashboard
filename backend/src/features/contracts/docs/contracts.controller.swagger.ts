@@ -1,5 +1,6 @@
 import { applyDecorators } from '@nestjs/common';
-import { ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
+import { UpdateContractDTO } from '../dto/update-contract.dto';
 
 export function ApiFindContractByPublicId() {
   return applyDecorators(
@@ -68,6 +69,42 @@ export function ApiSignContract() {
     ApiResponse({
       status: 409,
       description: 'Conflict. The contract has already been signed.',
+    }),
+    ApiResponse({
+      status: 500,
+      description: 'Internal server error.',
+    }),
+  );
+}
+
+export function ApiUpdateContractDetails() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Update contract details by contract ID',
+      description:
+        'Updates editable contract fields for a contract identified by its internal contract ID. ' +
+        'Request body follows UpdateContractDTO, which is derived from CreateContractDTO with `campaignId` omitted and all remaining fields optional. ' +
+        'Only fields included in the payload are updated; omitted fields remain unchanged.',
+    }),
+    ApiParam({
+      name: 'contractId',
+      type: String,
+      description: 'Internal UUID of the contract to update',
+      example: '550e8400-e29b-41d4-a716-446655440000',
+    }),
+    ApiBody({ type: UpdateContractDTO, required: false }),
+    ApiResponse({
+      status: 200,
+      description: 'Contract updated successfully.',
+    }),
+    ApiResponse({
+      status: 400,
+      description:
+        'Invalid request body. One or more fields failed DTO validation.',
+    }),
+    ApiResponse({
+      status: 404,
+      description: 'Contract not found.',
     }),
     ApiResponse({
       status: 500,
