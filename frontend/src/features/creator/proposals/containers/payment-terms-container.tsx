@@ -1,0 +1,68 @@
+"use client"
+import { ArrowLeft, SendHorizontal } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { GiftedProductsSection } from "@/src/features/creator/proposals/components/payment-terms/gifted-products-section"
+import { PaymentInvoicingSection } from "@/src/features/creator/proposals/components/payment-terms/payment-invoicing-section"
+import { PriceSummarySection } from "@/src/features/creator/proposals/components/payment-terms/price-summary-section"
+import { usePaymentTerms } from "@/src/features/creator/proposals/hooks/usePaymentTerms"
+
+interface PaymentTermsContainerProps {
+  onBack: () => void
+  onNext: () => void
+  onSaveDraft: () => void
+  onSubmit: () => void
+  isPending: boolean
+}
+
+export function PaymentTermsContainer({ onBack, onNext, onSaveDraft, onSubmit, isPending }: PaymentTermsContainerProps) {
+  const paymentTerms = usePaymentTerms()
+
+  return (
+    <>
+    <div className="flex flex-col gap-6">
+      <GiftedProductsSection
+        giftedProducts={paymentTerms.giftedProducts}
+        onAdd={paymentTerms.addGiftedProduct}
+        onRemove={paymentTerms.removeGiftedProduct}
+        onUpdate={paymentTerms.updateGiftedProduct}
+        errors={paymentTerms.errors}
+      />
+
+      <div className="grid grid-cols-2 gap-6">
+        <PaymentInvoicingSection
+          paymentSchedule={paymentTerms.paymentSchedule}
+          setPaymentSchedule={paymentTerms.setPaymentSchedule}
+          paymentMethod={paymentTerms.paymentMethod}
+          setPaymentMethod={paymentTerms.setPaymentMethod}
+          errors={paymentTerms.errors}
+        />
+        <PriceSummarySection baseCreatorFee={10000} />
+      </div>
+    </div>
+
+    <div className="flex justify-between gap-3 mt-6 pb-8">
+      <Button
+        variant="outline"
+        onClick={onBack}
+        className="flex items-center gap-2"
+      >
+        <ArrowLeft size={16} /> Back
+      </Button>
+      <div className="flex gap-3">
+        <Button variant="outline" onClick={onSaveDraft} disabled={isPending}>
+          Save Draft
+        </Button>
+        <Button
+          onClick={() => {
+                if (paymentTerms.validateForm()) onSubmit()
+            }}  
+          disabled={isPending}
+          className="bg-[#6b1fa8] hover:bg-[#5a1a8f] text-white flex items-center gap-2"
+        >
+          Submit Proposal <SendHorizontal size={16} />
+        </Button>
+      </div>
+    </div>
+  </>
+  )
+}
