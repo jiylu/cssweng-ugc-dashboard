@@ -17,6 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { Spinner } from "@/components/ui/spinner";
 import { ProposalProgressBar } from "@/src/features/creator/proposals/components/proposal-progress-bar";
 import { ContractTermsContainer } from "@/src/features/creator/proposals/containers/contract-terms-container";
+import { PaymentTermsContainer } from "@/src/features/creator/proposals/containers/payment-terms-container";
 
 export default function CreateCampaign() {
   const form = useCampaignForm();
@@ -171,6 +172,17 @@ export default function CreateCampaign() {
               onBack={() => form.setActiveStep(1)}
               onNext={() => form.setActiveStep(3)}
             />
+          )}
+
+          {/* Step 4 - Payment Terms */}
+          {form.activeStep === 4 && (
+            <PaymentTermsContainer
+              onBack={() => form.setActiveStep(3)}
+              onNext={() => form.setActiveStep(4)}
+              onSaveDraft={handleSaveDraft}
+              onSubmit={handleSendProposal}
+              isPending={isPending}
+            />  
           )}
         </div>
       </section>
