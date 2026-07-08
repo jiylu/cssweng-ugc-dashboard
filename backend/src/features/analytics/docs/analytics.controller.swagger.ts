@@ -13,6 +13,14 @@ export function ApiGetAnalytics() {
       type: String,
       required: true,
       description: 'ID of the active user whose analytics should be generated',
+      schema: {
+        example: {
+          active_campaigns: 5,
+          pending_proposals: 3,
+          revenue_generated: 0,
+          monthly_completed: 0,
+        },
+      },
       example: '550e8400-e29b-41d4-a716-446655440000',
     }),
     ApiResponse({

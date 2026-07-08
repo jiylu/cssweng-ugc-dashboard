@@ -22,9 +22,12 @@ export class AnalyticsService {
     const pendingProposals =
       await this.generatePendingProposalsAnalytics(activeCampaigns);
 
+    // TODO: Update revenue_generated and monthly_generated in the future
     const analytics = {
       active_campaigns: activeCampaigns.length,
       pending_proposals: pendingProposals,
+      revenue_generated: 0,
+      monthly_completed: 0,
     };
 
     this.logger.log(`Analytics generated for ${userId}`);
