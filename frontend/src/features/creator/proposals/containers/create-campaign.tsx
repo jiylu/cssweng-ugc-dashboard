@@ -17,6 +17,7 @@ import { buildProposalPayload } from "@/src/features/creator/proposals/utils/bui
 import { useContractTerms } from "@/src/features/creator/proposals/hooks/useContractTerms"
 import { usePaymentTerms } from "@/src/features/creator/proposals/hooks/usePaymentTerms"
 import { useAddOns } from "@/src/features/creator/proposals/hooks/useAddOns"
+import { calculateBaseCreatorFee } from "@/src/features/creator/proposals/utils/calculateTotalFee"
 import LogoLoader from "@/src/components/molecules/logo-loader";
 
 export default function CreateCampaign() {
@@ -27,6 +28,13 @@ export default function CreateCampaign() {
   const contractTerms = useContractTerms()
   const paymentTerms = usePaymentTerms()
   const addOns = useAddOns()
+  const baseCreatorFee = calculateBaseCreatorFee(
+    form.deliverables,
+    addOns.addOns,
+    contractTerms.exclusivityFee,
+    contractTerms.hasExclusivity,
+    paymentTerms.giftedProducts
+  )
 
   if (loading) return <LogoLoader label="Loading proposal form" />;
 
@@ -147,6 +155,9 @@ export default function CreateCampaign() {
               onSaveDraft={handleSaveDraft}
               onSubmit={handleSendProposal}
               isPending={isPending}
+              baseCreatorFee={baseCreatorFee}
+              currency={form.currency}
+              taxRate={0.12}
             />  
           )}
         </div>

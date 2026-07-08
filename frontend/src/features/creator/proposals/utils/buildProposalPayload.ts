@@ -55,18 +55,22 @@ export function buildProposalPayload({ userId, form, contractTerms, paymentTerms
         content_retention_months: contractTerms.contentRetention,
         partnership_tags: contractTerms.partnershipTags,
       },
-      exclusivity: {
-        category: contractTerms.exclusivityCategory,
-        startDate: contractTerms.exclusivityStartDate
-          ? new Date(contractTerms.exclusivityStartDate).toISOString()
-          : "",
-        endDate: contractTerms.exclusivityEndDate
-          ? new Date(contractTerms.exclusivityEndDate).toISOString()
-          : "",
-        territory: contractTerms.exclusivityTerritory,
-        brandlist: contractTerms.exclusivityCompetitorList,
-        exclusivity_fee: parseFloat(contractTerms.exclusivityFee.replace(/,/g, '') || '0'),
-      },
+      ...(contractTerms.hasExclusivity && {
+        exclusivity: {
+          category: contractTerms.exclusivityCategory,
+          startDate: contractTerms.exclusivityStartDate
+            ? new Date(contractTerms.exclusivityStartDate).toISOString()
+            : "",
+          endDate: contractTerms.exclusivityEndDate
+            ? new Date(contractTerms.exclusivityEndDate).toISOString()
+            : "",
+          territory: contractTerms.exclusivityTerritory,
+          brandlist: contractTerms.exclusivityCompetitorList,
+          exclusivity_fee: parseFloat(
+            contractTerms.exclusivityFee.replace(/,/g, "") || "0"
+          ),
+        },
+      }),
       expenses_purchases_terms: {
         reimbursement_period: contractTerms.reimbursementDays,
         gifted_product_terms: contractTerms.giftedProductTerms,
@@ -95,12 +99,14 @@ export function buildProposalPayload({ userId, form, contractTerms, paymentTerms
       fee: a.fee ?? 0,
       initials: a.title.split(" ").map((w) => w[0]).join("").toUpperCase(),
     })),
-    giftedProducts: paymentTerms.giftedProducts.map((p) => ({
-      productName: p.productName,
-      value: parseFloat(p.value.replace(/,/g, '') || '0'),
-      deliveryAddress: p.shippingAddress,
-      deliveryInstructions: p.deliveryInstructions,
-      ownershipTerms: p.ownershipTerms,
-    })),
+    ...(paymentTerms.giftedProducts.length > 0 && {
+      giftedProducts: paymentTerms.giftedProducts.map((p) => ({
+        productName: p.productName,
+        value: parseFloat(p.value.replace(/,/g, '') || '0'),
+        deliveryAddress: p.shippingAddress,
+        deliveryInstructions: p.deliveryInstructions,
+        ownershipTerms: p.ownershipTerms,
+      }))
+    }),
   }
 }
