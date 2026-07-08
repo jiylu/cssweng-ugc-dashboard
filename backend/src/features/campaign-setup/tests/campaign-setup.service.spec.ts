@@ -187,6 +187,7 @@ describe('CampaignSetupService', () => {
       };
       const mockProposal = {
         proposal_id: 'prop-1',
+        public_id: 'proposal-public-id',
         campaignId: mockCampaign.campaign_id,
         clientEmail: dto.proposal.clientEmail,
       };

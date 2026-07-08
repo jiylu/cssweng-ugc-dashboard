@@ -1,7 +1,7 @@
 import CreatorSidebar from "../../../../components/organisms/creator-sidebar";
 import Image from "next/image";
 import { Separator } from "@/components/ui/separator";
-import { CheckCircle, Filter, Megaphone, NotebookPen, TrendingUp } from "lucide-react";
+import { Bell, CheckCircle, Filter, Megaphone, NotebookPen, TrendingUp } from "lucide-react";
 import CreatorAnalyticsCard from "../components/creator-analytics-card";
 import CreatorTodoCard from "../components/creator-todo-card";
 import Button from "@/src/components/atoms/button";
@@ -66,25 +66,43 @@ export default function CreatorDashboard() {
 
       <section className="flex-1 ml-8 my-8 overflow-y-auto pr-8 h-screen scrollbar-gutter-stable">
         {/* HEADER */}
-        <div className="flex flex-row justify-between items-center mb-5">
-          <Image
-            src='/default-profile.png'
-            alt="default"
-            className="w-10 mr-5 rounded-full"
-            width={30}
-            height={30}
-          />
+        <div className="mb-5 flex items-start justify-between gap-8">
+          <div>
+            <h1 className="text-[64px] font-bold leading-tight text-[#141518]">
+              Welcome back, {user?.first_name ?? "User"}
+            </h1>
+          </div>
+
+          <div className="flex items-center gap-6 pt-2">
+            <button
+              type="button"
+              className="text-[#77736d] transition hover:text-[#141518]"
+              aria-label="Notifications"
+            >
+              <Bell className="size-8" />
+            </button>
+            <div className="flex items-center gap-3">
+              <div className="text-right">
+                <p className="text-base leading-tight text-[#141518]">
+                  {user.first_name} {user.last_name}
+                </p>
+                <p className="text-sm text-[#7b7771]">{user.email}</p>
+              </div>
+              <Image
+                src="/default-profile.png"
+                alt=""
+                className="size-[46px] rounded-full"
+                width={46}
+                height={46}
+              />
+            </div>
+          </div>
         </div>
 
         <Separator />
 
-        {/* GREET USER */}
-        <div className="mt-7">
-          <h1 className={"text-[64px] text-[#141518] leading-tight tracking-[-0.5px] mb-8"}>Welcome back, {user?.first_name ?? "User"}</h1>
-        </div>
-
         {/* ANALYTICS */}
-        <div className="grid grid-cols-4 gap-4 mb-10">
+        <div className="mt-8 grid grid-cols-4 gap-4 mb-10">
           {creatorDashboardStats.map((stat) => (
             <CreatorAnalyticsCard
               key={stat.label}
