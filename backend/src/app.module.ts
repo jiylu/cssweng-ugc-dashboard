@@ -8,6 +8,10 @@ import { DeliverablesModule } from './features/deliverables/deliverables.module'
 import { CampaignSetupModule } from './features/campaign-setup/campaign-setup.module';
 import { ActivityLogModule } from './features/activity-log/activity-log.module';
 import { AddOnsModule } from './features/add-ons/add-ons.module';
+import { ContractsModule } from './features/contracts/contracts.module';
+import { GiftedProductsModule } from './features/gifted-products/gifted-products.module';
+import { NotificationsModule } from './features/notifications/notifications.module';
+import { AnalyticsModule } from './features/analytics/analytics.module';
 
 @Module({
   imports: [
@@ -20,6 +24,10 @@ import { AddOnsModule } from './features/add-ons/add-ons.module';
     CampaignSetupModule,
     ActivityLogModule,
     AddOnsModule,
+    ContractsModule,
+    GiftedProductsModule,
+    NotificationsModule,
+    AnalyticsModule,
   ],
   controllers: [],
   providers: [],

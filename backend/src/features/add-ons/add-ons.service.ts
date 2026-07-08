@@ -1,4 +1,5 @@
 import {
+  ConflictException,
   HttpStatus,
   Injectable,
   Logger,
@@ -10,6 +11,7 @@ import { CreateAddOnDTO } from './dto/create-add-on-dto';
 import { Prisma } from '@prisma/client';
 import { nanoid } from 'nanoid';
 import { UpdateOptInDTO } from './dto/update-opt-in.dto';
+import { UpdateAddOnDTO } from './dto/update-add-on.dto';
 
 @Injectable()
 export class AddOnsService {
@@ -32,6 +34,7 @@ export class AddOnsService {
         campaign_id: dto.campaignId,
         public_id: publicId,
         add_on_name: dto.addOnName,
+        description: dto.description,
         fee: dto.fee,
         initials: dto.initials,
       },
@@ -45,6 +48,7 @@ export class AddOnsService {
   }
 
   async createManyAddOns(
+    campaignId: string,
     addOns: CreateAddOnDTO[],
     tx: Prisma.TransactionClient | PrismaService = this.prisma,
   ) {
@@ -52,7 +56,7 @@ export class AddOnsService {
       `Creating ${addOns.length} add-ons for campaign ${addOns[0].campaignId}`,
     );
 
-    await this.campaignsService.findOneCampaign(addOns[0].campaignId);
+    await this.campaignsService.findOneCampaign(campaignId, tx);
 
     const createdAddOns = await Promise.all(
       addOns.map((a) => this.createAddOn(a, tx)),
@@ -73,6 +77,7 @@ export class AddOnsService {
     const addOns = await this.prisma.addOns.findMany({
       where: {
         campaign_id: campaignId,
+        is_deleted: false,
       },
     });
 
@@ -88,12 +93,16 @@ export class AddOnsService {
     return addOns;
   }
 
-  async findOneAddOnByUID(addOnId: string) {
+  async findOneAddOnByUID(
+    addOnId: string,
+    tx: Prisma.TransactionClient | PrismaService = this.prisma,
+  ) {
     this.logger.debug(`Finding add-on with UID ${addOnId}.`);
 
-    const addOn = await this.prisma.addOns.findFirst({
+    const addOn = await tx.addOns.findFirst({
       where: {
         add_on_id: addOnId,
+        is_deleted: false,
       },
     });
 
@@ -117,6 +126,7 @@ export class AddOnsService {
     const addOn = await this.prisma.addOns.findFirst({
       where: {
         public_id: publicId,
+        is_deleted: false,
       },
     });
 
@@ -140,7 +150,9 @@ export class AddOnsService {
     const oldAddOn = await this.findOneAddOnByUID(addOnId);
 
     const updatedAddOn = await this.prisma.addOns.update({
-      where: { add_on_id: addOnId },
+      where: {
+        add_on_id: addOnId,
+      },
       data: {
         opt_in: dto.optIn,
       },
@@ -151,5 +163,63 @@ export class AddOnsService {
     );
 
     return updatedAddOn;
+  }
+
+  async updateAddOnDetails(
+    addOnId: string,
+    dto: UpdateAddOnDTO,
+    tx: Prisma.TransactionClient | PrismaService = this.prisma,
+  ) {
+    this.logger.debug(`Updating add-on ${addOnId}`);
+
+    await this.findOneAddOnByUID(addOnId, tx);
+
+    const updatedAddOn = await tx.addOns.update({
+      where: { add_on_id: addOnId },
+      data: {
+        ...(dto.addOnName !== undefined && { add_on_name: dto.addOnName }),
+        ...(dto.description !== undefined && { description: dto.description }),
+        ...(dto.fee !== undefined && { fee: dto.fee }),
+        ...(dto.initials !== undefined && { initials: dto.initials }),
+      },
+    });
+
+    this.logger.log(`Add-on ${addOnId} updated successfully`);
+
+    return updatedAddOn;
+  }
+
+  async deleteAddOn(
+    addOnId: string,
+    tx: Prisma.TransactionClient | PrismaService = this.prisma,
+  ) {
+    this.logger.debug(`Deleting add-on ${addOnId}`);
+
+    const addOn = await this.findOneAddOnByUID(addOnId, tx);
+
+    if (addOn.is_deleted) {
+      this.logger.debug(
+        `Add-on with id ${addOn.add_on_id} is already deleted.`,
+      );
+
+      throw new ConflictException({
+        status: HttpStatus.CONFLICT,
+        code: 'ADD-ON_ALREADY_DELETED',
+        message: 'Add-on is already deleted',
+      });
+    }
+
+    const deletedAddOn = await tx.addOns.update({
+      where: { add_on_id: addOn.add_on_id },
+      data: {
+        is_deleted: true,
+      },
+    });
+
+    this.logger.log(
+      `Successfully deleted add-on with id ${deletedAddOn.add_on_id}`,
+    );
+
+    return deletedAddOn;
   }
 }

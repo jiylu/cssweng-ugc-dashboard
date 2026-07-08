@@ -1,18 +1,25 @@
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { DatePickerInput } from "@/src/components/molecules/date-picker-input";
+import { PlatformsCheckbox } from "@/src/features/creator/proposals/components/campaign-details/platforms-checkbox";
+import { PlatformEntry } from "@/src/features/creator/proposals/types/campaign-setup.types"
+import { CurrencySelect } from "@/src/features/creator/proposals/components/campaign-details/currency-select"
 
 export interface CampaignDetailsFormProps {
   form: {
-    projectName: string;
-    setProjectName: (v: string) => void;
-    startDate: string;
-    setStartDate: (v: string) => void;
-    endDate: string;
-    setEndDate: (v: string) => void;
-    campaignDescription: string;
-    setCampaignDescription: (v: string) => void;
-    errors: Record<string, string>;
+    projectName: string
+    setProjectName: (v: string) => void
+    startDate: string
+    setStartDate: (v: string) => void
+    endDate: string
+    setEndDate: (v: string) => void
+    campaignDescription: string
+    setCampaignDescription: (v: string) => void
+    errors: Record<string, string>
+    platforms: PlatformEntry[]
+    setPlatforms: (v: PlatformEntry[]) => void
+    currency: string
+    setCurrency: (v: string) => void
   }
 }
 
@@ -57,7 +64,7 @@ export default function CampaignDetailsSection({ form }: CampaignDetailsFormProp
 
         <div className="flex flex-col gap-0">
           <label className="text-sm text-muted-foreground uppercase tracking-[0.03em] mt-0">CAMPAIGN END DATE</label>
-          <DatePickerInput
+          <DatePickerInput  
             value={form.endDate}
             onChange={(iso) => form.setEndDate(iso)}
           />
@@ -65,6 +72,24 @@ export default function CampaignDetailsSection({ form }: CampaignDetailsFormProp
             <p className="text-xs mt-1 text-[#ff6467]">{form.errors.endDate}</p>
           )}
         </div>
+      </div>
+
+      {/* Currency */}
+      <CurrencySelect
+        value={form.currency}
+        onChange={form.setCurrency}
+        error={form.errors.currency}
+      />
+
+      {/* Platforms */}
+      <div className="flex flex-col gap-2">
+        <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">PLATFORMS</label>
+        <PlatformsCheckbox
+          value={form.platforms}
+          onChange={form.setPlatforms}
+          errors={form.errors}
+        />
+        {form.errors.platforms && <p className="text-xs mt-1 text-[#ff6467]">{form.errors.platforms}</p>}
       </div>
 
       {/* Campaign Description */}

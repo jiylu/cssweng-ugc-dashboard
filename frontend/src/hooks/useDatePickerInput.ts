@@ -2,7 +2,15 @@ import * as React from "react"
 import { isValidDate, formatDate } from "@/src/utils/date"
 
 export function useDatePickerInput(value: string, onChange: (iso: string) => void) {
-  const selectedDate = value ? new Date(value) : undefined
+  const selectedDate = React.useMemo(() => {
+    if (!value) return undefined
+    console.log("value received:", value)
+    const [datePart] = value.split("T")
+    const [year, month, day] = datePart.split("-").map(Number)
+    const result = new Date(Date.UTC(year, month - 1, day))
+    console.log("selectedDate created:", result.toISOString())
+    return result
+  }, [value])
   const [open, setOpen] = React.useState(false)
   const [month, setMonth] = React.useState<Date | undefined>(selectedDate)
   const [inputText, setInputText] = React.useState(formatDate(selectedDate))
@@ -27,7 +35,7 @@ function handleTextChange(e: React.ChangeEvent<HTMLInputElement>) {
 
     const isExact =
       utc.getUTCFullYear() === y &&
-      utc.getUTCMonth() + 1 === m &&
+      utc.getUTCMonth() === m - 1 &&
       utc.getUTCDate() === d
 
     if (isValidDate(utc) && isExact) {

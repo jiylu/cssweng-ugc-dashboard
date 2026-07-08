@@ -20,7 +20,7 @@ export class CreateCampaignDTO {
 
   @ApiProperty({ example: 'New Project' })
   @IsString()
-  @MaxLength(50)
+  @MaxLength(150)
   projectName!: string;
 
   @ApiProperty({ example: 'This is my new project.' })
@@ -35,6 +35,10 @@ export class CreateCampaignDTO {
   @IsEnum(CampaignCurrency)
   currency!: CampaignCurrency;
 
+  @ApiProperty({
+    example: 12,
+    description: 'Tax percentage to apply to subtotal.',
+  })
   @IsNumber()
   @Type(() => Number)
   @Min(0)
