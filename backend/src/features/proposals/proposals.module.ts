@@ -4,9 +4,10 @@ import { CampaignsModule } from '../campaigns/campaigns.module';
 import { PrismaModule } from 'src/prisma/prisma.module';
 import { UsersModule } from '../users/users.module';
 import { ProposalsController } from './proposals.controller';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
-  imports: [PrismaModule, CampaignsModule, UsersModule],
+  imports: [PrismaModule, CampaignsModule, UsersModule, NotificationsModule],
   providers: [ProposalsService],
   controllers: [ProposalsController],
   exports: [ProposalsService],

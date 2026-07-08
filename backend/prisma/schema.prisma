@@ -75,13 +75,14 @@ model Contracts {
 }
 
 model GiftedProducts {
-  gifted_product_id String @id @default(uuid())
-  campaign_id String
-  product_name String
-  value Decimal
-  delivery_address String
+  gifted_product_id     String  @id @default(uuid())
+  campaign_id           String
+  product_name          String
+  value                 Decimal
+  delivery_address      String
   delivery_instructions String
-  ownership_terms String
+  ownership_terms       String
+  is_deleted            Boolean @default(false)
 }
 
 // model Contract_Terms {
@@ -129,6 +130,7 @@ model Deliverables {
   due_date            DateTime
   post_date           DateTime
   pricing             Decimal
+  is_deleted          Boolean         @default(false)
 
   campaign Campaigns @relation(fields: [campaign_id], references: [campaign_id])
 }
@@ -160,6 +162,7 @@ model AddOns {
   description String
   fee         Decimal
   initials    String
+  is_deleted  Boolean @default(false)
   opt_in      Boolean @default(false)
 }
 
@@ -189,7 +192,7 @@ model Notifications {
   user_id         String
   title           String
   message         String
-  is_read         Boolean
+  is_read         Boolean  @default(false)
   created_at      DateTime @default(now())
 }
 
