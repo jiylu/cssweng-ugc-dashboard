@@ -67,7 +67,7 @@ export function useClientOnboarding({
       JSON.stringify(result.data),
     );
 
-    router.push(proposalId ? `/login?next=/proposals/${proposalId}` : "/login");
+    router.push(proposalId ? `/proposals/${proposalId}` : "/proposals/preview");
   };
 
   return {
