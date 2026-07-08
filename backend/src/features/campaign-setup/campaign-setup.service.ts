@@ -83,11 +83,6 @@ export class CampaignSetupService {
             : Promise.resolve([]),
         ]);
 
-      await this.emailService.sendProposalReminderEmail(
-        dto.proposal.clientEmail,
-        dto.campaign.projectName,
-      );
-
       return {
         campaign,
         proposal,
@@ -97,6 +92,17 @@ export class CampaignSetupService {
         giftedProducts,
       };
     });
+
+    try {
+      await this.emailService.sendProposalReminderEmail(
+        dto.proposal.clientEmail,
+        dto.campaign.projectName,
+      );
+    } catch (err) {
+      this.logger.warn(
+        `Campaign ${result.campaign.campaign_id} created but reminder email failed to send: ${err}`,
+      );
+    }
 
     return result;
   }
