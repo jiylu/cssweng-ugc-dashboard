@@ -71,12 +71,10 @@ export function buildProposalPayload({ userId, form, contractTerms, paymentTerms
           ),
         },
       }),
-      ...(contractTerms.giftedProductTerms && {
-        expenses_purchases_terms: {
-          reimbursement_period: contractTerms.reimbursementDays,
-          gifted_product_terms: contractTerms.giftedProductTerms,
-        },
-      }),
+      expenses_purchases_terms: {
+        reimbursement_period: contractTerms.reimbursementDays,
+        gifted_product_terms: contractTerms.giftedProductTerms,
+      },
       cancellation_period: contractTerms.cancellationDays,
       payment_terms: {
         payment_schedule: paymentTerms.paymentSchedule,
@@ -101,12 +99,14 @@ export function buildProposalPayload({ userId, form, contractTerms, paymentTerms
       fee: a.fee ?? 0,
       initials: a.title.split(" ").map((w) => w[0]).join("").toUpperCase(),
     })),
-    giftedProducts: paymentTerms.giftedProducts.map((p) => ({
-      productName: p.productName,
-      value: parseFloat(p.value.replace(/,/g, '') || '0'),
-      deliveryAddress: p.shippingAddress,
-      deliveryInstructions: p.deliveryInstructions,
-      ownershipTerms: p.ownershipTerms,
-    })),
+    ...(paymentTerms.giftedProducts.length > 0 && {
+      giftedProducts: paymentTerms.giftedProducts.map((p) => ({
+        productName: p.productName,
+        value: parseFloat(p.value.replace(/,/g, '') || '0'),
+        deliveryAddress: p.shippingAddress,
+        deliveryInstructions: p.deliveryInstructions,
+        ownershipTerms: p.ownershipTerms,
+      }))
+    }),
   }
 }

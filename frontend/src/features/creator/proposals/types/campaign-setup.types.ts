@@ -48,7 +48,7 @@ export interface CreateCampaignPayload {
       brandlist: string
       exclusivity_fee: number
     }
-    expenses_purchases_terms?: {
+    expenses_purchases_terms: {
       reimbursement_period: number
       gifted_product_terms: string
     }
@@ -76,7 +76,7 @@ export interface CreateCampaignPayload {
     fee: number
     initials: string
   }[]
-  giftedProducts: {
+  giftedProducts?: {
     productName: string
     value: number
     deliveryAddress: string

@@ -12,9 +12,12 @@ interface PaymentTermsContainerProps {
   onSaveDraft: () => void
   onSubmit: () => void
   isPending: boolean
+  baseCreatorFee: number
+  currency: string
+  taxRate: number
 }
 
-export function PaymentTermsContainer({ paymentTerms, onBack, onSaveDraft, onSubmit, isPending }: PaymentTermsContainerProps) {
+export function PaymentTermsContainer({ paymentTerms, onBack, onSaveDraft, onSubmit, isPending, baseCreatorFee, currency, taxRate }: PaymentTermsContainerProps) {
   return (
     <>
     <div className="flex flex-col gap-6">
@@ -34,7 +37,11 @@ export function PaymentTermsContainer({ paymentTerms, onBack, onSaveDraft, onSub
           setPaymentMethod={paymentTerms.setPaymentMethod}
           errors={paymentTerms.errors}
         />
-        <PriceSummarySection baseCreatorFee={10000} />
+        <PriceSummarySection
+          baseCreatorFee={baseCreatorFee}
+          currency={currency}
+          taxRate={taxRate}
+      />
       </div>
     </div>
 

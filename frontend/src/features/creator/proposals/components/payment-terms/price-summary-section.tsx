@@ -3,15 +3,16 @@ import { Separator } from "@/components/ui/separator"
 
 interface PriceSummaryProps {
   baseCreatorFee: number
+  currency?: string
   taxRate?: number
 }
 
-export function PriceSummarySection({ baseCreatorFee, taxRate = 0.1 }: PriceSummaryProps) {
+export function PriceSummarySection({ baseCreatorFee, currency = "PHP", taxRate = 0.1 }: PriceSummaryProps) {
   const tax = baseCreatorFee * taxRate
   const totalDue = baseCreatorFee + tax
 
   function formatPHP(amount: number) {
-    return `PHP ${amount.toLocaleString("en-US", { minimumFractionDigits: 2 })}`
+    return `${currency} ${amount.toLocaleString("en-US", { minimumFractionDigits: 2 })}`
   }
 
   return (
@@ -25,7 +26,7 @@ export function PriceSummarySection({ baseCreatorFee, taxRate = 0.1 }: PriceSumm
           <span>{formatPHP(baseCreatorFee)}</span>
         </div>
         <div className="flex justify-between text-sm text-foreground">
-          <span>Tax (10%)</span>
+          <span>Tax (12%)</span>
           <span>{formatPHP(tax)}</span>
         </div>
 
