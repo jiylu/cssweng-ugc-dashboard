@@ -40,7 +40,7 @@ export interface CreateCampaignPayload {
       content_retention_months: number
       partnership_tags: string
     }
-    exclusivity: {
+    exclusivity?: {
       category: string
       startDate: string
       endDate: string
@@ -76,7 +76,7 @@ export interface CreateCampaignPayload {
     fee: number
     initials: string
   }[]
-  giftedProducts: {
+  giftedProducts?: {
     productName: string
     value: number
     deliveryAddress: string

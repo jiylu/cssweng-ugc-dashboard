@@ -34,7 +34,8 @@ export function CampaignDeliverablesContainer({ form, onNext }: CampaignDelivera
             <div className="flex justify-end gap-3 mt-6 pb-8">
             <Button
                 onClick={() => {
-                    if (form.validateForm()) {onNext}
+                    const isValid = form.validateForm()
+                    if (isValid) onNext()
                 }}
                 className="bg-[#6b1fa8] hover:bg-[#5a1a8f] text-white flex items-center gap-2"
             >
