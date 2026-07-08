@@ -61,6 +61,8 @@ describe('AnalyticsService', () => {
       expect(result).toEqual({
         active_campaigns: 2,
         pending_proposals: 2,
+        monthly_completed: 0,
+        revenue_generated: 0,
       });
       expect(mockUserService.getActiveUserById).toHaveBeenCalledWith('user-1');
       expect(mockPrisma.campaigns.findMany).toHaveBeenCalledWith({
@@ -94,6 +96,8 @@ describe('AnalyticsService', () => {
       expect(result).toEqual({
         active_campaigns: 0,
         pending_proposals: 0,
+        monthly_completed: 0,
+        revenue_generated: 0,
       });
       expect(
         mockProposalService.findProposalByCampaignId,
