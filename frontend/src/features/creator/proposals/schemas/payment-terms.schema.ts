@@ -15,7 +15,7 @@ export const giftedProductSchema = z.object({
 })
 
 export const paymentTermsSchema = z.object({
-  giftedProducts: z.array(giftedProductSchema),
+  giftedProducts: z.array(giftedProductSchema).optional(),
   paymentSchedule: z.string()
     .min(1, "Payment schedule is required."),
   paymentMethod: z.string()
