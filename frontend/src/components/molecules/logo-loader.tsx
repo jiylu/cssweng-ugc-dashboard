@@ -19,6 +19,7 @@ export default function LogoLoader({ label = "Loading" }: LogoLoaderProps) {
           height={40}
           className="size-10 animate-spin"
           priority
+          unoptimized
         />
       </div>
       <span className="sr-only">{label}</span>

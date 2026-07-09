@@ -1,10 +1,4 @@
-const configuredApiUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ?? "http://localhost:8080";
-
-export const API_BASE_URL = configuredApiUrl
-  ? configuredApiUrl.endsWith("/api")
-    ? configuredApiUrl
-    : `${configuredApiUrl}/api`
-  : "/api";
+export const API_BASE_URL = "/api";
 
 export type CreateUserPayload = {
   email: string;
@@ -58,6 +52,7 @@ export async function createUser(payload: CreateUserPayload) {
     headers: {
       "Content-Type": "application/json",
     },
+    credentials: "include",
     body: JSON.stringify(payload),
   });
 
