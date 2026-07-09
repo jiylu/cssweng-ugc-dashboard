@@ -94,11 +94,11 @@ export class CampaignSetupService {
     });
 
     await this.emailService
-      .sendProposalReminderEmail({
-        clientEmail: dto.proposal.clientEmail,
-        proposalPublicId: result.proposal.public_id,
-        projectName: dto.campaign.projectName,
-      })
+      .sendProposalReminderEmail(
+        dto.proposal.clientEmail,
+        result.proposal.public_id,
+        dto.campaign.projectName,
+      )
       .catch((err) => {
         this.logger.warn('Failed to send proposal reminder email', err);
       });
