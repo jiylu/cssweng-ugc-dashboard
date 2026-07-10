@@ -10,23 +10,23 @@ export default function ClientRegisterCard({
   registerForm,
 }: ClientRegisterCardProps) {
   return (
-    <section className="mx-auto w-full max-w-[780px] rounded border border-[#d8d4cb] bg-white px-10 py-8 max-md:px-6">
-      <h2 className="text-[36px] leading-none text-[#141518] max-md:text-3xl">
+    <section className="mx-auto w-full max-w-[680px] rounded border border-[#d8d4cb] bg-white px-8 py-5 max-md:px-5">
+      <h2 className="text-[28px] leading-none text-[#141518] max-md:text-2xl">
         Create Your Account
       </h2>
-      <div className="mt-3 h-px w-full bg-[#d8d4cb]" />
+      <div className="mt-2 h-px w-full bg-[#d8d4cb]" />
 
       <form
-        className="mt-8 space-y-6"
+        className="mt-5 space-y-4"
         onSubmit={registerForm.handleSubmit}
         aria-busy={registerForm.isSubmitting}
       >
-        <div className="grid grid-cols-2 gap-x-20 gap-y-6 max-md:grid-cols-1 max-md:gap-y-5">
-          <label className="block space-y-2 text-[22px] leading-none text-[#5f5f5f]">
+        <div className="grid grid-cols-2 gap-x-10 gap-y-4 max-md:grid-cols-1 max-md:gap-y-4">
+          <label className="block space-y-1.5 text-base leading-none text-[#5f5f5f]">
             First Name
             <input
               id="fname"
-              className="h-12 w-full border border-[#9f9f9f] px-4 text-lg text-[#141518] placeholder:text-[#777] placeholder:italic focus:border-[#6b1fa8] focus:outline-none"
+              className="h-10 w-full border border-[#9f9f9f] px-3 text-base text-[#141518] placeholder:text-[#777] placeholder:italic focus:border-[#6b1fa8] focus:outline-none"
               placeholder="Enter first name"
               value={registerForm.form.fname}
               onChange={registerForm.handleChange}
@@ -39,11 +39,11 @@ export default function ClientRegisterCard({
             )}
           </label>
 
-          <label className="block space-y-2 text-[22px] leading-none text-[#5f5f5f]">
+          <label className="block space-y-1.5 text-base leading-none text-[#5f5f5f]">
             Last Name
             <input
               id="lname"
-              className="h-12 w-full border border-[#9f9f9f] px-4 text-lg text-[#141518] placeholder:text-[#777] placeholder:italic focus:border-[#6b1fa8] focus:outline-none"
+              className="h-10 w-full border border-[#9f9f9f] px-3 text-base text-[#141518] placeholder:text-[#777] placeholder:italic focus:border-[#6b1fa8] focus:outline-none"
               placeholder="Enter last name"
               value={registerForm.form.lname}
               onChange={registerForm.handleChange}
@@ -57,12 +57,12 @@ export default function ClientRegisterCard({
           </label>
         </div>
 
-        <label className="block space-y-2 text-[22px] leading-none text-[#5f5f5f]">
+        <label className="block space-y-1.5 text-base leading-none text-[#5f5f5f]">
           Email
           <input
             id="email"
             type="email"
-            className="h-12 w-full border border-[#9f9f9f] px-5 text-lg text-[#141518] placeholder:text-[#777] placeholder:italic focus:border-[#6b1fa8] focus:outline-none disabled:bg-[#f6f5f2]"
+            className="h-10 w-full border border-[#9f9f9f] px-3 text-base text-[#141518] placeholder:text-[#777] placeholder:italic focus:border-[#6b1fa8] focus:outline-none disabled:bg-[#f6f5f2]"
             placeholder="Enter email"
             value={registerForm.form.email}
             onChange={registerForm.handleChange}
@@ -75,14 +75,14 @@ export default function ClientRegisterCard({
           )}
         </label>
 
-        <div className="grid grid-cols-2 gap-x-20 gap-y-5 max-md:grid-cols-1">
-          <label className="block space-y-2 text-[22px] leading-none text-[#5f5f5f]">
+        <div className="grid grid-cols-2 gap-x-10 gap-y-4 max-md:grid-cols-1">
+          <label className="block space-y-1.5 text-base leading-none text-[#5f5f5f]">
             Password
             <span className="relative block">
               <input
                 id="password"
                 type={registerForm.showPassword ? "text" : "password"}
-                className="h-12 w-full border border-[#9f9f9f] px-5 pr-12 text-lg text-[#141518] placeholder:text-[#777] placeholder:italic focus:border-[#6b1fa8] focus:outline-none"
+                className="h-10 w-full border border-[#9f9f9f] px-3 pr-10 text-base text-[#141518] placeholder:text-[#777] placeholder:italic focus:border-[#6b1fa8] focus:outline-none"
                 placeholder="Enter a valid password"
                 value={registerForm.form.password}
                 onChange={registerForm.handleChange}
@@ -111,13 +111,13 @@ export default function ClientRegisterCard({
             )}
           </label>
 
-          <label className="block space-y-2 text-[22px] leading-none text-[#5f5f5f]">
+          <label className="block space-y-1.5 text-base leading-none text-[#5f5f5f]">
             Confirm Password
             <span className="relative block">
               <input
                 id="confirmPassword"
                 type={registerForm.showConfirmPassword ? "text" : "password"}
-                className="h-12 w-full border border-[#9f9f9f] px-5 pr-12 text-lg text-[#141518] placeholder:text-[#777] placeholder:italic focus:border-[#6b1fa8] focus:outline-none"
+                className="h-10 w-full border border-[#9f9f9f] px-3 pr-10 text-base text-[#141518] placeholder:text-[#777] placeholder:italic focus:border-[#6b1fa8] focus:outline-none"
                 placeholder="Enter a valid password"
                 value={registerForm.form.confirmPassword}
                 onChange={registerForm.handleChange}
@@ -151,13 +151,13 @@ export default function ClientRegisterCard({
           </label>
         </div>
 
-        <p className="max-w-[720px] text-lg leading-tight text-[#5f5f5f] max-md:text-base">
+        <p className="max-w-[620px] text-sm leading-tight text-[#5f5f5f]">
           Password must contain at least 6 characters, one uppercase letter
           (A-Z), one lowercase letter (a-z), one number (0-9), and one special
           character (!@#$%^&amp;*)
         </p>
 
-        <div aria-live="polite" className="min-h-6 text-center">
+        <div aria-live="polite" className="min-h-5 text-center">
           {registerForm.submitError && (
             <p role="alert" className="text-sm text-[#ff6467]">
               {registerForm.submitError}
@@ -170,10 +170,10 @@ export default function ClientRegisterCard({
           )}
         </div>
 
-        <div className="flex flex-col items-center gap-4">
+        <div className="flex flex-col items-center gap-2">
           <Button
             type="submit"
-            className="h-14 w-full max-w-[360px] rounded-none bg-[#6b1fa8] text-xl font-normal hover:bg-[#5f1a96]"
+            className="h-11 w-full max-w-[320px] rounded-none bg-[#6b1fa8] text-lg font-normal hover:bg-[#5f1a96]"
             disabled={registerForm.isSubmitting}
           >
             {registerForm.isSubmitting && (
@@ -183,7 +183,7 @@ export default function ClientRegisterCard({
             {!registerForm.isSubmitting && <span className="ml-5">--&gt;</span>}
           </Button>
 
-          <a href="/login" className="text-lg text-[#666] hover:underline">
+          <a href="/login" className="text-base text-[#666] hover:underline">
             Already have an account?
           </a>
         </div>
