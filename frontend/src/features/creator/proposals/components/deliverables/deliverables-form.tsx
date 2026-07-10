@@ -25,6 +25,7 @@ export default function DeliverablesForm({ deliverables, addDeliverable, removeD
             key={item.id}
             item={item}
             index={index}
+            deliverablesCount={deliverables.length}
             errors={errors}
             onUpdate={(field, value) => updateDeliverable(item.id, field, value)}
             onRemove={() => removeDeliverable(item.id)}
