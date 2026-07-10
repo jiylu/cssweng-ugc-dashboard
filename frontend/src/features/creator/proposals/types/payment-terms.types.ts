@@ -11,4 +11,5 @@ export interface PaymentTermsData {
   giftedProducts: GiftedProduct[]
   paymentSchedule: string
   paymentMethod: string
+  taxRate: number
 }

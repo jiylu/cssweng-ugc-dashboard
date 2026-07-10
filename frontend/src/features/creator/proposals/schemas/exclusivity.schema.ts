@@ -31,6 +31,16 @@ export const exclusivitySchema = z.object({
   path: ["exclusivityStartDate"]
 })
 .refine((data) => {
+  if (!data.hasExclusivity || !data.exclusivityStartDate) return true
+  const selected = new Date(data.exclusivityStartDate)
+  const today = new Date()
+  today.setUTCHours(0, 0, 0, 0)
+  return selected >= today
+}, {
+  message: "Exclusivity start date must be starting from the present.",
+  path: ["exclusivityStartDate"]
+})
+.refine((data) => {
   if (!data.hasExclusivity) return true
   return !!data.exclusivityEndDate
 }, {

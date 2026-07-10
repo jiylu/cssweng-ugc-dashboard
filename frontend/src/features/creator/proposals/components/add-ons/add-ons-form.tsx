@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { CirclePlus } from "lucide-react";
-import { AddOnRow, type CurrencyEnum } from "./add-ons-row";
+import { AddOnRow } from "./add-ons-row";
 
 export interface AddOnItem {
     id: string;
@@ -10,7 +10,7 @@ export interface AddOnItem {
 }
 
 export interface AddOnFormProps {
-    currency: CurrencyEnum; 
+    currency: string; 
     addOns: AddOnItem[];
     errors: Record<string, string>;
     onAddCustom: () => void;

@@ -24,6 +24,9 @@ export function ProposalProgressBar({ activeStep, onStepChange, onValidateStep }
     // allow clicking current step
     if (step === activeStep) return
 
+    // prevent jumping ahead by more than 1 step
+    if (step > activeStep + 1) return
+
     // validate current step before going forward
     if (onValidateStep) {
       const isValid = onValidateStep(activeStep)

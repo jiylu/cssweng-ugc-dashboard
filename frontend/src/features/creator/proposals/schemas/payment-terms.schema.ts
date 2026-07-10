@@ -20,4 +20,7 @@ export const paymentTermsSchema = z.object({
     .min(1, "Payment schedule is required."),
   paymentMethod: z.string()
     .min(1, "Payment method is required."),
+  taxRate: z.number()
+    .min(1, "Tax rate must be 1 or greater.")
+    .max(60, "Tax rate must not exceed 60%."),
 })
