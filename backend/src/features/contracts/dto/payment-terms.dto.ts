@@ -13,11 +13,11 @@ export class PaymentTermsDTO {
     enum: PAYMENT_SCHEDULE,
     example: PAYMENT_SCHEDULE.NET_30,
   })
-  @IsEnum(PAYMENT_SCHEDULE)
+  @IsEnum(PAYMENT_SCHEDULE, { message: 'Payment schedule must be a valid payment schedule.' })
   payment_schedule!: PAYMENT_SCHEDULE;
 
   @ApiProperty({ example: 'Bank Transfer' })
-  @IsString()
-  @IsNotEmpty()
+  @IsString({ message: 'Payment method must be a string.' })
+  @IsNotEmpty({ message: 'Payment method is required.' })
   payment_method!: string;
 }

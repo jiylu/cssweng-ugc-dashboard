@@ -3,16 +3,16 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class ExpensesPurchasesDTO {
   @ApiProperty({ example: 30 })
-  @IsInt()
-  @Min(1)
+  @IsInt({ message: 'Reimbursement period must be an integer (days).' })
+  @Min(1, { message: 'Reimbursement period must be at least 1 day.' })
   reimbursement_period!: number;
 
   @ApiProperty({
     example:
       'Approved purchases are reimbursed with valid receipt submission within the period.',
   })
-  @IsString()
-  @IsNotEmpty()
-  @MaxLength(500)
+  @IsString({ message: 'Gifted product terms must be a string.' })
+  @IsNotEmpty({ message: 'Gifted product terms are required.' })
+  @MaxLength(500, { message: 'Gifted product terms must not exceed 500 characters.' })
   gifted_product_terms!: string;
 }

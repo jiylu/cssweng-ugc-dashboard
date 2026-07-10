@@ -6,6 +6,6 @@ export class UpdateOptInDTO {
     example: true,
     description: 'Whether the add-on is selected for the campaign.',
   })
-  @IsBoolean()
+  @IsBoolean({ message: 'Opt-in must be a boolean value.' })
   optIn!: boolean;
 }
