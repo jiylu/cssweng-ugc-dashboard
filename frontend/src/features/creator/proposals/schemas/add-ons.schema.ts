@@ -8,7 +8,7 @@ export const addOnsSchema = z.object({
       desc: z.string()
         .min(1, "Description is required."),
       fee: z.number()
-        .min(0, "Fee must be 0 or greater."),
+        .min(1, "Fee is required."),
     })
   )
 })
