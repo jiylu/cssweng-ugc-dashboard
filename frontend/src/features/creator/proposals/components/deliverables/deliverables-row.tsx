@@ -20,7 +20,7 @@ interface DeliverableRowProps {
   onRemove: () => void
 }
 
-export function DeliverableRow({ item, index, deliverablesCount, currency, errors, onUpdate, onRemove }: DeliverableRowProps) {
+export function DeliverableRow({ item, index, deliverablesCount, currency, errors, canRemove, platformOptions, onUpdate, onRemove }: DeliverableRowProps) {
   const e = (field: string) => errors[`deliverables.${index}.${field}`]
 
   return (
