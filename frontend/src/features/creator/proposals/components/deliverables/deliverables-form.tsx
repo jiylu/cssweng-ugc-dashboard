@@ -7,12 +7,13 @@ import { DeliverableRow } from "@/src/features/creator/proposals/components/deli
 export interface DeliverablesFormProps {
   deliverables: Deliverable[]
   errors: Record<string, string>
+  platformOptions: string[]
   addDeliverable: () => void
   removeDeliverable: (id: number) => void
   updateDeliverable: (id: number, field: keyof Deliverable, value: string) => void
 }
 
-export default function DeliverablesForm({ deliverables, addDeliverable, removeDeliverable, updateDeliverable, errors }: DeliverablesFormProps) {
+export default function DeliverablesForm({ deliverables, addDeliverable, removeDeliverable, updateDeliverable, errors, platformOptions }: DeliverablesFormProps) {
   const totalPrice = deliverables.reduce((sum, d) => sum + parseFloat(d.pricing.replace(/,/g, '') || '0'), 0)
 
   return (
@@ -26,6 +27,8 @@ export default function DeliverablesForm({ deliverables, addDeliverable, removeD
             item={item}
             index={index}
             errors={errors}
+            canRemove={index > 0}
+            platformOptions={platformOptions}
             onUpdate={(field, value) => updateDeliverable(item.id, field, value)}
             onRemove={() => removeDeliverable(item.id)}
           />

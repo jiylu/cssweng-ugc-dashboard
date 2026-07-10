@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { PlatformEntry } from "../types/campaign-setup.types"
 
-const DEFAULT_PLATFORMS = ["Facebook", "Instagram", "Youtube", "Tik Tok", "Other"]
+const DEFAULT_PLATFORMS = ["Facebook", "Instagram", "Youtube", "TikTok", "Other"]
 
 export function usePlatformsCheckbox(value: PlatformEntry[], onChange: (value: PlatformEntry[]) => void) {
   const [customLabel, setCustomLabel] = useState("Other")

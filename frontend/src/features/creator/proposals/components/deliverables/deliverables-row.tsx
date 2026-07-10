@@ -12,11 +12,13 @@ interface DeliverableRowProps {
   item: Deliverable
   index: number
   errors: Record<string, string>
+  canRemove: boolean
+  platformOptions: string[]
   onUpdate: (field: keyof Deliverable, value: string) => void
   onRemove: () => void
 }
 
-export function DeliverableRow({ item, index, errors, onUpdate, onRemove }: DeliverableRowProps) {
+export function DeliverableRow({ item, index, errors, canRemove, platformOptions, onUpdate, onRemove }: DeliverableRowProps) {
   const e = (field: string) => errors[`deliverables.${index}.${field}`]
 
   return (
@@ -73,6 +75,7 @@ export function DeliverableRow({ item, index, errors, onUpdate, onRemove }: Deli
             <ContentTypeSelect
               platform={item.platform ?? ""}
               contentType={item.contentType ?? ""}
+              platformOptions={platformOptions}
               onPlatformChange={(v) => onUpdate('platform', v)}
               onContentTypeChange={(v) => onUpdate('contentType', v)}
               platformError={e('platform')}
@@ -146,15 +149,18 @@ export function DeliverableRow({ item, index, errors, onUpdate, onRemove }: Deli
         </div>
       </div>
       {/* Delete button */}
-      <div className="!flex flex-wrap items-start gap-0">
-        <button
-          type="button"
-          onClick={onRemove}
-          className="px-0 text-muted-foreground hover:text-destructive transition-colors"
-        >
-          <Trash2 size={16} />
-        </button>
-      </div>
+      {canRemove && (
+        <div className="!flex flex-wrap items-start gap-0">
+          <button
+            type="button"
+            onClick={onRemove}
+            aria-label={`Delete deliverable ${index + 1}`}
+            className="px-0 text-muted-foreground hover:text-destructive transition-colors"
+          >
+            <Trash2 size={16} />
+          </button>
+        </div>
+      )}
     </div>
   )
 }
