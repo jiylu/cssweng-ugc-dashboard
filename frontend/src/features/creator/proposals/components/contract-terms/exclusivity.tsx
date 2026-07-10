@@ -92,7 +92,7 @@ export function Exclusivity({
                 <InputGroup className="border border-border rounded-[3px]">
                   <InputGroupInput
                     value={exclusivityFee}
-                    placeholder="0"
+                    placeholder="Set a price"
                     className="border-0 p-0 h-auto text-sm shadow-none focus-visible:ring-0 px-2"
                     onChange={(e) => {
                       const val = e.target.value.replace(/[^0-9.]/g, '')

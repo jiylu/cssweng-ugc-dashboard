@@ -24,7 +24,7 @@ export function ContentTypeSelect({ platform, contentType, onPlatformChange, onC
             onContentTypeChange("")
           }}>
             <SelectTrigger className="text-sm bg-white border-border rounded-[3px]">
-              <SelectValue placeholder="Set Platform" />
+              <SelectValue placeholder="Set platform" />
             </SelectTrigger>
             <SelectContent>
               {PLATFORMS.map((p) => (

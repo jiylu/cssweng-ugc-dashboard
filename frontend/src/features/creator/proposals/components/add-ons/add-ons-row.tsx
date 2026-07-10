@@ -63,18 +63,16 @@ export function AddOnRow({ id, index, errors, title, desc, fee, currency, onRemo
                 <div className="flex flex-col w-full">
                     <InputGroup className="h-[40px] border border-border flex items-center pr-2 bg-white rounded-[3px]">
                         <InputGroupAddon className="text-sm pl-2 pr-1">{currency}</InputGroupAddon>
-
                         <InputGroupInput
                             name="fee"
-                            placeholder="0"
-                            value={fee ?? 0}
+                            placeholder="Set a price"
+                            value={fee === 0 ? "" : fee}
                             onChange={(e) => {
                                 const val = parseFloat(e.target.value.replace(/[^0-9.]/g, '')) || 0
                                 onFeeChange?.(val)
                             }}
-                            className="border-0 p-0 h-auto text-sm shadow-none focus-visible:ring-0 focus:outline-none pr-2 text-right"
+                            className="border-0 p-0 h-auto text-sm shadow-none focus-visible:ring-0 focus:outline-none pr-2"
                         />
-                        
                         <div className="flex flex-col shrink-0">
                             <ChevronUp 
                                 size={12}

@@ -56,7 +56,7 @@ export function DeliverableRow({ item, index, errors, onUpdate, onRemove }: Deli
             <label className="text-xs text-muted-foreground uppercase tracking-[0.03em]">TYPE</label>
             <Select value={item.deliverableType} onValueChange={(v) => onUpdate('deliverableType', v)}>
               <SelectTrigger className="text-sm bg-white border-border rounded-[3px]">
-                <SelectValue placeholder="Set Type" />
+                <SelectValue placeholder="Set type" />
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>
@@ -121,7 +121,7 @@ export function DeliverableRow({ item, index, errors, onUpdate, onRemove }: Deli
           <div className="flex items-center gap-1 border border-border rounded-[3px] px-2 py-1">
             <InputGroup className="border-0 flex-1">
               <InputGroupInput
-                placeholder="0"
+                placeholder="Set a price"
                 className="border-0 p-0 h-auto text-sm shadow-none focus-visible:ring-0"
                 value={item.pricing}
                 onChange={(e) => {

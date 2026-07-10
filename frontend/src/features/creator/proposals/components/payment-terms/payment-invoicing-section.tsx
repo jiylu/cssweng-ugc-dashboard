@@ -21,7 +21,7 @@ export function PaymentInvoicingSection({ paymentSchedule, setPaymentSchedule, p
           <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">PAYMENT SCHEDULE</label>
           <Select value={paymentSchedule} onValueChange={setPaymentSchedule}>
             <SelectTrigger className="border-border rounded-[3px] text-sm">
-              <SelectValue placeholder="Select Payment Schedule" />
+              <SelectValue placeholder="Select payment schedule" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="DUE_FINAL_DELIVERY">Due on Final Delivery</SelectItem>
@@ -37,7 +37,7 @@ export function PaymentInvoicingSection({ paymentSchedule, setPaymentSchedule, p
           <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">PAYMENT METHOD</label>
           <Select value={paymentMethod} onValueChange={setPaymentMethod}>
             <SelectTrigger className="border-border rounded-[3px] text-sm">
-              <SelectValue placeholder="Select Payment Method" />
+              <SelectValue placeholder="Select payment method" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
