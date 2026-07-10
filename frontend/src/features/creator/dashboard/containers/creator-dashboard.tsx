@@ -1,7 +1,7 @@
 import CreatorSidebar from "../../../../components/organisms/creator-sidebar";
-import Image from "next/image";
+import Profile from "@/src/components/molecules/profile";
 import { Separator } from "@/components/ui/separator";
-import { Bell, CheckCircle, Filter, Megaphone, NotebookPen, TrendingUp } from "lucide-react";
+import { CheckCircle, Filter, Megaphone, NotebookPen, TrendingUp } from "lucide-react";
 import CreatorAnalyticsCard from "../components/creator-analytics-card";
 import CreatorTodoCard from "../components/creator-todo-card";
 import Button from "@/src/components/atoms/button";
@@ -73,33 +73,11 @@ export default function CreatorDashboard() {
             </h1>
           </div>
 
-          <div className="flex items-center gap-6 pt-2">
-            <button
-              type="button"
-              className="text-[#77736d] transition hover:text-[#141518]"
-              aria-label="Notifications"
-            >
-              <Bell className="size-8" />
-            </button>
-            <div className="flex items-center gap-3">
-              <div className="text-right">
-                <span className="inline-flex items-centertext-xs font-medium text-[#6b1fa8] bg-[#6b1fa8]/10 px-3 py-1 rounded-full">
-                  Creator
-                </span>
-                <p className="text-base leading-tight text-[#141518]">
-                  {user.first_name} {user.last_name}
-                </p>
-                <p className="text-sm text-[#7b7771]">{user.email}</p>
-              </div>
-              <Image
-                src="/default-profile.png"
-                alt=""
-                className="size-[46px] rounded-full"
-                width={46}
-                height={46}
-              />
-            </div>
-          </div>
+          <Profile 
+            firstName={user.first_name}
+            lastName={user.last_name}
+            email={user.email}
+          />
         </div>
 
         <Separator />

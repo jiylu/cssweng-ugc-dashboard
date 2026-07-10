@@ -11,6 +11,8 @@ import { useCalendarEvents } from "../hooks/useCalendarEvents";
 import { useAuth } from "@/src/features/auth/hooks/useAuth";
 import { CalendarEvent } from "../types/calendar.types";
 import LogoLoader from "@/src/components/molecules/logo-loader";
+import { Separator } from "@/components/ui/separator";
+import Profile from "@/src/components/molecules/profile";
 
 type CalendarViewMode = "month" | "week" | "day";
 
@@ -39,6 +41,18 @@ export function CalendarView() {
 
       <main className="flex-1 p-8 flex flex-col items-center justify-start w-full">
         <div className="w-full max-w-6xl">
+          {/* HEADER */}
+          <div className="flex items-center justify-between mb-4">
+            <h1 className="text-4xl font-normal text-foreground">Calendar</h1>
+            <Profile
+              firstName={user.first_name}
+              lastName={user.last_name}
+              email={user.email}
+            />
+          </div>
+          <Separator className="mb-6" />
+
+          {/* Calendar */}
           <CalendarHeader
             currentDate={currentDate}
             onPrevMonth={() => navigate(-1)}
