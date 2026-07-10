@@ -3,14 +3,31 @@ import Image from 'next/image'
 import { Separator } from '@/components/ui/separator'
 import CreatorNavigation from '../molecules/creator-navigation'
 import { Button } from '@/components/ui/button'
-import { LogOut } from 'lucide-react'
+import { Loader2, LogOut } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
+import { logoutUser } from '@/src/features/auth/services/auth-session'
 
 export default function CreatorSidebar() {
   const router = useRouter();
+  const queryClient = useQueryClient();
+  const [isSigningOut, setIsSigningOut] = useState(false);
 
-  const handleSignout = () => {
-    router.push('/login');
+  const handleSignout = async () => {
+    if (isSigningOut) return;
+
+    setIsSigningOut(true);
+
+    try {
+      await logoutUser();
+      queryClient.setQueryData(["auth-user"], null);
+      queryClient.removeQueries({ queryKey: ["auth-user"] });
+      router.replace('/login');
+      router.refresh();
+    } finally {
+      setIsSigningOut(false);
+    }
   };
 
   return (
@@ -28,8 +45,14 @@ export default function CreatorSidebar() {
 
       <div className="mt-auto mb-5 flex flex-col">
         <Separator />
-        <Button variant="ghost" onClick={handleSignout} className="justify-start items-center cursor-pointer w-57 h-12.5 text-lg">
-          <LogOut />Sign Out
+        <Button
+          variant="ghost"
+          onClick={handleSignout}
+          disabled={isSigningOut}
+          className="justify-start items-center cursor-pointer w-57 h-12.5 text-lg"
+        >
+          {isSigningOut ? <Loader2 className="animate-spin" /> : <LogOut />}
+          {isSigningOut ? "Signing Out..." : "Sign Out"}
         </Button>
       </div>
     </section>

@@ -93,17 +93,15 @@ export class CampaignSetupService {
       };
     });
 
-    try {
-      await this.emailService.sendProposalReminderEmail(
+    await this.emailService
+      .sendProposalReminderEmail(
         dto.proposal.clientEmail,
+        result.proposal.public_id,
         dto.campaign.projectName,
-      );
-    } catch (err) {
-      this.logger.warn(
-        `Campaign ${result.campaign.campaign_id} created but reminder email failed to send: ${err}`,
-      );
-    }
-
+      )
+      .catch((err) => {
+        this.logger.warn('Failed to send proposal reminder email', err);
+      });
     return result;
   }
 

@@ -33,7 +33,8 @@ export function parseAuthCookie(
   cookieHeader?: string,
 ): AuthCookiePayload | null {
   const rawCookie = cookieHeader
-    ?.split('; ')
+    ?.split(';')
+    .map((cookie) => cookie.trim())
     .find((cookie) => cookie.startsWith(`${AUTH_COOKIE_NAME}=`));
 
   if (!rawCookie) {

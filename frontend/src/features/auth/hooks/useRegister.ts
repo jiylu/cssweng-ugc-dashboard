@@ -1,12 +1,33 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
-import { createUser } from "@/src/features/auth/services/users-api";
+import { createUser, type CreateUserPayload } from "@/src/features/auth/services/users-api";
 import { validateRegisterFields } from "../utils/validators";
+import type { RegisterForm } from "../types/register-types";
 
-export function useRegister() {
-  const [form, setForm] = useState({ fname: "", lname: "", email: "", password: "", confirmPassword: "" });
-  const [errors, setErrors] = useState({ fname: "", lname: "", email: "", password: "", confirmPassword: "" });
+type UseRegisterOptions = {
+  initialEmail?: string;
+  onSuccess?: (form: RegisterForm) => void;
+  redirectTo?: string;
+  role?: CreateUserPayload["role"];
+};
+
+const getInitialForm = (initialEmail = ""): RegisterForm => ({
+  fname: "",
+  lname: "",
+  email: initialEmail,
+  password: "",
+  confirmPassword: "",
+});
+
+export function useRegister({
+  initialEmail = "",
+  onSuccess,
+  redirectTo = "/login",
+  role = "CREATOR",
+}: UseRegisterOptions = {}) {
+  const [form, setForm] = useState<RegisterForm>(getInitialForm(initialEmail));
+  const [errors, setErrors] = useState<RegisterForm>(getInitialForm());
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const router = useRouter();
@@ -17,10 +38,15 @@ export function useRegister() {
       password: form.password,
       firstName: form.fname,
       lastName: form.lname,
-      role: "CREATOR",
+      role,
     }),
     onSuccess: () => {
-      window.setTimeout(() => router.push("/login"), 700);
+      if (onSuccess) {
+        onSuccess(form);
+        return;
+      }
+
+      window.setTimeout(() => router.push(redirectTo), 700);
     },
   });
 
