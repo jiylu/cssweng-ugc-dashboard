@@ -9,6 +9,25 @@ export function useCampaignForm() {
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [activeStep, setActiveStep] = useState(1)
 
+  function setPlatforms(platforms: typeof campaignDetails.platforms) {
+    const allowedPlatforms = new Set(platforms.map((entry) => entry.platform))
+
+    campaignDetails.setPlatforms(platforms)
+    deliverables.setDeliverables((prev) =>
+      prev.map((deliverable) => {
+        if (!deliverable.platform || allowedPlatforms.has(deliverable.platform)) {
+          return deliverable
+        }
+
+        return {
+          ...deliverable,
+          platform: "",
+          contentType: "",
+        }
+      })
+    )
+  }
+
   function validateForm(): boolean {
     const newErrors = validateCampaignForm({
       projectName: campaignDetails.projectName,
@@ -27,6 +46,7 @@ export function useCampaignForm() {
 
   return {
     ...campaignDetails,
+    setPlatforms,
     ...deliverables,
     errors,
     validateForm,

@@ -1,17 +1,19 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { CONTENT_TYPES, PLATFORMS } from "@/src/features/creator/proposals/utils/contentTypes"
+import { CONTENT_TYPES } from "@/src/features/creator/proposals/utils/contentTypes"
 
 interface ContentTypeSelectProps {
   platform: string
   contentType: string
+  platformOptions: string[]
   onPlatformChange: (value: string) => void
   onContentTypeChange: (value: string) => void
   platformError?: string
   contentTypeError?: string
 }
 
-export function ContentTypeSelect({ platform, contentType, onPlatformChange, onContentTypeChange, platformError, contentTypeError }: ContentTypeSelectProps) {
-  const contentTypeOptions = CONTENT_TYPES[platform] ?? []
+export function ContentTypeSelect({ platform, contentType, platformOptions, onPlatformChange, onContentTypeChange, platformError, contentTypeError }: ContentTypeSelectProps) {
+  const contentTypeOptions = CONTENT_TYPES[platform] ?? (platform ? ["Custom"] : [])
+  const hasPlatformOptions = platformOptions.length > 0
 
   return (
     <div className="flex flex-col gap-1">
@@ -22,12 +24,12 @@ export function ContentTypeSelect({ platform, contentType, onPlatformChange, onC
           <Select value={platform} onValueChange={(v) => {
             onPlatformChange(v)
             onContentTypeChange("")
-          }}>
-            <SelectTrigger className="text-sm bg-white border-border rounded-[3px]">
-              <SelectValue placeholder="Set platform" />
+          }} disabled={!hasPlatformOptions}>
+            <SelectTrigger className={`text-sm bg-white border-border rounded-[3px] ${!hasPlatformOptions ? "opacity-50" : ""}`}>
+              <SelectValue placeholder={hasPlatformOptions ? "Set Platform" : "Select campaign platform first"} />
             </SelectTrigger>
             <SelectContent>
-              {PLATFORMS.map((p) => (
+              {platformOptions.map((p) => (
                 <SelectItem key={p} value={p} className="text-sm">{p}</SelectItem>
               ))}
             </SelectContent>

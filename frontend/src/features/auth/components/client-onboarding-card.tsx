@@ -6,7 +6,7 @@ interface ClientOnboardingCardProps {
 }
 
 const inputClassName =
-  "h-12 w-full border border-[#9f9f9f] px-4 text-lg text-[#141518] placeholder:text-[#777] placeholder:italic focus:border-[#6b1fa8] focus:outline-none";
+  "h-10 w-full border border-[#9f9f9f] px-3 text-base text-[#141518] placeholder:text-[#777] placeholder:italic focus:border-[#6b1fa8] focus:outline-none";
 
 function Field({
   error,
@@ -26,7 +26,7 @@ function Field({
   value: string;
 }) {
   return (
-    <label className="block space-y-2 text-[22px] leading-none text-[#5f5f5f]">
+    <label className="block space-y-1.5 text-base leading-none text-[#5f5f5f]">
       {label}
       <input
         id={id}
@@ -51,15 +51,15 @@ export default function ClientOnboardingCard({
   const { errors, form, handleChange, handleSubmit } = onboardingForm;
 
   return (
-    <section className="mx-auto w-full max-w-[860px] rounded border border-[#d8d4cb] bg-white px-10 py-8 max-md:px-6">
-      <form className="space-y-10" onSubmit={handleSubmit}>
+    <section className="mx-auto w-full max-w-[760px] rounded border border-[#d8d4cb] bg-white px-8 py-5 max-md:px-5">
+      <form className="space-y-6" onSubmit={handleSubmit}>
         <div>
-          <h2 className="text-[36px] leading-none text-[#141518] max-md:text-3xl">
+          <h2 className="text-[28px] leading-none text-[#141518] max-md:text-2xl">
             Company Information
           </h2>
-          <div className="mt-3 h-px w-full bg-[#d8d4cb]" />
+          <div className="mt-2 h-px w-full bg-[#d8d4cb]" />
 
-          <div className="mt-6 grid grid-cols-2 gap-x-20 gap-y-6 max-md:grid-cols-1">
+          <div className="mt-4 grid grid-cols-2 gap-x-10 gap-y-4 max-md:grid-cols-1">
             <Field
               id="companyLegalName"
               label="Company Legal Name"
@@ -98,12 +98,12 @@ export default function ClientOnboardingCard({
         </div>
 
         <div>
-          <h2 className="text-[36px] leading-none text-[#141518] max-md:text-3xl">
+          <h2 className="text-[28px] leading-none text-[#141518] max-md:text-2xl">
             Contact and Billing Details
           </h2>
-          <div className="mt-3 h-px w-full bg-[#d8d4cb]" />
+          <div className="mt-2 h-px w-full bg-[#d8d4cb]" />
 
-          <div className="mt-6 grid grid-cols-2 gap-x-20 gap-y-6 max-md:grid-cols-1">
+          <div className="mt-4 grid grid-cols-2 gap-x-10 gap-y-4 max-md:grid-cols-1">
             <Field
               id="contactPerson"
               label="Contact Person"
@@ -144,7 +144,7 @@ export default function ClientOnboardingCard({
         <div className="flex justify-center">
           <Button
             type="submit"
-            className="h-14 w-full max-w-[360px] rounded-none bg-[#6b1fa8] text-xl font-normal hover:bg-[#5f1a96]"
+            className="h-11 w-full max-w-[320px] rounded-none bg-[#6b1fa8] text-lg font-normal hover:bg-[#5f1a96]"
           >
             View Proposal
             <span className="ml-5">--&gt;</span>

@@ -14,6 +14,8 @@ interface DeliverableRowProps {
   deliverablesCount: number
   currency: string
   errors: Record<string, string>
+  canRemove: boolean
+  platformOptions: string[]
   onUpdate: (field: keyof Deliverable, value: string) => void
   onRemove: () => void
 }
@@ -75,6 +77,7 @@ export function DeliverableRow({ item, index, deliverablesCount, currency, error
             <ContentTypeSelect
               platform={item.platform ?? ""}
               contentType={item.contentType ?? ""}
+              platformOptions={platformOptions}
               onPlatformChange={(v) => onUpdate('platform', v)}
               onContentTypeChange={(v) => onUpdate('contentType', v)}
               platformError={e('platform')}
@@ -148,17 +151,18 @@ export function DeliverableRow({ item, index, deliverablesCount, currency, error
         </div>
       </div>  
       {/* Delete button */}
-      { deliverablesCount > 1 &&  
+      {canRemove && (
         <div className="!flex flex-wrap items-start gap-0">
           <button
             type="button"
             onClick={onRemove}
+            aria-label={`Delete deliverable ${index + 1}`}
             className="px-0 text-muted-foreground hover:text-destructive transition-colors"
           >
             <Trash2 size={16} />
           </button>
         </div>
-      }
+      )}
     </div>
   )
 }

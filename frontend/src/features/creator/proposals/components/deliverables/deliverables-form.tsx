@@ -8,6 +8,7 @@ export interface DeliverablesFormProps {
   deliverables: Deliverable[]
   currency: string
   errors: Record<string, string>
+  platformOptions: string[]
   addDeliverable: () => void
   removeDeliverable: (id: number) => void
   updateDeliverable: (id: number, field: keyof Deliverable, value: string) => void
@@ -29,6 +30,8 @@ export default function DeliverablesForm({ deliverables, currency, addDeliverabl
             deliverablesCount={deliverables.length}
             currency={currency}
             errors={errors}
+            canRemove={index > 0}
+            platformOptions={platformOptions}
             onUpdate={(field, value) => updateDeliverable(item.id, field, value)}
             onRemove={() => removeDeliverable(item.id)}
           />

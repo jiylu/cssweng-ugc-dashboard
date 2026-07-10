@@ -30,24 +30,24 @@ export default function ClientRegister() {
   });
 
   return (
-    <main className="min-h-screen bg-[#f2f0ea]">
+    <main className="h-screen overflow-hidden bg-[#f2f0ea]">
       <div className="fixed inset-0 bg-black/65" />
-      <div className="relative min-h-screen px-10 py-9 max-md:px-4">
+      <div className="relative flex h-screen flex-col px-8 py-6 max-md:px-4 max-md:py-4">
         <Image
           src="/Logo-black.svg"
           alt="Asceoft"
-          width={140}
+          width={120}
           height={40}
-          className="h-auto w-[140px]"
+          className="h-auto w-[120px]"
           priority
         />
 
-        <section className="mx-auto mt-10 flex min-h-[calc(100vh-120px)] w-full max-w-[1000px] flex-col items-center rounded border border-[#d8d4cb] bg-[#f2f0ea] px-12 py-10 max-md:mt-8 max-md:min-h-0 max-md:px-4">
-          <h1 className="text-center text-[48px] leading-none text-[#6b1fa8] max-md:text-4xl">
+        <section className="mx-auto mt-4 flex w-full max-w-[880px] flex-1 flex-col items-center overflow-hidden rounded border border-[#d8d4cb] bg-[#f2f0ea] px-8 py-5 max-md:mt-4 max-md:px-4">
+          <h1 className="text-center text-[38px] leading-none text-[#6b1fa8] max-md:text-3xl">
             {step === "account" ? "Client Registration" : "Onboarding"}
           </h1>
 
-          <div className="mt-8 w-full">
+          <div className="mt-5 w-full">
             {step === "account" ? (
               <ClientRegisterCard registerForm={registerForm} />
             ) : (

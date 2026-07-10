@@ -29,6 +29,7 @@ export function CampaignDeliverablesContainer({ form, onNext }: CampaignDelivera
                 deliverables={form.deliverables}
                 currency={form.currency}
                 errors={form.errors}
+                platformOptions={form.platforms.map((entry) => entry.platform)}
                 addDeliverable={form.addDeliverable}
                 removeDeliverable={form.removeDeliverable}
                 updateDeliverable={form.updateDeliverable}
