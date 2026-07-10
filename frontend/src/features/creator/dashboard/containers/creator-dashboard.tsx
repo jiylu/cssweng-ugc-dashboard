@@ -22,8 +22,27 @@ export default function CreatorDashboard() {
   ];
 
   const creatorDeliverables = [
-    { campaign: "Product X Review", deliverable: "Script", type: "Partnership", deadline: "May 20, 2025", status: "In Progress" },
-    { campaign: "Product X Review", deliverable: "Script", type: "Partnership", deadline: "May 20, 2025", status: "In Progress" },
+    { 
+      campaign: "Summer Glow 2026",
+      deliverable: "TikTok short",
+      type: "UGC",
+      deadline: "Jul 22, 2026",
+      status: "In progress", 
+    },
+    { 
+      campaign: "Summer Glow 2026",
+      deliverable: "Instagram reel",
+      type: "Partnership",
+      deadline: "Jul 24, 2026",
+      status: "In progress",
+    },
+    {
+      campaign: "FitLife Pro Launch",
+      deliverable: "YouTube review",
+      type: "Partnership",
+      deadline: "Jul 30, 2026",
+      status: "In Progress",
+    }
   ];
 
   return (
