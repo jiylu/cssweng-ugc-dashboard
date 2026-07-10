@@ -8,12 +8,13 @@ import { adjustPriceValue } from "@/src/features/creator/proposals/utils/formatP
 interface GiftedProductRowProps {
   item: GiftedProduct
   index: number
+  currency: string
   errors: Record<string, string>
   onUpdate: (field: keyof GiftedProduct, value: string) => void
   onRemove: () => void
 }
 
-export function GiftedProductRow({ item, index, errors, onUpdate, onRemove }: GiftedProductRowProps) {
+export function GiftedProductRow({ item, index, currency, errors, onUpdate, onRemove }: GiftedProductRowProps) {
     const e = (field: string) => errors[`giftedProducts.${index}.${field}`]
 
     return (
@@ -35,7 +36,7 @@ export function GiftedProductRow({ item, index, errors, onUpdate, onRemove }: Gi
                 <Input
                     value={item.productName}
                     onChange={(e) => onUpdate('productName', e.target.value)}
-                    placeholder="Enter Product Name"
+                    placeholder="Enter product name"
                     className="border-border rounded-[3px] text-sm bg-white"
                 />
                 <p className="text-xs mt-1 text-[#ff6467] min-h-[16px]">{e('productName') ?? ""}</p>
@@ -47,7 +48,7 @@ export function GiftedProductRow({ item, index, errors, onUpdate, onRemove }: Gi
                 <div className="flex items-center gap-1">
                     <InputGroup className="border border-border rounded-[3px] bg-white">
                         <InputGroupInput
-                            placeholder="0"
+                            placeholder="Set a price"
                             value={item.value}
                             className="border-0 p-0 h-auto text-sm shadow-none focus-visible:ring-0 px-2"
                             onChange={(e) => {
@@ -57,7 +58,7 @@ export function GiftedProductRow({ item, index, errors, onUpdate, onRemove }: Gi
                             onUpdate('value', parts.slice(0, 2).join('.'))
                             }}
                         />
-                        <InputGroupAddon>PHP</InputGroupAddon>
+                        <InputGroupAddon>{currency}</InputGroupAddon>
                     </InputGroup>
                     <div className="flex flex-col shrink-0">
                         <ChevronUp size={12} className="cursor-pointer text-muted-foreground hover:text-[#6b1fa8]" 

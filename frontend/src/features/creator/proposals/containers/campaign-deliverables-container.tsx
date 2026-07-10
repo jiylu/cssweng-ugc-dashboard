@@ -17,6 +17,8 @@ export function CampaignDeliverablesContainer({ form, onNext }: CampaignDelivera
         <div className="grid grid-cols-2 gap-6 mb-6">
             <CampaignDetailsSection form={form} />
             <ClientDetailsForm
+                contactPerson={form.contactPerson}
+                setContactPerson={form.setContactPerson}
                 contactEmail={form.contactEmail}
                 setContactEmail={form.setContactEmail}
                 errors={form.errors}
@@ -25,6 +27,7 @@ export function CampaignDeliverablesContainer({ form, onNext }: CampaignDelivera
 
             <DeliverablesForm
                 deliverables={form.deliverables}
+                currency={form.currency}
                 errors={form.errors}
                 platformOptions={form.platforms.map((entry) => entry.platform)}
                 addDeliverable={form.addDeliverable}

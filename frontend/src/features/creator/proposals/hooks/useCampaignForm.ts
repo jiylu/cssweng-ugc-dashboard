@@ -35,6 +35,7 @@ export function useCampaignForm() {
       endDate: campaignDetails.endDate,
       currency: campaignDetails.currency,
       campaignDescription: campaignDetails.campaignDescription,
+      contactPerson: campaignDetails.contactPerson,
       contactEmail: campaignDetails.contactEmail,
       platforms: campaignDetails.platforms,
       deliverables: deliverables.deliverables,

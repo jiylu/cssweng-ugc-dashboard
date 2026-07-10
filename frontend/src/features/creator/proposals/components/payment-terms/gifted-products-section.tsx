@@ -6,12 +6,13 @@ import { GiftedProductRow } from "@/src/features/creator/proposals/components/pa
 interface GiftedProductsSectionProps {
   giftedProducts: GiftedProduct[]
   errors: Record<string, string>
+  currency: string
   onAdd: () => void
   onRemove: (id: number) => void
   onUpdate: (id: number, field: keyof GiftedProduct, value: string) => void
 }
 
-export function GiftedProductsSection({ giftedProducts, errors, onAdd, onRemove, onUpdate }: GiftedProductsSectionProps) {
+export function GiftedProductsSection({ giftedProducts, currency, errors, onAdd, onRemove, onUpdate }: GiftedProductsSectionProps) {
   return (
     <div className="bg-white border border-border rounded p-5.5 flex flex-col gap-4">
       <h2 className="text-2xl font-normal text-foreground">Gifted Product / In-Kind Items</h2>
@@ -22,6 +23,7 @@ export function GiftedProductsSection({ giftedProducts, errors, onAdd, onRemove,
             key={item.id}
             item={item}
             index={index}
+            currency={currency}
             errors={errors}
             onUpdate={(field, value) => onUpdate(item.id, field, value)}
             onRemove={() => onRemove(item.id)}

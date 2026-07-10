@@ -19,7 +19,7 @@ export function CurrencySelect({ value, onChange, error }: CurrencySelectProps) 
           {CURRENCIES.map((currency) => (
             <SelectItem key={currency.code} value={currency.code} className="text-sm">
               <span className="font-medium mr-2">{currency.code}</span>
-              <span className="text-muted-foreground">{currency.name}</span>
+              <span>{currency.name}</span>
             </SelectItem>
           ))}
         </SelectContent>

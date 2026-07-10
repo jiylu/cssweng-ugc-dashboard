@@ -1,4 +1,5 @@
 import {
+	BadRequestException,
   ConflictException,
   HttpStatus,
   Injectable,
@@ -11,6 +12,7 @@ import { CreateDeliverableDTO } from './dto/create-deliverable.dto';
 import { Prisma } from '@prisma/client';
 import { UpdateDeliverableDTO } from './dto/update-deliverable.dto';
 import { nanoid } from 'nanoid';
+import { CampaignDates } from './types/types';
 
 @Injectable()
 export class DeliverablesService {
@@ -24,12 +26,17 @@ export class DeliverablesService {
   async createDeliverable(
     dto: CreateDeliverableDTO,
     tx: Prisma.TransactionClient | PrismaService = this.prisma,
+    campaignDates: CampaignDates,
   ) {
     this.logger.debug(
       `Creating deliverable ${dto.deliverableType} ${dto.deliverableContent} for campaign ${dto.campaignId}`,
     );
 
     const publicId = nanoid(10);
+    const dueDate = new Date(dto.dueDate);
+    const postDate = new Date(dto.postDate);
+
+    this.validateDeliverableDates(dueDate, postDate, campaignDates);
 
     const deliverable = await tx.deliverables.create({
       data: {
@@ -61,9 +68,14 @@ export class DeliverablesService {
       `Creating ${deliverables.length} deliverables for ${campaignId}`,
     );
 
-    await this.campaignService.findOneCampaign(campaignId, tx);
+    const campaign = await this.campaignService.findOneCampaign(campaignId, tx);
+    const campaignDates: CampaignDates = {
+      campaignStart: campaign.start_date,
+      campaignEnd: campaign.end_date,
+    };
+
     const createdDeliverables = await Promise.all(
-      deliverables.map((d) => this.createDeliverable(d, tx)),
+      deliverables.map((d) => this.createDeliverable(d, tx, campaignDates)),
     );
 
     this.logger.log(
@@ -71,6 +83,47 @@ export class DeliverablesService {
     );
 
     return createdDeliverables;
+  }
+
+  private validateDeliverableDates(
+    dueDate: Date,
+    postDate: Date,
+    campaignDates: CampaignDates,
+  ) {
+    if (dueDate >= postDate) {
+      this.logger.warn(
+        'Invalid dueDate and postDate input: dueDate must be before postDate.',
+      );
+
+      throw new BadRequestException({
+        status: HttpStatus.BAD_REQUEST,
+        code: 'INVALID_DATE_ORDER',
+        message: 'Due date must be before post date',
+      });
+    }
+
+    if (
+      dueDate <= campaignDates.campaignStart ||
+      postDate <= campaignDates.campaignStart
+    ) {
+      throw new BadRequestException({
+        status: HttpStatus.BAD_REQUEST,
+        code: 'DATE_BEFORE_CAMPAIGN_START',
+        message: 'Due date or post date must be after campaign start date.',
+      });
+    }
+
+    if (
+      dueDate > campaignDates.campaignEnd ||
+      postDate > campaignDates.campaignEnd
+    ) {
+      throw new BadRequestException({
+        status: HttpStatus.BAD_REQUEST,
+        code: 'DATE_AFTER_CAMPAIGN_END',
+        message:
+          'Due date or post date must be before or on campaign end date.',
+      });
+    }
   }
 
   async findOneDeliverableByUID(

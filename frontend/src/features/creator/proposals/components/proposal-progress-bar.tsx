@@ -7,17 +7,49 @@ const STEPS = [
   { number: 4, label: "Payment Terms" },
 ]
 
-export function ProposalProgressBar({ activeStep, onStepChange }: { activeStep: number, onStepChange?: (step: number) => void }) {
+interface ProposalProgressBarProps {
+  activeStep: number
+  onStepChange: (step: number) => void
+  onValidateStep?: (step: number) => boolean
+}
+
+export function ProposalProgressBar({ activeStep, onStepChange, onValidateStep }: ProposalProgressBarProps) {
+  function handleStepClick(step: number) {
+    // allow going back freely
+    if (step < activeStep) {
+      onStepChange(step)
+      return
+    }
+
+    // allow clicking current step
+    if (step === activeStep) return
+
+    // prevent jumping ahead by more than 1 step
+    if (step > activeStep + 1) return
+
+    // validate current step before going forward
+    if (onValidateStep) {
+      const isValid = onValidateStep(activeStep)
+      if (!isValid) return
+    }
+
+    onStepChange(step)
+  }
+
   return (
     <div className="flex items-center gap-0 w-full mb-6">
       {STEPS.map((step, index) => (
-        <div key={step.number} className={cn("flex items-center cursor-pointer", index < STEPS.length - 1 && "flex-1")} onClick={() => onStepChange?.(step.number)}>
+        <div 
+          key={step.number} 
+          className={cn("flex items-center cursor-pointer", index < STEPS.length - 1 && "flex-1")} 
+          onClick={() => handleStepClick(step.number)}
+        >
           <div className="flex flex-col items-center gap-1 min-w-max">
             <div className={cn(
               "w-8 h-8 rounded-[3px] flex items-center justify-center text-sm font-medium border",
               activeStep === step.number
                 ? "bg-[#6b1fa8] text-white border-[#6b1fa8]"
-                : "bg-transparent text-muted-foreground border-border"
+                : "bg-transparent text-muted-foreground border-border opacity-40"
             )}>
               {step.number}
             </div>

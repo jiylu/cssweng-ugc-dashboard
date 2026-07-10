@@ -16,7 +16,14 @@ export const campaignSchema = z.object({
     .max(50, "Campaign name must be less than 50 characters."),
   
   startDate: z.string()
-    .min(1, "Start date is invalid or empty."),  
+    .min(1, "Start date is invalid or empty.")
+    .refine((val) => {
+      if (!val) return true
+      const selected = new Date(val)
+      const today = new Date()
+      today.setUTCHours(0, 0, 0, 0)
+      return selected >= today
+    }, "Start date must be starting from the present."),  
   
   endDate: z.string()
     .min(1, "End date is invalid or empty."),
@@ -27,6 +34,9 @@ export const campaignSchema = z.object({
   campaignDescription: z.string()
     .min(1, "Description is required.")
     .max(500, "Description must not be less than 300 characters."),
+
+  contactPerson: z.string()
+    .min(1, "Contact person is required."),
 
   contactEmail: z.email("Enter a valid email address")
     .min(1, "Contact email is required."),

@@ -19,7 +19,7 @@ export function buildProposalPayload({ userId, form, contractTerms, paymentTerms
       projectName: form.projectName,
       description: form.campaignDescription,
       currency: form.currency,
-      tax: 12,
+      tax: paymentTerms.taxRate,
       platforms: form.platforms.map((p) => p.platform),
       startDate: new Date(form.startDate).toISOString(),
       endDate: new Date(form.endDate).toISOString(),

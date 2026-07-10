@@ -7,7 +7,7 @@ export function usePaymentTerms() {
     {
       id: 1,
       productName: "",
-      value: "0",
+      value: "",
       ownershipTerms: "",
       shippingAddress: "",
       deliveryInstructions: "",
@@ -15,6 +15,7 @@ export function usePaymentTerms() {
   ])
   const [paymentSchedule, setPaymentSchedule] = useState("")
   const [paymentMethod, setPaymentMethod] = useState("")
+  const [taxRate, setTaxRate] = useState(10)
   const [errors, setErrors] = useState<Record<string, string>>({})
 
   function addGiftedProduct() {
@@ -22,7 +23,7 @@ export function usePaymentTerms() {
     setGiftedProducts([...giftedProducts, {
       id: newId,
       productName: "",
-      value: "0",
+      value: "",
       ownershipTerms: "",
       shippingAddress: "",
       deliveryInstructions: "",
@@ -38,7 +39,7 @@ export function usePaymentTerms() {
   }
 
   function buildData(): PaymentTermsData {
-    return { giftedProducts, paymentSchedule, paymentMethod }
+    return { giftedProducts, paymentSchedule, paymentMethod, taxRate }
   }
   function validateForm(): boolean {
     const newErrors = validatePaymentTerms(buildData())
@@ -55,6 +56,8 @@ export function usePaymentTerms() {
     setPaymentSchedule,
     paymentMethod,
     setPaymentMethod,
+    taxRate,
+    setTaxRate,
     errors,
     validateForm,
     buildData,

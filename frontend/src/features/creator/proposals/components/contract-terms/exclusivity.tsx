@@ -22,6 +22,7 @@ interface ExclusivityProps {
   setExclusivityFee: (v: string) => void
   exclusivityTerritory: string
   setExclusivityTerritory: (v: string) => void
+  currency: string
   errors: Record<string, string>
 }
 
@@ -33,7 +34,7 @@ export function Exclusivity({
                               exclusivityEndDate, setExclusivityEndDate, 
                               exclusivityFee, setExclusivityFee, 
                               exclusivityTerritory, setExclusivityTerritory, 
-                              errors }: ExclusivityProps) 
+                              currency, errors }: ExclusivityProps) 
                             {
   return (
     <Card className="flex flex-col gap-4">
@@ -92,7 +93,7 @@ export function Exclusivity({
                 <InputGroup className="border border-border rounded-[3px]">
                   <InputGroupInput
                     value={exclusivityFee}
-                    placeholder="0"
+                    placeholder="Set a price"
                     className="border-0 p-0 h-auto text-sm shadow-none focus-visible:ring-0 px-2"
                     onChange={(e) => {
                       const val = e.target.value.replace(/[^0-9.]/g, '')
@@ -101,7 +102,7 @@ export function Exclusivity({
                       setExclusivityFee(parts.slice(0, 2).join('.'))
                     }}
                   />
-                  <InputGroupAddon>PHP</InputGroupAddon>
+                  <InputGroupAddon>{currency}</InputGroupAddon>
                 </InputGroup>
                 <div className="flex flex-col shrink-0">
                   <ChevronUp size={12} className="cursor-pointer text-muted-foreground hover:text-[#6b1fa8]" 

@@ -1,10 +1,16 @@
 import Button from "@/src/components/atoms/button";
 import { FilePen, Files, StickyNote } from "lucide-react";
-//import Image from "next/image";
+import Profile from "@/src/components/molecules/profile";
 
-export default function CreatorProposalsNavigation() {
+interface CreatorProposalNavigationProps {
+  userFirstName: string
+  userLastName: string
+  userEmail: string
+}
+
+export default function CreatorProposalsNavigation({ userFirstName, userLastName, userEmail }: CreatorProposalNavigationProps) {
   return (
-    <div className="flex justify-between items-center mb-1">
+    <div className="flex justify-between items-center mb-3">
       <div className="flex gap-8">
         <Button
           selected={true}
@@ -37,13 +43,11 @@ export default function CreatorProposalsNavigation() {
           SUBMITTED PROPOSALS
         </Button>
       </div>
-      {/* <Image
-        src='/default-profile.png'
-        alt="default"
-        className="w-10 mr-5 rounded-full"
-        width={30}
-        height={30}
-      /> */}
+      <Profile 
+        firstName={userFirstName}
+        lastName={userLastName}
+        email={userEmail}
+      />
     </div>
   )
 }

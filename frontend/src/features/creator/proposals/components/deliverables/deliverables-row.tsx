@@ -11,6 +11,8 @@ import { ContentTypeSelect } from "@/src/features/creator/proposals/components/d
 interface DeliverableRowProps {
   item: Deliverable
   index: number
+  deliverablesCount: number
+  currency: string
   errors: Record<string, string>
   canRemove: boolean
   platformOptions: string[]
@@ -18,7 +20,7 @@ interface DeliverableRowProps {
   onRemove: () => void
 }
 
-export function DeliverableRow({ item, index, errors, canRemove, platformOptions, onUpdate, onRemove }: DeliverableRowProps) {
+export function DeliverableRow({ item, index, deliverablesCount, currency, errors, onUpdate, onRemove }: DeliverableRowProps) {
   const e = (field: string) => errors[`deliverables.${index}.${field}`]
 
   return (
@@ -58,11 +60,11 @@ export function DeliverableRow({ item, index, errors, canRemove, platformOptions
             <label className="text-xs text-muted-foreground uppercase tracking-[0.03em]">TYPE</label>
             <Select value={item.deliverableType} onValueChange={(v) => onUpdate('deliverableType', v)}>
               <SelectTrigger className="text-sm bg-white border-border rounded-[3px]">
-                <SelectValue placeholder="Set Type" />
+                <SelectValue placeholder="Set type" />
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>
-                  <SelectItem value="COLLABORATION">COLLABORATION</SelectItem>
+                  <SelectItem value="COLLABORATION">Partnership</SelectItem>
                   <SelectItem value="UGC">UGC</SelectItem>
                 </SelectGroup>
               </SelectContent>
@@ -124,7 +126,7 @@ export function DeliverableRow({ item, index, errors, canRemove, platformOptions
           <div className="flex items-center gap-1 border border-border rounded-[3px] px-2 py-1">
             <InputGroup className="border-0 flex-1">
               <InputGroupInput
-                placeholder="0"
+                placeholder="Set a price"
                 className="border-0 p-0 h-auto text-sm shadow-none focus-visible:ring-0"
                 value={item.pricing}
                 onChange={(e) => {
@@ -134,7 +136,7 @@ export function DeliverableRow({ item, index, errors, canRemove, platformOptions
                   onUpdate('pricing', parts.slice(0, 2).join('.'))
                 }}
               />
-              <InputGroupAddon>PHP</InputGroupAddon>
+              <InputGroupAddon>{currency}</InputGroupAddon>
             </InputGroup>
             <div className="flex flex-col shrink-0">
               <ChevronUp size={12} className="cursor-pointer text-muted-foreground hover:text-[#6b1fa8]"
@@ -147,7 +149,7 @@ export function DeliverableRow({ item, index, errors, canRemove, platformOptions
           </div>
           <p className="text-xs mt-1 text-[#ff6467] min-h-[16px]">{e('pricing') ?? ""}</p>
         </div>
-      </div>
+      </div>  
       {/* Delete button */}
       {canRemove && (
         <div className="!flex flex-wrap items-start gap-0">

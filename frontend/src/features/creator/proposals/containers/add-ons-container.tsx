@@ -6,16 +6,17 @@ import { useAddOns } from "@/src/features/creator/proposals/hooks/useAddOns"
 
 interface AddOnsContainerProps {
     addOns: ReturnType<typeof useAddOns>
+    currency: string
     onBack: () => void
     onNext: () => void
 }
 
-export function AddOnsContainer({ addOns, onBack, onNext }: AddOnsContainerProps) {
+export function AddOnsContainer({ addOns, currency, onBack, onNext }: AddOnsContainerProps) {
     return (
     <>
         <div className="mt-6">  
             <AddOnsForm
-                currency="PHP"
+                currency={currency}
                 addOns={addOns.addOns}
                 onAddCustom={addOns.addCustom}
                 onRemove={addOns.removeAddOn}

@@ -6,6 +6,7 @@ import { DeliverableRow } from "@/src/features/creator/proposals/components/deli
 
 export interface DeliverablesFormProps {
   deliverables: Deliverable[]
+  currency: string
   errors: Record<string, string>
   platformOptions: string[]
   addDeliverable: () => void
@@ -13,7 +14,7 @@ export interface DeliverablesFormProps {
   updateDeliverable: (id: number, field: keyof Deliverable, value: string) => void
 }
 
-export default function DeliverablesForm({ deliverables, addDeliverable, removeDeliverable, updateDeliverable, errors, platformOptions }: DeliverablesFormProps) {
+export default function DeliverablesForm({ deliverables, currency, addDeliverable, removeDeliverable, updateDeliverable, errors }: DeliverablesFormProps) {
   const totalPrice = deliverables.reduce((sum, d) => sum + parseFloat(d.pricing.replace(/,/g, '') || '0'), 0)
 
   return (
@@ -26,6 +27,8 @@ export default function DeliverablesForm({ deliverables, addDeliverable, removeD
             key={item.id}
             item={item}
             index={index}
+            deliverablesCount={deliverables.length}
+            currency={currency}
             errors={errors}
             canRemove={index > 0}
             platformOptions={platformOptions}
@@ -49,7 +52,7 @@ export default function DeliverablesForm({ deliverables, addDeliverable, removeD
         <Card className="px-6 py-3 flex items-center gap-4">
           <span className="text-sm text-muted-foreground">Total Price</span>
           <span className="text-2xl font-medium text-foreground">
-            PHP {totalPrice.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+            {currency} {totalPrice.toLocaleString("en-US", { minimumFractionDigits: 2 })}
           </span>
         </Card>
       </div>

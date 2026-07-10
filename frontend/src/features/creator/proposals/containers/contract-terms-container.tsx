@@ -10,11 +10,12 @@ import { useContractTerms } from "@/src/features/creator/proposals/hooks/useCont
 
 interface ContractTermsContainerProps {
   contractTerms: ReturnType<typeof useContractTerms>
+  currency: string
   onBack: () => void
   onNext: () => void
 }
 
-export function ContractTermsContainer({ contractTerms, onBack, onNext }: ContractTermsContainerProps) {
+export function ContractTermsContainer({ contractTerms, currency, onBack, onNext }: ContractTermsContainerProps) {
   return (
     <>
       <div className="flex flex-col gap-6">
@@ -55,6 +56,7 @@ export function ContractTermsContainer({ contractTerms, onBack, onNext }: Contra
           setExclusivityFee={contractTerms.setExclusivityFee}
           exclusivityTerritory={contractTerms.exclusivityTerritory}
           setExclusivityTerritory={contractTerms.setExclusivityTerritory}
+          currency={currency}
           errors={contractTerms.errors}
         />
         <Expenses
@@ -92,7 +94,7 @@ export function ContractTermsContainer({ contractTerms, onBack, onNext }: Contra
             }}
             className="bg-[#6b1fa8] hover:bg-[#5a1a8f] text-white flex items-center gap-2"
           >
-            Payment Terms <ArrowRight size={16} />
+            Add-Ons <ArrowRight size={16} />
           </Button>
         </div>
       </div>

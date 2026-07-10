@@ -99,7 +99,7 @@ export default function CampaignDetailsSection({ form }: CampaignDetailsFormProp
           value={form.campaignDescription}
           onChange={(e) => form.setCampaignDescription(e.target.value)}
           className="w-full min-h-[100px] border border-muted bg-transparent p-3 text-sm placeholder:text-muted-foreground outline-none transition-colors focus:border-ring focus:text-foreground resize-none"
-          placeholder="Enter Description"
+          placeholder="Enter description"
         />
         {form.errors.campaignDescription && (
           <p className="text-xs mt-1 text-[#ff6467]">{form.errors.campaignDescription}</p>

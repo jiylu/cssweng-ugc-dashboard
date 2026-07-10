@@ -100,7 +100,11 @@ export default function CreateCampaign() {
       <CreatorSidebar />
       <section className="flex-1 h-screen overflow-y-scroll scrollbar-gutter-stable">
         <div className="p-7.5 w-full max-w-300 m-auto text-[#141518]">
-          <CreatorProposalsNavigation />
+          <CreatorProposalsNavigation 
+            userFirstName={user.first_name}
+            userLastName={user.last_name}
+            userEmail={user.email}
+          />
           <Separator />
 
           {/* HEADER */}
@@ -116,8 +120,15 @@ export default function CreateCampaign() {
           {/* Progress Bar */}
           <div className="justify-center">
             <ProposalProgressBar
-              activeStep={form.activeStep} 
+              activeStep={form.activeStep}
               onStepChange={form.setActiveStep}
+              onValidateStep={(step) => {
+                if (step === 1) return form.validateForm()
+                if (step === 2) return contractTerms.validateForm()
+                if (step === 3) return addOns.validateForm()
+                if (step === 4) return paymentTerms.validateForm()
+                return true
+              }}
             />
           </div>
 
@@ -133,6 +144,7 @@ export default function CreateCampaign() {
           {form.activeStep === 2 && (
             <ContractTermsContainer
               contractTerms={contractTerms}
+              currency={form.currency}
               onBack={() => form.setActiveStep(1)}
               onNext={() => form.setActiveStep(3)}
             />
@@ -142,6 +154,7 @@ export default function CreateCampaign() {
           {form.activeStep === 3 && (
             <AddOnsContainer
               addOns={addOns}
+              currency={form.currency}
               onBack={() => form.setActiveStep(2)}
               onNext={() => form.setActiveStep(4)}
             />
