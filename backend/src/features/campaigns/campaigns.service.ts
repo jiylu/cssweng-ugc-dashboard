@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   ForbiddenException,
   HttpStatus,
@@ -35,6 +36,11 @@ export class CampaignsService {
     await this.userService.getActiveUserById(dto.ugcId);
     const publicId = nanoid(10);
 
+    const startDate = new Date(dto.startDate);
+    const endDate = new Date(dto.endDate);
+
+    this.validateCampaignDates(startDate, endDate);
+
     const campaign = await tx.campaigns.create({
       data: {
         public_id: publicId,
@@ -45,8 +51,8 @@ export class CampaignsService {
         tax: dto.tax,
         pricing: new Prisma.Decimal(dto.pricing),
         platforms: dto.platforms,
-        start_date: new Date(dto.startDate),
-        end_date: new Date(dto.endDate),
+        start_date: startDate,
+        end_date: endDate,
       },
     });
 
@@ -57,6 +63,27 @@ export class CampaignsService {
     return campaign;
   }
 
+  private validateCampaignDates(startDate: Date, endDate: Date) {
+    if (startDate < new Date()) {
+      throw new BadRequestException({
+        status: HttpStatus.BAD_REQUEST,
+        code: 'INVALID_START_DATE',
+        message: 'Campaign start date cannot be in the past.',
+      });
+    }
+
+    if (startDate >= endDate) {
+      this.logger.warn(
+        `Invalid startDate and endDate input: startDate must be before endDate`,
+      );
+
+      throw new BadRequestException({
+        status: HttpStatus.BAD_REQUEST,
+        code: 'INVALID_START_DATE_END_DATE',
+        message: 'Invalid campaign start date and end date',
+      });
+    }
+  }
   async findOneCampaign(
     campaignId: string,
     tx: Prisma.TransactionClient | PrismaService = this.prisma,
