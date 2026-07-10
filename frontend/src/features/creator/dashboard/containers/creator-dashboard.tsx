@@ -83,6 +83,9 @@ export default function CreatorDashboard() {
             </button>
             <div className="flex items-center gap-3">
               <div className="text-right">
+                <span className="inline-flex items-centertext-xs font-medium text-[#6b1fa8] bg-[#6b1fa8]/10 px-3 py-1 rounded-full">
+                  Creator
+                </span>
                 <p className="text-base leading-tight text-[#141518]">
                   {user.first_name} {user.last_name}
                 </p>
