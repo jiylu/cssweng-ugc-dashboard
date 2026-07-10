@@ -7,7 +7,7 @@ export function usePaymentTerms() {
     {
       id: 1,
       productName: "",
-      value: "0",
+      value: "",
       ownershipTerms: "",
       shippingAddress: "",
       deliveryInstructions: "",
@@ -22,7 +22,7 @@ export function usePaymentTerms() {
     setGiftedProducts([...giftedProducts, {
       id: newId,
       productName: "",
-      value: "0",
+      value: "",
       ownershipTerms: "",
       shippingAddress: "",
       deliveryInstructions: "",

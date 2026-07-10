@@ -35,7 +35,7 @@ export function GiftedProductRow({ item, index, errors, onUpdate, onRemove }: Gi
                 <Input
                     value={item.productName}
                     onChange={(e) => onUpdate('productName', e.target.value)}
-                    placeholder="Enter Product Name"
+                    placeholder="Enter product name"
                     className="border-border rounded-[3px] text-sm bg-white"
                 />
                 <p className="text-xs mt-1 text-[#ff6467] min-h-[16px]">{e('productName') ?? ""}</p>
@@ -47,7 +47,7 @@ export function GiftedProductRow({ item, index, errors, onUpdate, onRemove }: Gi
                 <div className="flex items-center gap-1">
                     <InputGroup className="border border-border rounded-[3px] bg-white">
                         <InputGroupInput
-                            placeholder="0"
+                            placeholder="Set a price"
                             value={item.value}
                             className="border-0 p-0 h-auto text-sm shadow-none focus-visible:ring-0 px-2"
                             onChange={(e) => {
