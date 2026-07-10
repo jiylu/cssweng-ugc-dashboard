@@ -11,12 +11,13 @@ import { ContentTypeSelect } from "@/src/features/creator/proposals/components/d
 interface DeliverableRowProps {
   item: Deliverable
   index: number
+  deliverablesCount: number
   errors: Record<string, string>
   onUpdate: (field: keyof Deliverable, value: string) => void
   onRemove: () => void
 }
 
-export function DeliverableRow({ item, index, errors, onUpdate, onRemove }: DeliverableRowProps) {
+export function DeliverableRow({ item, index, deliverablesCount, errors, onUpdate, onRemove }: DeliverableRowProps) {
   const e = (field: string) => errors[`deliverables.${index}.${field}`]
 
   return (
@@ -146,7 +147,7 @@ export function DeliverableRow({ item, index, errors, onUpdate, onRemove }: Deli
         </div>
       </div>  
       {/* Delete button */}
-      { index > 0 &&  
+      { deliverablesCount > 1 &&  
         <div className="!flex flex-wrap items-start gap-0">
           <button
             type="button"
