@@ -22,14 +22,14 @@ function getEventsForDayCell(
 }
 
 export function CalendarGrid({ currentDate, events, onEventClick }: CalendarGridProps) {
-  const year = currentDate.getFullYear();
+  const year  = currentDate.getFullYear();
   const month = currentDate.getMonth();
   const today = toLocalMidnight(new Date());
 
   const firstDayOfMonth = new Date(year, month, 1).getDay();
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const paddingCells = Array.from({ length: firstDayOfMonth });
-  const monthDays = Array.from({ length: daysInMonth }, (_, i) => i + 1);
+  const daysInMonth     = new Date(year, month + 1, 0).getDate();
+  const paddingCells    = Array.from({ length: firstDayOfMonth });
+  const monthDays       = Array.from({ length: daysInMonth }, (_, i) => i + 1);
 
   function isToday(day: number): boolean {
     const cell = new Date(year, month, day);
@@ -38,6 +38,7 @@ export function CalendarGrid({ currentDate, events, onEventClick }: CalendarGrid
 
   return (
     <div className="w-full bg-white border border-[#D8D4CB] rounded-[4px] shadow-sm overflow-hidden">
+      {/* Day-of-week header */}
       <div className="grid grid-cols-7 bg-[#F9F8F6] border-b border-[#D8D4CB]">
         {DAYS_OF_WEEK.map((label, i) => (
           <div
@@ -49,6 +50,7 @@ export function CalendarGrid({ currentDate, events, onEventClick }: CalendarGrid
         ))}
       </div>
 
+      {/* Grid cells */}
       <div className="grid grid-cols-7 bg-[#D8D4CB] gap-[1px]">
         {paddingCells.map((_, i) => (
           <div key={`pad-${i}`} className="min-h-[120px] bg-[#F9F8F6]" />
@@ -56,11 +58,12 @@ export function CalendarGrid({ currentDate, events, onEventClick }: CalendarGrid
 
         {monthDays.map((day) => {
           const dayEvents = getEventsForDayCell(events, year, month, day);
-          const visible = dayEvents.slice(0, MAX_CHIPS_PER_CELL);
-          const overflow = dayEvents.length - MAX_CHIPS_PER_CELL;
+          const visible   = dayEvents.slice(0, MAX_CHIPS_PER_CELL);
+          const overflow  = dayEvents.length - MAX_CHIPS_PER_CELL;
 
           return (
             <div key={`day-${day}`} className="min-h-[120px] bg-white p-2">
+              {/* Day number badge */}
               <div className="flex items-center justify-start mb-1">
                 <span
                   className={[
@@ -72,9 +75,15 @@ export function CalendarGrid({ currentDate, events, onEventClick }: CalendarGrid
                 </span>
               </div>
 
+              {/* Event chips — compact mode for tight cells */}
               <div className="flex flex-col gap-0.5">
                 {visible.map((event) => (
-                  <EventChip key={`${event.id}-${day}`} event={event} onClick={onEventClick} />
+                  <EventChip
+                    key={`${event.id}-${day}`}
+                    event={event}
+                    onClick={onEventClick}
+                    compact
+                  />
                 ))}
                 {overflow > 0 && (
                   <span className="text-[10px] text-[#78746E] pl-1 leading-tight">

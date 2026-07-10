@@ -4,11 +4,16 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ChevronLeft, ChevronRight, ChevronDown } from "lucide-react";
+import { startOfWeek, endOfWeek, format } from "date-fns";
+
+// ── Types ─────────────────────────────────────────────────────────────────────
 
 interface CalendarHeaderProps {
   currentDate: Date;
-  onPrevMonth: () => void;
-  onNextMonth: () => void;
+  /** Navigate backward by one period (month/week/day depending on active view). */
+  onPrev: () => void;
+  /** Navigate forward by one period. */
+  onNext: () => void;
   onDateChange: (date: Date) => void;
   view: "month" | "week" | "day";
   setView: (view: "month" | "week" | "day") => void;
@@ -23,6 +28,8 @@ const MONTH_ABBREVS = [
   "Oct", "Nov", "Dec",
 ] as const;
 
+// ── MonthYearPicker (popover) ─────────────────────────────────────────────────
+
 interface MonthYearPickerProps {
   currentDate: Date;
   onSelect: (date: Date) => void;
@@ -32,7 +39,7 @@ interface MonthYearPickerProps {
 function MonthYearPicker({ currentDate, onSelect, onClose }: MonthYearPickerProps) {
   const [draftYear, setDraftYear] = useState(currentDate.getFullYear());
   const activeMonth = currentDate.getMonth();
-  const activeYear = currentDate.getFullYear();
+  const activeYear  = currentDate.getFullYear();
 
   return (
     <div className="p-3 w-[220px]">
@@ -78,56 +85,97 @@ function MonthYearPicker({ currentDate, onSelect, onClose }: MonthYearPickerProp
   );
 }
 
+// ── Period label helpers ───────────────────────────────────────────────────────
+
+function buildPeriodLabel(date: Date, view: "month" | "week" | "day"): string {
+  if (view === "month") {
+    return date.toLocaleString("default", { month: "long", year: "numeric" });
+  }
+  if (view === "week") {
+    const wStart = startOfWeek(date, { weekStartsOn: 0 });
+    const wEnd   = endOfWeek(date,   { weekStartsOn: 0 });
+    // Same month → "Jun 29 – Jul 5, 2026" | same year → "Jun 29 – Jul 5, 2026"
+    if (wStart.getMonth() === wEnd.getMonth()) {
+      return `${format(wStart, "MMM d")} – ${format(wEnd, "d, yyyy")}`;
+    }
+    if (wStart.getFullYear() === wEnd.getFullYear()) {
+      return `${format(wStart, "MMM d")} – ${format(wEnd, "MMM d, yyyy")}`;
+    }
+    return `${format(wStart, "MMM d, yyyy")} – ${format(wEnd, "MMM d, yyyy")}`;
+  }
+  // day view
+  return format(date, "EEEE, MMMM d, yyyy");
+}
+
+// ── CalendarHeader ─────────────────────────────────────────────────────────────
+
 export function CalendarHeader({
   currentDate,
-  onPrevMonth,
-  onNextMonth,
+  onPrev,
+  onNext,
   onDateChange,
   view,
   setView,
 }: CalendarHeaderProps) {
   const [pickerOpen, setPickerOpen] = useState(false);
 
-  const monthLabel = currentDate.toLocaleString("default", {
-    month: "long",
-    year: "numeric",
-  });
+  const periodLabel = buildPeriodLabel(currentDate, view);
+
+  // The month/year picker is only meaningful in month view.
+  // In week / day we still show the label but disable the picker trigger.
+  const pickerEnabled = view === "month";
 
   return (
     <div className="flex items-center justify-between w-full mb-6">
+      {/* Left: period selector + prev/next arrows */}
       <div className="flex items-center gap-1.5">
-        <Popover open={pickerOpen} onOpenChange={setPickerOpen}>
+        <Popover
+          open={pickerEnabled ? pickerOpen : false}
+          onOpenChange={pickerEnabled ? setPickerOpen : undefined}
+        >
           <PopoverTrigger asChild>
             <button
               type="button"
+              disabled={!pickerEnabled}
               aria-label="Open month and year picker"
               aria-expanded={pickerOpen}
-              className="h-9 w-[190px] flex items-center justify-between px-3 bg-[#F2F0EA] border border-[#D8D4CB] rounded-[4px] text-sm font-medium text-[#141518] hover:bg-[#E8E4DC] transition-colors cursor-pointer"
+              className={[
+                "h-9 flex items-center justify-between px-3 bg-[#F2F0EA] border border-[#D8D4CB] rounded-[4px] text-sm font-medium text-[#141518] transition-colors",
+                pickerEnabled
+                  ? "hover:bg-[#E8E4DC] cursor-pointer w-[190px]"
+                  : "cursor-default w-auto min-w-[190px] max-w-[340px] opacity-90",
+              ].join(" ")}
             >
-              <span className="truncate">{monthLabel}</span>
-              <ChevronDown className={[
-                "h-3.5 w-3.5 text-[#78746E] shrink-0 ml-2 transition-transform duration-150",
-                pickerOpen ? "rotate-180" : "",
-              ].join(" ")} />
+              <span className="truncate">{periodLabel}</span>
+              {pickerEnabled && (
+                <ChevronDown
+                  className={[
+                    "h-3.5 w-3.5 text-[#78746E] shrink-0 ml-2 transition-transform duration-150",
+                    pickerOpen ? "rotate-180" : "",
+                  ].join(" ")}
+                />
+              )}
             </button>
           </PopoverTrigger>
-          <PopoverContent
-            align="start"
-            sideOffset={6}
-            className="p-0 w-auto rounded-[4px] border border-[#D8D4CB] bg-white shadow-md"
-          >
-            <MonthYearPicker
-              currentDate={currentDate}
-              onSelect={onDateChange}
-              onClose={() => setPickerOpen(false)}
-            />
-          </PopoverContent>
+          {pickerEnabled && (
+            <PopoverContent
+              align="start"
+              sideOffset={6}
+              className="p-0 w-auto rounded-[4px] border border-[#D8D4CB] bg-white shadow-md"
+            >
+              <MonthYearPicker
+                currentDate={currentDate}
+                onSelect={onDateChange}
+                onClose={() => setPickerOpen(false)}
+              />
+            </PopoverContent>
+          )}
         </Popover>
 
         <Button
           variant="outline"
           size="icon"
-          onClick={onPrevMonth}
+          onClick={onPrev}
           aria-label="Previous period"
           className="h-9 w-9 bg-[#F2F0EA] border-[#D8D4CB] rounded-[2px] hover:bg-[#E8E4DC]"
         >
@@ -137,7 +185,7 @@ export function CalendarHeader({
         <Button
           variant="outline"
           size="icon"
-          onClick={onNextMonth}
+          onClick={onNext}
           aria-label="Next period"
           className="h-9 w-9 bg-[#F2F0EA] border-[#D8D4CB] rounded-[2px] hover:bg-[#E8E4DC]"
         >
@@ -145,8 +193,7 @@ export function CalendarHeader({
         </Button>
       </div>
 
-      <h2 className="text-4xl font-light text-[#141518] tracking-tight">Calendar</h2>
-
+      {/* Right: view-mode tab group */}
       <div className="flex border border-[#D8D4CB] rounded-[4px] overflow-hidden bg-[#F2F0EA]">
         {VIEWS.map((v) => (
           <Button
