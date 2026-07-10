@@ -7,8 +7,8 @@ export class FindNotificationsQueryDTO {
       'ID of the user whose notifications should be retrieved. The user must exist and be active.',
     example: '550e8400-e29b-41d4-a716-446655440000',
   })
-  @IsNotEmpty()
-  @IsString()
+  @IsNotEmpty({ message: 'User ID is required.' })
+  @IsString({ message: 'User ID must be a string.' })
   userId!: string;
 
   @ApiPropertyOptional({
@@ -18,7 +18,7 @@ export class FindNotificationsQueryDTO {
     minimum: 1,
   })
   @IsOptional()
-  @IsInt()
-  @Min(1)
+  @IsInt({ message: 'Limit must be an integer.' })
+  @Min(1, { message: 'Limit must be at least 1.' })
   limit?: number;
 }

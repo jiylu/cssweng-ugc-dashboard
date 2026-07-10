@@ -10,54 +10,54 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class UsageRightsDTO {
   @ApiProperty({ example: true })
-  @IsBoolean()
+  @IsBoolean({ message: 'Exclusive flag must be a boolean.' })
   is_exclusive!: boolean;
 
   @ApiProperty({ example: false })
-  @IsBoolean()
+  @IsBoolean({ message: 'Transferrable flag must be a boolean.' })
   is_transferrable!: boolean;
 
   @ApiProperty({
     example:
       'Brand may use the content organically on social channels for 12 months after posting.',
   })
-  @IsString()
-  @IsNotEmpty()
-  @MinLength(50)
-  @MaxLength(500)
+  @IsString({ message: 'Organic usage terms must be a string.' })
+  @IsNotEmpty({ message: 'Organic usage terms are required.' })
+  @MinLength(50, { message: 'Organic usage terms must be at least 50 characters.' })
+  @MaxLength(500, { message: 'Organic usage terms must not exceed 500 characters.' })
   organic_usage!: string;
 
   @ApiPropertyOptional({
     example:
       'Paid social boosting is allowed for up to 90 days from original post date.',
   })
-  @IsString()
+  @IsString({ message: 'Paid usage terms must be a string.' })
   @IsOptional()
-  @MinLength(50)
-  @MaxLength(500)
+  @MinLength(50, { message: 'Paid usage terms must be at least 50 characters.' })
+  @MaxLength(500, { message: 'Paid usage terms must not exceed 500 characters.' })
   paid_usage_ads?: string;
 
   @ApiPropertyOptional({
     example:
       'Spark Ads may be run for 60 days provided ad copy is pre-approved by creator.',
   })
-  @IsString()
+  @IsString({ message: 'Whitelisting terms must be a string.' })
   @IsOptional()
-  @MinLength(50)
-  @MaxLength(500)
+  @MinLength(50, { message: 'Whitelisting terms must be at least 50 characters.' })
+  @MaxLength(500, { message: 'Whitelisting terms must not exceed 500 characters.' })
   whitelisting_spark_ads?: string;
 
   @ApiProperty({ example: 'Philippines' })
-  @IsString()
-  @IsNotEmpty()
-  @MaxLength(500)
+  @IsString({ message: 'Territory must be a string.' })
+  @IsNotEmpty({ message: 'Territory is required.' })
+  @MaxLength(500, { message: 'Territory must not exceed 500 characters.' })
   territory!: string;
 
   @ApiProperty({
     example: 'No use in political, gambling, or adult-content advertisements.',
   })
-  @IsString()
-  @IsNotEmpty()
-  @MaxLength(500)
+  @IsString({ message: 'Restrictions must be a string.' })
+  @IsNotEmpty({ message: 'Restrictions are required.' })
+  @MaxLength(500, { message: 'Restrictions must not exceed 500 characters.' })
   restrictions!: string;
 }

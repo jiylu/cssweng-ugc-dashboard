@@ -6,9 +6,9 @@ export class UpdateProposalCommentDTO {
     example:
       'Thank you for the proposal. Please adjust the timeline and resubmit.',
   })
-  @IsString()
-  @IsNotEmpty()
-  @MinLength(30)
-  @MaxLength(500)
+  @IsString({ message: 'Comment must be a string.' })
+  @IsNotEmpty({ message: 'Comment is required.' })
+  @MinLength(30, { message: 'Comment must be at least 30 characters.' })
+  @MaxLength(500, { message: 'Comment must not exceed 500 characters.' })
   comment!: string;
 }
