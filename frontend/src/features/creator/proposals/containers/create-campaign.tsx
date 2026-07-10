@@ -120,8 +120,15 @@ export default function CreateCampaign() {
           {/* Progress Bar */}
           <div className="justify-center">
             <ProposalProgressBar
-              activeStep={form.activeStep} 
+              activeStep={form.activeStep}
               onStepChange={form.setActiveStep}
+              onValidateStep={(step) => {
+                if (step === 1) return form.validateForm()
+                if (step === 2) return contractTerms.validateForm()
+                if (step === 3) return addOns.validateForm()
+                if (step === 4) return paymentTerms.validateForm()
+                return true
+              }}
             />
           </div>
 
