@@ -14,7 +14,7 @@ export interface DeliverablesFormProps {
   updateDeliverable: (id: number, field: keyof Deliverable, value: string) => void
 }
 
-export default function DeliverablesForm({ deliverables, currency, addDeliverable, removeDeliverable, updateDeliverable, errors }: DeliverablesFormProps) {
+export default function DeliverablesForm({ deliverables, currency, errors, platformOptions, addDeliverable, removeDeliverable, updateDeliverable }: DeliverablesFormProps) {
   const totalPrice = deliverables.reduce((sum, d) => sum + parseFloat(d.pricing.replace(/,/g, '') || '0'), 0)
 
   return (
