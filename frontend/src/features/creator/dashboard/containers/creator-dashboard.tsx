@@ -39,9 +39,6 @@ export default function CreatorDashboard() {
               <h1 className="text-3xl sm:text-4xl lg:text-[64px] font-bold leading-tight text-[#141518]">
                 Welcome back, {user?.first_name ?? "User"}
               </h1>
-              <span className="inline-flex items-center gap-1.5 text-xs font-medium text-[#6b1fa8] bg-[#6b1fa8]/10 px-3 py-1 rounded-full mt-2">
-                Creator
-              </span>
             </div>
             <div className="shrink-0">
               <Profile
