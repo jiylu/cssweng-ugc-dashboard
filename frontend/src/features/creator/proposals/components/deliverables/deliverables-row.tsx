@@ -144,17 +144,19 @@ export function DeliverableRow({ item, index, errors, onUpdate, onRemove }: Deli
           </div>
           <p className="text-xs mt-1 text-[#ff6467] min-h-[16px]">{e('pricing') ?? ""}</p>
         </div>
-      </div>
+      </div>  
       {/* Delete button */}
-      <div className="!flex flex-wrap items-start gap-0">
-        <button
-          type="button"
-          onClick={onRemove}
-          className="px-0 text-muted-foreground hover:text-destructive transition-colors"
-        >
-          <Trash2 size={16} />
-        </button>
-      </div>
+      { index > 0 &&  
+        <div className="!flex flex-wrap items-start gap-0">
+          <button
+            type="button"
+            onClick={onRemove}
+            className="px-0 text-muted-foreground hover:text-destructive transition-colors"
+          >
+            <Trash2 size={16} />
+          </button>
+        </div>
+      }
     </div>
   )
 }
