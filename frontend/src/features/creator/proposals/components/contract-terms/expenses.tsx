@@ -56,6 +56,7 @@ export function Expenses({
               onChange={(e) => setGiftedProductTerms(e.target.value)}
               className="resize-none min-h-[80px] border border-border rounded-[3px] text-sm bg-transparent"
             />
+            {errors.giftedProductTerms && <p className="text-xs mt-1 text-[#ff6467]">{errors.giftedProductTerms}</p>}
             <p className="text-xs text-muted-foreground italic">NOTE: If gifted products are part of the compensation, any return, resale, damage, warranty, or repayment terms must be clearly listed here.</p>
           </div>
         </div>

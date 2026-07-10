@@ -12,12 +12,13 @@ interface DeliverableRowProps {
   item: Deliverable
   index: number
   deliverablesCount: number
+  currency: string
   errors: Record<string, string>
   onUpdate: (field: keyof Deliverable, value: string) => void
   onRemove: () => void
 }
 
-export function DeliverableRow({ item, index, deliverablesCount, errors, onUpdate, onRemove }: DeliverableRowProps) {
+export function DeliverableRow({ item, index, deliverablesCount, currency, errors, onUpdate, onRemove }: DeliverableRowProps) {
   const e = (field: string) => errors[`deliverables.${index}.${field}`]
 
   return (
@@ -61,7 +62,7 @@ export function DeliverableRow({ item, index, deliverablesCount, errors, onUpdat
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>
-                  <SelectItem value="COLLABORATION">COLLABORATION</SelectItem>
+                  <SelectItem value="COLLABORATION">Partnership</SelectItem>
                   <SelectItem value="UGC">UGC</SelectItem>
                 </SelectGroup>
               </SelectContent>
@@ -132,7 +133,7 @@ export function DeliverableRow({ item, index, deliverablesCount, errors, onUpdat
                   onUpdate('pricing', parts.slice(0, 2).join('.'))
                 }}
               />
-              <InputGroupAddon>PHP</InputGroupAddon>
+              <InputGroupAddon>{currency}</InputGroupAddon>
             </InputGroup>
             <div className="flex flex-col shrink-0">
               <ChevronUp size={12} className="cursor-pointer text-muted-foreground hover:text-[#6b1fa8]"

@@ -144,6 +144,7 @@ export default function CreateCampaign() {
           {form.activeStep === 2 && (
             <ContractTermsContainer
               contractTerms={contractTerms}
+              currency={form.currency}
               onBack={() => form.setActiveStep(1)}
               onNext={() => form.setActiveStep(3)}
             />
@@ -153,6 +154,7 @@ export default function CreateCampaign() {
           {form.activeStep === 3 && (
             <AddOnsContainer
               addOns={addOns}
+              currency={form.currency}
               onBack={() => form.setActiveStep(2)}
               onNext={() => form.setActiveStep(4)}
             />

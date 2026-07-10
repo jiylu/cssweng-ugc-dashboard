@@ -26,6 +26,7 @@ export function PaymentTermsContainer({ paymentTerms, onBack, onSaveDraft, onSub
         onAdd={paymentTerms.addGiftedProduct}
         onRemove={paymentTerms.removeGiftedProduct}
         onUpdate={paymentTerms.updateGiftedProduct}
+        currency={currency}
         errors={paymentTerms.errors}
       />
 

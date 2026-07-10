@@ -1,9 +1,7 @@
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
-import { ChevronUp, ChevronDown, Trash2 } from "lucide-react";
-
-export type CurrencyEnum = "PHP" | "CAD" | "USD" | "EUR" | "GBP";
+import { ChevronUp, ChevronDown, Trash2 } from "lucide-react";  
 
 export interface AddOnRowProps {
     id: string
@@ -12,7 +10,7 @@ export interface AddOnRowProps {
     title: string
     desc: string
     fee?: number
-    currency: CurrencyEnum
+    currency: string
     onRemove?: () => void
     onAdjustPrice?: (amount: number) => void
     onTitleChange?: (value: string) => void
