@@ -13,6 +13,7 @@ interface FormData {
     endDate: string;
     currency: string
     campaignDescription: string;
+    contactPerson: string;
     contactEmail: string;
     platforms: { platform: string; handle: string }[]
     deliverables: Deliverable[];
