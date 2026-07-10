@@ -105,7 +105,7 @@ export default function CreatorDashboard() {
         </div>
 
         {/* ONGOING DELIVERABLES */}
-        <div className="bg-white rounded-xs shadow-[0_1px_2px_rgba(0,0,0,0.08)] p-6 w-full h-full">
+        <div className="bg-white rounded-xs shadow-[0_1px_2px_rgba(0,0,0,0.08)] p-6 w-full h-fit">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-2xl font-bold">Ongoing Deliverables</h2>
             <Button variant="ghost" className="flex items-center gap-1">
