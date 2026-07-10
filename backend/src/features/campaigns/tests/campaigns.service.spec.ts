@@ -75,7 +75,7 @@ describe('CampaignService', () => {
         pricing: new Prisma.Decimal(10000),
         platforms: ['Instagram', 'TikTok'],
         start_date: new Date(),
-        end_date: new Date(),
+        end_date: new Date(Date.now() + 86_400_000),
         created_at: new Date(),
         campaign_status: CampaignStatus.ACTIVE,
       };
@@ -89,7 +89,7 @@ describe('CampaignService', () => {
         pricing: 10000,
         platforms: ['Instagram', 'TikTok'],
         startDate: new Date().toISOString(),
-        endDate: new Date().toISOString(),
+        endDate: new Date(Date.now() + 86_400_000).toISOString(),
       };
 
       mockUserService.getActiveUserById.mockResolvedValue({
@@ -113,7 +113,7 @@ describe('CampaignService', () => {
           pricing: new Prisma.Decimal(10000),
           platforms: ['Instagram', 'TikTok'],
           start_date: new Date(),
-          end_date: new Date(),
+          end_date: new Date(Date.now() + 86_400_000),
         },
       });
     });
