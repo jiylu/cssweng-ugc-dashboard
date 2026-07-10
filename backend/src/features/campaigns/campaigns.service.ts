@@ -64,7 +64,12 @@ export class CampaignsService {
   }
 
   private validateCampaignDates(startDate: Date, endDate: Date) {
-    if (startDate < new Date()) {
+    startDate.setHours(0, 0, 0, 0);
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (startDate < today) {
       throw new BadRequestException({
         status: HttpStatus.BAD_REQUEST,
         code: 'INVALID_START_DATE',
