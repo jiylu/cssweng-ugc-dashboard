@@ -83,11 +83,15 @@ export default function CreatorDashboard() {
           </div>
 
           {/* TODOS */}
-          <div className="mb-10">
-            <h2 className="text-xl sm:text-2xl font-bold mb-4">Urgent / To Do</h2>
+          <h2 className="text-xl sm:text-2xl font-bold mb-4">Urgent / To Do</h2>
+          <div className="flex flex-row gap-2 flex-start mb-10">
             <CreatorTodoCard
-              campaignName="Test Campaign"
+              campaignName="Summer Glow 2026"
               message="Campaign due in 3 days."
+            />
+            <CreatorTodoCard
+              campaignName="FitLife Pro Launch"
+              message="Campaign due in 14 days."
             />
           </div>
 
