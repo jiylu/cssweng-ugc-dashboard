@@ -36,12 +36,14 @@ export function PaymentTermsContainer({ paymentTerms, onBack, onSaveDraft, onSub
           setPaymentSchedule={paymentTerms.setPaymentSchedule}
           paymentMethod={paymentTerms.paymentMethod}
           setPaymentMethod={paymentTerms.setPaymentMethod}
+          taxRate={paymentTerms.taxRate}
+          setTaxRate={paymentTerms.setTaxRate}
           errors={paymentTerms.errors}
         />
         <PriceSummarySection
           baseCreatorFee={baseCreatorFee}
           currency={currency}
-          taxRate={taxRate}
+          taxRate={paymentTerms.taxRate}
       />
       </div>
     </div>
