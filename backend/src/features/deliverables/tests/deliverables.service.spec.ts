@@ -6,6 +6,7 @@ import { CreateDeliverableDTO } from '../dto/create-deliverable.dto';
 import { NotFoundException } from '@nestjs/common';
 import { CampaignsService } from 'src/features/campaigns/campaigns.service';
 import { UpdateDeliverableDTO } from '../dto/update-deliverable.dto';
+import { CampaignDates } from '../types/types';
 
 jest.mock('nanoid', () => ({ nanoid: jest.fn(() => 'mock-pb-id') }));
 
@@ -49,6 +50,11 @@ describe('DeliverablesService', () => {
 
   describe('createDeliverable', () => {
     it('should create a deliverable successfully', async () => {
+      const campaignDates: CampaignDates = {
+        campaignStart: new Date('2026-06-01T00:00:00Z'),
+        campaignEnd: new Date('2026-06-30T00:00:00Z'),
+      };
+
       const dto: CreateDeliverableDTO = {
         campaignId: 'camp-1',
         quantity: 5,
@@ -56,8 +62,8 @@ describe('DeliverablesService', () => {
         deliverableContent: 'Instagram Carousel',
         requirements:
           'This is a test deliverable requirement with enough length to pass validation.',
-        dueDate: new Date().toISOString(),
-        postDate: new Date().toISOString(),
+        dueDate: new Date('2026-06-10T00:00:00Z').toISOString(),
+        postDate: new Date('2026-06-15T00:00:00Z').toISOString(),
         pricing: 1500,
       };
 
@@ -76,7 +82,7 @@ describe('DeliverablesService', () => {
 
       mockPrisma.deliverables.create.mockResolvedValue(mockDeliverable);
 
-      const res = await service.createDeliverable(dto);
+      const res = await service.createDeliverable(dto, undefined as any, campaignDates);
       expect(res).toEqual(mockDeliverable);
       expect(mockPrisma.deliverables.create).toHaveBeenCalledWith({
         data: {
@@ -94,6 +100,11 @@ describe('DeliverablesService', () => {
     });
 
     it('should reject on invalid inputs', async () => {
+      const campaignDates: CampaignDates = {
+        campaignStart: new Date('2026-06-01T00:00:00Z'),
+        campaignEnd: new Date('2026-06-30T00:00:00Z'),
+      };
+
       const dto: CreateDeliverableDTO = {
         campaignId: 'camp-1',
         quantity: 1,
@@ -109,7 +120,7 @@ describe('DeliverablesService', () => {
         new Error('Invalid input'),
       );
 
-      await expect(service.createDeliverable(dto)).rejects.toThrow(
+      await expect(service.createDeliverable(dto, undefined as any, campaignDates)).rejects.toThrow(
         'Invalid input',
       );
     });
@@ -364,14 +375,16 @@ describe('DeliverablesService', () => {
           deliverableType: DeliverableType.COLLABORATION,
           deliverableContent: 'Facebook Video',
           requirements: 'Requirement long enough for D1',
-          dueDate: new Date().toISOString(),
-          postDate: new Date().toISOString(),
+          dueDate: new Date('2026-06-10T00:00:00Z').toISOString(),
+          postDate: new Date('2026-06-15T00:00:00Z').toISOString(),
           pricing: 100,
         },
       ];
 
       mockCampaignService.findOneCampaign.mockResolvedValue({
         campaign_id: campaignId,
+        start_date: new Date('2026-06-01T00:00:00Z'),
+        end_date: new Date('2026-06-30T00:00:00Z'),
       });
 
       mockPrisma.deliverables.create.mockResolvedValueOnce({
@@ -405,13 +418,15 @@ describe('DeliverablesService', () => {
         deliverableType: DeliverableType.UGC,
         deliverableContent: `TikTok Content ${i + 1}`,
         requirements: `Requirement for D${i + 1} long enough`,
-        dueDate: new Date().toISOString(),
-        postDate: new Date().toISOString(),
+        dueDate: new Date('2026-06-10T00:00:00Z').toISOString(),
+        postDate: new Date('2026-06-15T00:00:00Z').toISOString(),
         pricing: 100 + i * 50,
       }));
 
       mockCampaignService.findOneCampaign.mockResolvedValue({
         campaign_id: campaignId,
+        start_date: new Date('2026-06-01T00:00:00Z'),
+        end_date: new Date('2026-06-30T00:00:00Z'),
       });
 
       mockPrisma.deliverables.create
@@ -458,13 +473,15 @@ describe('DeliverablesService', () => {
         deliverableType: DeliverableType.COLLABORATION,
         deliverableContent: `Instagram Content ${i + 1}`,
         requirements: `Requirement for D${i + 1} long enough`,
-        dueDate: new Date().toISOString(),
-        postDate: new Date().toISOString(),
+        dueDate: new Date('2026-06-10T00:00:00Z').toISOString(),
+        postDate: new Date('2026-06-15T00:00:00Z').toISOString(),
         pricing: 100 + i * 25,
       }));
 
       mockCampaignService.findOneCampaign.mockResolvedValue({
         campaign_id: campaignId,
+        start_date: new Date('2026-06-01T00:00:00Z'),
+        end_date: new Date('2026-06-30T00:00:00Z'),
       });
 
       mockPrisma.deliverables.create

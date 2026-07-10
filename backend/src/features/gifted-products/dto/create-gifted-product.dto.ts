@@ -10,41 +10,41 @@ import {
 
 export class CreateGiftedProductDTO {
   @ApiProperty({ example: '550e8400-e29b-41d4-a716-446655440000' })
-  @IsString()
-  @IsNotEmpty()
+  @IsString({ message: 'Campaign ID must be a string.' })
+  @IsNotEmpty({ message: 'Campaign ID is required.' })
   campaignId!: string;
 
   @ApiProperty({ example: 'Hydrating Night Cream' })
-  @IsString()
-  @IsNotEmpty()
-  @MaxLength(100)
+  @IsString({ message: 'Product name must be a string.' })
+  @IsNotEmpty({ message: 'Product name is required.' })
+  @MaxLength(100, { message: 'Product name must not exceed 100 characters.' })
   productName!: string;
 
   @ApiProperty({ example: 1800 })
-  @IsNumber()
+  @IsNumber({}, { message: 'Value must be a number.' })
   @Type(() => Number)
-  @Min(0)
+  @Min(0, { message: 'Value must not be negative.' })
   value!: number;
 
   @ApiProperty({ example: '123 Sample St, Makati City, Metro Manila' })
-  @IsString()
-  @IsNotEmpty()
-  @MaxLength(200)
+  @IsString({ message: 'Delivery address must be a string.' })
+  @IsNotEmpty({ message: 'Delivery address is required.' })
+  @MaxLength(200, { message: 'Delivery address must not exceed 200 characters.' })
   deliveryAddress!: string;
 
   @ApiProperty({
     example: 'Deliver weekdays 9AM-5PM, call recipient before arrival.',
   })
-  @IsString()
-  @IsNotEmpty()
-  @MaxLength(200)
+  @IsString({ message: 'Delivery instructions must be a string.' })
+  @IsNotEmpty({ message: 'Delivery instructions are required.' })
+  @MaxLength(200, { message: 'Delivery instructions must not exceed 200 characters.' })
   deliveryInstructions!: string;
 
   @ApiProperty({
     example: 'Recipient retains ownership unless campaign is canceled.',
   })
-  @IsString()
-  @IsNotEmpty()
-  @MaxLength(500)
+  @IsString({ message: 'Ownership terms must be a string.' })
+  @IsNotEmpty({ message: 'Ownership terms are required.' })
+  @MaxLength(500, { message: 'Ownership terms must not exceed 500 characters.' })
   ownershipTerms!: string;
 }

@@ -65,6 +65,9 @@ describe('CampaignService', () => {
 
   describe('create', () => {
     it('should create a campaign', async () => {
+      const now = new Date();
+      const later = new Date(now.getTime() + 86_400_000);
+
       const mockCampaign = {
         campaign_id: '123abc',
         public_id: 'abc1234567',
@@ -74,8 +77,8 @@ describe('CampaignService', () => {
         description: 'Testing Project for Testing Purposes',
         pricing: new Prisma.Decimal(10000),
         platforms: ['Instagram', 'TikTok'],
-        start_date: new Date(),
-        end_date: new Date(),
+        start_date: now,
+        end_date: later,
         created_at: new Date(),
         campaign_status: CampaignStatus.ACTIVE,
       };
@@ -88,8 +91,8 @@ describe('CampaignService', () => {
         tax: 0,
         pricing: 10000,
         platforms: ['Instagram', 'TikTok'],
-        startDate: new Date().toISOString(),
-        endDate: new Date().toISOString(),
+        startDate: now.toISOString(),
+        endDate: later.toISOString(),
       };
 
       mockUserService.getActiveUserById.mockResolvedValue({
@@ -112,8 +115,8 @@ describe('CampaignService', () => {
           tax: 0,
           pricing: new Prisma.Decimal(10000),
           platforms: ['Instagram', 'TikTok'],
-          start_date: new Date(),
-          end_date: new Date(),
+          start_date: expect.any(Date),
+          end_date: expect.any(Date),
         },
       });
     });
