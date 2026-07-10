@@ -28,6 +28,9 @@ export const campaignSchema = z.object({
     .min(1, "Description is required.")
     .max(500, "Description must not be less than 300 characters."),
 
+  contactPerson: z.string()
+    .min(1, "Contact person is required."),
+
   contactEmail: z.email("Enter a valid email address")
     .min(1, "Contact email is required."),
 

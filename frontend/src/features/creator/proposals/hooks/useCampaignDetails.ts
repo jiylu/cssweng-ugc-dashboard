@@ -7,6 +7,7 @@ export function useCampaignDetails() {
   const [endDate, setEndDate] = useState("")
   const [campaignDescription, setCampaignDescription] = useState("")
   const [contactEmail, setContactEmail] = useState("")
+  const [contactPerson, setContactPerson] = useState("")
   const [platforms, setPlatforms] = useState<PlatformEntry[]>([])
   const [currency, setCurrency] = useState("PHP")
 
@@ -15,6 +16,7 @@ export function useCampaignDetails() {
     startDate, setStartDate,
     endDate, setEndDate,
     campaignDescription, setCampaignDescription,
+    contactPerson, setContactPerson,
     contactEmail, setContactEmail,
     platforms, setPlatforms,
     currency, setCurrency
