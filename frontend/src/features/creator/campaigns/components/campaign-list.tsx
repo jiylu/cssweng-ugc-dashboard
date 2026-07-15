@@ -1,30 +1,50 @@
 import { Campaign } from "@/src/features/creator/campaigns/types/campaign.types"
+import { Button } from "@/components/ui/button"
 import { CampaignCard } from "./campaign-card"
+import { useRouter } from "next/navigation"
 
 interface CampaignListProps {
   campaigns: Campaign[]
-  total: number
-  page: number
-  onPageChange: (page: number) => void
 }
 
-export function CampaignList({ campaigns, total, page, onPageChange }: CampaignListProps) {
+
+export function CampaignList({ campaigns }: CampaignListProps) {
+  const router = useRouter()
+  const limit = 10
+  
   return (
     <div className="flex flex-col gap-3">
-      {/* TODO: Cnnect to backend */}
       {campaigns.map((campaign) => (
-          <CampaignCard
-            key={campaign.id}
-            name={campaign.project_name}
-            company={campaign.comapny_name}
-            startDate={campaign.start_date}
-            deadline={campaign.deadline}
-            status={campaign.status}
-          />
+        <CampaignCard
+          key={campaign.campaign_id}
+          campaign={campaign}
+          onOpenWorkspace={(id) => router.push(`/workspace/${id}`)}
+        />
       ))}
-      <p className="text-sm text-muted-foreground mt-2">
-        Showing {campaigns.length} out of {total} Campaigns
-      </p>
+
+      <div className="flex items-center justify-between mt-2">
+        <p className="text-sm text-muted-foreground">
+          Showing {campaigns.length} Campaign{campaigns.length !== 1 ? "s" : ""}
+        </p>
+        {/* <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={page === 1}
+            onClick={() => onPageChange(page - 1)}
+          >
+            Previous
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={page * limit >= total}
+            onClick={() => onPageChange(page + 1)}
+          >
+            Next
+          </Button>
+        </div> */}
+      </div>
     </div>
   )
 }
