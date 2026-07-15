@@ -1,31 +1,28 @@
 import { Card } from "@/src/components/atoms/card"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { Campaign } from "../types/campaign.types"
+import { formatDate } from "@/src/utils/date"
 
-type CampaignStatus = "COMPLETE" | "ACTIVE" | "PENDING" | "FOR REVISIONS"
-
-interface CampaignCardProps {
-  name: string
-  company: string
-  startDate: string
-  deadline: string
-  status: CampaignStatus
-}
-
-const statusStyles: Record<CampaignStatus, string> = {
+const statusStyles: Record<string, string> = {
   COMPLETE: "bg-[#2d7a3a] text-white border-0",
-  ACTIVE: "bg-transparent text-foreground border border-border",
-  PENDING: "bg-transparent text-foreground border border-border",
+  ACTIVE: "bg-[#F2F0EA] text-foreground border border-[#2d7a3a]",
+  PENDING: "bg-[#F2F0EA] text-foreground border border-border",
   "FOR REVISIONS": "bg-transparent text-foreground border border-border",
 }
 
-export function CampaignCard({ name, company, startDate, deadline, status }: CampaignCardProps) {
+interface CampaignCardProps {
+  campaign: Campaign
+  onOpenWorkspace: (id: string) => void
+}
+
+export function CampaignCard({ campaign, onOpenWorkspace }: CampaignCardProps) {
   return (
     <Card className="flex flex-row items-center justify-between px-6 py-4 h-20">
       {/* Name & Company */}
       <div className="w-48 shrink-0">
-        <p className="text-xl font-normal text-foreground">{name}</p>
-        <p className="text-sm text-muted-foreground">{company}</p>
+        <p className="font-normal text-foreground">{campaign.project_name}</p>
+        <p className="text-sm text-muted-foreground">{campaign.currency}</p>
       </div>
 
       {/* Divider */}
@@ -35,11 +32,11 @@ export function CampaignCard({ name, company, startDate, deadline, status }: Cam
       <div className="flex gap-10 shrink-0">
         <div className="flex flex-col">
           <span className="text-xs text-muted-foreground">Start Date</span>
-          <span className="text-sm text-foreground">{startDate}</span>
+          <span className="text-sm text-foreground">{formatDate(new Date(campaign.start_date))}</span>
         </div>
         <div className="flex flex-col">
           <span className="text-xs text-muted-foreground">Deadline</span>
-          <span className="text-sm text-foreground">{deadline}</span>
+          <span className="text-sm text-foreground">{formatDate(new Date(campaign.end_date))}</span>
         </div>
       </div>
 
@@ -48,10 +45,10 @@ export function CampaignCard({ name, company, startDate, deadline, status }: Cam
 
       {/* Status & Action */}
       <div className="flex items-center gap-3 shrink-0">
-        <span className={cn("text-xs font-medium px-4 py-1.5 rounded-[2px] tracking-wide", statusStyles[status])}>
-          {status}
+        <span className={cn("text-xs font-medium px-4 py-1.5 rounded-[2px] tracking-wide", statusStyles[campaign.campaign_status])}>
+          {campaign.campaign_status.replace("_", " ")}
         </span>
-        <Button type="button" variant="outline" size="lg" className="cursor-pointer">
+        <Button type="button" size="lg" className="cursor-pointer" onClick={() => onOpenWorkspace(campaign.campaign_id)}>
           Open Workspace
         </Button>
       </div>

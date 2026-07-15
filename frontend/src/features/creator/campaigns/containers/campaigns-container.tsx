@@ -52,12 +52,13 @@ export default function Campaigns() {
 
               {/* Campaign List */}
               {/* TODO: Make total dynamic */}
-              <CampaignList 
+              {/* <CampaignList 
                 campaigns={data?.data ?? []}
                 total={data?.total ?? 0}
                 page={page}
                 onPageChange={setPage} 
-              />
+              /> */}
+              <CampaignList campaigns={data ?? []} />
             </div>
         </section>
     </main>
