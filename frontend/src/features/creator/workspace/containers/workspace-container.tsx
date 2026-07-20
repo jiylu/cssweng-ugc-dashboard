@@ -2,8 +2,7 @@
 import CreatorSidebar from "@/src/components/organisms/creator-sidebar"
 import { Separator } from "@/components/ui/separator"
 import { useAuth } from "@/src/features/auth/hooks/useAuth"
-import { Badge } from "@/components/ui/badge"
-import { Spinner } from "@/components/ui/spinner"
+import LogoLoader from "@/src/components/molecules/logo-loader";
 import { WorkspaceHeader } from "@/src/features/creator/workspace/components/workspace-header"
 import { CampaignProgress } from "@/src/features/creator/workspace/components/campaign-progress"
 import { WrittenAssetsPanel } from "@/src/features/creator/workspace/components/written-assets-panel"
@@ -13,18 +12,15 @@ import { HistoryOverlay } from "@/src/features/creator/workspace/components/hist
 import { VideoSubmission } from "@/src/features/creator/workspace/components/video-submission"
 import { useWorkspace } from "@/src/features/creator/workspace/hooks/useWorkspace"
 
-export default function Workspace() {
+interface WorkspaceProps {
+  campaignId: string
+}
+
+export default function Workspace({ campaignId }: WorkspaceProps) {
   const { user, loading } = useAuth()
   const { activeStep, setActiveStep, activeDeliverable, setActiveDeliverable, historyOpen, setHistoryOpen } = useWorkspace()
 
-  if (loading) return (
-    <div className="flex mt-5 justify-center">
-      <Badge variant="outline">
-        <Spinner data-icon="inline-start" />
-        Loading...
-      </Badge>
-    </div>
-  )
+  if (loading) return <LogoLoader label="Loading workspace" />;
 
   if (!user) return null
 
