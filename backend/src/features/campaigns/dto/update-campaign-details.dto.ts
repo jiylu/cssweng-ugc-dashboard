@@ -30,7 +30,9 @@ export class UpdateCampaignDetailsDTO {
     example: CampaignCurrency.PHP,
   })
   @IsOptional()
-  @IsEnum(CampaignCurrency, { message: 'Currency must be a valid campaign currency.' })
+  @IsEnum(CampaignCurrency, {
+    message: 'Currency must be a valid campaign currency.',
+  })
   currency?: CampaignCurrency;
 
   @ApiPropertyOptional({
@@ -58,11 +60,17 @@ export class UpdateCampaignDetailsDTO {
 
   @ApiPropertyOptional({ example: '2026-06-07T00:00:00.000Z' })
   @IsOptional()
-  @IsDateString({}, { message: 'Start date must be a valid ISO 8601 date string.' })
+  @IsDateString(
+    {},
+    { message: 'Start date must be a valid ISO 8601 date string.' },
+  )
   startDate?: string;
 
   @ApiPropertyOptional({ example: '2026-06-10T00:00:00.000Z' })
   @IsOptional()
-  @IsDateString({}, { message: 'End date must be a valid ISO 8601 date string.' })
+  @IsDateString(
+    {},
+    { message: 'End date must be a valid ISO 8601 date string.' },
+  )
   endDate?: string;
 }

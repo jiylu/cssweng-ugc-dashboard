@@ -23,8 +23,12 @@ export class UsageRightsDTO {
   })
   @IsString({ message: 'Organic usage terms must be a string.' })
   @IsNotEmpty({ message: 'Organic usage terms are required.' })
-  @MinLength(50, { message: 'Organic usage terms must be at least 50 characters.' })
-  @MaxLength(500, { message: 'Organic usage terms must not exceed 500 characters.' })
+  @MinLength(50, {
+    message: 'Organic usage terms must be at least 50 characters.',
+  })
+  @MaxLength(500, {
+    message: 'Organic usage terms must not exceed 500 characters.',
+  })
   organic_usage!: string;
 
   @ApiPropertyOptional({
@@ -33,8 +37,12 @@ export class UsageRightsDTO {
   })
   @IsString({ message: 'Paid usage terms must be a string.' })
   @IsOptional()
-  @MinLength(50, { message: 'Paid usage terms must be at least 50 characters.' })
-  @MaxLength(500, { message: 'Paid usage terms must not exceed 500 characters.' })
+  @MinLength(50, {
+    message: 'Paid usage terms must be at least 50 characters.',
+  })
+  @MaxLength(500, {
+    message: 'Paid usage terms must not exceed 500 characters.',
+  })
   paid_usage_ads?: string;
 
   @ApiPropertyOptional({
@@ -43,8 +51,12 @@ export class UsageRightsDTO {
   })
   @IsString({ message: 'Whitelisting terms must be a string.' })
   @IsOptional()
-  @MinLength(50, { message: 'Whitelisting terms must be at least 50 characters.' })
-  @MaxLength(500, { message: 'Whitelisting terms must not exceed 500 characters.' })
+  @MinLength(50, {
+    message: 'Whitelisting terms must be at least 50 characters.',
+  })
+  @MaxLength(500, {
+    message: 'Whitelisting terms must not exceed 500 characters.',
+  })
   whitelisting_spark_ads?: string;
 
   @ApiProperty({ example: 'Philippines' })

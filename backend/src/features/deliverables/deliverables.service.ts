@@ -1,5 +1,5 @@
 import {
-	BadRequestException,
+  BadRequestException,
   ConflictException,
   HttpStatus,
   Injectable,
@@ -179,20 +179,20 @@ export class DeliverablesService {
     return deliverable;
   }
 
-  async findDeliverablesForCampaign(campaignId: string) {
+  async findDeliverablesForCampaign(
+    campaignId: string,
+    tx: Prisma.TransactionClient | PrismaService = this.prisma,
+  ) {
     this.logger.debug(`Finding deliverables for campaign ${campaignId}`);
 
-    await this.campaignService.findOneCampaign(campaignId);
+    await this.campaignService.findOneCampaign(campaignId, tx);
 
-    const campaignDeliverables = await this.prisma.deliverables.findMany({
+    const campaignDeliverables = await tx.deliverables.findMany({
       where: {
         campaign_id: campaignId,
         is_deleted: false,
       },
-      orderBy: {
-        due_date: 'asc',
-        post_date: 'asc',
-      },
+      orderBy: [{ due_date: 'asc' }, { post_date: 'asc' }],
     });
 
     this.logger.debug(

@@ -105,6 +105,42 @@ export class CampaignSetupService {
     return result;
   }
 
+  async getFullCampaignDetails(campaignId: string) {
+    this.logger.debug(`Getting full campaign details for ${campaignId}`);
+    const campaign = await this.campaignService.findOneCampaign(campaignId);
+
+    return this.prisma.$transaction(async (tx) => {
+      const [proposal, contract, deliverables, addOns, giftedProducts] =
+        await Promise.all([
+          this.proposalService.findProposalByCampaignId(
+            campaign.campaign_id,
+            tx,
+          ),
+          this.contractService.findContractByCampaignId(
+            campaign.campaign_id,
+            tx,
+          ),
+          this.deliverableService.findDeliverablesForCampaign(
+            campaign.campaign_id,
+            tx,
+          ),
+          this.addOnService.findAddOnsForCampaign(campaignId, tx),
+          this.giftedProductsService.findGiftedProductsForCampaign(
+            campaignId,
+            tx,
+          ),
+        ]);
+      return {
+        campaign,
+        proposal,
+        deliverables,
+        contract,
+        addOns,
+        giftedProducts,
+      };
+    });
+  }
+
   async updateCampaignSetup(campaignId: string, dto: UpdateCampaignSetupDto) {
     this.logger.debug(`Updating campaign setup for campaign ${campaignId}`);
 

@@ -17,12 +17,18 @@ export class ExclusivityDTO {
   category!: string;
 
   @ApiProperty({ example: '2026-07-01T00:00:00.000Z' })
-  @IsDateString({}, { message: 'Start date must be a valid ISO 8601 date string.' })
+  @IsDateString(
+    {},
+    { message: 'Start date must be a valid ISO 8601 date string.' },
+  )
   @IsNotEmpty({ message: 'Start date is required.' })
   startDate!: string;
 
   @ApiProperty({ example: '2026-07-01T00:00:00.000Z' })
-  @IsDateString({}, { message: 'End date must be a valid ISO 8601 date string.' })
+  @IsDateString(
+    {},
+    { message: 'End date must be a valid ISO 8601 date string.' },
+  )
   @IsNotEmpty({ message: 'End date is required.' })
   endDate!: string;
 

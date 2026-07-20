@@ -1,8 +1,9 @@
-import { Body, Controller, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
 import { CampaignSetupService } from './campaign-setup.service';
 import { CreateCampaignRequestDto } from './dto/create-campaign-request-dto';
 import {
   ApiCreateFullCampaign,
+  ApiGetFullCampaignDetails,
   ApiUpdateCampaignSetup,
 } from './docs/campaign-setup.controller.swagger';
 import { ActivityLogService } from '../activity-log/activity-log.service';
@@ -44,5 +45,11 @@ export class CampaignSetupController {
     @Body() dto: UpdateCampaignSetupDto,
   ) {
     return this.campaignSetupService.updateCampaignSetup(campaignId, dto);
+  }
+
+  @ApiGetFullCampaignDetails()
+  @Get(':campaignId')
+  findOne(@Param('campaignId') campaignId: string) {
+    return this.campaignSetupService.getFullCampaignDetails(campaignId);
   }
 }

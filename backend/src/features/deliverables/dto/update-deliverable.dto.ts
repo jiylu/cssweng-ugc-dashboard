@@ -27,13 +27,17 @@ export class UpdateDeliverableDTO {
     example: DeliverableType.COLLABORATION,
   })
   @IsOptional()
-  @IsEnum(DeliverableType, { message: 'Deliverable type must be a valid deliverable type.' })
+  @IsEnum(DeliverableType, {
+    message: 'Deliverable type must be a valid deliverable type.',
+  })
   deliverableType?: DeliverableType;
 
   @ApiPropertyOptional({ example: 'Instagram Carousel' })
   @IsOptional()
   @IsString({ message: 'Deliverable content must be a string.' })
-  @MaxLength(250, { message: 'Deliverable content must not exceed 250 characters.' })
+  @MaxLength(250, {
+    message: 'Deliverable content must not exceed 250 characters.',
+  })
   deliverableContent?: string;
 
   @ApiPropertyOptional({
@@ -47,12 +51,18 @@ export class UpdateDeliverableDTO {
 
   @ApiPropertyOptional({ example: '2026-06-15T00:00:00.000Z' })
   @IsOptional()
-  @IsDateString({}, { message: 'Due date must be a valid ISO 8601 date string.' })
+  @IsDateString(
+    {},
+    { message: 'Due date must be a valid ISO 8601 date string.' },
+  )
   dueDate?: string;
 
   @ApiPropertyOptional({ example: '2026-06-15T00:00:00.000Z' })
   @IsOptional()
-  @IsDateString({}, { message: 'Post date must be a valid ISO 8601 date string.' })
+  @IsDateString(
+    {},
+    { message: 'Post date must be a valid ISO 8601 date string.' },
+  )
   postDate?: string;
 
   @ApiPropertyOptional({ example: 1500 })
