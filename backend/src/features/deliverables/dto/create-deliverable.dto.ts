@@ -29,13 +29,17 @@ export class CreateDeliverableDTO {
     enum: DeliverableType,
     example: DeliverableType.COLLABORATION,
   })
-  @IsEnum(DeliverableType, { message: 'Deliverable type must be a valid deliverable type.' })
+  @IsEnum(DeliverableType, {
+    message: 'Deliverable type must be a valid deliverable type.',
+  })
   deliverableType!: DeliverableType;
 
   @ApiProperty({ example: 'Instagram Carousel' })
   @IsString({ message: 'Deliverable content must be a string.' })
   @IsNotEmpty({ message: 'Deliverable content is required.' })
-  @MaxLength(250, { message: 'Deliverable content must not exceed 250 characters.' })
+  @MaxLength(250, {
+    message: 'Deliverable content must not exceed 250 characters.',
+  })
   deliverableContent!: string;
 
   @ApiProperty({ example: '50 sec reel, with captions, highlighting product.' })
@@ -46,12 +50,18 @@ export class CreateDeliverableDTO {
   requirements!: string;
 
   @ApiProperty({ example: '2026-06-15T00:00:00.000Z' })
-  @IsDateString({}, { message: 'Due date must be a valid ISO 8601 date string.' })
+  @IsDateString(
+    {},
+    { message: 'Due date must be a valid ISO 8601 date string.' },
+  )
   @IsNotEmpty({ message: 'Due date is required.' })
   dueDate!: string;
 
   @ApiProperty({ example: '2026-06-15T00:00:00.000Z' })
-  @IsDateString({}, { message: 'Post date must be a valid ISO 8601 date string.' })
+  @IsDateString(
+    {},
+    { message: 'Post date must be a valid ISO 8601 date string.' },
+  )
   @IsNotEmpty({ message: 'Post date is required.' })
   postDate!: string;
 

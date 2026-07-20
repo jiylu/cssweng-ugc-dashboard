@@ -10,6 +10,8 @@ export class PostingRequirementsDTO {
   @ApiProperty({ example: '#ad, @brandhandle' })
   @IsString({ message: 'Partnership tags must be a string.' })
   @IsNotEmpty({ message: 'Partnership tags are required.' })
-  @MaxLength(250, { message: 'Partnership tags must not exceed 250 characters.' })
+  @MaxLength(250, {
+    message: 'Partnership tags must not exceed 250 characters.',
+  })
   partnership_tags!: string;
 }

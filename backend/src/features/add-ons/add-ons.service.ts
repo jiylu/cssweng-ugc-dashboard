@@ -69,12 +69,15 @@ export class AddOnsService {
     return createdAddOns;
   }
 
-  async findAddOnsForCampaign(campaignId: string) {
+  async findAddOnsForCampaign(
+    campaignId: string,
+    tx: Prisma.TransactionClient | PrismaService = this.prisma,
+  ) {
     this.logger.debug(`Finding add-ons for campaign ${campaignId}`);
 
-    await this.campaignsService.findOneCampaign(campaignId);
+    await this.campaignsService.findOneCampaign(campaignId, tx);
 
-    const addOns = await this.prisma.addOns.findMany({
+    const addOns = await tx.addOns.findMany({
       where: {
         campaign_id: campaignId,
         is_deleted: false,

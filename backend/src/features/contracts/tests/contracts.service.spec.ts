@@ -372,6 +372,7 @@ describe('ContractsService', () => {
       expect(res).toEqual(mockContract);
       expect(mockCampaignService.findOneCampaign).toHaveBeenCalledWith(
         'camp-1',
+        mockPrisma,
       );
       expect(mockPrisma.contracts.findFirst).toHaveBeenCalledWith({
         where: { campaign_id: 'camp-1' },

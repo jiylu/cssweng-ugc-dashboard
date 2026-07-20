@@ -35,7 +35,9 @@ export class InvoiceRequirementsDTO {
     example: 'Bank details: BPI xxx-xxxx; payable within Net 30 terms.',
   })
   @IsString({ message: 'Payment details must be a string.' })
-  @MaxLength(500, { message: 'Payment details must not exceed 500 characters.' })
+  @MaxLength(500, {
+    message: 'Payment details must not exceed 500 characters.',
+  })
   @IsNotEmpty({ message: 'Payment details are required.' })
   payment_details!: string;
 }

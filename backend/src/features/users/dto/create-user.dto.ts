@@ -34,6 +34,8 @@ export class CreateUserDTO {
   lastName!: string;
 
   @ApiProperty({ enum: UserRoles, example: UserRoles.CLIENT })
-  @IsEnum(UserRoles, { message: 'Role must be a valid user role (CREATOR or CLIENT).' })
+  @IsEnum(UserRoles, {
+    message: 'Role must be a valid user role (CREATOR or CLIENT).',
+  })
   role!: UserRoles;
 }

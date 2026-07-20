@@ -82,7 +82,11 @@ describe('DeliverablesService', () => {
 
       mockPrisma.deliverables.create.mockResolvedValue(mockDeliverable);
 
-      const res = await service.createDeliverable(dto, undefined as any, campaignDates);
+      const res = await service.createDeliverable(
+        dto,
+        undefined,
+        campaignDates,
+      );
       expect(res).toEqual(mockDeliverable);
       expect(mockPrisma.deliverables.create).toHaveBeenCalledWith({
         data: {
@@ -120,9 +124,9 @@ describe('DeliverablesService', () => {
         new Error('Invalid input'),
       );
 
-      await expect(service.createDeliverable(dto, undefined as any, campaignDates)).rejects.toThrow(
-        'Invalid input',
-      );
+      await expect(
+        service.createDeliverable(dto, undefined as any, campaignDates),
+      ).rejects.toThrow('Invalid input');
     });
   });
 
@@ -217,7 +221,7 @@ describe('DeliverablesService', () => {
       expect(res).toEqual(mockDeliverables);
       expect(mockPrisma.deliverables.findMany).toHaveBeenCalledWith({
         where: { campaign_id: campaignId, is_deleted: false },
-        orderBy: { due_date: 'asc', post_date: 'asc' },
+        orderBy: [{ due_date: 'asc' }, { post_date: 'asc' }],
       });
     });
 

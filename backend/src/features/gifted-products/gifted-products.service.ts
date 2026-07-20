@@ -65,12 +65,15 @@ export class GiftedProductsService {
     return createdGiftedProducts;
   }
 
-  async findGiftedProductsForCampaign(campaignId: string) {
+  async findGiftedProductsForCampaign(
+    campaignId: string,
+    tx: Prisma.TransactionClient | PrismaService = this.prisma,
+  ) {
     this.logger.debug(`Finding gifted products for campaign ${campaignId}`);
 
-    await this.campaignsService.findOneCampaign(campaignId);
+    await this.campaignsService.findOneCampaign(campaignId, tx);
 
-    const giftedProducts = await this.prisma.giftedProducts.findMany({
+    const giftedProducts = await tx.giftedProducts.findMany({
       where: {
         campaign_id: campaignId,
         is_deleted: false,
