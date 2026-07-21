@@ -4,34 +4,17 @@ import { Bell } from "lucide-react"
 import { Popover, PopoverContent, PopoverTrigger, PopoverHeader, PopoverTitle } from "@/components/ui/popover"
 import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
+import { Spinner } from "@/components/ui/spinner"
+import { useNotifications, useMarkNotificationRead } from "@/src/features/notifications/hooks/useNotifications"
 
-const notifications = [
-  {
-    id: "1",
-    title: "Campaign Approved",
-    message: "Your campaign \"Summer Drop\" has been approved.",
-    time: "2 min ago",
-    read: false,
-  },
-  {
-    id: "2",
-    title: "New Comment",
-    message: "New comment on your post from @janedoe.",
-    time: "15 min ago",
-    read: false,
-  },
-  {
-    id: "3",
-    title: "Payout Processed",
-    message: "Your payout of ₱1,200 has been processed.",
-    time: "1 hr ago",
-    read: true,
-  },
-]
-
-const unreadCount = notifications.filter((n) => !n.read).length
+const NOTIFICATION_LIMIT = 10
 
 export default function NotificationsPanel() {
+  const { data: notifications, isLoading } = useNotifications(NOTIFICATION_LIMIT)
+  const markRead = useMarkNotificationRead()
+
+  const unreadCount = notifications?.filter((n) => !n.is_read).length ?? 0
+
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -52,28 +35,52 @@ export default function NotificationsPanel() {
         <PopoverHeader className="px-4 py-3">
           <div className="flex items-center justify-between">
             <PopoverTitle className="text-sm">Notifications</PopoverTitle>
-            <Badge variant="secondary" className="text-[10px]">
-              {unreadCount} new
-            </Badge>
+            {unreadCount > 0 && (
+              <Badge variant="secondary" className="text-[10px]">
+                {unreadCount} new
+              </Badge>
+            )}
           </div>
         </PopoverHeader>
         <Separator />
         <ul className="max-h-72 overflow-y-auto">
-          {notifications.map((n) => (
-            <li
-              key={n.id}
-              className="flex gap-3 px-4 py-3 transition-colors hover:bg-muted/50"
-            >
-              <div className="flex-1 space-y-1">
-                <p className="text-sm font-medium leading-none">{n.title}</p>
-                <p className="text-sm text-muted-foreground">{n.message}</p>
-                <p className="text-xs text-muted-foreground">{n.time}</p>
-              </div>
-              {!n.read && (
-                <span className="mt-1.5 size-2 shrink-0 rounded-full bg-[#6b1fa8]" />
-              )}
+          {isLoading ? (
+            <li className="flex items-center justify-center py-8">
+              <Spinner />
             </li>
-          ))}
+          ) : notifications && notifications.length > 0 ? (
+            notifications.map((n) => (
+              <li
+                key={n.notification_id}
+                className="flex gap-3 px-4 py-3 transition-colors hover:bg-muted/50"
+              >
+                <div className="flex-1 space-y-1">
+                  <p className="text-sm font-medium leading-none">{n.title}</p>
+                  <p className="text-sm text-muted-foreground">{n.message}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {new Date(n.created_at).toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </p>
+                </div>
+                {!n.is_read && (
+                  <button
+                    type="button"
+                    className="mt-1.5 size-2 shrink-0 rounded-full bg-[#6b1fa8] hover:ring-2 hover:ring-[#6b1fa8]/30"
+                    aria-label="Mark as read"
+                    onClick={() => markRead.mutate(n.notification_id)}
+                  />
+                )}
+              </li>
+            ))
+          ) : (
+            <li className="py-8 text-center text-sm text-muted-foreground">
+              No notifications yet.
+            </li>
+          )}
         </ul>
         <Separator />
         <div className="px-4 py-2 text-center">
