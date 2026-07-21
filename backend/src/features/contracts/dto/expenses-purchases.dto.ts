@@ -13,6 +13,8 @@ export class ExpensesPurchasesDTO {
   })
   @IsString({ message: 'Gifted product terms must be a string.' })
   @IsNotEmpty({ message: 'Gifted product terms are required.' })
-  @MaxLength(500, { message: 'Gifted product terms must not exceed 500 characters.' })
+  @MaxLength(500, {
+    message: 'Gifted product terms must not exceed 500 characters.',
+  })
   gifted_product_terms!: string;
 }

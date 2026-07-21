@@ -82,10 +82,13 @@ export class ContractsService {
     return contract;
   }
 
-  async findContractByPublicId(publicId: string) {
+  async findContractByPublicId(
+    publicId: string,
+    tx: Prisma.TransactionClient | PrismaService = this.prisma,
+  ) {
     this.logger.debug(`Finding contract with publicId ${publicId}`);
 
-    const contract = await this.prisma.contracts.findFirst({
+    const contract = await tx.contracts.findFirst({
       where: {
         public_id: publicId,
       },
@@ -105,12 +108,15 @@ export class ContractsService {
     return contract;
   }
 
-  async findContractByCampaignId(campaignId: string) {
+  async findContractByCampaignId(
+    campaignId: string,
+    tx: Prisma.TransactionClient | PrismaService = this.prisma,
+  ) {
     this.logger.debug(`Finding contract with campaignId ${campaignId}`);
 
-    await this.campaignsService.findOneCampaign(campaignId);
+    await this.campaignsService.findOneCampaign(campaignId, tx);
 
-    const contract = await this.prisma.contracts.findFirst({
+    const contract = await tx.contracts.findFirst({
       where: {
         campaign_id: campaignId,
       },

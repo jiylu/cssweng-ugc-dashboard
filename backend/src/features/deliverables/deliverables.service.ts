@@ -1,5 +1,5 @@
 import {
-	BadRequestException,
+  BadRequestException,
   ConflictException,
   HttpStatus,
   Injectable,
@@ -9,16 +9,18 @@ import {
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CampaignsService } from '../campaigns/campaigns.service';
 import { CreateDeliverableDTO } from './dto/create-deliverable.dto';
-import { Prisma } from '@prisma/client';
+import { Prisma, ProposalStatus } from '@prisma/client';
 import { UpdateDeliverableDTO } from './dto/update-deliverable.dto';
 import { nanoid } from 'nanoid';
 import { CampaignDates } from './types/types';
+import { ProposalsService } from '../proposals/proposals.service';
 
 @Injectable()
 export class DeliverablesService {
   constructor(
     private prisma: PrismaService,
     private campaignService: CampaignsService,
+    private proposalService: ProposalsService,
   ) {}
 
   private readonly logger = new Logger(DeliverablesService.name);
@@ -179,20 +181,20 @@ export class DeliverablesService {
     return deliverable;
   }
 
-  async findDeliverablesForCampaign(campaignId: string) {
+  async findDeliverablesForCampaign(
+    campaignId: string,
+    tx: Prisma.TransactionClient | PrismaService = this.prisma,
+  ) {
     this.logger.debug(`Finding deliverables for campaign ${campaignId}`);
 
-    await this.campaignService.findOneCampaign(campaignId);
+    await this.campaignService.findOneCampaign(campaignId, tx);
 
-    const campaignDeliverables = await this.prisma.deliverables.findMany({
+    const campaignDeliverables = await tx.deliverables.findMany({
       where: {
         campaign_id: campaignId,
         is_deleted: false,
       },
-      orderBy: {
-        due_date: 'asc',
-        post_date: 'asc',
-      },
+      orderBy: [{ due_date: 'asc' }, { post_date: 'asc' }],
     });
 
     this.logger.debug(
@@ -270,5 +272,44 @@ export class DeliverablesService {
       `Sucessfully deleted deliverable ${deletedDeliverable.deliverable_id}`,
     );
     return deletedDeliverable;
+  }
+
+  async getCalendarDataForUser(userId: string) {
+    const extractApprovedProposalCampaigns = async (userId: string) => {
+      const campaigns = await this.campaignService.findAllCampaigns({
+        creatorId: userId,
+        activeOnly: true,
+      });
+
+      const proposals = await Promise.all(
+        campaigns.map((c) =>
+          this.proposalService.findProposalByCampaignId(c.campaign_id),
+        ),
+      );
+
+      return proposals
+        .filter(
+          (proposal) => proposal.proposal_status === ProposalStatus.ACCEPTED,
+        )
+        .map((proposal) => proposal.campaign_id);
+    };
+
+    const campaignIds = await extractApprovedProposalCampaigns(userId);
+    const calendarData = await Promise.all(
+      campaignIds.map(async (campaignId) => {
+        const campaign = await this.campaignService.findOneCampaign(campaignId);
+        const deliverables = await this.findDeliverablesForCampaign(campaignId);
+
+        return deliverables.map((deliverable) => ({
+          campaignName: campaign.project_name,
+          deliverableName: deliverable.deliverable_content,
+          deliverablePublicId: deliverable.public_id,
+          dueDate: deliverable.due_date,
+          postDate: deliverable.post_date,
+        }));
+      }),
+    );
+
+    return calendarData.flat();
   }
 }

@@ -5,8 +5,10 @@ import { DeliverableType, Prisma } from '@prisma/client';
 import { CreateDeliverableDTO } from '../dto/create-deliverable.dto';
 import { NotFoundException } from '@nestjs/common';
 import { CampaignsService } from 'src/features/campaigns/campaigns.service';
+import { ProposalsService } from 'src/features/proposals/proposals.service';
 import { UpdateDeliverableDTO } from '../dto/update-deliverable.dto';
 import { CampaignDates } from '../types/types';
+import { ProposalStatus } from '@prisma/client';
 
 jest.mock('nanoid', () => ({ nanoid: jest.fn(() => 'mock-pb-id') }));
 
@@ -24,6 +26,11 @@ describe('DeliverablesService', () => {
 
   const mockCampaignService = {
     findOneCampaign: jest.fn(),
+    findAllCampaigns: jest.fn(),
+  };
+
+  const mockProposalService = {
+    findProposalByCampaignId: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -37,6 +44,10 @@ describe('DeliverablesService', () => {
         {
           provide: CampaignsService,
           useValue: mockCampaignService,
+        } as any,
+        {
+          provide: ProposalsService,
+          useValue: mockProposalService,
         } as any,
       ],
     }).compile();
@@ -82,7 +93,11 @@ describe('DeliverablesService', () => {
 
       mockPrisma.deliverables.create.mockResolvedValue(mockDeliverable);
 
-      const res = await service.createDeliverable(dto, undefined as any, campaignDates);
+      const res = await service.createDeliverable(
+        dto,
+        undefined,
+        campaignDates,
+      );
       expect(res).toEqual(mockDeliverable);
       expect(mockPrisma.deliverables.create).toHaveBeenCalledWith({
         data: {
@@ -120,9 +135,9 @@ describe('DeliverablesService', () => {
         new Error('Invalid input'),
       );
 
-      await expect(service.createDeliverable(dto, undefined as any, campaignDates)).rejects.toThrow(
-        'Invalid input',
-      );
+      await expect(
+        service.createDeliverable(dto, undefined as any, campaignDates),
+      ).rejects.toThrow('Invalid input');
     });
   });
 
@@ -217,7 +232,7 @@ describe('DeliverablesService', () => {
       expect(res).toEqual(mockDeliverables);
       expect(mockPrisma.deliverables.findMany).toHaveBeenCalledWith({
         where: { campaign_id: campaignId, is_deleted: false },
-        orderBy: { due_date: 'asc', post_date: 'asc' },
+        orderBy: [{ due_date: 'asc' }, { post_date: 'asc' }],
       });
     });
 
@@ -552,6 +567,205 @@ describe('DeliverablesService', () => {
       await expect(
         service.createManyDeliverables(campaignId, deliverables),
       ).rejects.toBeInstanceOf(NotFoundException);
+    });
+  });
+
+  describe('getCalendarDataForUser', () => {
+    it('should return calendar data for a user with accepted proposals', async () => {
+      const userId = 'user-1';
+
+      mockCampaignService.findAllCampaigns.mockResolvedValue([
+        { campaign_id: 'camp-1', project_name: 'Summer Collection' },
+        { campaign_id: 'camp-2', project_name: 'Winter Launch' },
+      ]);
+
+      mockProposalService.findProposalByCampaignId
+        .mockResolvedValueOnce({
+          campaign_id: 'camp-1',
+          proposal_status: ProposalStatus.ACCEPTED,
+        })
+        .mockResolvedValueOnce({
+          campaign_id: 'camp-2',
+          proposal_status: ProposalStatus.ACCEPTED,
+        });
+
+      mockCampaignService.findOneCampaign
+        .mockResolvedValueOnce({
+          campaign_id: 'camp-1',
+          project_name: 'Summer Collection',
+        })
+        .mockResolvedValueOnce({
+          campaign_id: 'camp-2',
+          project_name: 'Winter Launch',
+        });
+
+      mockPrisma.deliverables.findMany
+        .mockResolvedValueOnce([
+          {
+            deliverable_id: 'd1',
+            public_id: 'pub-d1',
+            campaign_id: 'camp-1',
+            deliverable_content: 'Instagram Carousel',
+            due_date: new Date('2026-07-15'),
+            post_date: new Date('2026-07-20'),
+          },
+        ])
+        .mockResolvedValueOnce([
+          {
+            deliverable_id: 'd2',
+            public_id: 'pub-d2',
+            campaign_id: 'camp-2',
+            deliverable_content: 'TikTok Video',
+            due_date: new Date('2026-08-01'),
+            post_date: new Date('2026-08-05'),
+          },
+        ]);
+
+      const res = await service.getCalendarDataForUser(userId);
+
+      expect(res).toEqual([
+        {
+          campaignName: 'Summer Collection',
+          deliverableName: 'Instagram Carousel',
+          deliverablePublicId: 'pub-d1',
+          dueDate: new Date('2026-07-15'),
+          postDate: new Date('2026-07-20'),
+        },
+        {
+          campaignName: 'Winter Launch',
+          deliverableName: 'TikTok Video',
+          deliverablePublicId: 'pub-d2',
+          dueDate: new Date('2026-08-01'),
+          postDate: new Date('2026-08-05'),
+        },
+      ]);
+    });
+
+    it('should filter out campaigns with non-accepted proposals', async () => {
+      const userId = 'user-1';
+
+      mockCampaignService.findAllCampaigns.mockResolvedValue([
+        { campaign_id: 'camp-1', project_name: 'Summer Collection' },
+        { campaign_id: 'camp-2', project_name: 'Rejected Campaign' },
+      ]);
+
+      mockProposalService.findProposalByCampaignId
+        .mockResolvedValueOnce({
+          campaign_id: 'camp-1',
+          proposal_status: ProposalStatus.ACCEPTED,
+        })
+        .mockResolvedValueOnce({
+          campaign_id: 'camp-2',
+          proposal_status: ProposalStatus.REJECTED,
+        });
+
+      mockCampaignService.findOneCampaign.mockResolvedValue({
+        campaign_id: 'camp-1',
+        project_name: 'Summer Collection',
+      });
+
+      mockPrisma.deliverables.findMany.mockResolvedValue([
+        {
+          deliverable_id: 'd1',
+          public_id: 'pub-d1',
+          campaign_id: 'camp-1',
+          deliverable_content: 'Instagram Carousel',
+          due_date: new Date('2026-07-15'),
+          post_date: new Date('2026-07-20'),
+        },
+      ]);
+
+      const res = await service.getCalendarDataForUser(userId);
+
+      expect(res).toHaveLength(1);
+      expect(res[0].campaignName).toBe('Summer Collection');
+      expect(mockCampaignService.findOneCampaign).toHaveBeenCalledTimes(2);
+      expect(mockCampaignService.findOneCampaign).toHaveBeenCalledWith(
+        'camp-1',
+      );
+    });
+
+    it('should return an empty array when user has no active campaigns', async () => {
+      const userId = 'user-1';
+
+      mockCampaignService.findAllCampaigns.mockResolvedValue([]);
+
+      const res = await service.getCalendarDataForUser(userId);
+
+      expect(res).toEqual([]);
+      expect(
+        mockProposalService.findProposalByCampaignId,
+      ).not.toHaveBeenCalled();
+    });
+
+    it('should return an empty array when no proposals are accepted', async () => {
+      const userId = 'user-1';
+
+      mockCampaignService.findAllCampaigns.mockResolvedValue([
+        { campaign_id: 'camp-1', project_name: 'Summer Collection' },
+      ]);
+
+      mockProposalService.findProposalByCampaignId.mockResolvedValue({
+        campaign_id: 'camp-1',
+        proposal_status: ProposalStatus.PENDING,
+      });
+
+      const res = await service.getCalendarDataForUser(userId);
+
+      expect(res).toEqual([]);
+      expect(mockCampaignService.findOneCampaign).not.toHaveBeenCalled();
+    });
+
+    it('should flatten deliverables across multiple campaigns', async () => {
+      const userId = 'user-1';
+
+      mockCampaignService.findAllCampaigns.mockResolvedValue([
+        { campaign_id: 'camp-1', project_name: 'Campaign A' },
+      ]);
+
+      mockProposalService.findProposalByCampaignId.mockResolvedValue({
+        campaign_id: 'camp-1',
+        proposal_status: ProposalStatus.ACCEPTED,
+      });
+
+      mockCampaignService.findOneCampaign.mockResolvedValue({
+        campaign_id: 'camp-1',
+        project_name: 'Campaign A',
+      });
+
+      mockPrisma.deliverables.findMany.mockResolvedValue([
+        {
+          deliverable_id: 'd1',
+          public_id: 'pub-d1',
+          campaign_id: 'camp-1',
+          deliverable_content: 'Instagram Carousel',
+          due_date: new Date('2026-07-10'),
+          post_date: new Date('2026-07-15'),
+        },
+        {
+          deliverable_id: 'd2',
+          public_id: 'pub-d2',
+          campaign_id: 'camp-1',
+          deliverable_content: 'TikTok Video',
+          due_date: new Date('2026-07-20'),
+          post_date: new Date('2026-07-25'),
+        },
+        {
+          deliverable_id: 'd3',
+          public_id: 'pub-d3',
+          campaign_id: 'camp-1',
+          deliverable_content: 'YouTube Shorts',
+          due_date: new Date('2026-08-01'),
+          post_date: new Date('2026-08-05'),
+        },
+      ]);
+
+      const res = await service.getCalendarDataForUser(userId);
+
+      expect(res).toHaveLength(3);
+      expect(res[0].deliverableName).toBe('Instagram Carousel');
+      expect(res[1].deliverableName).toBe('TikTok Video');
+      expect(res[2].deliverableName).toBe('YouTube Shorts');
     });
   });
 });

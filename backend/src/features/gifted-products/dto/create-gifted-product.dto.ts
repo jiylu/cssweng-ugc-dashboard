@@ -29,7 +29,9 @@ export class CreateGiftedProductDTO {
   @ApiProperty({ example: '123 Sample St, Makati City, Metro Manila' })
   @IsString({ message: 'Delivery address must be a string.' })
   @IsNotEmpty({ message: 'Delivery address is required.' })
-  @MaxLength(200, { message: 'Delivery address must not exceed 200 characters.' })
+  @MaxLength(200, {
+    message: 'Delivery address must not exceed 200 characters.',
+  })
   deliveryAddress!: string;
 
   @ApiProperty({
@@ -37,7 +39,9 @@ export class CreateGiftedProductDTO {
   })
   @IsString({ message: 'Delivery instructions must be a string.' })
   @IsNotEmpty({ message: 'Delivery instructions are required.' })
-  @MaxLength(200, { message: 'Delivery instructions must not exceed 200 characters.' })
+  @MaxLength(200, {
+    message: 'Delivery instructions must not exceed 200 characters.',
+  })
   deliveryInstructions!: string;
 
   @ApiProperty({
@@ -45,6 +49,8 @@ export class CreateGiftedProductDTO {
   })
   @IsString({ message: 'Ownership terms must be a string.' })
   @IsNotEmpty({ message: 'Ownership terms are required.' })
-  @MaxLength(500, { message: 'Ownership terms must not exceed 500 characters.' })
+  @MaxLength(500, {
+    message: 'Ownership terms must not exceed 500 characters.',
+  })
   ownershipTerms!: string;
 }

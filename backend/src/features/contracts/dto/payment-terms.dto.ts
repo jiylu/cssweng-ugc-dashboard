@@ -13,7 +13,9 @@ export class PaymentTermsDTO {
     enum: PAYMENT_SCHEDULE,
     example: PAYMENT_SCHEDULE.NET_30,
   })
-  @IsEnum(PAYMENT_SCHEDULE, { message: 'Payment schedule must be a valid payment schedule.' })
+  @IsEnum(PAYMENT_SCHEDULE, {
+    message: 'Payment schedule must be a valid payment schedule.',
+  })
   payment_schedule!: PAYMENT_SCHEDULE;
 
   @ApiProperty({ example: 'Bank Transfer' })

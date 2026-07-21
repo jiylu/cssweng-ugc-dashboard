@@ -177,10 +177,13 @@ export class ProposalsService {
     return activeProposal;
   }
 
-  async findProposalByCampaignId(campaignId: string) {
+  async findProposalByCampaignId(
+    campaignId: string,
+    tx: Prisma.TransactionClient | PrismaService = this.prisma,
+  ) {
     this.logger.debug(`Finding proposal for campaign ${campaignId}`);
 
-    const proposal = await this.prisma.proposals.findFirst({
+    const proposal = await tx.proposals.findFirst({
       where: {
         campaign_id: campaignId,
       },

@@ -270,3 +270,33 @@ export function ApiUpdateCampaignSetup() {
     }),
   );
 }
+
+export function ApiGetFullCampaignDetails() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Get full campaign details by campaign ID',
+      description:
+        'Fetches the complete campaign package for a given campaign ID inside a single read transaction. Returns the campaign, proposal, contract, deliverables, add-ons, and gifted products. Throws 404 if the campaign or any required related resource (proposal, contract) does not exist.',
+    }),
+    ApiParam({
+      name: 'campaignId',
+      type: String,
+      description: 'UUID of the campaign to retrieve',
+      example: '550e8400-e29b-41d4-a716-446655440000',
+    }),
+    ApiResponse({
+      status: 200,
+      description:
+        'Full campaign details retrieved successfully. Response includes campaign, proposal, contract, deliverables, addOns, and giftedProducts.',
+    }),
+    ApiResponse({
+      status: 404,
+      description:
+        'Campaign not found, or a required related resource (proposal or contract) does not exist for this campaign.',
+    }),
+    ApiResponse({
+      status: 500,
+      description: 'Internal server error while fetching campaign details.',
+    }),
+  );
+}
