@@ -1,0 +1,24 @@
+import { Campaign } from "@/src/features/creator/campaigns/types/campaign.types"
+import { Deliverable } from "@/src/features/creator/workspace/types/workspace.types"
+
+export interface CampaignSetupResponse {
+  campaign: Campaign
+  deliverables: Deliverable[]
+  proposal: unknown
+  contract: unknown
+  addOns: unknown[] | null
+  giftedProducts: unknown[] | null
+}
+
+export async function getCampaignSetup(campaignId: string): Promise<CampaignSetupResponse> {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/campaign-setup/${campaignId}`,
+    { credentials: "include" }
+  )
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}))
+    console.log("Backend error:", error)
+    throw new Error("Failed to fetch campaign setup")
+  }
+  return response.json()
+}

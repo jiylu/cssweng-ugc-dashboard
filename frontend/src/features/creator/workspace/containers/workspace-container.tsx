@@ -11,7 +11,7 @@ import { FeedbackPanel } from "@/src/features/creator/workspace/components/feedb
 import { HistoryOverlay } from "@/src/features/creator/workspace/components/history-overlay"
 import { VideoSubmission } from "@/src/features/creator/workspace/components/video-submission"
 import { useWorkspace } from "@/src/features/creator/workspace/hooks/useWorkspace"
-import { useDeliverablesByCampaign } from "@/src/features/creator/workspace/hooks/useDeliverablesByCampaign"
+import { useCampaignSetup } from "@/src/features/creator/workspace/hooks/useCampaignSetup"
 
 interface WorkspaceProps {
   campaignId: string
@@ -20,9 +20,11 @@ interface WorkspaceProps {
 export default function Workspace({ campaignId }: WorkspaceProps) {
   const { user, loading } = useAuth()
   const { activeStep, setActiveStep, activeDeliverable, setActiveDeliverable, historyOpen, setHistoryOpen } = useWorkspace()
-  const { data: deliverables = [], isLoading: deliverablesLoading } = useDeliverablesByCampaign(campaignId)
+  const { data: campaignSetup, isLoading: campaignLoading } = useCampaignSetup(campaignId)
+  const campaign = campaignSetup?.campaign
+  const deliverables = campaignSetup?.deliverables ?? []
 
-  if (loading || deliverablesLoading) return <LogoLoader label="Loading workspace" />;
+  if (loading || campaignLoading) return <LogoLoader label="Loading workspace" />;
 
   if (!user) return null
 
@@ -38,8 +40,8 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
           <Separator />
           <div className="flex items-start justify-between">
             <WorkspaceHeader
-                campaignName="Campaign Name"
-                campaignOverview="Campaign Overview"
+                campaignName={campaign?.project_name ?? "Campaign Name"}
+                campaignOverview={campaign?.description ?? "Campaign Overview"}
             />
             <CampaignProgress 
               activeStep={activeStep} 
