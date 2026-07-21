@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Bell } from "lucide-react";
+import NotificationsPanel from "./notifications-panel";
 
 type ProfileProps = {
   firstName: string
@@ -10,13 +10,7 @@ type ProfileProps = {
 export default function Profile({ firstName, lastName, email }: ProfileProps) {
   return (
     <div className="flex items-center gap-6 pt-2">
-        <button
-            type="button"
-            className="text-[#77736d] transition hover:text-[#141518]"
-            aria-label="Notifications"
-        >
-            <Bell className="size-8" />
-        </button>
+        <NotificationsPanel />
         <div className="flex items-center gap-3">
             <div className="text-right">
             <span className="inline-flex items-center text-xs font-medium text-[#6b1fa8] bg-[#6b1fa8]/10 px-3 py-1 rounded-full">
