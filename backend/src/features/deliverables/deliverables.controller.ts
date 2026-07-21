@@ -3,6 +3,7 @@ import { DeliverablesService } from './deliverables.service';
 import {
   ApiFindDeliverable,
   ApiFindDeliverablesForCampaign,
+  ApiGetCalendarForUser,
 } from './docs/deliverables.controller.swagger';
 
 @Controller('deliverables')
@@ -19,5 +20,11 @@ export class DeliverablesController {
   @Get('/campaign/:campaignId')
   findMany(@Param('campaignId') campaignId: string) {
     return this.deliverablesService.findDeliverablesForCampaign(campaignId);
+  }
+
+  @ApiGetCalendarForUser()
+  @Get('/calendar/:userId')
+  getCalendar(@Param('userId') userId: string) {
+    return this.deliverablesService.getCalendarDataForUser(userId);
   }
 }

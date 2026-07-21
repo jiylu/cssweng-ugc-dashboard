@@ -58,3 +58,23 @@ export function ApiCreateDeliverable() {
     ApiResponse({ status: 400, description: 'Invalid payload' }),
   );
 }
+
+export function ApiGetCalendarForUser() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Gets calendar data for a user',
+      description:
+        'Retrieves all deliverables due for a user across their active campaigns with accepted proposals. Returns an array of calendar entries containing campaign name, deliverable details, public ID, due date, and post date.',
+    }),
+    ApiParam({
+      name: 'userId',
+      type: String,
+      description: 'UUID of the user',
+    }),
+    ApiResponse({
+      status: 200,
+      description: 'Calendar data retrieved successfully',
+    }),
+    ApiResponse({ status: 404, description: 'User or campaigns not found' }),
+  );
+}
