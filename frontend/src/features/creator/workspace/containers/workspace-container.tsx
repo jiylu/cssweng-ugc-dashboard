@@ -11,6 +11,7 @@ import { FeedbackPanel } from "@/src/features/creator/workspace/components/feedb
 import { HistoryOverlay } from "@/src/features/creator/workspace/components/history-overlay"
 import { VideoSubmission } from "@/src/features/creator/workspace/components/video-submission"
 import { useWorkspace } from "@/src/features/creator/workspace/hooks/useWorkspace"
+import { useDeliverablesByCampaign } from "@/src/features/creator/workspace/hooks/useDeliverablesByCampaign"
 
 interface WorkspaceProps {
   campaignId: string
@@ -19,8 +20,9 @@ interface WorkspaceProps {
 export default function Workspace({ campaignId }: WorkspaceProps) {
   const { user, loading } = useAuth()
   const { activeStep, setActiveStep, activeDeliverable, setActiveDeliverable, historyOpen, setHistoryOpen } = useWorkspace()
+  const { data: deliverables = [], isLoading: deliverablesLoading } = useDeliverablesByCampaign(campaignId)
 
-  if (loading) return <LogoLoader label="Loading workspace" />;
+  if (loading || deliverablesLoading) return <LogoLoader label="Loading workspace" />;
 
   if (!user) return null
 
@@ -55,6 +57,7 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
               timestamp="DD/MM/YYYY HH:MM"
             />
             <DeliverablesSidebar
+              deliverables={deliverables}
               activeDeliverable={activeDeliverable}
               onChange={setActiveDeliverable}
             />

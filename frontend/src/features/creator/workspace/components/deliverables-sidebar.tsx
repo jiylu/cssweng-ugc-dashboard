@@ -1,20 +1,19 @@
 import { cn } from "@/lib/utils"
-
-const MOCK_DELIVERABLES = ["Name 1", "Name 2", "Name 3", "Name 4"]
+import { Deliverable } from "@/src/features/creator/workspace/types/workspace.types"
 
 interface DeliverablesSidebarProps {
+  deliverables: Deliverable[]
   activeDeliverable: number
   onChange: (index: number) => void
 }
 
-// TO DO: MAKE THIS DYNAMIC ONCE PROPOSALS ARE FIXED
-export function DeliverablesSidebar({ activeDeliverable, onChange }: DeliverablesSidebarProps) {
+export function DeliverablesSidebar({ deliverables, activeDeliverable, onChange }: DeliverablesSidebarProps) {
   return (
     <div className="flex flex-col gap-1 w-48 shrink-0">
       <p className="text-sm font-medium text-foreground mb-2">Deliverables</p>
-      {MOCK_DELIVERABLES.map((name, index) => (
+      {deliverables.map((deliverable, index) => (
         <button
-          key={name}
+          key={deliverable.deliverable_id}
           onClick={() => onChange(index)}
           className={cn(
             "text-left px-4 py-2 text-sm rounded-[3px] transition-colors",
@@ -23,7 +22,7 @@ export function DeliverablesSidebar({ activeDeliverable, onChange }: Deliverable
               : "text-muted-foreground hover:bg-muted"
           )}
         >
-          {name}
+          {deliverable.deliverable_content}
         </button>
       ))}
     </div>
