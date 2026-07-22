@@ -4,7 +4,7 @@ import React from "react";
 import { CalendarEvent } from "../types/calendar.types";
 import { EventChip } from "./event-chip";
 import { isSameDay, format } from "date-fns";
-import { getEventsForDate, formatTimeSlot, TIME_SLOTS, getCampaignDateRole } from "../calendar.utils";
+import { getEventsForDate, getCampaignDateRole } from "../calendar.utils";
 import { CalendarX } from "lucide-react";
 
 interface CalendarDayViewProps {
@@ -14,7 +14,7 @@ interface CalendarDayViewProps {
 }
 
 /**
- * Sort order for the all-day row:
+ * Sort order for events:
  *   1. Campaign duration bars (broad context)
  *   2. Deliverable due-date chips
  *   3. Deliverable post-date chips
@@ -76,43 +76,21 @@ export function CalendarDayView({ currentDate, events, onEventClick }: CalendarD
         </div>
       </div>
 
-      {/* ── All-day events row ───────────────────────────────────────────────── */}
-      <div className="grid grid-cols-[80px_1fr] border-b border-[#D8D4CB] bg-[#F9F8F6]">
-        <div className="border-r border-[#D8D4CB] py-3 px-3 flex items-start">
-          <span className="text-[9px] font-semibold text-[#78746E] uppercase tracking-widest leading-tight">
-            All<br />day
-          </span>
-        </div>
-
-        <div className="py-2 px-3 min-h-[64px] flex flex-col gap-1">
-          {dayEvents.length === 0 ? (
-            <div className="flex flex-col items-center justify-center gap-1.5 py-4">
-              <CalendarX className="h-6 w-6 text-[#C9C5BE]" />
-              <p className="text-xs text-[#78746E] italic">No events scheduled for this day</p>
-            </div>
-          ) : (
-            dayEvents.map((event) => (
-              <EventChip key={event.id} event={event} onClick={onEventClick} dateRole={getCampaignDateRole(event, currentDate) ?? undefined} />
-            ))
-          )}
-        </div>
-      </div>
-
-      {/* ── Hourly time-slot grid ─────────────────────────────────────────────── */}
-      <div className="overflow-y-auto max-h-[520px] [scrollbar-gutter:stable]">
-        {TIME_SLOTS.map((hour) => (
-          <div
-            key={hour}
-            className="grid grid-cols-[80px_1fr] border-b border-[#D8D4CB] last:border-b-0"
-          >
-            <div className="py-3 px-3 border-r border-[#D8D4CB] flex items-start">
-              <span className="text-[10px] text-[#78746E]">{formatTimeSlot(hour)}</span>
-            </div>
-            <div className="h-12 hover:bg-[#F9F8F6] transition-colors" />
+      {/* ── Events ──────────────────────────────────────────────────────────── */}
+      <div className="px-4 py-3 bg-white">
+        {dayEvents.length === 0 ? (
+          <div className="flex flex-col items-center justify-center gap-1.5 py-8">
+            <CalendarX className="h-6 w-6 text-[#C9C5BE]" />
+            <p className="text-xs text-[#78746E] italic">No events scheduled for this day</p>
           </div>
-        ))}
+        ) : (
+          <div className="flex flex-col gap-1">
+            {dayEvents.map((event) => (
+              <EventChip key={event.id} event={event} onClick={onEventClick} dateRole={getCampaignDateRole(event, currentDate) ?? undefined} />
+            ))}
+          </div>
+        )}
       </div>
-
     </div>
   );
 }

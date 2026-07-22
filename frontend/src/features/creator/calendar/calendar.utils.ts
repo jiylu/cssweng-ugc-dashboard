@@ -35,16 +35,6 @@ export function getEventsForDate(events: CalendarEvent[], day: Date): CalendarEv
   });
 }
 
-/** Formats a 24-hour slot index (8–21) as a 12-hour AM/PM string, e.g. "8:00 AM". */
-export function formatTimeSlot(hour: number): string {
-  const suffix = hour >= 12 ? "PM" : "AM";
-  const display = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
-  return `${display}:00 ${suffix}`;
-}
-
-/** Hourly time slots shown in the Week and Day timeline grids (8 AM – 9 PM). */
-export const TIME_SLOTS = Array.from({ length: 14 }, (_, i) => i + 8);
-
 /**
  * Determines whether a CAMPAIGN_DURATION event is being viewed on its
  * start date, end date, or a middle day — used to color-code chips.
