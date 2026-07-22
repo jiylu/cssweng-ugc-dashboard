@@ -17,7 +17,7 @@ import { Separator } from "@/components/ui/separator";
 import Profile from "@/src/components/molecules/profile";
 
 // ── Toggle this flag to switch between mock data and the live API ─────────────
-const USE_MOCK = true;
+const USE_MOCK = false;
 
 type CalendarViewMode = "month" | "week" | "day";
 
