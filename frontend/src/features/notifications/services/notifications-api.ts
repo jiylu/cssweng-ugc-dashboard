@@ -1,11 +1,12 @@
 import { Notification } from "@/src/features/notifications/types/notification.types"
+import { API_BASE_URL } from "@/src/config/api"
 
 export async function getNotifications(userId: string, limit?: number): Promise<Notification[]> {
   const params = new URLSearchParams({ userId })
   if (limit) params.set("limit", String(limit))
 
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/notifications?${params}`,
+    `${API_BASE_URL}/notifications?${params}`,
     { credentials: "include" }
   )
   if (!response.ok) {
@@ -16,7 +17,7 @@ export async function getNotifications(userId: string, limit?: number): Promise<
 
 export async function markNotificationAsRead(notificationId: string): Promise<Notification> {
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/notifications/read-notification/${notificationId}`,
+    `${API_BASE_URL}/notifications/read-notification/${notificationId}`,
     { method: "POST", credentials: "include" }
   )
   if (!response.ok) {

@@ -1,4 +1,5 @@
-import { API_BASE_URL, parseApiError } from "@/src/features/auth/services/users-api";
+import { API_BASE_URL } from "@/src/config/api";
+import { parseApiError } from "@/src/features/auth/services/users-api";
 import { authUserSchema, type AuthUser } from "@/src/features/auth/schemas/auth-user.schema";
 
 export async function getCurrentUser(): Promise<AuthUser | null> {

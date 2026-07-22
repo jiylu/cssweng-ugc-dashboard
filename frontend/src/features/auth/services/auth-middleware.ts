@@ -29,7 +29,7 @@ const guestOnlyRoutes = [
 function getApiBaseUrl() {
   const configuredUrl =
     process.env.INTERNAL_API_URL?.replace(/\/$/, "") ??
-    process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ?? DEFAULT_API_URL;
+    DEFAULT_API_URL;
 
   return configuredUrl.endsWith("/api") ? configuredUrl : `${configuredUrl}/api`;
 }

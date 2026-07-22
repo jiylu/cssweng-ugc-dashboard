@@ -1,11 +1,13 @@
 import { CreateCampaignPayload, CreateCampaignResponse } from "../types/campaign-setup.types";
+import { API_BASE_URL } from "@/src/config/api";
 
 export async function postCampaign(
   payload: CreateCampaignPayload,
 ): Promise<CreateCampaignResponse> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/campaign-setup`, {
+  const res = await fetch(`${API_BASE_URL}/campaign-setup`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
     body: JSON.stringify({ ...payload }),
   });
 

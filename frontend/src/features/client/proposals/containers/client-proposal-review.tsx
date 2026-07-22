@@ -1,5 +1,9 @@
+"use client";
+
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "sonner";
+import LogoLoader from "@/src/components/molecules/logo-loader";
 import CampaignOverviewCard from "../components/campaign-overview-card";
 import ContractTermsSection from "../components/contract-terms-section";
 import DeliverablesTable from "../components/deliverables-table";
@@ -7,149 +11,132 @@ import OptionalAddOnsCard from "../components/optional-add-ons-card";
 import PaymentSummaryCard from "../components/payment-summary-card";
 import ProposalFeedbackPanel from "../components/proposal-feedback-panel";
 import ProposalReviewHeader from "../components/proposal-review-header";
-import type {
-  ContractTerm,
-  ProposalAddOn,
-  ProposalDeliverable,
-} from "../types/proposal-review.types";
+import { useClientProposal } from "../hooks/useClientProposal";
 
-const description =
-  "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.";
+function formatDate(value: string) {
+  return new Intl.DateTimeFormat("en-CA", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    timeZone: "UTC",
+  }).format(new Date(value));
+}
 
-const deliverables: ProposalDeliverable[] = [
-  {
-    quantity: 1,
-    deliverable: "[Type][Platform&Format]",
-    requirements:
-      "9:16, 30-60 seconds, voiceover, product visible, caption, tags, hashtags",
-    dueDate: "7/7/2026",
-    postDate: "7/8/2026",
-    price: "100 CAD",
-  },
-  {
-    quantity: 4,
-    deliverable: "UGC Instagram Reel",
-    requirements: "Review",
-    dueDate: "7/7/2026",
-    postDate: "7/8/2026",
-    price: "100 CAD",
-  },
-  {
-    quantity: 3,
-    deliverable: "Partnership Youtube Shorts",
-    requirements: "Feature Spotlight",
-    dueDate: "7/7/2026",
-    postDate: "7/8/2026",
-    price: "100 CAD",
-  },
-];
-
-const terms: ContractTerm[] = [
-  {
-    title: "Revision Policy",
-    description:
-      "The fee includes [one (1)] round of reasonable revisions, requested within [3] business days of draft delivery.",
-  },
-  {
-    title: "Auto Approval",
-    description:
-      "If Brand does not provide feedback within [5] business days, the draft will be considered approved, unless otherwise agreed in writing.",
-  },
-  {
-    title: "Cancellation",
-    description:
-      "Either Party may terminate this Agreement if the other Party materially breaches the Agreement and does not fix the issue within [7] days after written notice.",
-  },
-  {
-    title: "Usage Rights",
-    description:
-      "Creator owns the content Creator creates, unless the Parties agree otherwise in writing. Creator grants Brand a non-exclusive, non-transferable license to use the approved Deliverables.",
-  },
-  {
-    title: "Post Longevity",
-    description:
-      "Unless otherwise stated, published posts must remain live for at least [12 months], subject to normal platform errors, removals, or account issues outside Creator's control.",
-  },
-  {
-    title: "Posting Requirements",
-    description:
-      "Creator will clearly disclose the partnership using appropriate disclosure language and applicable advertising laws, platform rules, and industry guidelines.",
-  },
-];
-
-const addOns: ProposalAddOn[] = [
-  {
-    id: "add-on-1",
-    name: "Add-on 1",
-    description: "Description...",
-    price: "$150.00",
-    selected: false,
-  },
-  {
-    id: "add-on-2",
-    name: "Add-on 2",
-    description: "Description...",
-    price: "$150.00",
-    selected: true,
-  },
-  {
-    id: "add-on-3",
-    name: "Add-on 3",
-    description: "Description...",
-    price: "$150.00",
-    selected: false,
-  },
-];
+function formatMoney(value: number, currency: string) {
+  return new Intl.NumberFormat("en-CA", {
+    style: "currency",
+    currency,
+  }).format(value);
+}
 
 export default function ClientProposalReview() {
   const params = useParams<{ proposalId?: string }>();
   const router = useRouter();
-  const [feedback, setFeedback] = useState("");
-  const [revisionSubmitted, setRevisionSubmitted] = useState(false);
-  const proposalId = params.proposalId ?? "preview";
+  const proposalPublicId = params.proposalId ?? "";
+  const { proposalQuery, revisionMutation, declineMutation, addOnMutation } =
+    useClientProposal(proposalPublicId);
+  const [feedback, setFeedback] = useState<string | null>(null);
 
-  const handleReviseProposal = () => {
-    if (!feedback.trim()) return;
-    setRevisionSubmitted(true);
+  if (proposalQuery.isLoading) {
+    return <LogoLoader label="Loading proposal" />;
+  }
+
+  if (proposalPublicId === "preview" || proposalQuery.isError || !proposalQuery.data) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-[#f2f0ea] px-6">
+        <div className="max-w-lg text-center">
+          <h1 className="text-4xl text-[#141518]">Proposal unavailable</h1>
+          <p className="mt-4 text-[#6f6a63]">
+            {proposalQuery.error instanceof Error
+              ? proposalQuery.error.message
+              : "Use the proposal link sent by the creator to review it."}
+          </p>
+        </div>
+      </main>
+    );
+  }
+
+  const data = proposalQuery.data;
+  const currency = data.campaign.currency;
+  const displayedFeedback = feedback ?? data.proposal.client_comments;
+
+  const handleReviseProposal = async () => {
+    const comment = displayedFeedback.trim();
+    if (!comment) return;
+    try {
+      await revisionMutation.mutateAsync({
+        proposalId: data.proposal.proposal_id,
+        comment,
+      });
+      toast.success("Revision request submitted.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Unable to request revision.");
+    }
+  };
+
+  const handleDecline = async () => {
+    try {
+      await declineMutation.mutateAsync(data.proposal.proposal_id);
+      toast.success("Proposal declined.");
+      router.push("/dashboard");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Unable to decline proposal.");
+    }
   };
 
   return (
     <main className="min-h-screen bg-[#f2f0ea] pb-14">
       <ProposalReviewHeader />
 
-      <div className="grid grid-cols-[1fr_340px] gap-10 px-10 pt-8">
+      <div className="grid grid-cols-[minmax(0,1fr)_340px] gap-10 px-10 pt-8">
         <section className="min-w-0 space-y-9">
           <h1 className="text-[58px] leading-none text-[#141518]">
-            Proposal Review
+            {data.campaign.project_name}
           </h1>
 
           <CampaignOverviewCard
-            creatorName="[Creator Name]"
-            description={description}
-            startDate="July 7, 2026"
-            endDate="Oct 15, 2026"
+            creatorName={data.creatorName}
+            description={data.campaign.description}
+            startDate={formatDate(data.campaign.start_date)}
+            endDate={formatDate(data.campaign.end_date)}
           />
 
-          <DeliverablesTable deliverables={deliverables} />
-
-          <ContractTermsSection terms={terms} />
-
-          <OptionalAddOnsCard addOns={addOns} />
+          <DeliverablesTable deliverables={data.deliverables} />
+          <ContractTermsSection terms={data.terms} />
+          <OptionalAddOnsCard
+            addOns={data.addOns}
+            onToggle={(addOn) =>
+              addOnMutation
+                .mutateAsync({ addOnId: addOn.id, optIn: !addOn.selected })
+                .catch((error) =>
+                  toast.error(
+                    error instanceof Error ? error.message : "Unable to update add-on.",
+                  ),
+                )
+            }
+          />
         </section>
 
         <aside className="space-y-12 pt-[44px]">
           <ProposalFeedbackPanel
-            feedback={feedback}
-            onContractSigning={() => router.push(`/contracts/${proposalId}`)}
-            onDecline={() => router.push("/dashboard")}
-            onFeedbackChange={(value) => {
-              setFeedback(value);
-              setRevisionSubmitted(false);
-            }}
+            feedback={displayedFeedback}
+            onContractSigning={() => router.push(`/contracts/${data.contract.public_id}`)}
+            onDecline={handleDecline}
+            onFeedbackChange={setFeedback}
             onReviseProposal={handleReviseProposal}
-            revisionSubmitted={revisionSubmitted}
+            revisionSubmitted={revisionMutation.isSuccess}
+            isSubmitting={revisionMutation.isPending}
           />
-          <PaymentSummaryCard />
+          <PaymentSummaryCard
+            paymentMethod={data.paymentMethod}
+            baseFee={formatMoney(data.baseFee, currency)}
+            selectedAddOns={formatMoney(data.selectedAddOnsFee, currency)}
+            tax={`Tax (${data.taxRate}%): ${formatMoney(
+              data.totalDue - data.baseFee - data.selectedAddOnsFee,
+              currency,
+            )}`}
+            totalDue={formatMoney(data.totalDue, currency)}
+          />
         </aside>
       </div>
     </main>
