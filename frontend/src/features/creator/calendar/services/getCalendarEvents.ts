@@ -1,5 +1,7 @@
 import { CalendarEvent, Campaign, Deliverable } from '../types/calendar.types';
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
 // ─── Pure Mapper ───────────────────────────────────────────────────────────────
 
 /**
@@ -62,44 +64,38 @@ export function mapCampaignsToEvents(campaigns: Campaign[]): CalendarEvent[] {
 
 // ─── Async API Fetcher ─────────────────────────────────────────────────────────
 
-async function getJson<T>(url: string): Promise<T> {
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error(`Request failed: ${response.status} ${response.statusText}`);
-  }
-  return response.json();
-}
-
 /**
  * Fetches campaigns + deliverables from the backend API and maps them to
  * CalendarEvent[]. Requires an authenticated creatorId.
  */
 export async function getCalendarEvents(creatorId: string): Promise<CalendarEvent[]> {
-  const campaigns = await getJson<any[]>(`/api/campaigns?creatorId=${creatorId}`);
+  const campaignsRes = await fetch(
+    `${API_URL}/campaigns?creatorId=${creatorId}`,
+    { credentials: 'include' }
+  );
+  if (!campaignsRes.ok) {
+    throw new Error(`Failed to fetch campaigns: ${campaignsRes.status}`);
+  }
+  const campaigns: Campaign[] = await campaignsRes.json();
 
   // Fetch deliverables for every campaign in parallel
   const deliverableGroups = await Promise.all(
-    campaigns.map((c: any) =>
-      getJson<Deliverable[]>(`/api/deliverables/campaign/${c.campaign_id ?? c.ugcId}`)
-    )
+    campaigns.map(async (c) => {
+      const res = await fetch(
+        `${API_URL}/deliverables/campaign/${c.campaign_id}`,
+        { credentials: 'include' }
+      );
+      if (!res.ok) {
+        throw new Error(`Failed to fetch deliverables for campaign ${c.campaign_id}: ${res.status}`);
+      }
+      return res.json() as Promise<Deliverable[]>;
+    })
   );
 
-  // Attach deliverables to each campaign to match the Campaign interface shape
-  const enriched: Campaign[] = campaigns.map((c: any, i) => ({
-    campaign_id:     c.campaign_id ?? c.ugcId,
-    public_id:       c.public_id   ?? c.ugcId,
-    ugc_creator_id:  c.ugc_creator_id ?? c.creatorId ?? '',
-    client_id:       c.client_id,
-    project_name:    c.project_name  ?? c.projectName,
-    description:     c.description   ?? '',
-    currency:        c.currency      ?? 'USD',
-    tax:             c.tax           ?? 0,
-    pricing:         c.pricing       ?? 0,
-    platforms:       c.platforms     ?? [],
-    start_date:      c.start_date    ?? c.startDate,
-    end_date:        c.end_date      ?? c.endDate,
-    campaign_status: c.campaign_status ?? c.status ?? 'ACTIVE',
-    deliverables:    deliverableGroups[i] ?? [],
+  // Attach deliverables to each campaign
+  const enriched: Campaign[] = campaigns.map((c, i) => ({
+    ...c,
+    deliverables: deliverableGroups[i] ?? [],
   }));
 
   return mapCampaignsToEvents(enriched);
