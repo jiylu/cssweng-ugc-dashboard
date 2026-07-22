@@ -4,7 +4,7 @@ import React from "react";
 import { CalendarEvent } from "../types/calendar.types";
 import { EventChip } from "./event-chip";
 import { startOfWeek, addDays, format, isSameDay } from "date-fns";
-import { getEventsForDate, formatTimeSlot, TIME_SLOTS, getCampaignDateRole } from "../calendar.utils";
+import { getEventsForDate, getCampaignDateRole } from "../calendar.utils";
 
 interface CalendarWeekViewProps {
   currentDate: Date;
@@ -27,11 +27,10 @@ function partitionEvents(events: CalendarEvent[]): {
 }
 
 /**
- * All three row types (day header, all-day, time slots) live inside one
- * overflow-y-auto container so they share the same viewport width — including
+ * Day header + all-day event row share the same viewport width — including
  * the scrollbar gutter — guaranteeing perfectly aligned vertical grid lines.
- * The day-header and all-day rows use `sticky` positioning to remain visible
- * while the user scrolls through the hourly grid.
+ * The day-header row uses `sticky` positioning to remain visible if the
+ * all-day row overflows.
  */
 export function CalendarWeekView({ currentDate, events, onEventClick }: CalendarWeekViewProps) {
   const weekStart = startOfWeek(currentDate, { weekStartsOn: 0 });
@@ -40,14 +39,9 @@ export function CalendarWeekView({ currentDate, events, onEventClick }: Calendar
 
   return (
     <div className="w-full border border-[#D8D4CB] rounded-[4px] shadow-sm overflow-hidden">
-      <div className="overflow-y-auto max-h-[620px]">
-
-        {/* ── Day-name / date-number header ──────────────────────────────────
-            Sticky so column labels stay visible while scrolling. */}
-        <div className="sticky top-0 z-20 grid grid-cols-[64px_repeat(7,1fr)] bg-[#F9F8F6] border-b border-[#D8D4CB]">
-          {/* Empty gutter above the time column */}
+      {/* ── Day-name / date-number header ────────────────────────────────── */}
+      <div className="grid grid-cols-[64px_repeat(7,1fr)] bg-[#F9F8F6] border-b border-[#D8D4CB]">
           <div className="border-r border-[#D8D4CB] py-3" />
-
           {weekDays.map((day, i) => {
             const isToday     = isSameDay(day, today);
             const dayEvents   = getEventsForDate(events, day);
@@ -78,9 +72,8 @@ export function CalendarWeekView({ currentDate, events, onEventClick }: Calendar
           })}
         </div>
 
-        {/* ── All-day event row ────────────────────────────────────────────────
-            Sticky beneath the header (top-[60px] matches header height). */}
-        <div className="sticky top-[60px] z-10 grid grid-cols-[64px_repeat(7,1fr)] bg-[#F9F8F6] border-b border-[#D8D4CB]">
+        {/* ── All-day event row ──────────────────────────────────────────────── */}
+        <div className="grid grid-cols-[64px_repeat(7,1fr)] bg-[#F9F8F6] border-b border-[#D8D4CB]">
           <div className="border-r border-[#D8D4CB] py-2 px-2 flex items-start pt-3">
             <span className="text-[9px] font-semibold text-[#78746E] uppercase tracking-widest leading-tight">
               All<br />day
@@ -95,7 +88,7 @@ export function CalendarWeekView({ currentDate, events, onEventClick }: Calendar
             return (
               <div
                 key={i}
-                className="py-1 px-1 min-h-[52px] border-r border-[#D8D4CB] last:border-r-0 flex flex-col gap-0.5"
+                className="py-1 px-1 min-h-[52px] overflow-y-auto border-r border-[#D8D4CB] last:border-r-0 flex flex-col gap-0.5"
               >
                 {ordered.length === 0 ? (
                   <span className="text-[9px] text-[#C9C5BE] italic pt-2 text-center w-full">—</span>
@@ -113,23 +106,6 @@ export function CalendarWeekView({ currentDate, events, onEventClick }: Calendar
             );
           })}
         </div>
-
-        {/* ── Hourly time-slot rows ────────────────────────────────────────── */}
-        {TIME_SLOTS.map((hour) => (
-          <div
-            key={hour}
-            className="grid grid-cols-[64px_repeat(7,1fr)] border-b border-[#D8D4CB] last:border-b-0 bg-white"
-          >
-            <div className="py-3 px-2 border-r border-[#D8D4CB] flex items-start">
-              <span className="text-[10px] text-[#78746E]">{formatTimeSlot(hour)}</span>
-            </div>
-            {weekDays.map((_, j) => (
-              <div key={j} className="h-12 border-r border-[#D8D4CB] last:border-r-0 hover:bg-[#F9F8F6] transition-colors" />
-            ))}
-          </div>
-        ))}
-
-      </div>
     </div>
   );
 }
