@@ -606,6 +606,7 @@ describe('DeliverablesService', () => {
             public_id: 'pub-d1',
             campaign_id: 'camp-1',
             deliverable_content: 'Instagram Carousel',
+            deliverable_type: 'Carousel',
             requirements: 'deliverable',
             due_date: new Date('2026-07-15'),
             post_date: new Date('2026-07-20'),
@@ -617,6 +618,7 @@ describe('DeliverablesService', () => {
             public_id: 'pub-d2',
             campaign_id: 'camp-2',
             deliverable_content: 'TikTok Video',
+            deliverable_type: 'Video',
             requirements: 'deliverable',
             due_date: new Date('2026-08-01'),
             post_date: new Date('2026-08-05'),
@@ -629,6 +631,7 @@ describe('DeliverablesService', () => {
         {
           campaignName: 'Summer Collection',
           deliverableName: 'Instagram Carousel',
+          deliverableType: 'Carousel',
           deliverablePublicId: 'pub-d1',
           deliverableRequirements: 'deliverable',
           dueDate: new Date('2026-07-15'),
@@ -637,6 +640,7 @@ describe('DeliverablesService', () => {
         {
           campaignName: 'Winter Launch',
           deliverableName: 'TikTok Video',
+          deliverableType: 'Video',
           deliverablePublicId: 'pub-d2',
           deliverableRequirements: 'deliverable',
           dueDate: new Date('2026-08-01'),
