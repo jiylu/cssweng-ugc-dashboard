@@ -4,7 +4,7 @@ import React from "react";
 import { CalendarEvent } from "../types/calendar.types";
 import { EventChip } from "./event-chip";
 import { startOfWeek, addDays, format, isSameDay } from "date-fns";
-import { getEventsForDate, formatTimeSlot, TIME_SLOTS } from "../calendar.utils";
+import { getEventsForDate, formatTimeSlot, TIME_SLOTS, getCampaignDateRole } from "../calendar.utils";
 
 interface CalendarWeekViewProps {
   currentDate: Date;
@@ -105,6 +105,7 @@ export function CalendarWeekView({ currentDate, events, onEventClick }: Calendar
                       key={`${event.id}-${format(day, "yyyy-MM-dd")}`}
                       event={event}
                       onClick={onEventClick}
+                      dateRole={getCampaignDateRole(event, day) ?? undefined}
                     />
                   ))
                 )}
