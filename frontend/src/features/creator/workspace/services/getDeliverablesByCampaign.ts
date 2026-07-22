@@ -1,8 +1,9 @@
 import { Deliverable } from "@/src/features/creator/workspace/types/workspace.types"
+import { API_BASE_URL } from "@/src/config/api"
 
 export async function getDeliverablesByCampaign(campaignId: string): Promise<Deliverable[]> {
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/deliverables/campaign/${campaignId}`,
+    `${API_BASE_URL}/deliverables/campaign/${campaignId}`,
     { credentials: "include" }
   )
   if (!response.ok) {

@@ -1,5 +1,6 @@
 import { Campaign } from "@/src/features/creator/campaigns/types/campaign.types"
 import { Deliverable } from "@/src/features/creator/workspace/types/workspace.types"
+import { API_BASE_URL } from "@/src/config/api"
 
 export interface CampaignSetupResponse {
   campaign: Campaign
@@ -12,7 +13,7 @@ export interface CampaignSetupResponse {
 
 export async function getCampaignSetup(campaignId: string): Promise<CampaignSetupResponse> {
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/campaign-setup/${campaignId}`,
+    `${API_BASE_URL}/campaign-setup/${campaignId}`,
     { credentials: "include" }
   )
   if (!response.ok) {

@@ -9,6 +9,7 @@ interface ProposalFeedbackPanelProps {
   onFeedbackChange: (feedback: string) => void;
   onReviseProposal: () => void;
   revisionSubmitted: boolean;
+  isSubmitting?: boolean;
 }
 
 export default function ProposalFeedbackPanel({
@@ -18,8 +19,9 @@ export default function ProposalFeedbackPanel({
   onFeedbackChange,
   onReviseProposal,
   revisionSubmitted,
+  isSubmitting = false,
 }: ProposalFeedbackPanelProps) {
-  const canSubmitRevision = feedback.trim().length > 0;
+  const canSubmitRevision = feedback.trim().length >= 30;
 
   return (
     <section className="rounded border border-[#d8d4cb] bg-white p-5">
@@ -36,6 +38,8 @@ export default function ProposalFeedbackPanel({
         className="mt-4 h-[230px] w-full resize-none border border-[#d8d4cb] p-3 text-sm italic text-[#141518] outline-none focus:border-[#6b1fa8]"
         placeholder="Enter any comment or revisions about specific terms you want to change"
         value={feedback}
+        minLength={30}
+        maxLength={500}
         onChange={(event) => onFeedbackChange(event.target.value)}
       />
 
@@ -49,11 +53,15 @@ export default function ProposalFeedbackPanel({
               ? "border-[#6b1fa8] bg-[#6b1fa8] text-white hover:bg-[#5f1a96]"
               : "border-[#d8d4cb] bg-white text-[#7b7771]",
           )}
-          disabled={!canSubmitRevision}
+          disabled={!canSubmitRevision || isSubmitting}
           onClick={onReviseProposal}
         >
           <Pencil className="size-5" />
-          {revisionSubmitted ? "Revision Submitted" : "Revise Proposal"}
+          {isSubmitting
+            ? "Submitting..."
+            : revisionSubmitted
+              ? "Revision Submitted"
+              : "Revise Proposal"}
         </Button>
         <Button
           type="button"
