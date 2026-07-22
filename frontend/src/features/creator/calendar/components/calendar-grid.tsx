@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import { CalendarEvent } from "../types/calendar.types";
 import { EventChip } from "./event-chip";
+import { DayOverflowModal } from "./day-overflow-modal";
 import { getEventsForDate, toLocalMidnight, getCampaignDateRole } from "../calendar.utils";
 
 interface CalendarGridProps {
@@ -25,6 +26,8 @@ export function CalendarGrid({ currentDate, events, onEventClick }: CalendarGrid
   const year  = currentDate.getFullYear();
   const month = currentDate.getMonth();
   const today = toLocalMidnight(new Date());
+
+  const [overflowDay, setOverflowDay] = useState<{ date: Date; events: CalendarEvent[] } | null>(null);
 
   const firstDayOfMonth = new Date(year, month, 1).getDay();
   const daysInMonth     = new Date(year, month + 1, 0).getDate();
@@ -87,15 +90,28 @@ export function CalendarGrid({ currentDate, events, onEventClick }: CalendarGrid
                   />
                 ))}
                 {overflow > 0 && (
-                  <span className="text-[10px] text-[#78746E] pl-1 leading-tight">
+                  <button
+                    type="button"
+                    onClick={() => setOverflowDay({ date: new Date(year, month, day), events: dayEvents })}
+                    className="text-[10px] text-[#6B1FA8] font-medium pl-1 leading-tight hover:underline cursor-pointer text-left"
+                  >
                     +{overflow} more
-                  </span>
+                  </button>
                 )}
               </div>
             </div>
           );
         })}
       </div>
+
+      {overflowDay && (
+        <DayOverflowModal
+          date={overflowDay.date}
+          events={overflowDay.events}
+          onEventClick={onEventClick}
+          onClose={() => setOverflowDay(null)}
+        />
+      )}
     </div>
   );
 }

@@ -6,6 +6,14 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { ChevronLeft, ChevronRight, ChevronDown } from "lucide-react";
 import { startOfWeek, endOfWeek, format } from "date-fns";
 
+const LEGEND_ITEMS = [
+  { label: "Campaign Start",         bg: "bg-[#6B1FA8]" },
+  { label: "Campaign Deadline",      bg: "bg-[#C85A1A]" },
+  { label: "Ongoing Campaign",       bg: "bg-[#A78BDA]" },
+  { label: "Deliverable Due Date",   bg: "bg-[#B8860B]" },
+  { label: "Deliverable Post Date",  bg: "bg-[#1F8A4A]" },
+] as const;
+
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 interface CalendarHeaderProps {
@@ -191,6 +199,16 @@ export function CalendarHeader({
         >
           <ChevronRight className="h-4 w-4 text-[#141518]" />
         </Button>
+      </div>
+
+      {/* Center: color legend */}
+      <div className="flex items-center gap-3">
+        {LEGEND_ITEMS.map((item) => (
+          <div key={item.label} className="flex items-center gap-1">
+            <span className={`w-2 h-2 rounded-[3px] ${item.bg} shrink-0`} />
+            <span className="text-[10px] text-[#78746E] whitespace-nowrap">{item.label}</span>
+          </div>
+        ))}
       </div>
 
       {/* Right: view-mode tab group */}
