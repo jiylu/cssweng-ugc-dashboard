@@ -4,7 +4,7 @@ import React from "react";
 import { CalendarEvent } from "../types/calendar.types";
 import { EventChip } from "./event-chip";
 import { isSameDay, format } from "date-fns";
-import { getEventsForDate, formatTimeSlot, TIME_SLOTS } from "../calendar.utils";
+import { getEventsForDate, formatTimeSlot, TIME_SLOTS, getCampaignDateRole } from "../calendar.utils";
 import { CalendarX } from "lucide-react";
 
 interface CalendarDayViewProps {
@@ -92,7 +92,7 @@ export function CalendarDayView({ currentDate, events, onEventClick }: CalendarD
             </div>
           ) : (
             dayEvents.map((event) => (
-              <EventChip key={event.id} event={event} onClick={onEventClick} />
+              <EventChip key={event.id} event={event} onClick={onEventClick} dateRole={getCampaignDateRole(event, currentDate) ?? undefined} />
             ))
           )}
         </div>

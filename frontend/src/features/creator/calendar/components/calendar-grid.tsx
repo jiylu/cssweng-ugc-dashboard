@@ -1,7 +1,7 @@
 import React from "react";
 import { CalendarEvent } from "../types/calendar.types";
 import { EventChip } from "./event-chip";
-import { getEventsForDate, toLocalMidnight } from "../calendar.utils";
+import { getEventsForDate, toLocalMidnight, getCampaignDateRole } from "../calendar.utils";
 
 interface CalendarGridProps {
   currentDate: Date;
@@ -83,6 +83,7 @@ export function CalendarGrid({ currentDate, events, onEventClick }: CalendarGrid
                     event={event}
                     onClick={onEventClick}
                     compact
+                    dateRole={getCampaignDateRole(event, new Date(year, month, day)) ?? undefined}
                   />
                 ))}
                 {overflow > 0 && (

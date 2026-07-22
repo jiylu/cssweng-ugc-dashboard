@@ -103,9 +103,16 @@ export function EventDetailModal({ event, onClose }: EventDetailModalProps) {
             <div>
               {event.type === "CAMPAIGN_DURATION" && event.endDate ? (
                 <>
-                  <p className="text-[#141518] font-medium">{format(new Date(event.date), "MMMM d, yyyy")}</p>
-                  <p className="text-xs text-[#78746E]">to</p>
-                  <p className="text-[#141518] font-medium">{format(new Date(event.endDate), "MMMM d, yyyy")}</p>
+                  <div className="flex items-center gap-1.5">
+                    <span className="inline-block w-2 h-2 rounded-full bg-[#6B1FA8] shrink-0" />
+                    <p className="text-[#141518] font-medium">{format(new Date(event.date), "MMMM d, yyyy")}</p>
+                    <span className="text-[10px] text-[#78746E] font-medium">Start</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="inline-block w-2 h-2 rounded-full bg-[#C85A1A] shrink-0" />
+                    <p className="text-[#141518] font-medium">{format(new Date(event.endDate), "MMMM d, yyyy")}</p>
+                    <span className="text-[10px] text-[#78746E] font-medium">Deadline</span>
+                  </div>
                 </>
               ) : (
                 <p className="text-[#141518] font-medium">{format(new Date(event.date), "MMMM d, yyyy")}</p>

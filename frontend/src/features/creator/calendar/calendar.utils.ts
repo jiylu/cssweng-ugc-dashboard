@@ -1,6 +1,8 @@
 import { isSameDay } from "date-fns";
 import { CalendarEvent } from "./types/calendar.types";
 
+export type CampaignDateRole = 'start' | 'end' | 'middle';
+
 /**
  * Normalizes a Date to local midnight (00:00:00) so that calendar cell
  * comparisons are date-only. This prevents UTC offset off-by-one errors
@@ -42,3 +44,17 @@ export function formatTimeSlot(hour: number): string {
 
 /** Hourly time slots shown in the Week and Day timeline grids (8 AM – 9 PM). */
 export const TIME_SLOTS = Array.from({ length: 14 }, (_, i) => i + 8);
+
+/**
+ * Determines whether a CAMPAIGN_DURATION event is being viewed on its
+ * start date, end date, or a middle day — used to color-code chips.
+ */
+export function getCampaignDateRole(event: CalendarEvent, day: Date): CampaignDateRole | null {
+  if (event.type !== "CAMPAIGN_DURATION" || !event.endDate) return null;
+  const cell  = toLocalMidnight(day);
+  const start = toLocalMidnight(new Date(event.date));
+  const end   = toLocalMidnight(new Date(event.endDate));
+  if (cell.getTime() === start.getTime()) return 'start';
+  if (cell.getTime() === end.getTime()) return 'end';
+  return 'middle';
+}
