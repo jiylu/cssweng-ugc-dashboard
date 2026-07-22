@@ -8,8 +8,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL;
  * Converts a list of Campaign objects (each with nested deliverables) into a
  * flat CalendarEvent[] suitable for all calendar grid components.
  *
- * Produces three event types per campaign:
- *  • CAMPAIGN_DURATION — one event spanning start_date → end_date
+ * Produces two event types per campaign deliverable:
  *  • DELIVERABLE_DUE   — one event per deliverable on its due_date
  *  • DELIVERABLE_POST  — one event per deliverable on its post_date
  *
@@ -20,41 +19,37 @@ export function mapCampaignsToEvents(campaigns: Campaign[]): CalendarEvent[] {
   const events: CalendarEvent[] = [];
 
   for (const campaign of campaigns) {
-    // Campaign duration bar
-    events.push({
-      id: `camp-${campaign.campaign_id}`,
-      title: campaign.project_name,
-      date: new Date(campaign.start_date),
-      endDate: new Date(campaign.end_date),
-      type: 'CAMPAIGN_DURATION',
-      status: campaign.campaign_status,
-      campaignId: campaign.campaign_id,
-      sourceId: campaign.campaign_id,
-    });
-
     for (const d of campaign.deliverables) {
       if (d.is_deleted) continue;
+
+      const label = `${campaign.project_name} - ${d.deliverable_content}`;
 
       // Due date chip
       events.push({
         id: `due-${d.deliverable_id}`,
-        title: `DUE: ${d.deliverable_content}`,
+        title: label,
         date: new Date(d.due_date),
         type: 'DELIVERABLE_DUE',
         status: campaign.campaign_status,
         campaignId: campaign.campaign_id,
         sourceId: d.deliverable_id,
+        campaignName: campaign.project_name,
+        campaignCurrency: campaign.currency,
+        deliverable: d,
       });
 
       // Post date chip
       events.push({
         id: `post-${d.deliverable_id}`,
-        title: `POST: ${d.deliverable_content}`,
+        title: label,
         date: new Date(d.post_date),
         type: 'DELIVERABLE_POST',
         status: campaign.campaign_status,
         campaignId: campaign.campaign_id,
         sourceId: d.deliverable_id,
+        campaignName: campaign.project_name,
+        campaignCurrency: campaign.currency,
+        deliverable: d,
       });
     }
   }

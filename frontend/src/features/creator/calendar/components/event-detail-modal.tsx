@@ -2,7 +2,7 @@
 
 import React, { useEffect } from "react";
 import { CalendarEvent } from "../types/calendar.types";
-import { X, Megaphone, ClipboardCheck, Send, CalendarDays, Tag } from "lucide-react";
+import { X, ClipboardCheck, Send, CalendarDays, Tag, FileText, Layers, DollarSign } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 
@@ -12,13 +12,6 @@ interface EventDetailModalProps {
 }
 
 const TYPE_CONFIG = {
-  CAMPAIGN_DURATION: {
-    label: "Campaign",
-    Icon: Megaphone,
-    accentBg: "bg-[#6B1FA8]",
-    badgeBg: "bg-[#F3E8FF]",
-    badgeText: "text-[#6B1FA8]",
-  },
   DELIVERABLE_DUE: {
     label: "Due Date",
     Icon: ClipboardCheck,
@@ -42,12 +35,25 @@ const STATUS_STYLES: Record<string, string> = {
   FOR_REVISIONS: "bg-[#FFF3E8] text-[#C85A1A]",
 };
 
+function InfoRow({ icon: Icon, label, value }: { icon: React.ElementType; label: string; value: string }) {
+  return (
+    <div className="flex items-start gap-2">
+      <Icon className="h-3.5 w-3.5 shrink-0 mt-0.5 text-[#78746E]" />
+      <div className="min-w-0">
+        <p className="text-[10px] text-[#78746E] uppercase tracking-wider font-medium">{label}</p>
+        <p className="text-xs text-[#141518] font-medium break-words">{value}</p>
+      </div>
+    </div>
+  );
+}
+
 export function EventDetailModal({ event, onClose }: EventDetailModalProps) {
   const config = TYPE_CONFIG[event.type];
   const { Icon } = config;
   const statusStyle = event.status
     ? (STATUS_STYLES[event.status] ?? "bg-[#D8D4CB] text-[#141518]")
     : null;
+  const d = event.deliverable;
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
@@ -59,7 +65,7 @@ export function EventDetailModal({ event, onClose }: EventDetailModalProps) {
     <div
       role="dialog"
       aria-modal="true"
-      aria-label={`Event detail: ${event.title}`}
+      aria-label={`Deliverable detail: ${event.title}`}
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-[2px]"
       onClick={onClose}
     >
@@ -70,7 +76,8 @@ export function EventDetailModal({ event, onClose }: EventDetailModalProps) {
         <div className={`${config.accentBg} h-1 w-full`} />
 
         <div className="p-5">
-          <div className="flex items-start justify-between mb-4">
+          {/* Badges */}
+          <div className="flex items-start justify-between mb-3">
             <div className="flex flex-wrap items-center gap-1.5">
               <span className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-[2px] ${config.badgeBg} ${config.badgeText}`}>
                 <Icon className="h-3 w-3" />
@@ -94,32 +101,55 @@ export function EventDetailModal({ event, onClose }: EventDetailModalProps) {
             </Button>
           </div>
 
+          {/* Campaign name */}
+          {event.campaignName && (
+            <p className="text-[11px] text-[#78746E] font-medium mb-1">{event.campaignName}</p>
+          )}
+
+          {/* Deliverable content */}
           <h3 className="text-base font-semibold text-[#141518] leading-snug mb-4">
-            {event.title}
+            {d?.deliverable_content ?? event.title}
           </h3>
 
-          <div className="flex items-start gap-2 text-sm text-[#78746E]">
-            <CalendarDays className="h-4 w-4 shrink-0 mt-0.5" />
-            <div>
-              {event.type === "CAMPAIGN_DURATION" && event.endDate ? (
-                <>
-                  <div className="flex items-center gap-1.5">
-                    <span className="inline-block w-2 h-2 rounded-full bg-[#6B1FA8] shrink-0" />
-                    <p className="text-[#141518] font-medium">{format(new Date(event.date), "MMMM d, yyyy")}</p>
-                    <span className="text-[10px] text-[#78746E] font-medium">Start</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="inline-block w-2 h-2 rounded-full bg-[#C85A1A] shrink-0" />
-                    <p className="text-[#141518] font-medium">{format(new Date(event.endDate), "MMMM d, yyyy")}</p>
-                    <span className="text-[10px] text-[#78746E] font-medium">Deadline</span>
-                  </div>
-                </>
-              ) : (
-                <p className="text-[#141518] font-medium">{format(new Date(event.date), "MMMM d, yyyy")}</p>
-              )}
-            </div>
+          {/* Info rows */}
+          <div className="flex flex-col gap-3 text-sm text-[#78746E]">
+            {d?.due_date && (
+              <InfoRow
+                icon={CalendarDays}
+                label="Due Date"
+                value={format(new Date(d.due_date), "MMMM d, yyyy")}
+              />
+            )}
+            {d?.post_date && (
+              <InfoRow
+                icon={CalendarDays}
+                label="Post Date"
+                value={format(new Date(d.post_date), "MMMM d, yyyy")}
+              />
+            )}
+
+            {d?.requirements && (
+              <InfoRow icon={FileText} label="Requirements" value={d.requirements} />
+            )}
+
+            {d?.deliverable_type && (
+              <InfoRow icon={Layers} label="Type" value={d.deliverable_type === "UGC" ? "UGC" : "Collaboration"} />
+            )}
+
+            {d?.quantity != null && (
+              <InfoRow icon={Layers} label="Quantity" value={String(d.quantity)} />
+            )}
+
+            {d?.pricing != null && (
+              <InfoRow
+                icon={DollarSign}
+                label="Pricing"
+                value={`${Number(d.pricing).toFixed(2)} ${event.campaignCurrency ?? ""}`}
+              />
+            )}
           </div>
 
+          {/* Close */}
           <div className="border-t border-[#D8D4CB] mt-4 pt-3">
             <Button
               variant="outline"

@@ -4,7 +4,7 @@ import React from "react";
 import { CalendarEvent } from "../types/calendar.types";
 import { EventChip } from "./event-chip";
 import { isSameDay, format } from "date-fns";
-import { getEventsForDate, getCampaignDateRole } from "../calendar.utils";
+import { getEventsForDate } from "../calendar.utils";
 import { CalendarX } from "lucide-react";
 
 interface CalendarDayViewProps {
@@ -15,14 +15,12 @@ interface CalendarDayViewProps {
 
 /**
  * Sort order for events:
- *   1. Campaign duration bars (broad context)
- *   2. Deliverable due-date chips
- *   3. Deliverable post-date chips
+ *   1. Deliverable due-date chips
+ *   2. Deliverable post-date chips
  */
 const TYPE_ORDER: Record<CalendarEvent["type"], number> = {
-  CAMPAIGN_DURATION: 0,
-  DELIVERABLE_DUE:   1,
-  DELIVERABLE_POST:  2,
+  DELIVERABLE_DUE:  0,
+  DELIVERABLE_POST: 1,
 };
 
 function sortEvents(events: CalendarEvent[]): CalendarEvent[] {
@@ -30,7 +28,7 @@ function sortEvents(events: CalendarEvent[]): CalendarEvent[] {
 }
 
 export function CalendarDayView({ currentDate, events, onEventClick }: CalendarDayViewProps) {
-  const isToday  = isSameDay(currentDate, new Date());
+  const isToday   = isSameDay(currentDate, new Date());
   const rawEvents = getEventsForDate(events, currentDate);
   const dayEvents = sortEvents(rawEvents);
 
@@ -39,7 +37,6 @@ export function CalendarDayView({ currentDate, events, onEventClick }: CalendarD
 
       {/* ── Day header ──────────────────────────────────────────────────────── */}
       <div className="flex items-center gap-4 px-6 py-4 bg-[#F9F8F6] border-b border-[#D8D4CB]">
-        {/* Date number badge */}
         <div
           className={[
             "w-12 h-12 flex items-center justify-center rounded-[2px] text-2xl font-semibold shrink-0",
@@ -61,13 +58,11 @@ export function CalendarDayView({ currentDate, events, onEventClick }: CalendarD
         </div>
 
         <div className="ml-auto flex items-center gap-2">
-          {/* Event count badge */}
           {dayEvents.length > 0 && (
             <span className="text-[11px] font-semibold text-[#C85A1A] bg-[#FFF3E8] px-2 py-0.5 rounded-[2px]">
               {dayEvents.length} event{dayEvents.length !== 1 ? "s" : ""}
             </span>
           )}
-          {/* Today pill */}
           {isToday && (
             <span className="text-[11px] font-semibold text-[#6B1FA8] bg-[#F3E8FF] px-2 py-0.5 rounded-[2px]">
               Today
@@ -86,7 +81,7 @@ export function CalendarDayView({ currentDate, events, onEventClick }: CalendarD
         ) : (
           <div className="flex flex-col gap-1">
             {dayEvents.map((event) => (
-              <EventChip key={event.id} event={event} onClick={onEventClick} dateRole={getCampaignDateRole(event, currentDate) ?? undefined} />
+              <EventChip key={event.id} event={event} onClick={onEventClick} />
             ))}
           </div>
         )}
