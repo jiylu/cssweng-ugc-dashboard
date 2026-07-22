@@ -303,6 +303,8 @@ export class DeliverablesService {
         return deliverables.map((deliverable) => ({
           campaignName: campaign.project_name,
           deliverableName: deliverable.deliverable_content,
+          deliverableType: deliverable.deliverable_type,
+          deliverableRequirements: deliverable.requirements,
           deliverablePublicId: deliverable.public_id,
           dueDate: deliverable.due_date,
           postDate: deliverable.post_date,

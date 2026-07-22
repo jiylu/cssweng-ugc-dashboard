@@ -1,4 +1,4 @@
-export const API_BASE_URL = "/api";
+import { API_BASE_URL } from "@/src/config/api";
 
 export type CreateUserPayload = {
   email: string;

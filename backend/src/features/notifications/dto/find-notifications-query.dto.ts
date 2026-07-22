@@ -1,4 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 import { IsInt, IsNotEmpty, IsOptional, IsString, Min } from 'class-validator';
 
 export class FindNotificationsQueryDTO {
@@ -18,6 +19,7 @@ export class FindNotificationsQueryDTO {
     minimum: 1,
   })
   @IsOptional()
+  @Transform(({ value }) => Number(value))
   @IsInt({ message: 'Limit must be an integer.' })
   @Min(1, { message: 'Limit must be at least 1.' })
   limit?: number;
