@@ -20,7 +20,7 @@ interface EventChipProps {
 
 const EVENT_CONFIG = {
   CAMPAIGN_DURATION: { bg: "bg-[#6B1FA8]", hover: "hover:bg-[#5a1890]", Icon: Megaphone },
-  DELIVERABLE_DUE:   { bg: "bg-[#C85A1A]", hover: "hover:bg-[#b04e16]", Icon: ClipboardCheck },
+  DELIVERABLE_DUE:   { bg: "bg-[#B8860B]", hover: "hover:bg-[#a07509]", Icon: ClipboardCheck },
   DELIVERABLE_POST:  { bg: "bg-[#1F8A4A]", hover: "hover:bg-[#1a7440]", Icon: Send },
 } as const;
 

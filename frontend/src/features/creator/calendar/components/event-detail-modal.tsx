@@ -22,9 +22,9 @@ const TYPE_CONFIG = {
   DELIVERABLE_DUE: {
     label: "Due Date",
     Icon: ClipboardCheck,
-    accentBg: "bg-[#C85A1A]",
-    badgeBg: "bg-[#FFF3E8]",
-    badgeText: "text-[#C85A1A]",
+    accentBg: "bg-[#B8860B]",
+    badgeBg: "bg-[#FFF8E1]",
+    badgeText: "text-[#B8860B]",
   },
   DELIVERABLE_POST: {
     label: "Post Date",
