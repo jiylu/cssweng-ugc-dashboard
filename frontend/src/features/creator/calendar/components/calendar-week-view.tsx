@@ -4,7 +4,7 @@ import React from "react";
 import { CalendarEvent } from "../types/calendar.types";
 import { EventChip } from "./event-chip";
 import { startOfWeek, addDays, format, isSameDay } from "date-fns";
-import { getEventsForDate, getCampaignDateRole } from "../calendar.utils";
+import { getEventsForDate } from "../calendar.utils";
 
 interface CalendarWeekViewProps {
   currentDate: Date;
@@ -12,26 +12,6 @@ interface CalendarWeekViewProps {
   onEventClick: (event: CalendarEvent) => void;
 }
 
-/**
- * Groups events into campaign-duration bars vs individual deliverable chips
- * so the all-day row shows campaigns first, then due / post deliverables.
- */
-function partitionEvents(events: CalendarEvent[]): {
-  campaigns: CalendarEvent[];
-  deliverables: CalendarEvent[];
-} {
-  return {
-    campaigns:    events.filter((e) => e.type === "CAMPAIGN_DURATION"),
-    deliverables: events.filter((e) => e.type !== "CAMPAIGN_DURATION"),
-  };
-}
-
-/**
- * Day header + all-day event row share the same viewport width — including
- * the scrollbar gutter — guaranteeing perfectly aligned vertical grid lines.
- * The day-header row uses `sticky` positioning to remain visible if the
- * all-day row overflows.
- */
 export function CalendarWeekView({ currentDate, events, onEventClick }: CalendarWeekViewProps) {
   const weekStart = startOfWeek(currentDate, { weekStartsOn: 0 });
   const weekDays  = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
@@ -43,9 +23,9 @@ export function CalendarWeekView({ currentDate, events, onEventClick }: Calendar
       <div className="grid grid-cols-[64px_repeat(7,1fr)] bg-[#F9F8F6] border-b border-[#D8D4CB]">
           <div className="border-r border-[#D8D4CB] py-3" />
           {weekDays.map((day, i) => {
-            const isToday     = isSameDay(day, today);
-            const dayEvents   = getEventsForDate(events, day);
-            const eventCount  = dayEvents.length;
+            const isToday    = isSameDay(day, today);
+            const dayEvents  = getEventsForDate(events, day);
+            const eventCount = dayEvents.length;
 
             return (
               <div key={i} className="py-3 text-center border-r border-[#D8D4CB] last:border-r-0 relative">
@@ -72,33 +52,30 @@ export function CalendarWeekView({ currentDate, events, onEventClick }: Calendar
           })}
         </div>
 
-        {/* ── All-day event row ──────────────────────────────────────────────── */}
-        <div className="grid grid-cols-[64px_repeat(7,1fr)] bg-[#F9F8F6] border-b border-[#D8D4CB]">
+        {/* ── Event row ──────────────────────────────────────────────────────── */}
+        <div className="grid grid-cols-[64px_repeat(7,1fr)] bg-[#F9F8F6]">
           <div className="border-r border-[#D8D4CB] py-2 px-2 flex items-start pt-3">
             <span className="text-[9px] font-semibold text-[#78746E] uppercase tracking-widest leading-tight">
-              All<br />day
+              Events
             </span>
           </div>
 
           {weekDays.map((day, i) => {
-            const dayEvents  = getEventsForDate(events, day);
-            const { campaigns, deliverables } = partitionEvents(dayEvents);
-            const ordered = [...campaigns, ...deliverables];
+            const dayEvents = getEventsForDate(events, day);
 
             return (
               <div
                 key={i}
                 className="py-1 px-1 min-h-[52px] overflow-y-auto border-r border-[#D8D4CB] last:border-r-0 flex flex-col gap-0.5"
               >
-                {ordered.length === 0 ? (
+                {dayEvents.length === 0 ? (
                   <span className="text-[9px] text-[#C9C5BE] italic pt-2 text-center w-full">—</span>
                 ) : (
-                  ordered.map((event) => (
+                  dayEvents.map((event) => (
                     <EventChip
                       key={`${event.id}-${format(day, "yyyy-MM-dd")}`}
                       event={event}
                       onClick={onEventClick}
-                      dateRole={getCampaignDateRole(event, day) ?? undefined}
                     />
                   ))
                 )}

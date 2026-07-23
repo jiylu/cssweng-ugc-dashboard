@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/dialog";
 import { CalendarDays } from "lucide-react";
 import { format } from "date-fns";
-import { getCampaignDateRole } from "../calendar.utils";
 
 interface DayOverflowModalProps {
   date: Date;
@@ -36,7 +35,7 @@ export function DayOverflowModal({ date, events, onEventClick, onClose }: DayOve
             {format(date, "EEEE, MMMM d, yyyy")}
           </DialogTitle>
           <DialogDescription className="text-xs text-[#78746E]">
-            {events.length} event{events.length !== 1 ? "s" : ""} scheduled
+            {events.length} deliverable{events.length !== 1 ? "s" : ""} scheduled
           </DialogDescription>
         </DialogHeader>
 
@@ -46,7 +45,6 @@ export function DayOverflowModal({ date, events, onEventClick, onClose }: DayOve
               key={event.id}
               event={event}
               onClick={handleEventClick}
-              dateRole={getCampaignDateRole(event, date) ?? undefined}
             />
           ))}
         </div>

@@ -1,17 +1,19 @@
 // ─── Core Event Types ──────────────────────────────────────────────────────────
 
-export type EventType = 'CAMPAIGN_DURATION' | 'DELIVERABLE_DUE' | 'DELIVERABLE_POST';
+export type EventType = 'DELIVERABLE_DUE' | 'DELIVERABLE_POST';
 
 /** Flat event record consumed by all calendar grid components. */
 export interface CalendarEvent {
-  id: string;           // Prefixed composite id (e.g. "camp-uuid", "due-uuid", "post-uuid")
-  title: string;        // projectName or deliverableContent description
-  date: Date;           // Start date (or the single event date)
-  endDate?: Date;       // End date — only for CAMPAIGN_DURATION spanning blocks
+  id: string;           // Prefixed composite id (e.g. "due-uuid", "post-uuid")
+  title: string;        // "[Campaign Name] - [Deliverable Name]"
+  date: Date;           // The due date or post date
   type: EventType;
-  status?: string;      // e.g., ACTIVE, COMPLETED — used for color-coding chips
+  status?: string;      // e.g., ACTIVE, COMPLETED — used for status badge
   campaignId?: string;  // Raw campaign ugcId this event belongs to
-  sourceId?: string;    // Raw deliverableId / campaign ugcId for the detail modal
+  sourceId?: string;    // Raw deliverableId for the detail modal
+  campaignName?: string; // Parent campaign project_name
+  campaignCurrency?: CampaignCurrency; // Parent campaign currency
+  deliverable?: Deliverable; // Full deliverable record for the detail modal
 }
 
 // ─── Domain Interfaces (matching Prisma schema / API response shapes) ──────────

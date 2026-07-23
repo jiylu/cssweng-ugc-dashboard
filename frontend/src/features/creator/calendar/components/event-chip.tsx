@@ -1,6 +1,6 @@
 import React from "react";
 import { CalendarEvent } from "../types/calendar.types";
-import { Megaphone, ClipboardCheck, Send } from "lucide-react";
+import { ClipboardCheck, Send } from "lucide-react";
 
 interface EventChipProps {
   event: CalendarEvent;
@@ -11,33 +11,15 @@ interface EventChipProps {
    * Default: false (icon shown).
    */
   compact?: boolean;
-  /**
-   * dateRole — visual role for CAMPAIGN_DURATION chips.
-   * 'start' = bright purple, 'end' = red-orange, 'middle' = muted.
-   */
-  dateRole?: 'start' | 'end' | 'middle';
 }
 
 const EVENT_CONFIG = {
-  CAMPAIGN_DURATION: { bg: "bg-[#6B1FA8]", hover: "hover:bg-[#5a1890]", Icon: Megaphone },
-  DELIVERABLE_DUE:   { bg: "bg-[#B8860B]", hover: "hover:bg-[#a07509]", Icon: ClipboardCheck },
-  DELIVERABLE_POST:  { bg: "bg-[#1F8A4A]", hover: "hover:bg-[#1a7440]", Icon: Send },
+  DELIVERABLE_DUE:  { bg: "bg-[#B8860B]", hover: "hover:bg-[#a07509]", Icon: ClipboardCheck },
+  DELIVERABLE_POST: { bg: "bg-[#1F8A4A]", hover: "hover:bg-[#1a7440]", Icon: Send },
 } as const;
 
-const CAMPAIGN_DATE_COLORS = {
-  start:  { bg: "bg-[#6B1FA8]", hover: "hover:bg-[#5a1890]" },
-  end:    { bg: "bg-[#C85A1A]", hover: "hover:bg-[#b04e16]" },
-  middle: { bg: "bg-[#A78BDA]", hover: "hover:bg-[#9577cc]" },
-} as const;
-
-export function EventChip({ event, onClick, compact = false, dateRole }: EventChipProps) {
-  const base = EVENT_CONFIG[event.type];
-  const colors =
-    event.type === "CAMPAIGN_DURATION" && dateRole
-      ? CAMPAIGN_DATE_COLORS[dateRole]
-      : base;
-  const { bg, hover } = colors;
-  const { Icon } = base;
+export function EventChip({ event, onClick, compact = false }: EventChipProps) {
+  const { bg, hover, Icon } = EVENT_CONFIG[event.type];
 
   return (
     <button

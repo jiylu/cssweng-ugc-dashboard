@@ -7,9 +7,6 @@ import { ChevronLeft, ChevronRight, ChevronDown } from "lucide-react";
 import { startOfWeek, endOfWeek, format } from "date-fns";
 
 const LEGEND_ITEMS = [
-  { label: "Campaign Start",         bg: "bg-[#6B1FA8]" },
-  { label: "Campaign Deadline",      bg: "bg-[#C85A1A]" },
-  { label: "Ongoing Campaign",       bg: "bg-[#A78BDA]" },
   { label: "Deliverable Due Date",   bg: "bg-[#B8860B]" },
   { label: "Deliverable Post Date",  bg: "bg-[#1F8A4A]" },
 ] as const;
