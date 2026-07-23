@@ -50,12 +50,6 @@ export default function LoginCard({ loginForm }: LoginCardProps) {
               <div className="grid gap-2">
                 <div className="flex items-center">
                   <Label htmlFor="password">Password</Label>
-
-                  <a href="#"
-                    className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
-                  >
-                    Forgot your password?
-                  </a>
                 </div>
 
                 <div className="relative">
@@ -90,16 +84,23 @@ export default function LoginCard({ loginForm }: LoginCardProps) {
                 )}
               </div>
 
-              <label className="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground">
-                <input
-                  type="checkbox"
-                  checked={loginForm.rememberMe}
-                  onChange={(e) => loginForm.setRememberMe(e.target.checked)}
-                  disabled={loginForm.isSubmitting}
-                  className="size-4 cursor-pointer accent-[#8811FF]"
-                />
-                Remember me for 30 days
-              </label>
+              <div className="flex items-center justify-between -mt-[10px]">
+                <label className="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground">
+                  <input
+                    type="checkbox"
+                    checked={loginForm.rememberMe}
+                    onChange={(e) => loginForm.setRememberMe(e.target.checked)}
+                    disabled={loginForm.isSubmitting}
+                    className="size-4 cursor-pointer accent-[#8811FF]"/>
+                  <span className="-mb-[2px]">Remember me for 30 days</span>
+                </label>
+
+                <a href="#"
+                  className="ml-auto inline-block text-sm underline-offset-4 hover:underline italic">
+                  Forgot password?
+                </a>
+              </div>
+
               <div aria-live="polite" className="min-h-6">
                 {loginForm.submitError && (
                   <p role="alert" className="text-sm text-[#ff6467]">
@@ -114,13 +115,12 @@ export default function LoginCard({ loginForm }: LoginCardProps) {
                 )}
 
               </div>
-
-
             </div>
-            <CardFooter className="flex-col gap-2">
+
+            <CardFooter className="flex-col gap-2 -mt-6">
               <Button
                 type="submit"
-                className="cursor-pointer w-full"
+                className="cursor-pointer w-full mt-3"
                 disabled={loginForm.isSubmitting}
               >
                 {loginForm.isSubmitting && <Loader2 className="size-4 animate-spin" />}
