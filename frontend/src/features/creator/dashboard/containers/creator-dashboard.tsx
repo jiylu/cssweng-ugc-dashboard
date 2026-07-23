@@ -49,13 +49,13 @@ export default function CreatorDashboard() {
     <main className="flex flex-row w-full min-h-screen overflow-hidden">
       <CreatorSidebar />
 
-      <section className="flex-1 overflow-y-auto h-screen scrollbar-gutter-stable px-4 sm:px-6 lg:px-8 py-6">
+      <section className="flex-1 overflow-y-auto h-screen scrollbar-gutter-stable px-4 sm:px-6 lg:px-8 py-8">
         <div className="max-w-7xl mx-auto">
 
           {/* HEADER */}
-          <div className="mb-5 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+          <div className="mt-3 mb-3 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
             <div>
-              <h1 className="text-3xl sm:text-4xl lg:text-[64px] font-bold leading-tight text-[#141518]">
+              <h1 className="text-2xl sm:text-3xl lg:text-[56px] font-bold leading-tight text-[#141518]">
                 Welcome back, {user?.first_name ?? "User"}
               </h1>
             </div>
