@@ -12,8 +12,10 @@ export class NotificationsController {
   constructor(private readonly notificationsService: NotificationsService) {}
 
   @ApiFindNotification()
-  @Get(':notificationId')
-  findOne(@Param('notificationId') notificationId: string) {
+  @Get(':publicId')
+  async findOne(@Param('publicId') publicId: string) {
+    const notificationId =
+      await this.notificationsService.resolvePublicId(publicId);
     return this.notificationsService.findNotification(notificationId);
   }
 

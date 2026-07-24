@@ -23,10 +23,6 @@ export class CampaignSetupController {
     const result =
       await this.campaignSetupService.createFullCampaignService(dto);
 
-    if (!result) {
-      return null;
-    }
-
     await this.activityLogService.createActivityLog({
       userId: dto.campaign.ugcId,
       entityType: EntityType.CAMPAIGN,

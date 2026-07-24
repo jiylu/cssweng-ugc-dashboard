@@ -6,6 +6,8 @@ import { NotificationsService } from '../notifications.service';
 import { CreateNotificationDTO } from '../dto/create-notification.dto';
 import { FindNotificationsQueryDTO } from '../dto/find-notifications-query.dto';
 
+jest.mock('nanoid', () => ({ nanoid: jest.fn(() => 'mock-pb-id') }));
+
 describe('NotificationsService', () => {
   let service: NotificationsService;
 
@@ -69,6 +71,7 @@ describe('NotificationsService', () => {
       expect(mockPrisma.notifications.create).toHaveBeenCalledWith({
         data: {
           user_id: dto.userId,
+          public_id: 'mock-pb-id',
           title: dto.title,
           message: dto.message,
         },

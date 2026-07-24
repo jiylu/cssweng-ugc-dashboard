@@ -189,6 +189,7 @@ model ActivityLog {
 
 model Notifications {
   notification_id String   @id @default(uuid())
+  public_id       String   @unique @db.VarChar(10)
   user_id         String
   title           String
   message         String
