@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { GiftedProduct, PaymentTermsData } from "@/src/features/creator/proposals/types/payment-terms.types"
+import { GiftedProduct, PaymentTermsData, ShippingAddress } from "@/src/features/creator/proposals/types/payment-terms.types"
 import { validatePaymentTerms } from "@/src/features/creator/proposals/utils/validators"
 
 export function usePaymentTerms() {
@@ -9,7 +9,7 @@ export function usePaymentTerms() {
       productName: "",
       value: "",
       ownershipTerms: "",
-      shippingAddress: "",
+      shippingAddress: null,
       deliveryInstructions: "",
     }
   ])
@@ -25,7 +25,7 @@ export function usePaymentTerms() {
       productName: "",
       value: "",
       ownershipTerms: "",
-      shippingAddress: "",
+      shippingAddress: null,
       deliveryInstructions: "",
     }])
   }
