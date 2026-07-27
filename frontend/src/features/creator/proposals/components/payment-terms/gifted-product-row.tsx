@@ -1,10 +1,11 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group"
 import { ChevronUp, ChevronDown, Trash2, MapPin } from "lucide-react"
 import { GiftedProduct,  ShippingAddress } from "@/src/features/creator/proposals/types/payment-terms.types"
 import { ShippingAddressPopup } from "@/src/features/creator/proposals/components/payment-terms/shipping-address-popup"
+import { useShippingAddress } from "@/src/features/creator/proposals/hooks/useShippingAddress"
 import { adjustPriceValue } from "@/src/features/creator/proposals/utils/formatPrice"
 
 interface GiftedProductRowProps {
@@ -19,6 +20,13 @@ interface GiftedProductRowProps {
 export function GiftedProductRow({ item, index, currency, errors, onUpdate, onRemove }: GiftedProductRowProps) {
     const e = (field: string) => errors[`giftedProducts.${index}.${field}`]
     const [addressModalOpen, setAddressModalOpen] = useState(false)
+    const shippingAddress = useShippingAddress(item.shippingAddress)
+
+    useEffect(() => {
+        if (addressModalOpen) {
+            shippingAddress.reset(item.shippingAddress)
+        }
+    }, [addressModalOpen])
 
     function formatAddress(addr: ShippingAddress | null): string {
         if (!addr || !addr.addressLine1) return "No address set yet"
@@ -131,8 +139,13 @@ export function GiftedProductRow({ item, index, currency, errors, onUpdate, onRe
             <ShippingAddressPopup
                 open={addressModalOpen}
                 onClose={() => setAddressModalOpen(false)}
-                value={item.shippingAddress}
-                onSave={(addr) => onUpdate('shippingAddress', addr)}
+                form={shippingAddress.form}
+                errors={shippingAddress.errors}
+                onFieldChange={shippingAddress.update}
+                onSave={() => {
+                    const saved = shippingAddress.validateAndSave((addr) => onUpdate('shippingAddress', addr))
+                    if (saved) setAddressModalOpen(false)
+                }}
             />
         </div>
     </div>

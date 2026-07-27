@@ -2,7 +2,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { useState } from "react"
 import { ShippingAddress } from "../../types/payment-terms.types"
 
 const COUNTRIES = ["Philippines", "United States", "United Kingdom", "Australia", "Canada", "Singapore"]
@@ -24,29 +23,13 @@ const CITIES: Record<string, string[]> = {
 interface ShippingAddressPopupProps {
   open: boolean
   onClose: () => void
-  value: ShippingAddress | null
-  onSave: (address: ShippingAddress) => void
+  form: ShippingAddress
+  errors: Record<string, string>
+  onFieldChange: (field: keyof ShippingAddress, val: string) => void
+  onSave: () => void
 }
 
-export function ShippingAddressPopup({ open, onClose, value, onSave }: ShippingAddressPopupProps) {
-  const [form, setForm] = useState<ShippingAddress>(value ?? {
-    addressLine1: "",
-    addressLine2: "",
-    country: "",
-    stateProvince: "",
-    city: "",
-    zipCode: "",
-  })
-
-  function update(field: keyof ShippingAddress, val: string) {
-    setForm((prev) => ({
-      ...prev,
-      [field]: val,
-      ...(field === "country" ? { stateProvince: "", city: "" } : {}),
-      ...(field === "stateProvince" ? { city: "" } : {}),
-    }))
-  }
-
+export function ShippingAddressPopup({ open, onClose, form, errors, onFieldChange, onSave }: ShippingAddressPopupProps) {
   const provinces = PROVINCES[form.country] ?? []
   const cities = CITIES[form.stateProvince] ?? []
 
@@ -63,10 +46,11 @@ export function ShippingAddressPopup({ open, onClose, value, onSave }: ShippingA
             <label className="text-sm text-foreground">Address Line 1</label>
             <Input
               value={form.addressLine1}
-              onChange={(e) => update('addressLine1', e.target.value)}
+              onChange={(e) => onFieldChange('addressLine1', e.target.value)}
               className="bg-white border-border rounded-[3px] text-sm"
             />
-            <p className="text-xs text-muted-foreground">Street address, P.O. box, company name, c/o</p>
+            {errors.addressLine1 && <p className="text-xs mt-1 text-[#ff6467]">{errors.addressLine1}</p>}
+            {!errors.addressLine1 && <p className="text-xs text-muted-foreground">Street address, P.O. box, company name, c/o</p>}
           </div>
 
           {/* Address Line 2 */}
@@ -74,7 +58,7 @@ export function ShippingAddressPopup({ open, onClose, value, onSave }: ShippingA
             <label className="text-sm text-foreground">Address Line 2</label>
             <Input
               value={form.addressLine2}
-              onChange={(e) => update('addressLine2', e.target.value)}
+              onChange={(e) => onFieldChange('addressLine2', e.target.value)}
               className="bg-white border-border rounded-[3px] text-sm"
             />
             <p className="text-xs text-muted-foreground">Apartment, suite, unit, building, floor, etc.</p>
@@ -84,7 +68,7 @@ export function ShippingAddressPopup({ open, onClose, value, onSave }: ShippingA
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-1">
               <label className="text-sm text-foreground">Country</label>
-              <Select value={form.country} onValueChange={(v) => update('country', v)}>
+              <Select value={form.country} onValueChange={(v) => onFieldChange('country', v)}>
                 <SelectTrigger className="bg-white border-border rounded-[3px] text-sm">
                   <SelectValue placeholder="Country" />
                 </SelectTrigger>
@@ -94,11 +78,12 @@ export function ShippingAddressPopup({ open, onClose, value, onSave }: ShippingA
                   ))}
                 </SelectContent>
               </Select>
+              {errors.country && <p className="text-xs mt-1 text-[#ff6467]">{errors.country}</p>}
             </div>
 
             <div className="flex flex-col gap-1">
               <label className="text-sm text-foreground">State/Province</label>
-              <Select value={form.stateProvince} onValueChange={(v) => update('stateProvince', v)} disabled={!form.country}>
+              <Select value={form.stateProvince} onValueChange={(v) => onFieldChange('stateProvince', v)} disabled={!form.country}>
                 <SelectTrigger className="bg-white border-border rounded-[3px] text-sm">
                   <SelectValue placeholder="Province" />
                 </SelectTrigger>
@@ -108,6 +93,7 @@ export function ShippingAddressPopup({ open, onClose, value, onSave }: ShippingA
                   ))}
                 </SelectContent>
               </Select>
+              {errors.stateProvince && <p className="text-xs mt-1 text-[#ff6467]">{errors.stateProvince}</p>}
             </div>
           </div>
 
@@ -115,7 +101,7 @@ export function ShippingAddressPopup({ open, onClose, value, onSave }: ShippingA
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-1">
               <label className="text-sm text-foreground">City</label>
-              <Select value={form.city} onValueChange={(v) => update('city', v)} disabled={!form.stateProvince}>
+              <Select value={form.city} onValueChange={(v) => onFieldChange('city', v)} disabled={!form.stateProvince}>
                 <SelectTrigger className="bg-white border-border rounded-[3px] text-sm">
                   <SelectValue placeholder="City" />
                 </SelectTrigger>
@@ -127,21 +113,23 @@ export function ShippingAddressPopup({ open, onClose, value, onSave }: ShippingA
                   ) : null}
                 </SelectContent>
               </Select>
+              {errors.city && <p className="text-xs mt-1 text-[#ff6467]">{errors.city}</p>}
             </div>
 
             <div className="flex flex-col gap-1">
               <label className="text-sm text-foreground">Zip Code</label>
               <Input
                 value={form.zipCode}
-                onChange={(e) => update('zipCode', e.target.value)}
+                onChange={(e) => onFieldChange('zipCode', e.target.value)}
                 placeholder="Enter Zip Code"
                 className="bg-white border-border rounded-[3px] text-sm"
               />
+              {errors.zipCode && <p className="text-xs mt-1 text-[#ff6467]">{errors.zipCode}</p>}
             </div>
           </div>
 
           <Button
-            onClick={() => { onSave(form); onClose() }}
+            onClick={onSave}
             className="w-full bg-[#6b1fa8] hover:bg-[#5a1a8f] text-white rounded-[3px] mt-2"
           >
             Save Address
