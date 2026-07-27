@@ -1,5 +1,20 @@
 import { z } from "zod"
 
+export const shippingAddressSchema = z.object({
+  addressLine1: z.string()
+    .min(1, "Address Line 1 is required."),
+  addressLine2: z.string()
+    .optional(),
+  country: z.string()
+    .min(1, "Country is required."),
+  stateProvince: z.string()
+    .min(1, "State/Province is required."),
+  city: z.string()
+    .min(1, "City is required."),
+  zipCode: z.string()
+    .min(1, "Zip Code is required."),
+})
+
 export const giftedProductSchema = z.object({
   productName: z.string()
     .min(1, "Product name is required.")
