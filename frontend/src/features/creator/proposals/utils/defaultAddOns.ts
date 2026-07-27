@@ -15,7 +15,7 @@ export const DEFAULT_ADD_ONS: AddOnItem[] = [
     desc: "Creator will provide unedited raw clips. Brand may use only within the approved usage scope.",
     fee: 0,
     isPermanent: true,
-    isEnabled: false,
+    isEnabled: true,
   },
   {
     id: "additional_ugc",
