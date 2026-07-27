@@ -25,9 +25,6 @@ export function GeneralTerms({
       <Separator />
 
       <ol className="flex flex-col gap-3 list-decimal list-inside text-sm text-foreground leading-relaxed">
-        <li>This Agreement is the full agreement between the Parties and replaces prior discussions about the Campaign.</li>
-        <li>Changes must be made in writing and approved by both Parties, including by email.</li>
-        <li>Notices may be sent by email to the contact information listed in this Agreement.</li>
         <li className="flex flex-col gap-1">
           <div className="flex items-center gap-2 flex-wrap">
             This Agreement is governed by the laws of
