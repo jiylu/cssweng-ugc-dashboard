@@ -34,8 +34,11 @@ export const validateCampaignForm = (data: FormData) => {
   return errors;
 }
 
-export const validateContractTerms = (data: ContractTermsData) => {
-  const result = contractTermsSchema.safeParse(data);
+export const validateContractTerms = (data: ContractTermsData, campaignDates?: { startDate: string; endDate: string }) => {
+  const parseData = campaignDates
+    ? { ...data, campaignStartDate: campaignDates.startDate, campaignEndDate: campaignDates.endDate }
+    : data
+  const result = contractTermsSchema.safeParse(parseData);
 
   if (result.success) return {};
 

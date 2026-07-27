@@ -11,11 +11,12 @@ import { useContractTerms } from "@/src/features/creator/proposals/hooks/useCont
 interface ContractTermsContainerProps {
   contractTerms: ReturnType<typeof useContractTerms>
   currency: string
+  campaignDates: { startDate: string; endDate: string }
   onBack: () => void
   onNext: () => void
 }
 
-export function ContractTermsContainer({ contractTerms, currency, onBack, onNext }: ContractTermsContainerProps) {
+export function ContractTermsContainer({ contractTerms, currency, campaignDates, onBack, onNext }: ContractTermsContainerProps) {
   return (
     <>
       <div className="flex flex-col gap-6">
@@ -90,7 +91,7 @@ export function ContractTermsContainer({ contractTerms, currency, onBack, onNext
         <div className="flex gap-3">
           <Button
             onClick={() => {
-              if (contractTerms.validateForm()) onNext()
+              if (contractTerms.validateForm(campaignDates)) onNext()
             }}
             className="bg-[#6b1fa8] hover:bg-[#5a1a8f] text-white flex items-center gap-2"
           >

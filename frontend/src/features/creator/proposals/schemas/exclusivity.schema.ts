@@ -8,6 +8,8 @@ export const exclusivitySchema = z.object({
   exclusivityEndDate: z.string().optional(),
   exclusivityFee: z.string().optional(),
   exclusivityTerritory: z.string().optional(),
+  campaignStartDate: z.string().optional(),
+  campaignEndDate: z.string().optional(),
 })
 .refine((data) => {
   if (!data.hasExclusivity) return true
@@ -60,4 +62,18 @@ export const exclusivitySchema = z.object({
 }, {
   message: "Territory is required when exclusivity is enabled.",
   path: ["exclusivityTerritory"]
+})
+.refine((data) => {
+  if (!data.hasExclusivity || !data.exclusivityStartDate || !data.campaignStartDate) return true
+  return new Date(data.exclusivityStartDate) >= new Date(data.campaignStartDate)
+}, {
+  message: "Exclusivity start date cannot be before the campaign start date.",
+  path: ["exclusivityStartDate"]
+})
+.refine((data) => {
+  if (!data.hasExclusivity || !data.exclusivityEndDate || !data.campaignEndDate) return true
+  return new Date(data.exclusivityEndDate) <= new Date(data.campaignEndDate)
+}, {
+  message: "Exclusivity end date cannot be after the campaign end date.",
+  path: ["exclusivityEndDate"]
 })
