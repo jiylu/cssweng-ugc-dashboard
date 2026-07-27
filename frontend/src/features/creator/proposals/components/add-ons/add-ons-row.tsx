@@ -1,16 +1,16 @@
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox"
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
 import { ChevronUp, ChevronDown, Trash2 } from "lucide-react";  
+import { AddOnItem } from "@/src/features/creator/proposals/types/add-on.types"
 
 export interface AddOnRowProps {
-    id: string
+    item: AddOnItem
     index: number
     errors: Record<string, string>
-    title: string
-    desc: string
-    fee?: number
     currency: string
+    onToggle?: () => void
     onRemove?: () => void
     onAdjustPrice?: (amount: number) => void
     onTitleChange?: (value: string) => void
@@ -18,8 +18,9 @@ export interface AddOnRowProps {
     onFeeChange?: (value: number) => void
 }
 
-export function AddOnRow({ id, index, errors, title, desc, fee, currency, onRemove, onAdjustPrice, onTitleChange, onDescChange, onFeeChange }: AddOnRowProps) {
+export function AddOnRow({ item, index, errors, currency, onToggle, onRemove, onAdjustPrice, onTitleChange, onDescChange, onFeeChange }: AddOnRowProps) {
     const e = (field: string) => errors?.[`addOns.${index}.${field}`]
+    const isDisabled = item.isPermanent && !item.isEnabled
 
     return (
         <div className="grid grid-cols-12 gap-4 py-4 px-6 -mx-6 border-b border-border items-start">
@@ -29,7 +30,8 @@ export function AddOnRow({ id, index, errors, title, desc, fee, currency, onRemo
                 <Input 
                     name="title"
                     placeholder="Name"
-                    value={title}
+                    value={item.title}
+                    disabled={isDisabled}
                     onChange={(e) => onTitleChange?.(e.target.value)}
                     className="w-full h-[40px] bg-white border border-border rounded-[3px] text-sm text-foreground shadow-none placeholder:italic"
                 />
@@ -41,7 +43,8 @@ export function AddOnRow({ id, index, errors, title, desc, fee, currency, onRemo
                 <Textarea 
                     name="description"
                     placeholder="Description"
-                    defaultValue={desc}
+                    value={item.desc}
+                    disabled={isDisabled}
                     rows={1}
                     onInput={(e) => {
                         const target = e.target as HTMLTextAreaElement;
@@ -64,7 +67,8 @@ export function AddOnRow({ id, index, errors, title, desc, fee, currency, onRemo
                         <InputGroupInput
                             name="fee"
                             placeholder="Set a price"
-                            value={fee === 0 ? "" : fee}
+                            value={item.fee === 0 ? "" : item.fee}
+                            disabled={isDisabled}
                             onChange={(e) => {
                                 const val = parseFloat(e.target.value.replace(/[^0-9.]/g, '')) || 0
                                 onFeeChange?.(val)
@@ -85,13 +89,24 @@ export function AddOnRow({ id, index, errors, title, desc, fee, currency, onRemo
                     {e('fee') && <p className="text-xs mt-1 text-[#ff6467]">{e('fee')}</p>}
                 </div>
 
-                {/* Delete */}
-                <button 
-                    type="button" 
-                    onClick={onRemove}
-                    className="mt-2.5 text-muted-foreground hover:text-destructive transition-colors shrink-0">
-                    <Trash2 size={18} />
-                </button>
+                {/* Toggle or Delete */}
+                <div className="mt-2.5 shrink-0">
+                    {item.isPermanent ? (
+                        <Checkbox
+                        checked={item.isEnabled}
+                        onCheckedChange={onToggle}
+                        className="w-5 h-5 rounded-[3px] border-border data-[state=checked]:bg-[#6b1fa8] data-[state=checked]:border-[#6b1fa8]"
+                        />
+                    ) : (
+                        <button
+                        type="button"
+                        onClick={onRemove}
+                        className="text-muted-foreground hover:text-destructive transition-colors"
+                        >
+                        <Trash2 size={18} />
+                        </button>
+                    )}
+                </div>
             </div>
         </div>
     )    

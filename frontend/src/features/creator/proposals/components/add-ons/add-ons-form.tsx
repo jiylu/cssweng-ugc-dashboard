@@ -1,25 +1,20 @@
 import { Button } from "@/components/ui/button";
 import { CirclePlus } from "lucide-react";
 import { AddOnRow } from "./add-ons-row";
-
-export interface AddOnItem {
-    id: string;
-    title: string;
-    desc: string;
-    fee?: number;
-}
+import { AddOnItem } from "@/src/features/creator/proposals/types/add-on.types"
 
 export interface AddOnFormProps {
     currency: string; 
     addOns: AddOnItem[];
     errors: Record<string, string>;
     onAddCustom: () => void;
+    onToggle: (id: string) => void;
     onRemove: (id: string) => void;
     onAdjustPrice?: (id: string, amount: number) => void;
     onUpdateAddOn?: (id: string, field: keyof AddOnItem, value: string | number) => void;
 }
 
-export default function AddOnsForm({ currency, addOns, onAddCustom, onRemove, onAdjustPrice, onUpdateAddOn, errors }: AddOnFormProps) {
+export default function AddOnsForm({ currency, addOns, onAddCustom, onToggle, onRemove, onAdjustPrice, onUpdateAddOn, errors }: AddOnFormProps) {
     return (
         <div className="bg-white border border-border rounded-[3px] p-5.5 flex flex-col">
             <h2 className="text-[26px] font-normal text-foreground mb-2">Campaign Add-Ons</h2>
@@ -36,13 +31,11 @@ export default function AddOnsForm({ currency, addOns, onAddCustom, onRemove, on
                 {addOns.map((addon, index) => (
                 <AddOnRow 
                     key={addon.id}
+                    item={addon}
                     index={index}
                     errors={errors}
-                    id={addon.id}
-                    title={addon.title}
-                    desc={addon.desc}
-                    fee={addon.fee}
                     currency={currency}
+                    onToggle={() => onToggle(addon.id)}
                     onRemove={() => onRemove(addon.id)}
                     onAdjustPrice={(amount) => onAdjustPrice?.(addon.id, amount)}
                     onTitleChange={(value) => onUpdateAddOn?.(addon.id, 'title', value)}

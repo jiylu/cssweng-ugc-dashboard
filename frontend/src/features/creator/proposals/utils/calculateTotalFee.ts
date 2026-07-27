@@ -13,7 +13,7 @@ export function calculateBaseCreatorFee(
     return sum + parseFloat(d.pricing.replace(/,/g, '') || '0')
   }, 0)
 
-  const addOnsTotal = addOns.reduce((sum, a) => {
+  const addOnsTotal = addOns.filter((a) => a.isEnabled).reduce((sum, a) => {
     return sum + (a.fee ?? 0)
   }, 0)
 
