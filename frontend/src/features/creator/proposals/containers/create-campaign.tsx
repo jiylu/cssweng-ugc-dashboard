@@ -124,7 +124,7 @@ export default function CreateCampaign() {
               onStepChange={form.setActiveStep}
               onValidateStep={(step) => {
                 if (step === 1) return form.validateForm()
-                if (step === 2) return contractTerms.validateForm()
+                if (step === 2) return contractTerms.validateForm({ startDate: form.startDate, endDate: form.endDate })
                 if (step === 3) return addOns.validateForm()
                 if (step === 4) return paymentTerms.validateForm()
                 return true
@@ -145,6 +145,7 @@ export default function CreateCampaign() {
             <ContractTermsContainer
               contractTerms={contractTerms}
               currency={form.currency}
+              campaignDates={{ startDate: form.startDate, endDate: form.endDate }}
               onBack={() => form.setActiveStep(1)}
               onNext={() => form.setActiveStep(3)}
             />
