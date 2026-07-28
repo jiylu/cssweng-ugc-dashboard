@@ -23,8 +23,10 @@ export const giftedProductSchema = z.object({
     .min(1, "Value is required."),
   ownershipTerms: z.string()
     .min(1, "Ownership terms are required.").max(500, "Ownership terms must be less than 500 characters."),
-  shippingAddress: z.string()
-    .min(1, "Shipping address is required.").max(200, "Shipping address must be less than 200 characters."),
+  shippingAddress: shippingAddressSchema.nullable().refine(
+    (val) => val !== null && val.addressLine1.length > 0,
+    { message: "Shipping address is required." }
+  ),
   deliveryInstructions: z.string()
     .optional(),
 })

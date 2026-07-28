@@ -103,7 +103,15 @@ export function buildProposalPayload({ userId, form, contractTerms, paymentTerms
       giftedProducts: paymentTerms.giftedProducts.map((p) => ({
         productName: p.productName,
         value: parseFloat(p.value.replace(/,/g, '') || '0'),
-        deliveryAddress: p.shippingAddress,
+        deliveryAddress: p.shippingAddress
+          ? [
+              p.shippingAddress.addressLine1,
+              p.shippingAddress.addressLine2,
+              p.shippingAddress.city,
+              p.shippingAddress.stateProvince,
+              `${p.shippingAddress.country} ${p.shippingAddress.zipCode}`,
+            ].filter(Boolean).join(", ")
+          : "",
         deliveryInstructions: p.deliveryInstructions,
         ownershipTerms: p.ownershipTerms,
       }))
