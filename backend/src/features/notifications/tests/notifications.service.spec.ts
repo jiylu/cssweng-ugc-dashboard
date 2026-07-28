@@ -218,9 +218,9 @@ describe('NotificationsService', () => {
 
       mockPrisma.notifications.findFirst.mockResolvedValue(null);
 
-      await expect(
-        service.resolvePublicId(publicId),
-      ).rejects.toBeInstanceOf(NotFoundException);
+      await expect(service.resolvePublicId(publicId)).rejects.toBeInstanceOf(
+        NotFoundException,
+      );
 
       expect(mockPrisma.notifications.findFirst).toHaveBeenCalledWith({
         where: { public_id: publicId },

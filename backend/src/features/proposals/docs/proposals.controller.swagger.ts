@@ -67,7 +67,10 @@ export function ApiUpdateProposalStatus() {
       status: 200,
       description: 'Proposal status updated successfully',
     }),
-    ApiResponse({ status: 404, description: 'Proposal not found or not active' }),
+    ApiResponse({
+      status: 404,
+      description: 'Proposal not found or not active',
+    }),
     ApiResponse({ status: 400, description: 'Invalid status payload' }),
   );
 }

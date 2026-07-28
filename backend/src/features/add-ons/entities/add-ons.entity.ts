@@ -1,4 +1,4 @@
-import { Exclude, Expose } from 'class-transformer';
+import { Exclude, Expose, Type } from 'class-transformer';
 
 export class AddOnsEntity {
   @Exclude()
@@ -17,6 +17,7 @@ export class AddOnsEntity {
   description: string;
 
   @Expose()
+  @Type(() => Number)
   fee: number;
 
   @Expose()

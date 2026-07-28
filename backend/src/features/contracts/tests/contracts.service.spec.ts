@@ -417,7 +417,7 @@ describe('ContractsService', () => {
       expect(res.is_signed).toBe(true);
       expect(res.signed_at).toBeInstanceOf(Date);
       expect(mockPrisma.contracts.findFirst).toHaveBeenCalledWith({
-        where: { public_id: 'abc1234567' },
+        where: { contract_id: 'abc1234567' },
       });
       expect(mockPrisma.contracts.update).toHaveBeenCalledWith({
         where: { contract_id: 'contract-1' },
@@ -514,9 +514,9 @@ describe('ContractsService', () => {
 
       mockPrisma.contracts.findFirst.mockResolvedValue(null);
 
-      await expect(
-        service.resolvePublicId(publicId),
-      ).rejects.toBeInstanceOf(NotFoundException);
+      await expect(service.resolvePublicId(publicId)).rejects.toBeInstanceOf(
+        NotFoundException,
+      );
 
       expect(mockPrisma.contracts.findFirst).toHaveBeenCalledWith({
         where: { public_id: publicId },

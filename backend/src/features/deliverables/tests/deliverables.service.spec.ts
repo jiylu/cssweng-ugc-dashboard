@@ -797,9 +797,9 @@ describe('DeliverablesService', () => {
 
       mockPrisma.deliverables.findFirst.mockResolvedValue(null);
 
-      await expect(
-        service.resolvePublicId(publicId),
-      ).rejects.toBeInstanceOf(NotFoundException);
+      await expect(service.resolvePublicId(publicId)).rejects.toBeInstanceOf(
+        NotFoundException,
+      );
 
       expect(mockPrisma.deliverables.findFirst).toHaveBeenCalledWith({
         where: { public_id: publicId, is_deleted: false },

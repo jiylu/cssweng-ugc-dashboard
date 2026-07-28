@@ -6,26 +6,45 @@ import {
   ApiFindAddOnsForCampaign,
   ApiUpdateAddOnOptIn,
 } from './docs/add-ons.controller.swagger';
+import { CampaignsService } from '../campaigns/campaigns.service';
+import { plainToInstance } from 'class-transformer';
+import { AddOnsEntity } from './entities/add-ons.entity';
 
 @Controller('add-ons')
 export class AddOnsController {
-  constructor(private readonly addOnsService: AddOnsService) {}
+  constructor(
+    private readonly addOnsService: AddOnsService,
+    private readonly campaignsService: CampaignsService,
+  ) {}
 
   @ApiFindAddOnByPublicId()
   @Get(':publicId')
-  findOne(@Param('publicId') publicId: string) {
-    return this.addOnsService.findOneAddOnByPublicId(publicId);
+  async findOne(@Param('publicId') publicId: string) {
+    const addOnId = await this.addOnsService.resolvePublicId(publicId);
+    const addOn = await this.addOnsService.findOneAddOnByUID(addOnId);
+
+    return plainToInstance(AddOnsEntity, addOn);
   }
 
   @ApiFindAddOnsForCampaign()
-  @Get('/campaign/:campaignId')
-  findMany(@Param('campaignId') campaignId: string) {
-    return this.addOnsService.findAddOnsForCampaign(campaignId);
+  @Get('/campaign/:publicId')
+  async findMany(@Param('publicId') publicId: string) {
+    const campaignId =
+      await this.campaignsService.resolveCampaignPublicId(publicId);
+    const addOns = await this.addOnsService.findAddOnsForCampaign(campaignId);
+
+    return plainToInstance(AddOnsEntity, addOns);
   }
 
   @ApiUpdateAddOnOptIn()
-  @Post('opt-in/:addOnId')
-  optIn(@Param('addOnId') addOnId: string, @Body() dto: UpdateOptInDTO) {
-    return this.addOnsService.updateAddOnOptIn(addOnId, dto);
+  @Post('opt-in/:publicId')
+  async optIn(
+    @Param('publicId') publicId: string,
+    @Body() dto: UpdateOptInDTO,
+  ) {
+    const addOnId = await this.addOnsService.resolvePublicId(publicId);
+    const addOn = await this.addOnsService.updateAddOnOptIn(addOnId, dto);
+
+    return plainToInstance(AddOnsEntity, addOn);
   }
 }
