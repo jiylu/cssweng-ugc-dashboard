@@ -146,6 +146,7 @@ export function GiftedProductRow({ item, index, currency, errors, onUpdate, onRe
                     const saved = shippingAddress.validateAndSave((addr) => onUpdate('shippingAddress', addr))
                     if (saved) setAddressModalOpen(false)
                 }}
+                currency={currency}
             />
         </div>
     </div>

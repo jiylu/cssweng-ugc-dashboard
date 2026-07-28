@@ -1,24 +1,10 @@
+import { useEffect } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ShippingAddress } from "../../types/payment-terms.types"
-
-const COUNTRIES = ["Philippines", "United States", "United Kingdom", "Australia", "Canada", "Singapore"]
-const PROVINCES: Record<string, string[]> = {
-  Philippines: ["Metro Manila", "Cebu", "Davao", "Laguna", "Cavite", "Bulacan"],
-  "United States": ["California", "New York", "Texas", "Florida", "Illinois"],
-  "United Kingdom": ["England", "Scotland", "Wales", "Northern Ireland"],
-  Australia: ["New South Wales", "Victoria", "Queensland", "Western Australia"],
-  Canada: ["Ontario", "Quebec", "British Columbia", "Alberta"],
-  Singapore: ["Central Region", "East Region", "North Region", "West Region"],
-}
-const CITIES: Record<string, string[]> = {
-  "Metro Manila": ["Makati", "Taguig", "Quezon City", "Manila", "Pasig", "Mandaluyong"],
-  Cebu: ["Cebu City", "Mandaue", "Lapu-Lapu"],
-  California: ["Los Angeles", "San Francisco", "San Diego"],
-  "New York": ["New York City", "Buffalo", "Albany"],
-}
+import { useLocationData } from "../../hooks/useLocationData"
+import { AddressField } from "./address-field"
+import { LocationSelectField } from "./location-select-field"
 
 interface ShippingAddressPopupProps {
   open: boolean
@@ -27,11 +13,36 @@ interface ShippingAddressPopupProps {
   errors: Record<string, string>
   onFieldChange: (field: keyof ShippingAddress, val: string) => void
   onSave: () => void
+  currency: string
 }
 
-export function ShippingAddressPopup({ open, onClose, form, errors, onFieldChange, onSave }: ShippingAddressPopupProps) {
-  const provinces = PROVINCES[form.country] ?? []
-  const cities = CITIES[form.stateProvince] ?? []
+export function ShippingAddressPopup({ open, onClose, form, errors, onFieldChange, onSave, currency }: ShippingAddressPopupProps) {
+  const {
+    countries,
+    states,
+    cities,
+    loadingCountries,
+    loadingStates,
+    loadingCities,
+    loadStates,
+    loadCities,
+  } = useLocationData(currency)
+
+  const selectedCountry = countries.find((c) => c.name === form.country)
+
+  useEffect(() => {
+    if (open && selectedCountry) {
+      loadStates(selectedCountry.iso2)
+    }
+  }, [open, selectedCountry?.iso2])
+
+  const selectedState = states.find((s) => s.name === form.stateProvince)
+
+  useEffect(() => {
+    if (open && selectedCountry && selectedState) {
+      loadCities(selectedCountry.iso2, selectedState.iso2)
+    }
+  }, [open, selectedCountry?.iso2, selectedState?.iso2])
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -41,91 +52,61 @@ export function ShippingAddressPopup({ open, onClose, form, errors, onFieldChang
         </DialogHeader>
 
         <div className="flex flex-col gap-4 mt-2">
-          {/* Address Line 1 */}
-          <div className="flex flex-col gap-1">
-            <label className="text-sm text-foreground">Address Line 1</label>
-            <Input
-              value={form.addressLine1}
-              onChange={(e) => onFieldChange('addressLine1', e.target.value)}
-              className="bg-white border-border rounded-[3px] text-sm"
-            />
-            {errors.addressLine1 && <p className="text-xs mt-1 text-[#ff6467]">{errors.addressLine1}</p>}
-            {!errors.addressLine1 && <p className="text-xs text-muted-foreground">Street address, P.O. box, company name, c/o</p>}
-          </div>
+          <AddressField
+            label="Address Line 1"
+            value={form.addressLine1}
+            onChange={(v) => onFieldChange("addressLine1", v)}
+            error={errors.addressLine1}
+            helper="Street address, P.O. box, company name, c/o"
+          />
 
-          {/* Address Line 2 */}
-          <div className="flex flex-col gap-1">
-            <label className="text-sm text-foreground">Address Line 2</label>
-            <Input
-              value={form.addressLine2}
-              onChange={(e) => onFieldChange('addressLine2', e.target.value)}
-              className="bg-white border-border rounded-[3px] text-sm"
-            />
-            <p className="text-xs text-muted-foreground">Apartment, suite, unit, building, floor, etc.</p>
-          </div>
+          <AddressField
+            label="Address Line 2"
+            value={form.addressLine2}
+            onChange={(v) => onFieldChange("addressLine2", v)}
+            helper="Apartment, suite, unit, building, floor, etc."
+          />
 
-          {/* Country + State */}
           <div className="grid grid-cols-2 gap-4">
-            <div className="flex flex-col gap-1">
-              <label className="text-sm text-foreground">Country</label>
-              <Select value={form.country} onValueChange={(v) => onFieldChange('country', v)}>
-                <SelectTrigger className="bg-white border-border rounded-[3px] text-sm">
-                  <SelectValue placeholder="Country" />
-                </SelectTrigger>
-                <SelectContent>
-                  {COUNTRIES.map((c) => (
-                    <SelectItem key={c} value={c}>{c}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {errors.country && <p className="text-xs mt-1 text-[#ff6467]">{errors.country}</p>}
-            </div>
-
-            <div className="flex flex-col gap-1">
-              <label className="text-sm text-foreground">State/Province</label>
-              <Select value={form.stateProvince} onValueChange={(v) => onFieldChange('stateProvince', v)} disabled={!form.country}>
-                <SelectTrigger className="bg-white border-border rounded-[3px] text-sm">
-                  <SelectValue placeholder="Province" />
-                </SelectTrigger>
-                <SelectContent>
-                  {provinces.map((p) => (
-                    <SelectItem key={p} value={p}>{p}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {errors.stateProvince && <p className="text-xs mt-1 text-[#ff6467]">{errors.stateProvince}</p>}
-            </div>
+            <LocationSelectField
+              label="Country"
+              value={form.country}
+              onValueChange={(v) => onFieldChange("country", v)}
+              options={countries.map((c) => ({ key: c.iso2, value: c.name }))}
+              placeholder="Country"
+              loading={loadingCountries}
+              error={errors.country}
+            />
+            <LocationSelectField
+              label="State/Province"
+              value={form.stateProvince}
+              onValueChange={(v) => onFieldChange("stateProvince", v)}
+              options={states.map((s) => ({ key: s.iso2, value: s.name }))}
+              placeholder="Province"
+              loading={loadingStates}
+              disabled={!form.country}
+              error={errors.stateProvince}
+            />
           </div>
 
-          {/* City + Zip */}
           <div className="grid grid-cols-2 gap-4">
-            <div className="flex flex-col gap-1">
-              <label className="text-sm text-foreground">City</label>
-              <Select value={form.city} onValueChange={(v) => onFieldChange('city', v)} disabled={!form.stateProvince}>
-                <SelectTrigger className="bg-white border-border rounded-[3px] text-sm">
-                  <SelectValue placeholder="City" />
-                </SelectTrigger>
-                <SelectContent>
-                  {cities.length > 0 ? cities.map((c) => (
-                    <SelectItem key={c} value={c}>{c}</SelectItem>
-                  )) : form.stateProvince ? (
-                    <SelectItem value={form.stateProvince}>{form.stateProvince}</SelectItem>
-                  ) : null}
-                </SelectContent>
-              </Select>
-              {errors.city && <p className="text-xs mt-1 text-[#ff6467]">{errors.city}</p>}
-            </div>
-
-            <div className="flex flex-col gap-1">
-              <label className="text-sm text-foreground">Zip Code</label>
-              <Input
-                value={form.zipCode}
-                onChange={(e) => onFieldChange('zipCode', e.target.value)}
-                placeholder="Enter Zip Code"
-                className="bg-white border-border rounded-[3px] text-sm"
-              />
-              {errors.zipCode && <p className="text-xs mt-1 text-[#ff6467]">{errors.zipCode}</p>}
-            </div>
+            <LocationSelectField
+              label="City"
+              value={form.city}
+              onValueChange={(v) => onFieldChange("city", v)}
+              options={cities.map((c) => ({ key: c.name, value: c.name }))}
+              placeholder="City"
+              loading={loadingCities}
+              disabled={!form.stateProvince}
+              error={errors.city}
+            />
+            <AddressField
+              label="Zip Code"
+              value={form.zipCode}
+              onChange={(v) => onFieldChange("zipCode", v)}
+              placeholder="Enter Zip Code"
+              error={errors.zipCode}
+            />
           </div>
 
           <Button
