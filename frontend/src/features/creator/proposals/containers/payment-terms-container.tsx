@@ -1,6 +1,5 @@
 "use client"
-import { ArrowLeft, SendHorizontal } from "lucide-react"
-import { toast } from "sonner"
+import { ArrowLeft, ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { GiftedProductsSection } from "@/src/features/creator/proposals/components/payment-terms/gifted-products-section"
 import { PaymentInvoicingSection } from "@/src/features/creator/proposals/components/payment-terms/payment-invoicing-section"
@@ -10,6 +9,7 @@ import { usePaymentTerms } from "@/src/features/creator/proposals/hooks/usePayme
 interface PaymentTermsContainerProps {
   paymentTerms: ReturnType<typeof usePaymentTerms>
   onBack: () => void
+  onNext: () => void
   onSaveDraft: () => void
   onSubmit: () => void
   isPending: boolean
@@ -18,7 +18,7 @@ interface PaymentTermsContainerProps {
   taxRate: number
 }
 
-export function PaymentTermsContainer({ paymentTerms, onBack, onSaveDraft, onSubmit, isPending, baseCreatorFee, currency, taxRate }: PaymentTermsContainerProps) {
+export function PaymentTermsContainer({ paymentTerms, onBack, onNext, baseCreatorFee, currency, taxRate }: PaymentTermsContainerProps) {
   return (
     <>
     <div className="flex flex-col gap-6">
@@ -49,32 +49,19 @@ export function PaymentTermsContainer({ paymentTerms, onBack, onSaveDraft, onSub
       </div>
     </div>
 
-    <div className="flex justify-between gap-3 mt-6 pb-8">
-      <Button
-        variant="outline"
-        onClick={onBack}
-        className="flex items-center gap-2"
-      >
-        <ArrowLeft size={16} /> Back
+    {/* Bottom Actions */}
+      <div className="flex justify-between mt-6 pb-8">
+      <Button variant="outline" onClick={onBack}>
+          <ArrowLeft size={16} /> Back
       </Button>
-      <div className="flex gap-3">
-        <Button variant="outline" onClick={onSaveDraft} disabled={isPending}>
-          Save Draft
-        </Button>
-        <Button
+      <Button
           onClick={() => {
-                if (paymentTerms.validateForm()) {
-                  onSubmit()
-                } else {
-                  toast.error("Please fill in all required payment term fields.")
-                }
-            }}  
-          disabled={isPending}
+              if (paymentTerms.validateForm()) onNext()
+          }}
           className="bg-[#6b1fa8] hover:bg-[#5a1a8f] text-white flex items-center gap-2"
-        >
-          Submit Proposal <SendHorizontal size={16} />
-        </Button>
-      </div>
+      >
+          Review & Submit <ArrowRight size={16} />
+      </Button>
     </div>
   </>
   )
