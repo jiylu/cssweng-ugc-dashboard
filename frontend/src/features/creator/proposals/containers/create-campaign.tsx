@@ -171,7 +171,7 @@ export default function CreateCampaign() {
               isPending={isPending}
               baseCreatorFee={baseCreatorFee}
               currency={form.currency}
-              taxRate={0.12}
+              taxRate={paymentTerms.taxRate}
             />  
           )}
         </div>

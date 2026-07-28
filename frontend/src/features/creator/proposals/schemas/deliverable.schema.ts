@@ -2,7 +2,7 @@ import z from "zod";
 
 export const deliverableSchema = z.object({
   description: z.string()
-    .min(5, "Deliverable description must be at least 5 characters."),
+    .min(50, "Deliverable requirement must be at least 50 characters."),
   
   deliverableType: z.string()
     .min(1, "Deliverable type is required."),
