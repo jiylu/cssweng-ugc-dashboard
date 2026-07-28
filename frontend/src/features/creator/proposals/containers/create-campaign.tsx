@@ -13,6 +13,7 @@ import { CampaignDeliverablesContainer } from "@/src/features/creator/proposals/
 import { ContractTermsContainer } from "@/src/features/creator/proposals/containers/contract-terms-container";
 import { PaymentTermsContainer } from "@/src/features/creator/proposals/containers/payment-terms-container";
 import { AddOnsContainer } from "@/src/features/creator/proposals/containers/add-ons-container";
+import { ProposalSummaryContainer } from "@/src/features/creator/proposals/containers/proposal-summary-container"
 import { buildProposalPayload } from "@/src/features/creator/proposals/utils/buildProposalPayload"
 import { useContractTerms } from "@/src/features/creator/proposals/hooks/useContractTerms"
 import { usePaymentTerms } from "@/src/features/creator/proposals/hooks/usePaymentTerms"
@@ -166,6 +167,7 @@ export default function CreateCampaign() {
             <PaymentTermsContainer
               paymentTerms={paymentTerms}
               onBack={() => form.setActiveStep(3)}
+              onNext={() => form.setActiveStep(5)}
               onSaveDraft={handleSaveDraft}
               onSubmit={handleSendProposal}
               isPending={isPending}
@@ -173,6 +175,15 @@ export default function CreateCampaign() {
               currency={form.currency}
               taxRate={paymentTerms.taxRate}
             />  
+          )}
+
+          {/* Step 5 - Review & Submit */}
+          {form.activeStep === 5 && (
+            <ProposalSummaryContainer
+              onBack={() => form.setActiveStep(4)}
+              onSubmit={handleSendProposal}
+              isPending={isPending}
+            />
           )}
         </div>
       </section>
