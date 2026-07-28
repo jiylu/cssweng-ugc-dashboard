@@ -105,8 +105,8 @@ export class CampaignsService {
     if (!campaign) {
       this.logger.warn(`Campaign with publicId ${publicId} not found.`);
       throw new NotFoundException({
-        code: 'CAMPAIGN_PUBLIC_ID_CANNOT_BE_RESOLVED',
-        message: 'Campaign public ID cannot be resolved.',
+        code: 'CAMPAIGN_NOT_FOUND',
+        message: 'Campaign not found.',
       });
     }
 

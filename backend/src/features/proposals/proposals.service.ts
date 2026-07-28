@@ -125,30 +125,31 @@ export class ProposalsService {
     return activeProposal;
   }
 
-  async findActiveProposalByPublicId(publicId: string) {
-    this.logger.debug(`Finding active proposal with publicId ${publicId}`);
+  async resolvePublicId(publicId: string) {
+    this.logger.debug(`Finding proposal with publicId ${publicId}`);
 
-    const activeProposal = await this.prisma.proposals.findFirst({
+    const proposal = await this.prisma.proposals.findFirst({
       where: {
         public_id: publicId,
-        proposal_status: { in: this.ACTIVE_PROPOSAL_STATUSES },
+      },
+      select: {
+        proposal_id: true,
       },
     });
 
-    if (!activeProposal) {
-      this.logger.warn(`No active proposal with publicId ${publicId} found.`);
+    if (!proposal) {
+      this.logger.warn(`Proposal with publicId ${publicId} not found`);
       throw new NotFoundException({
-        status: HttpStatus.NOT_FOUND,
-        code: 'ACTIVE_PROPOSAL_NOT_FOUND',
-        message: 'Active Proposal not Found',
+        code: 'PROPOSAL_NOT_FOUND',
+        message: 'Proposal not found.',
       });
     }
 
     this.logger.log(
-      `Active proposal with publicId ${publicId} found with proposalId ${activeProposal.public_id}`,
+      `Proposal with public id ${publicId} resolved: ${proposal.proposal_id}`,
     );
 
-    return activeProposal;
+    return proposal.proposal_id;
   }
 
   async findActiveProposal(proposalId: string) {
