@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { Megaphone, Settings, LogOut, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -27,12 +28,15 @@ export default function ClientSidebar({
 
       <nav className="mt-14 flex flex-col gap-5">
         <Button
+          asChild
           type="button"
           variant="ghost"
           className="h-12 justify-start gap-4 px-0 text-lg font-normal text-[#6b1fa8] hover:bg-transparent hover:text-[#6b1fa8]"
         >
-          <Megaphone className="size-6" />
-          Campaigns
+          <Link href="/dashboard">
+            <Megaphone className="size-6" />
+            Campaigns
+          </Link>
         </Button>
         <Button
           type="button"
