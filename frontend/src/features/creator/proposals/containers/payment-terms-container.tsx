@@ -1,5 +1,6 @@
 "use client"
 import { ArrowLeft, SendHorizontal } from "lucide-react"
+import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { GiftedProductsSection } from "@/src/features/creator/proposals/components/payment-terms/gifted-products-section"
 import { PaymentInvoicingSection } from "@/src/features/creator/proposals/components/payment-terms/payment-invoicing-section"
@@ -62,7 +63,11 @@ export function PaymentTermsContainer({ paymentTerms, onBack, onSaveDraft, onSub
         </Button>
         <Button
           onClick={() => {
-                if (paymentTerms.validateForm()) onSubmit()
+                if (paymentTerms.validateForm()) {
+                  onSubmit()
+                } else {
+                  toast.error("Please fill in all required payment term fields.")
+                }
             }}  
           disabled={isPending}
           className="bg-[#6b1fa8] hover:bg-[#5a1a8f] text-white flex items-center gap-2"
