@@ -89,7 +89,10 @@ export function ApiUpdateCampaignStatus() {
     ApiOperation({
       summary: 'Updates the status of a campaign',
       description:
-        "Updates a campaign's status. Request body must follow UpdateCampaignStatusDto (field: campaignStatus). Returns the updated campaign. Refer to UpdateCampaignStatusDto for request body details.",
+        "Updates a campaign's status. Request body must follow UpdateCampaignStatusDto (field: campaignStatus). " +
+        'Allowed values for campaignStatus: `ACTIVE`, `REJECTED`, `COMPLETED`. ' +
+        '`REJECTED` and `COMPLETED` are terminal statuses — once set, the campaign status cannot be changed further. ' +
+        'Returns the updated campaign.',
     }),
     ApiParam({
       name: 'publicId',
@@ -105,7 +108,8 @@ export function ApiUpdateCampaignStatus() {
     ApiResponse({ status: 404, description: 'Campaign not found' }),
     ApiResponse({
       status: 409,
-      description: 'Campaign is already rejected and cannot be updated',
+      description:
+        'Campaign status is terminal (REJECTED or COMPLETED) and cannot be updated further',
     }),
   );
 }
