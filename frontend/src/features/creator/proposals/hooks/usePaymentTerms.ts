@@ -34,7 +34,7 @@ export function usePaymentTerms() {
     setGiftedProducts(prev => prev.filter(p => p.id !== id))
   }
 
-  function updateGiftedProduct(id: number, field: keyof GiftedProduct, value: string) {
+  function updateGiftedProduct(id: number, field: keyof GiftedProduct, value: string | ShippingAddress | null) {
     setGiftedProducts(prev => prev.map(p => p.id === id ? { ...p, [field]: value } : p))
   }
 
