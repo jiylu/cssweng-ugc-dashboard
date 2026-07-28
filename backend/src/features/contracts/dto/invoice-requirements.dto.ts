@@ -6,31 +6,37 @@ import {
   MaxLength,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Expose } from 'class-transformer';
 
 export class InvoiceRequirementsDTO {
+  @Expose()
   @ApiProperty({ example: 'Asceoft Marketing Inc.' })
   @IsString({ message: 'Invoice name must be a string.' })
   @IsNotEmpty({ message: 'Invoice name is required.' })
   @MaxLength(100, { message: 'Invoice name must not exceed 100 characters.' })
   name!: string;
 
+  @Expose()
   @ApiProperty({ example: 'finance@client.com' })
   @IsEmail({}, { message: 'Invoice email must be a valid email address.' })
   @IsNotEmpty({ message: 'Invoice email is required.' })
   email!: string;
 
+  @Expose()
   @ApiProperty({ example: 'Summer Glow 2026' })
   @IsString({ message: 'Campaign name must be a string.' })
   @MaxLength(150, { message: 'Campaign name must not exceed 150 characters.' })
   @IsNotEmpty({ message: 'Campaign name is required.' })
   campaign_name!: string;
 
+  @Expose()
   @ApiPropertyOptional({ example: 'TIN-123-456-789-000' })
   @IsString({ message: 'Tax number must be a string.' })
   @MaxLength(150, { message: 'Tax number must not exceed 150 characters.' })
   @IsOptional()
   tax_number?: string;
 
+  @Expose()
   @ApiProperty({
     example: 'Bank details: BPI xxx-xxxx; payable within Net 30 terms.',
   })

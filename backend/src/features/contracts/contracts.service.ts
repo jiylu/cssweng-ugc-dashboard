@@ -108,6 +108,37 @@ export class ContractsService {
     return contract;
   }
 
+  async resolvePublicId(
+    publicId: string,
+    tx: Prisma.TransactionClient | PrismaService = this.prisma,
+  ) {
+    this.logger.debug(`Resolving contract publicId ${publicId}`);
+
+    const contract = await tx.contracts.findFirst({
+      where: {
+        public_id: publicId,
+      },
+      select: {
+        contract_id: true,
+      },
+    });
+
+    if (!contract) {
+      this.logger.warn(`Contract with publicId ${publicId} not found`);
+      throw new NotFoundException({
+        status: HttpStatus.NOT_FOUND,
+        code: 'CONTRACT_PUBLIC_ID_CANNOT_BE_RESOLVED',
+        message: 'Contract public ID cannot be resolved.',
+      });
+    }
+
+    this.logger.log(
+      `Contract publicId ${publicId} resolved: ${contract.contract_id}`,
+    );
+
+    return contract.contract_id;
+  }
+
   async findContractByCampaignId(
     campaignId: string,
     tx: Prisma.TransactionClient | PrismaService = this.prisma,
@@ -136,10 +167,10 @@ export class ContractsService {
     return contract;
   }
 
-  async signContract(publicId: string) {
-    this.logger.debug(`Signing contract ${publicId}`);
+  async signContract(contractId: string) {
+    this.logger.debug(`Signing contract ${contractId}`);
 
-    const unsignedContract = await this.findContractByPublicId(publicId);
+    const unsignedContract = await this.findContractByUID(contractId);
 
     const signedContract = await this.prisma.contracts.update({
       where: { contract_id: unsignedContract.contract_id },

@@ -45,6 +45,7 @@ export class ContractsEntity {
   expenses_purchases_terms: ExpensesPurchasesDTO | null;
 
   @Expose()
+  @Type(() => Number)
   cancellation_period: number;
 
   @Expose()

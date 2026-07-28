@@ -492,4 +492,49 @@ describe('ContractsService', () => {
       expect(mockPrisma.contracts.update).not.toHaveBeenCalled();
     });
   });
+
+  describe('resolvePublicId', () => {
+    it('should return the contract_id for a valid publicId', async () => {
+      const publicId = 'pub_valid_1';
+      const mockResult = { contract_id: 'contract_internal_1' };
+
+      mockPrisma.contracts.findFirst.mockResolvedValue(mockResult);
+
+      const res = await service.resolvePublicId(publicId);
+
+      expect(res).toBe('contract_internal_1');
+      expect(mockPrisma.contracts.findFirst).toHaveBeenCalledWith({
+        where: { public_id: publicId },
+        select: { contract_id: true },
+      });
+    });
+
+    it('should throw NotFoundException when no contract matches the publicId', async () => {
+      const publicId = 'pub_missing';
+
+      mockPrisma.contracts.findFirst.mockResolvedValue(null);
+
+      await expect(
+        service.resolvePublicId(publicId),
+      ).rejects.toBeInstanceOf(NotFoundException);
+
+      expect(mockPrisma.contracts.findFirst).toHaveBeenCalledWith({
+        where: { public_id: publicId },
+        select: { contract_id: true },
+      });
+    });
+
+    it('should only select contract_id and not return the full contract object', async () => {
+      const publicId = 'pub_select_check';
+
+      mockPrisma.contracts.findFirst.mockResolvedValue({
+        contract_id: 'contract_select_check',
+      });
+
+      const res = await service.resolvePublicId(publicId);
+
+      expect(typeof res).toBe('string');
+      expect(res).toBe('contract_select_check');
+    });
+  });
 });
