@@ -180,6 +180,11 @@ export default function CreateCampaign() {
           {/* Step 5 - Review & Submit */}
           {form.activeStep === 5 && (
             <ProposalSummaryContainer
+              form={form}
+              contractTerms={contractTerms}
+              addOns={addOns}
+              paymentTerms={paymentTerms}
+              userName={`${user.first_name} ${user.last_name}`}
               onBack={() => form.setActiveStep(4)}
               onSubmit={handleSendProposal}
               isPending={isPending}

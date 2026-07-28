@@ -20,7 +20,7 @@ export function EarningsSnapshot({ currency, total, baseFee, tax, taxRate, start
   return (
     <Card className="flex flex-col gap-3 p-5">
       <p className="text-xs text-muted-foreground uppercase tracking-[0.03em]">TOTAL PAYOUT</p>
-      <p className="text-3xl font-bold text-foreground">{formatAmount(total)}</p>
+      <p className="text-2xl font-bold text-foreground">{formatAmount(total)}</p>
 
       <Separator />
 
