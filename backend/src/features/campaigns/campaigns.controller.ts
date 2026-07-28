@@ -16,8 +16,10 @@ export class CampaignsController {
 
   @ApiFindOneCampaign()
   @Get(':publicId')
-  findOne(@Param('publicId') publicId: string) {
-    return this.campaignsService.findOneActiveCampaignByPublicId(publicId);
+  async findOne(@Param('publicId') publicId: string) {
+    const campaignId =
+      await this.campaignsService.resolveCampaignPublicId(publicId);
+    return this.campaignsService.findOneCampaign(campaignId);
   }
 
   @ApiFindAllCampaigns()
@@ -27,20 +29,24 @@ export class CampaignsController {
   }
 
   @ApiUpdateCampaignStatus()
-  @Patch(':campaignId/status')
-  updateStatus(
-    @Param('campaignId') campaignId: string,
+  @Patch('status/:publicId')
+  async updateStatus(
+    @Param('publicId') publicId: string,
     @Body() dto: UpdateCampaignStatusDto,
   ) {
+    const campaignId =
+      await this.campaignsService.resolveCampaignPublicId(publicId);
     return this.campaignsService.updateCampaignStatus(campaignId, dto);
   }
 
   @ApiUpdateCampaignClient()
-  @Patch(':campaignId/client')
-  updateClientId(
-    @Param('campaignId') campaignId: string,
+  @Patch('client/:publicId')
+  async updateClientId(
+    @Param('publicId') publicId: string,
     @Body() dto: UpdateCampaignClientDTO,
   ) {
+    const campaignId =
+      await this.campaignsService.resolveCampaignPublicId(publicId);
     return this.campaignsService.updateCampaignClientId(campaignId, dto);
   }
 }

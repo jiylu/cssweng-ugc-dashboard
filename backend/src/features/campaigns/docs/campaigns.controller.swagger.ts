@@ -92,10 +92,10 @@ export function ApiUpdateCampaignStatus() {
         "Updates a campaign's status. Request body must follow UpdateCampaignStatusDto (field: campaignStatus). Returns the updated campaign. Refer to UpdateCampaignStatusDto for request body details.",
     }),
     ApiParam({
-      name: 'campaignId',
+      name: 'publicId',
       type: String,
-      description: 'UUID of the campaign to update',
-      example: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+      description: 'Public ID of the campaign to update',
+      example: 'x21E9dlf0F',
     }),
     ApiBody({ type: UpdateCampaignStatusDto }),
     ApiResponse({
@@ -118,10 +118,10 @@ export function ApiUpdateCampaignClient() {
         'Assigns a client (by user ID) to an existing campaign. Request body must follow UpdateCampaignClientDTO (field: clientId). The endpoint validates that the client exists and has no active engagements. Refer to UpdateCampaignClientDTO for request body details.',
     }),
     ApiParam({
-      name: 'campaignId',
+      name: 'publicId',
       type: String,
-      description: 'UUID of the campaign to update',
-      example: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+      description: 'Public ID of the campaign to update',
+      example: 'x21E9dlf0F',
     }),
     ApiBody({ type: UpdateCampaignClientDTO }),
     ApiResponse({
