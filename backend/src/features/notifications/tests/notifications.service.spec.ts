@@ -196,4 +196,49 @@ describe('NotificationsService', () => {
       expect(mockPrisma.notifications.update).not.toHaveBeenCalled();
     });
   });
+
+  describe('resolvePublicId', () => {
+    it('should return the notification_id for a valid publicId', async () => {
+      const publicId = 'pub_valid_1';
+      const mockResult = { notification_id: 'notif_internal_1' };
+
+      mockPrisma.notifications.findFirst.mockResolvedValue(mockResult);
+
+      const res = await service.resolvePublicId(publicId);
+
+      expect(res).toBe('notif_internal_1');
+      expect(mockPrisma.notifications.findFirst).toHaveBeenCalledWith({
+        where: { public_id: publicId },
+        select: { notification_id: true },
+      });
+    });
+
+    it('should throw NotFoundException when no notification matches the publicId', async () => {
+      const publicId = 'pub_missing';
+
+      mockPrisma.notifications.findFirst.mockResolvedValue(null);
+
+      await expect(
+        service.resolvePublicId(publicId),
+      ).rejects.toBeInstanceOf(NotFoundException);
+
+      expect(mockPrisma.notifications.findFirst).toHaveBeenCalledWith({
+        where: { public_id: publicId },
+        select: { notification_id: true },
+      });
+    });
+
+    it('should only select notification_id and not return the full notification object', async () => {
+      const publicId = 'pub_select_check';
+
+      mockPrisma.notifications.findFirst.mockResolvedValue({
+        notification_id: 'notif_select_check',
+      });
+
+      const res = await service.resolvePublicId(publicId);
+
+      expect(typeof res).toBe('string');
+      expect(res).toBe('notif_select_check');
+    });
+  });
 });

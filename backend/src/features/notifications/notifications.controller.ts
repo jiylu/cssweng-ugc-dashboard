@@ -6,6 +6,8 @@ import {
   ApiFindNotificationsForUser,
   ApiMarkNotificationAsRead,
 } from './docs/notifications.controller.swagger';
+import { plainToInstance } from 'class-transformer';
+import { NotificationsEntity } from './entities/notifications.entity';
 
 @Controller('notifications')
 export class NotificationsController {
@@ -16,18 +18,29 @@ export class NotificationsController {
   async findOne(@Param('publicId') publicId: string) {
     const notificationId =
       await this.notificationsService.resolvePublicId(publicId);
-    return this.notificationsService.findNotification(notificationId);
+    const notification =
+      await this.notificationsService.findNotification(notificationId);
+
+    return plainToInstance(NotificationsEntity, notification);
   }
 
   @ApiFindNotificationsForUser()
   @Get()
-  findMany(@Query() query: FindNotificationsQueryDTO) {
-    return this.notificationsService.findNotificationsForUser(query);
+  async findMany(@Query() query: FindNotificationsQueryDTO) {
+    const notifications =
+      await this.notificationsService.findNotificationsForUser(query);
+
+    return plainToInstance(NotificationsEntity, notifications);
   }
 
   @ApiMarkNotificationAsRead()
-  @Post('read-notification/:notificationId')
-  markRead(@Param('notificationId') notificationId: string) {
-    return this.notificationsService.markAsRead(notificationId);
+  @Post('read-notification/:publicId')
+  async markRead(@Param('publicId') publicId: string) {
+    const notificationId =
+      await this.notificationsService.resolvePublicId(publicId);
+    const notification =
+      await this.notificationsService.markAsRead(notificationId);
+
+    return plainToInstance(NotificationsEntity, notification);
   }
 }
