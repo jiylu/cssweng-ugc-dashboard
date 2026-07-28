@@ -27,12 +27,13 @@ export function ApiFindDeliverablesForCampaign() {
     ApiOperation({
       summary: 'Finds deliverables for a campaign',
       description:
-        'Retrieves all deliverables for the given campaignId. No request body. Refer to CreateDeliverableDTO for the deliverable schema; for creating deliverables use CreateDeliverableDTO and for partial updates refer to UpdateDeliverableDTO.',
+        'Retrieves all deliverables for the given campaign public ID. No request body. Refer to CreateDeliverableDTO for the deliverable schema; for creating deliverables use CreateDeliverableDTO and for partial updates refer to UpdateDeliverableDTO.',
     }),
     ApiParam({
-      name: 'campaignId',
+      name: 'publicId',
       type: String,
-      description: 'UUID of the campaign',
+      description: 'Public ID of the campaign',
+      example: 'x21E9dlf0F',
     }),
     ApiResponse({
       status: 200,

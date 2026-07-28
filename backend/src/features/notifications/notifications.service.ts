@@ -59,7 +59,7 @@ export class NotificationsService {
       throw new NotFoundException({
         status: HttpStatus.NOT_FOUND,
         code: 'NOTIF_PUBLIC_ID_CANNOT_BE_RESOLVED',
-        message: 'Notification ID cannot be resolved.',
+        message: 'Notification Public ID cannot be resolved.',
       });
     }
 

@@ -1,5 +1,5 @@
 import { DeliverableType } from '@prisma/client';
-import { Exclude, Expose } from 'class-transformer';
+import { Exclude, Expose, Type } from 'class-transformer';
 
 export class DeliverablesEntity {
   @Exclude()
@@ -12,6 +12,7 @@ export class DeliverablesEntity {
   campaign_id: string;
 
   @Expose()
+  @Type(() => Number)
   quantity: number;
 
   @Expose()
@@ -30,6 +31,7 @@ export class DeliverablesEntity {
   post_date: string;
 
   @Expose()
+  @Type(() => Number)
   pricing: number;
 
   @Exclude()

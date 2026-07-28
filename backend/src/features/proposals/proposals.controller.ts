@@ -111,6 +111,6 @@ export class ProposalsController {
       }
     }
 
-    return updatedProposal;
+    return plainToInstance(ProposalsEntity, updatedProposal);
   }
 }
