@@ -154,10 +154,10 @@ export function ApiUpdateCampaignSetup() {
         'Updates campaign details, contract details, and nested deliverables, add-ons, and gifted products in one database transaction using UpdateCampaignSetupDto. Nested resource groups support create, update, and delete arrays. Deletes are soft deletes for supported resources. If any sub-step fails, all writes are rolled back.',
     }),
     ApiParam({
-      name: 'campaignId',
+      name: 'publicId',
       type: String,
-      description: 'UUID of the campaign being updated',
-      example: '550e8400-e29b-41d4-a716-446655440000',
+      description: 'Public ID of the campaign being updated',
+      example: 'x21E9dlf0F',
     }),
     ApiBody({
       type: UpdateCampaignSetupDto,
@@ -279,10 +279,10 @@ export function ApiGetFullCampaignDetails() {
         'Fetches the complete campaign package for a given campaign ID inside a single read transaction. Returns the campaign, proposal, contract, deliverables, add-ons, and gifted products. Throws 404 if the campaign or any required related resource (proposal, contract) does not exist.',
     }),
     ApiParam({
-      name: 'campaignId',
+      name: 'publicId',
       type: String,
-      description: 'UUID of the campaign to retrieve',
-      example: '550e8400-e29b-41d4-a716-446655440000',
+      description: 'Public ID of the campaign to retrieve',
+      example: 'x21E9dlf0F',
     }),
     ApiResponse({
       status: 200,

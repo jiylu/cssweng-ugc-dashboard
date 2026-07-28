@@ -1,4 +1,4 @@
-import { Exclude, Expose } from 'class-transformer';
+import { Exclude, Expose, Type } from 'class-transformer';
 
 export class GiftedProductsEntity {
   @Expose()
@@ -11,6 +11,7 @@ export class GiftedProductsEntity {
   product_name: string;
 
   @Expose()
+  @Type(() => Number)
   value: number;
 
   @Expose()

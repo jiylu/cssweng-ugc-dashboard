@@ -87,6 +87,7 @@ describe('GiftedProductsService', () => {
       expect(mockPrisma.giftedProducts.create).toHaveBeenCalledWith({
         data: {
           campaign_id: dto.campaignId,
+          public_id: 'mock-pb-id',
           product_name: dto.productName,
           value: dto.value,
           delivery_address: dto.deliveryAddress,
@@ -306,6 +307,31 @@ describe('GiftedProductsService', () => {
       await expect(
         service.findOneGiftedProduct('missing-gp'),
       ).rejects.toBeInstanceOf(NotFoundException);
+    });
+  });
+
+  // ── resolvePublicId ───────────────────────────────────────────────
+
+  describe('resolvePublicId', () => {
+    it('should resolve a valid public ID', async () => {
+      mockPrisma.giftedProducts.findFirst.mockResolvedValue({
+        gifted_product_id: 'gp-1',
+      });
+
+      const res = await service.resolvePublicId('mock-pb-id');
+      expect(res).toBe('gp-1');
+      expect(mockPrisma.giftedProducts.findFirst).toHaveBeenCalledWith({
+        where: { public_id: 'mock-pb-id', is_deleted: false },
+        select: { gifted_product_id: true },
+      });
+    });
+
+    it('should throw NotFoundException if public ID is not found', async () => {
+      mockPrisma.giftedProducts.findFirst.mockResolvedValue(null);
+
+      await expect(service.resolvePublicId('invalid-pb')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 

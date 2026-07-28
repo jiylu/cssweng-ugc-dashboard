@@ -76,6 +76,7 @@ model Contracts {
 
 model GiftedProducts {
   gifted_product_id     String  @id @default(uuid())
+  public_id             String  @unique @db.VarChar(10)
   campaign_id           String
   product_name          String
   value                 Decimal
