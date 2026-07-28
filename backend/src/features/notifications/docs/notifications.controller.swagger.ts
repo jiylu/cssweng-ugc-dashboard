@@ -4,18 +4,18 @@ import { ApiOperation, ApiParam, ApiQuery, ApiResponse } from '@nestjs/swagger';
 export function ApiFindNotification() {
   return applyDecorators(
     ApiOperation({
-      summary: 'Find a single notification by ID',
+      summary: 'Find a single notification by public ID',
       description:
-        'Retrieves one notification record using its `notificationId` path parameter. ' +
+        'Retrieves one notification record using its `publicId` path parameter. ' +
         'Use this endpoint when opening a specific notification detail view. ' +
-        'If no notification exists for the given ID, the endpoint returns a 404 NOTIFICATION_NOT_FOUND error.',
+        'If no notification exists for the given public ID, the endpoint returns a 404 error.',
     }),
     ApiParam({
-      name: 'notificationId',
+      name: 'publicId',
       type: String,
       required: true,
-      description: 'Unique identifier of the notification to retrieve',
-      example: 'not_f4C2a9QzR8',
+      description: 'Public ID of the notification to retrieve',
+      example: 'f4C2a9QzR8',
     }),
     ApiResponse({
       status: 200,
@@ -25,7 +25,7 @@ export function ApiFindNotification() {
     ApiResponse({
       status: 404,
       description:
-        'Notification not found (NOTIFICATION_NOT_FOUND). The provided ID does not match any existing notification.',
+        'Notification not found (NOTIF_PUBLIC_ID_CANNOT_BE_RESOLVED / NOTIFICATION_NOT_FOUND).',
     }),
     ApiResponse({
       status: 500,
@@ -88,14 +88,14 @@ export function ApiMarkNotificationAsRead() {
       description:
         'Marks an unread notification as read by setting `is_read` to `true`. ' +
         'If the notification is already read, the endpoint returns a 409 NOTIFICATION_ALREADY_READ conflict. ' +
-        'If the notification does not exist, it returns 404 NOTIFICATION_NOT_FOUND.',
+        'If the notification does not exist, it returns 404.',
     }),
     ApiParam({
-      name: 'notificationId',
+      name: 'publicId',
       type: String,
       required: true,
-      description: 'Unique identifier of the notification to mark as read',
-      example: 'not_f4C2a9QzR8',
+      description: 'Public ID of the notification to mark as read',
+      example: 'f4C2a9QzR8',
     }),
     ApiResponse({
       status: 201,
@@ -104,7 +104,8 @@ export function ApiMarkNotificationAsRead() {
     }),
     ApiResponse({
       status: 404,
-      description: 'Notification not found (NOTIFICATION_NOT_FOUND).',
+      description:
+        'Notification not found (NOTIF_PUBLIC_ID_CANNOT_BE_RESOLVED / NOTIFICATION_NOT_FOUND).',
     }),
     ApiResponse({
       status: 409,

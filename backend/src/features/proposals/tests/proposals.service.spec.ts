@@ -417,82 +417,48 @@ describe('ProposalsService', () => {
     });
   });
 
-  describe('findActiveProposalByPublicId', () => {
-    it('should return one active proposal by public_id', async () => {
-      const publicId = 'pub_active_1';
-      const mockProposal = {
-        proposal_id: 'prop_active_1',
-        public_id: publicId,
-        campaign_id: 'camp1',
-        client_email: 'client@test.com',
-        proposal_status: ProposalStatus.PENDING,
-      };
+  describe('resolvePublicId', () => {
+    it('should return the proposal_id for a valid publicId', async () => {
+      const publicId = 'pub_valid_1';
+      const mockResult = { proposal_id: 'prop_internal_1' };
 
-      mockPrisma.proposals.findFirst.mockResolvedValue(mockProposal);
+      mockPrisma.proposals.findFirst.mockResolvedValue(mockResult);
 
-      const res = await service.findActiveProposalByPublicId(publicId);
-      expect(res).toEqual(mockProposal);
+      const res = await service.resolvePublicId(publicId);
+
+      expect(res).toBe('prop_internal_1');
       expect(mockPrisma.proposals.findFirst).toHaveBeenCalledWith({
-        where: {
-          public_id: publicId,
-          proposal_status: {
-            in: [ProposalStatus.FOR_REVISION, ProposalStatus.PENDING],
-          },
-        },
+        where: { public_id: publicId },
+        select: { proposal_id: true },
       });
     });
 
-    it('should return active proposal with FOR_REVISION status by public_id', async () => {
-      const publicId = 'pub_revision_1';
-      const mockProposal = {
-        proposal_id: 'prop_revision_1',
-        public_id: publicId,
-        campaign_id: 'camp1',
-        client_email: 'client@test.com',
-        proposal_status: ProposalStatus.FOR_REVISION,
-      };
-
-      mockPrisma.proposals.findFirst.mockResolvedValue(mockProposal);
-
-      const res = await service.findActiveProposalByPublicId(publicId);
-      expect(res).toEqual(mockProposal);
-      expect(mockPrisma.proposals.findFirst).toHaveBeenCalledWith({
-        where: {
-          public_id: publicId,
-          proposal_status: {
-            in: [ProposalStatus.FOR_REVISION, ProposalStatus.PENDING],
-          },
-        },
-      });
-    });
-
-    it('should throw NotFoundException when no active proposal found for public_id', async () => {
+    it('should throw NotFoundException when no proposal matches the publicId', async () => {
       const publicId = 'pub_missing';
 
       mockPrisma.proposals.findFirst.mockResolvedValue(null);
 
-      await expect(
-        service.findActiveProposalByPublicId(publicId),
-      ).rejects.toBeInstanceOf(NotFoundException);
+      await expect(service.resolvePublicId(publicId)).rejects.toBeInstanceOf(
+        NotFoundException,
+      );
 
       expect(mockPrisma.proposals.findFirst).toHaveBeenCalledWith({
-        where: {
-          public_id: publicId,
-          proposal_status: {
-            in: [ProposalStatus.FOR_REVISION, ProposalStatus.PENDING],
-          },
-        },
+        where: { public_id: publicId },
+        select: { proposal_id: true },
       });
     });
 
-    it('should throw NotFoundException when proposal exists but is not active (ACCEPTED status)', async () => {
-      const publicId = 'pub_accepted_1';
+    it('should only select proposal_id and not return the full proposal object', async () => {
+      const publicId = 'pub_select_check';
 
-      mockPrisma.proposals.findFirst.mockResolvedValue(null);
+      mockPrisma.proposals.findFirst.mockResolvedValue({
+        proposal_id: 'prop_select_check',
+      });
 
-      await expect(
-        service.findActiveProposalByPublicId(publicId),
-      ).rejects.toBeInstanceOf(NotFoundException);
+      const res = await service.resolvePublicId(publicId);
+
+      expect(typeof res).toBe('string');
+      expect(res).toBe('prop_select_check');
     });
   });
 });

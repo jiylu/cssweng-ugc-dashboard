@@ -123,28 +123,36 @@ export class AddOnsService {
     return addOn;
   }
 
-  async findOneAddOnByPublicId(publicId: string) {
-    this.logger.debug(`Finding add-on with public id ${publicId}.`);
+  async resolvePublicId(
+    publicId: string,
+    tx: Prisma.TransactionClient | PrismaService = this.prisma,
+  ) {
+    this.logger.debug(`Resolving add-on publicId ${publicId}`);
 
-    const addOn = await this.prisma.addOns.findFirst({
+    const addOn = await tx.addOns.findFirst({
       where: {
         public_id: publicId,
         is_deleted: false,
       },
+      select: {
+        add_on_id: true,
+      },
     });
 
     if (!addOn) {
-      this.logger.warn(`Add-on ${addOn} not found.`);
+      this.logger.warn(
+        `Add-on with publicId ${publicId} not found or is deleted.`,
+      );
       throw new NotFoundException({
         status: HttpStatus.NOT_FOUND,
-        code: 'ADD_ON_NOT_FOUND',
-        message: 'Add-on not found',
+        code: 'ADD_ON_PUBLIC_ID_CANNOT_BE_RESOLVED',
+        message: 'Add-on public ID cannot be resolved.',
       });
     }
 
-    this.logger.log(`Add-on ${addOn.add_on_id} found.`);
+    this.logger.log(`Add-on publicId ${publicId} resolved: ${addOn.add_on_id}`);
 
-    return addOn;
+    return addOn.add_on_id;
   }
 
   async updateAddOnOptIn(addOnId: string, dto: UpdateOptInDTO) {

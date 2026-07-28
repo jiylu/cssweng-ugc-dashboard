@@ -9,6 +9,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { UserService } from '../users/users.service';
 import { CreateNotificationDTO } from './dto/create-notification.dto';
 import { FindNotificationsQueryDTO } from './dto/find-notifications-query.dto';
+import { nanoid } from 'nanoid';
 
 @Injectable()
 export class NotificationsService {
@@ -23,9 +24,12 @@ export class NotificationsService {
 
     await this.userService.getActiveUserById(dto.userId);
 
+    const publicId = nanoid(10);
+
     const notification = await this.prisma.notifications.create({
       data: {
         user_id: dto.userId,
+        public_id: publicId,
         title: dto.title,
         message: dto.message,
       },
@@ -36,6 +40,30 @@ export class NotificationsService {
     );
 
     return notification;
+  }
+
+  async resolvePublicId(publicId: string) {
+    this.logger.debug(`Resolving publicId: ${publicId}`);
+
+    const notification = await this.prisma.notifications.findFirst({
+      where: {
+        public_id: publicId,
+      },
+      select: {
+        notification_id: true,
+      },
+    });
+
+    if (!notification) {
+      this.logger.warn(`Public id ${publicId} not found.`);
+      throw new NotFoundException({
+        status: HttpStatus.NOT_FOUND,
+        code: 'NOTIF_PUBLIC_ID_CANNOT_BE_RESOLVED',
+        message: 'Notification Public ID cannot be resolved.',
+      });
+    }
+
+    return notification.notification_id;
   }
 
   async findNotification(notificationId: string) {

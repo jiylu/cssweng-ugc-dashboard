@@ -776,4 +776,48 @@ describe('DeliverablesService', () => {
       expect(res[2].deliverableName).toBe('YouTube Shorts');
     });
   });
+  describe('resolvePublicId', () => {
+    it('should return the deliverable_id for a valid publicId', async () => {
+      const publicId = 'pub_valid_1';
+      const mockResult = { deliverable_id: 'deliv_internal_1' };
+
+      mockPrisma.deliverables.findFirst.mockResolvedValue(mockResult);
+
+      const res = await service.resolvePublicId(publicId);
+
+      expect(res).toBe('deliv_internal_1');
+      expect(mockPrisma.deliverables.findFirst).toHaveBeenCalledWith({
+        where: { public_id: publicId, is_deleted: false },
+        select: { deliverable_id: true },
+      });
+    });
+
+    it('should throw NotFoundException when no deliverable matches the publicId', async () => {
+      const publicId = 'pub_missing';
+
+      mockPrisma.deliverables.findFirst.mockResolvedValue(null);
+
+      await expect(service.resolvePublicId(publicId)).rejects.toBeInstanceOf(
+        NotFoundException,
+      );
+
+      expect(mockPrisma.deliverables.findFirst).toHaveBeenCalledWith({
+        where: { public_id: publicId, is_deleted: false },
+        select: { deliverable_id: true },
+      });
+    });
+
+    it('should only select deliverable_id and not return the full deliverable object', async () => {
+      const publicId = 'pub_select_check';
+
+      mockPrisma.deliverables.findFirst.mockResolvedValue({
+        deliverable_id: 'deliv_select_check',
+      });
+
+      const res = await service.resolvePublicId(publicId);
+
+      expect(typeof res).toBe('string');
+      expect(res).toBe('deliv_select_check');
+    });
+  });
 });
