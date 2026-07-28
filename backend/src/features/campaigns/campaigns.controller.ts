@@ -9,6 +9,8 @@ import {
   ApiUpdateCampaignClient,
   ApiUpdateCampaignStatus,
 } from './docs/campaigns.controller.swagger';
+import { plainToInstance } from 'class-transformer';
+import { CampaignsEntity } from './entities/campaigns.entity';
 
 @Controller('campaigns')
 export class CampaignsController {
@@ -19,13 +21,16 @@ export class CampaignsController {
   async findOne(@Param('publicId') publicId: string) {
     const campaignId =
       await this.campaignsService.resolveCampaignPublicId(publicId);
-    return this.campaignsService.findOneCampaign(campaignId);
+    const campaign = await this.campaignsService.findOneCampaign(campaignId);
+
+    return plainToInstance(CampaignsEntity, campaign);
   }
 
   @ApiFindAllCampaigns()
   @Get()
-  findAll(@Query() query: CampaignQueryDTO) {
-    return this.campaignsService.findAllCampaigns(query);
+  async findAll(@Query() query: CampaignQueryDTO) {
+    const campaigns = await this.campaignsService.findAllCampaigns(query);
+    return plainToInstance(CampaignsEntity, campaigns);
   }
 
   @ApiUpdateCampaignStatus()
@@ -36,7 +41,13 @@ export class CampaignsController {
   ) {
     const campaignId =
       await this.campaignsService.resolveCampaignPublicId(publicId);
-    return this.campaignsService.updateCampaignStatus(campaignId, dto);
+
+    const updatedCampaign = await this.campaignsService.updateCampaignStatus(
+      campaignId,
+      dto,
+    );
+
+    return plainToInstance(CampaignsEntity, updatedCampaign);
   }
 
   @ApiUpdateCampaignClient()
@@ -47,6 +58,12 @@ export class CampaignsController {
   ) {
     const campaignId =
       await this.campaignsService.resolveCampaignPublicId(publicId);
-    return this.campaignsService.updateCampaignClientId(campaignId, dto);
+
+    const updatedCampaign = await this.campaignsService.updateCampaignClientId(
+      campaignId,
+      dto,
+    );
+
+    return plainToInstance(CampaignsEntity, updatedCampaign);
   }
 }

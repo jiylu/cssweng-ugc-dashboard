@@ -1,5 +1,5 @@
 import { CampaignCurrency, CampaignStatus } from '@prisma/client';
-import { Exclude, Expose } from 'class-transformer';
+import { Exclude, Expose, Type } from 'class-transformer';
 
 export class CampaignsEntity {
   @Exclude()
@@ -24,9 +24,11 @@ export class CampaignsEntity {
   currency: CampaignCurrency;
 
   @Expose()
+  @Type(() => Number)
   tax: number;
 
   @Expose()
+  @Type(() => Number)
   pricing: number;
 
   @Expose()
