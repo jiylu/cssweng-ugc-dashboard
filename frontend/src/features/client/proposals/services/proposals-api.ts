@@ -21,7 +21,7 @@ interface RawDeliverable {
 }
 
 interface RawAddOn {
-  add_on_id: string;
+  public_id: string;
   add_on_name: string;
   description: string;
   fee: string;
@@ -118,7 +118,7 @@ export async function getProposalReview(publicId: string): Promise<ProposalRevie
     0,
   );
   const addOns: ProposalAddOn[] = (setup.addOns ?? []).map((item) => ({
-    id: item.add_on_id,
+    id: item.public_id,
     name: item.add_on_name,
     description: item.description,
     price: formatMoney(Number(item.fee), currency),
@@ -160,14 +160,14 @@ export async function requestProposalRevision(proposalId: string, comment: strin
     method: "PATCH",
     body: JSON.stringify({ comment }),
   });
-  return request<ProposalRecord>(`/proposals/${proposalId}/status`, {
+  return request<ProposalRecord>(`/proposals/status/${proposalId}`, {
     method: "PATCH",
     body: JSON.stringify({ proposalStatus: "FOR_REVISION" }),
   });
 }
 
 export function declineProposal(proposalId: string) {
-  return request<ProposalRecord>(`/proposals/${proposalId}/status`, {
+  return request<ProposalRecord>(`/proposals/status/${proposalId}`, {
     method: "PATCH",
     body: JSON.stringify({ proposalStatus: "REJECTED" }),
   });
