@@ -52,7 +52,7 @@ export function ProposalSummaryContainer({ form, contractTerms, addOns, paymentT
                     taxRate={summary.earnings.taxRate}
                     startDate={summary.campaign.startDate}
                     endDate={summary.campaign.endDate}
-                    platforms={summary.campaign.platforms}
+                    deliverablesLabel={summary.deliverables.map(d => `${d.qty} ${d.deliverable}`).join(", ")}
                     />
                 </div>
 

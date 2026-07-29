@@ -9,10 +9,10 @@ interface EarningsSnapshotProps {
   taxRate: number
   startDate: string
   endDate: string
-  platforms: string[]
+  deliverablesLabel: string
 }
 
-export function EarningsSnapshot({ currency, total, baseFee, tax, taxRate, startDate, endDate, platforms }: EarningsSnapshotProps) {
+export function EarningsSnapshot({ currency, total, baseFee, tax, taxRate, startDate, endDate, deliverablesLabel }: EarningsSnapshotProps) {
   function formatAmount(amount: number) {
     return `${currency} ${amount.toLocaleString("en-US", { minimumFractionDigits: 2 })}`
   }
@@ -49,7 +49,7 @@ export function EarningsSnapshot({ currency, total, baseFee, tax, taxRate, start
         </div>
         <div className="flex flex-col gap-1">
           <p className="text-xs text-muted-foreground">DELIVERABLES</p>
-          <p className="text-sm text-foreground">{platforms.join(", ")}</p>
+          <p className="text-sm text-foreground">x{deliverablesLabel}</p>
         </div>
       </div>
     </Card>
