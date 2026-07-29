@@ -94,7 +94,7 @@ export function ShippingAddressPopup({ open, onClose, form, errors, onFieldChang
               label="City"
               value={form.city}
               onValueChange={(v) => onFieldChange("city", v)}
-              options={cities.map((c) => ({ key: c.name, value: c.name }))}
+              options={cities.map((c, i) => ({ key: `${c.name}-${i}`, value: c.name }))}
               placeholder="City"
               loading={loadingCities}
               disabled={!form.stateProvince}

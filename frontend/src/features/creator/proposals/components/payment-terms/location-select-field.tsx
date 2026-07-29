@@ -18,12 +18,12 @@ export function LocationSelectField({ label, value, onValueChange, options, plac
     <div className="flex flex-col gap-1">
       <label className="text-sm text-foreground">{label}</label>
       <Select value={value} onValueChange={onValueChange} disabled={disabled}>
-        <SelectTrigger className="bg-white border-border rounded-[3px] text-sm">
+        <SelectTrigger className="bg-white border-border rounded-[3px] text-sm whitespace-normal text-left h-auto min-h-8">
           <SelectValue placeholder={displayPlaceholder} />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent position="popper" className="max-w-[var(--radix-select-trigger-width)]">
           {options.map((opt) => (
-            <SelectItem key={opt.key} value={opt.value}>{opt.value}</SelectItem>
+            <SelectItem key={opt.key} value={opt.value} className="whitespace-normal break-words">{opt.value}</SelectItem>
           ))}
         </SelectContent>
       </Select>
