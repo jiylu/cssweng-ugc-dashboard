@@ -51,7 +51,7 @@ export default function NotificationsPanel() {
           ) : notifications && notifications.length > 0 ? (
             notifications.map((n) => (
               <li
-                key={n.notification_id}
+                key={n.public_id}
                 className="flex gap-3 px-4 py-3 transition-colors hover:bg-muted/50"
               >
                 <div className="flex-1 space-y-1">
@@ -71,7 +71,7 @@ export default function NotificationsPanel() {
                     type="button"
                     className="mt-1.5 size-2 shrink-0 rounded-full bg-[#6b1fa8] hover:ring-2 hover:ring-[#6b1fa8]/30"
                     aria-label="Mark as read"
-                    onClick={() => markRead.mutate(n.notification_id)}
+                    onClick={() => markRead.mutate(n.public_id)}
                   />
                 )}
               </li>
