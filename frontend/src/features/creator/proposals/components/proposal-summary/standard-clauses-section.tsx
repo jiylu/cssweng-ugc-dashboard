@@ -165,7 +165,7 @@ export function StandardClausesSection({
       )}
 
       <p className="text-xs text-muted-foreground italic border-t border-border pt-4">
-        This agreement is provided for informational purposes only and does not constitute legal advice.
+        This agreement is provided for informational purposes only and does not constitute legal advice. Please consult with a qualified legal professional to ensure it meets your specific needs and complies with local laws.
       </p>
     </div>
   )

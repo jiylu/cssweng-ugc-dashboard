@@ -51,7 +51,7 @@ export function useProposalSummary(
     },
     deliverables: form.deliverables.map((d) => ({
       qty: Number(d.quantity ?? 1),
-      deliverable: d.deliverableType || `${d.platform} ${d.contentType}`,
+      deliverable: d.platform,
       format: [d.platform, d.contentType].filter(Boolean).join(", "),
       dueDate: d.draftDeadline ? formatDate(new Date(d.draftDeadline)) : "TBD",
     })),
