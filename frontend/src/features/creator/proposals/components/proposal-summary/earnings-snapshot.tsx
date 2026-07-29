@@ -20,7 +20,7 @@ export function EarningsSnapshot({ currency, total, baseFee, tax, taxRate, start
   return (
     <Card className="flex flex-col gap-3 p-5">
       <p className="text-xs text-muted-foreground uppercase tracking-[0.03em]">TOTAL PAYOUT</p>
-      <p className="text-2xl font-bold text-foreground">{formatAmount(total)}</p>
+      <p className="text-2xl text-[#6B1FA8]">{formatAmount(total)}</p>
 
       <Separator />
 
@@ -44,11 +44,11 @@ export function EarningsSnapshot({ currency, total, baseFee, tax, taxRate, start
           <p className="text-sm text-foreground font-medium">Client Name</p>
         </div>
         <div className="flex flex-col gap-1">
-          <p className="text-xs text-muted-foreground">PERIOD</p>
+          <p className="text-xs text-muted-foreground">DATES</p>
           <p className="text-sm text-foreground">{startDate} - {endDate}</p>
         </div>
         <div className="flex flex-col gap-1">
-          <p className="text-xs text-muted-foreground">CONTENT</p>
+          <p className="text-xs text-muted-foreground">DELIVERABLES</p>
           <p className="text-sm text-foreground">{platforms.join(", ")}</p>
         </div>
       </div>

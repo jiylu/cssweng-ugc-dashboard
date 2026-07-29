@@ -14,7 +14,7 @@ interface StandardClausesSectionProps {
 }
 
 export function StandardClausesSection({
-  partnershipTags,
+    partnershipTags,
   contentRetentionMonths,
   reimbursementDays,
   cancellationDays,
