@@ -8,9 +8,9 @@ export const shippingAddressSchema = z.object({
   country: z.string()
     .min(1, "Country is required."),
   stateProvince: z.string()
-    .min(1, "State/Province is required."),
+    .optional(),
   city: z.string()
-    .min(1, "City is required."),
+    .optional(),
   zipCode: z.string()
     .min(1, "Zip Code is required."),
 })
