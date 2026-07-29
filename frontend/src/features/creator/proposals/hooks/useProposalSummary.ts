@@ -40,7 +40,7 @@ export function useProposalSummary(
       total,
     },
     campaign: {
-      brand: form.contactEmail || "Brand Name",
+      brand: form.contactPerson || form.contactEmail || "Brand Name",
       creator: userName,
       campaignName: form.projectName,
       platforms: form.platforms.map((p) => p.platform),
