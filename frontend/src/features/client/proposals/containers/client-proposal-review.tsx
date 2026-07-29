@@ -30,9 +30,9 @@ function formatMoney(value: number, currency: string) {
 }
 
 export default function ClientProposalReview() {
-  const params = useParams<{ proposalId?: string }>();
+  const params = useParams<{ campaignId?: string }>();
   const router = useRouter();
-  const proposalPublicId = params.proposalId ?? "";
+  const proposalPublicId = params.campaignId ?? "";
   const { proposalQuery, revisionMutation, declineMutation, addOnMutation } =
     useClientProposal(proposalPublicId);
   const [feedback, setFeedback] = useState<string | null>(null);
