@@ -15,10 +15,12 @@ export default function ClientRegister() {
   const params = clientRegisterParamsSchema.parse({
     email: searchParams.get("email") ?? undefined,
     proposalId: searchParams.get("proposalId") ?? undefined,
+    campaignId: searchParams.get("campaignId") ?? undefined,
   });
   const onboardingForm = useClientOnboarding({
     initialEmail: params.email,
     proposalId: params.proposalId,
+    campaignId: params.campaignId,
   });
   const registerForm = useRegister({
     initialEmail: params.email,

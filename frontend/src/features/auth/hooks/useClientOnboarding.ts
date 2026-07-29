@@ -6,6 +6,7 @@ import type { ClientOnboardingForm } from "../types/client-onboarding.types";
 type UseClientOnboardingOptions = {
   initialEmail?: string;
   proposalId?: string;
+  campaignId?: string;
 };
 
 const getInitialForm = (initialEmail = ""): ClientOnboardingForm => ({
@@ -22,6 +23,7 @@ const getInitialForm = (initialEmail = ""): ClientOnboardingForm => ({
 export function useClientOnboarding({
   initialEmail = "",
   proposalId,
+  campaignId,
 }: UseClientOnboardingOptions = {}) {
   const router = useRouter();
   const [form, setForm] = useState<ClientOnboardingForm>(
@@ -67,7 +69,7 @@ export function useClientOnboarding({
       JSON.stringify(result.data),
     );
 
-    router.push(proposalId ? `/proposals/${proposalId}` : "/proposals/preview");
+    router.push(campaignId ? `/proposals/${campaignId}` : "/proposals/preview");
   };
 
   return {

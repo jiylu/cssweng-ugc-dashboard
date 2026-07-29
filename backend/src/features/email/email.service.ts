@@ -38,9 +38,10 @@ export class EmailService {
   async sendProposalReminderEmail(
     clientEmail: string,
     proposalPublicId: string,
+    campaignId: string,
     projectName: string,
   ) {
-    const registrationUrl = `${this.getFrontendUrl()}/client-register?proposalId=${encodeURIComponent(proposalPublicId)}&email=${encodeURIComponent(clientEmail)}`;
+    const registrationUrl = `${this.getFrontendUrl()}/client-register?proposalId=${encodeURIComponent(proposalPublicId)}&campaignId=${encodeURIComponent(campaignId)}&email=${encodeURIComponent(clientEmail)}`;
     const safeRegistrationUrl = escapeHtml(registrationUrl);
     const subject = `Register to review proposal: ${projectName}`;
 

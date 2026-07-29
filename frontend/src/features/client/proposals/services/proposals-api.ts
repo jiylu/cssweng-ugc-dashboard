@@ -106,9 +106,8 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export async function getProposalReview(publicId: string): Promise<ProposalReviewData> {
-  const proposal = await request<ProposalRecord>(`/proposals/${publicId}`);
   const setup = await request<CampaignSetupResponse>(
-    `/campaign-setup/${proposal.campaign_id}`,
+    `/campaign-setup/${publicId}`,
   );
   const creator = await request<CreatorResponse>(
     `/users/${setup.campaign.ugc_creator_id}`,

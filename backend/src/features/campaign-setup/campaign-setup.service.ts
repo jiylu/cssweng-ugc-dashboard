@@ -97,6 +97,7 @@ export class CampaignSetupService {
       .sendProposalReminderEmail(
         dto.proposal.clientEmail,
         result.proposal.public_id,
+        result.campaign.public_id,
         dto.campaign.projectName,
       )
       .catch((err) => {
