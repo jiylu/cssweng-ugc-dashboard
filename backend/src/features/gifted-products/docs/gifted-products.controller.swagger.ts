@@ -4,15 +4,15 @@ import { ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 export function ApiFindGiftedProductById() {
   return applyDecorators(
     ApiOperation({
-      summary: 'Find a gifted product by ID',
+      summary: 'Find a gifted product by public ID',
       description:
-        'Retrieves a single gifted product by its internal giftedProductId. Returns full details such as product name, declared value, delivery address/instructions, and ownership terms.',
+        'Retrieves a single gifted product by its publicId. Returns full details such as product name, declared value, delivery address/instructions, and ownership terms.',
     }),
     ApiParam({
-      name: 'giftedProductId',
+      name: 'publicId',
       type: String,
-      description: 'UUID of the gifted product',
-      example: '550e8400-e29b-41d4-a716-446655440010',
+      description: 'Public ID of the gifted product',
+      example: 'oPx21dlEa',
     }),
     ApiResponse({
       status: 200,
@@ -33,10 +33,10 @@ export function ApiFindGiftedProductsForCampaign() {
         'Retrieves all gifted products linked to a campaign. Campaign existence is validated first. Returns null when no gifted products are currently linked.',
     }),
     ApiParam({
-      name: 'campaignId',
+      name: 'publicId',
       type: String,
-      description: 'UUID of the campaign',
-      example: '550e8400-e29b-41d4-a716-446655440000',
+      description: 'Public ID of the campaign',
+      example: 'oPx21dlEa',
     }),
     ApiResponse({
       status: 200,

@@ -756,61 +756,49 @@ describe('CampaignService', () => {
     });
   });
 
-  describe('findOneActiveCampaignByPublicId', () => {
-    it('should return one active campaign by public_id', async () => {
-      const publicId = 'pub_active_1';
-      const mockCampaign = {
-        campaign_id: 'camp_active_1',
-        public_id: publicId,
-        ugc_creator_id: 'ugcA',
-        client_id: 'client123',
-        project_name: 'Active Campaign',
-        description: 'Active Campaign Desc',
-        pricing: new Prisma.Decimal(5000),
-        platforms: ['Instagram'],
-        start_date: new Date(),
-        end_date: new Date(),
-        created_at: new Date(),
-        campaign_status: CampaignStatus.ACTIVE,
-      };
+  describe('resolveCampaignPublicId', () => {
+    it('should return the campaign_id for a valid publicId', async () => {
+      const publicId = 'pub_valid_1';
+      const mockResult = { campaign_id: 'camp_internal_1' };
 
-      mockPrisma.campaigns.findFirst.mockResolvedValue(mockCampaign);
+      mockPrisma.campaigns.findFirst.mockResolvedValue(mockResult);
 
-      const res = await service.findOneActiveCampaignByPublicId(publicId);
-      expect(res).toEqual(mockCampaign);
+      const res = await service.resolveCampaignPublicId(publicId);
+
+      expect(res).toBe('camp_internal_1');
       expect(mockPrisma.campaigns.findFirst).toHaveBeenCalledWith({
-        where: {
-          public_id: publicId,
-          campaign_status: CampaignStatus.ACTIVE,
-        },
+        where: { public_id: publicId },
+        select: { campaign_id: true },
       });
     });
 
-    it('should throw NotFoundException when no active campaign found for public_id', async () => {
+    it('should throw NotFoundException when no campaign matches the publicId', async () => {
       const publicId = 'pub_missing';
 
       mockPrisma.campaigns.findFirst.mockResolvedValue(null);
 
       await expect(
-        service.findOneActiveCampaignByPublicId(publicId),
+        service.resolveCampaignPublicId(publicId),
       ).rejects.toBeInstanceOf(NotFoundException);
 
       expect(mockPrisma.campaigns.findFirst).toHaveBeenCalledWith({
-        where: {
-          public_id: publicId,
-          campaign_status: CampaignStatus.ACTIVE,
-        },
+        where: { public_id: publicId },
+        select: { campaign_id: true },
       });
     });
 
-    it('should throw NotFoundException when campaign exists but is not ACTIVE', async () => {
-      const publicId = 'pub_inactive_1';
+    it('should only select campaign_id and not return the full campaign object', async () => {
+      const publicId = 'pub_select_check';
+      // findFirst only returns the selected field
+      mockPrisma.campaigns.findFirst.mockResolvedValue({
+        campaign_id: 'camp_select_check',
+      });
 
-      mockPrisma.campaigns.findFirst.mockResolvedValue(null);
+      const res = await service.resolveCampaignPublicId(publicId);
 
-      await expect(
-        service.findOneActiveCampaignByPublicId(publicId),
-      ).rejects.toBeInstanceOf(NotFoundException);
+      // result must be the plain id string, not an object
+      expect(typeof res).toBe('string');
+      expect(res).toBe('camp_select_check');
     });
   });
 });

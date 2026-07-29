@@ -32,9 +32,10 @@ export function ApiUpdateProposalComments() {
         'Updates the client_comments field for an active proposal. Request body must follow UpdateProposalCommentDTO (field: comment — 30 to 500 characters). Refer to UpdateProposalCommentDTO for validation rules and example payload.',
     }),
     ApiParam({
-      name: 'proposalId',
+      name: 'publicId',
       type: String,
-      description: 'UUID of the proposal',
+      description: 'Public ID of the proposal',
+      example: 'e3Fx0pFGsF',
     }),
     ApiBody({ type: UpdateProposalCommentDTO }),
     ApiResponse({
@@ -51,19 +52,25 @@ export function ApiUpdateProposalStatus() {
     ApiOperation({
       summary: 'Updates the status of a proposal',
       description:
-        'Updates the proposal_status for an active proposal. Request body must follow UpdateProposalStatusDTO (field: proposalStatus - enum). Terminal statuses cannot be transitioned out of (see business rules). Refer to UpdateProposalStatusDTO for the request body schema.',
+        'Updates the proposal_status for an active proposal. Request body must follow UpdateProposalStatusDTO (field: proposalStatus - enum). ' +
+        'Allowed values: `PENDING`, `FOR_REVISION`, `ACCEPTED`, `REJECTED`. ' +
+        'Only proposals with status PENDING or FOR_REVISION can be updated. Refer to UpdateProposalStatusDTO for the request body schema.',
     }),
     ApiParam({
-      name: 'proposalId',
+      name: 'publicId',
       type: String,
-      description: 'UUID of the proposal',
+      description: 'Public ID of the proposal',
+      example: 'e3Fx0pFGsF',
     }),
     ApiBody({ type: UpdateProposalStatusDTO }),
     ApiResponse({
       status: 200,
       description: 'Proposal status updated successfully',
     }),
-    ApiResponse({ status: 404, description: 'Proposal not found' }),
+    ApiResponse({
+      status: 404,
+      description: 'Proposal not found or not active',
+    }),
     ApiResponse({ status: 400, description: 'Invalid status payload' }),
   );
 }
@@ -71,15 +78,15 @@ export function ApiUpdateProposalStatus() {
 export function ApiFindProposalByCampaign() {
   return applyDecorators(
     ApiOperation({
-      summary: 'Finds a proposal by its campaign id',
+      summary: 'Finds a proposal by campaign public ID',
       description:
-        'Retrieves the proposal associated with a campaign (by campaignId). No request body. To create a proposal, use CreateProposalDTO (campaignId, clientEmail). Refer to CreateProposalDTO for creation payload shape.',
+        'Retrieves the proposal associated with a campaign (by campaign publicId). No request body. To create a proposal, use CreateProposalDTO (campaignId, clientEmail). Refer to CreateProposalDTO for creation payload shape.',
     }),
     ApiParam({
-      name: 'campaignId',
+      name: 'publicId',
       type: String,
-      description: 'UUID of the campaign',
-      example: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+      description: 'Public ID of the campaign',
+      example: 'x21E9dlf0F',
     }),
     ApiResponse({
       status: 200,

@@ -334,35 +334,6 @@ describe('AddOnsService', () => {
     });
   });
 
-  describe('findOneAddOnByPublicId', () => {
-    it('should return an add-on when found by public ID', async () => {
-      const mockAddOn = {
-        add_on_id: 'addon-1',
-        public_id: 'abc1234567',
-        campaign_id: 'camp-1',
-        add_on_name: 'Videography',
-        fee: 1000,
-        initials: 'VD',
-        opt_in: true,
-      };
-
-      mockPrisma.addOns.findFirst.mockResolvedValue(mockAddOn);
-
-      const res = await service.findOneAddOnByPublicId('abc1234567');
-      expect(res).toEqual(mockAddOn);
-      expect(mockPrisma.addOns.findFirst).toHaveBeenCalledWith({
-        where: { public_id: 'abc1234567', is_deleted: false },
-      });
-    });
-
-    it('should throw NotFoundException when public ID not found', async () => {
-      mockPrisma.addOns.findFirst.mockResolvedValue(null);
-      await expect(
-        service.findOneAddOnByPublicId('nonexistent'),
-      ).rejects.toBeInstanceOf(NotFoundException);
-    });
-  });
-
   describe('updateAddOnOptIn', () => {
     it('should update opt-in to true successfully', async () => {
       const existing = {

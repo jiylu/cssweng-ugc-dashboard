@@ -7,16 +7,20 @@ import {
   MinLength,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Expose } from 'class-transformer';
 
 export class UsageRightsDTO {
+  @Expose()
   @ApiProperty({ example: true })
   @IsBoolean({ message: 'Exclusive flag must be a boolean.' })
   is_exclusive!: boolean;
 
+  @Expose()
   @ApiProperty({ example: false })
   @IsBoolean({ message: 'Transferrable flag must be a boolean.' })
   is_transferrable!: boolean;
 
+  @Expose()
   @ApiProperty({
     example:
       'Brand may use the content organically on social channels for 12 months after posting.',
@@ -31,6 +35,7 @@ export class UsageRightsDTO {
   })
   organic_usage!: string;
 
+  @Expose()
   @ApiPropertyOptional({
     example:
       'Paid social boosting is allowed for up to 90 days from original post date.',
@@ -45,6 +50,7 @@ export class UsageRightsDTO {
   })
   paid_usage_ads?: string;
 
+  @Expose()
   @ApiPropertyOptional({
     example:
       'Spark Ads may be run for 60 days provided ad copy is pre-approved by creator.',
@@ -59,12 +65,14 @@ export class UsageRightsDTO {
   })
   whitelisting_spark_ads?: string;
 
+  @Expose()
   @ApiProperty({ example: 'Philippines' })
   @IsString({ message: 'Territory must be a string.' })
   @IsNotEmpty({ message: 'Territory is required.' })
   @MaxLength(500, { message: 'Territory must not exceed 500 characters.' })
   territory!: string;
 
+  @Expose()
   @ApiProperty({
     example: 'No use in political, gambling, or adult-content advertisements.',
   })

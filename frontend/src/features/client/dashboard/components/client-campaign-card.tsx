@@ -1,5 +1,8 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 import type { ClientCampaign } from "../types/client-campaign.types";
 
 const statusStyles: Record<ClientCampaign["status"], string> = {
@@ -16,6 +19,7 @@ interface ClientCampaignCardProps {
 export default function ClientCampaignCard({
   campaign,
 }: ClientCampaignCardProps) {
+  const router = useRouter();
   const actionLabel =
     campaign.status === "PENDING" ? "View Proposal" : "Open Workspace";
 
@@ -58,6 +62,13 @@ export default function ClientCampaignCard({
           type="button"
           variant="outline"
           className="h-9 w-[148px] rounded-none border-[#6b1fa8] bg-white text-base font-normal text-[#44403b] hover:bg-[#f7f2fb]"
+          onClick={() =>
+            router.push(
+              campaign.status === "PENDING"
+                ? `/proposals/${campaign.id}`
+                : `/client-workspace/${campaign.id}`,
+            )
+          }
         >
           {actionLabel}
         </Button>

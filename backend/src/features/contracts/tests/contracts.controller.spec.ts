@@ -3,6 +3,7 @@ jest.mock('nanoid', () => ({ nanoid: jest.fn(() => 'mock-pb-id') }));
 import { Test, TestingModule } from '@nestjs/testing';
 import { ContractsController } from '../contracts.controller';
 import { ContractsService } from '../contracts.service';
+import { CampaignsService } from 'src/features/campaigns/campaigns.service';
 import { UpdateContractDTO } from '../dto/update-contract.dto';
 import { PAYMENT_SCHEDULE } from '../dto/payment-terms.dto';
 
@@ -10,10 +11,15 @@ describe('ContractsController', () => {
   let controller: ContractsController;
 
   const mockContractsService = {
-    findContractByPublicId: jest.fn(),
+    findContractByUID: jest.fn(),
     findContractByCampaignId: jest.fn(),
     signContract: jest.fn(),
     updateContractDetails: jest.fn(),
+    resolvePublicId: jest.fn(),
+  };
+
+  const mockCampaignsService = {
+    resolveCampaignPublicId: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -23,6 +29,10 @@ describe('ContractsController', () => {
         {
           provide: ContractsService,
           useValue: mockContractsService,
+        },
+        {
+          provide: CampaignsService,
+          useValue: mockCampaignsService,
         },
       ],
     }).compile();
@@ -39,11 +49,17 @@ describe('ContractsController', () => {
       contract_id: 'contract-1',
       campaign_id: 'camp-1',
     };
+    mockCampaignsService.resolveCampaignPublicId.mockResolvedValue('camp-1');
     mockContractsService.findContractByCampaignId.mockResolvedValue(contract);
 
-    const res = await controller.findOneByCampaignId('camp-1');
+    const res = await controller.findOneByCampaignId('pub-camp-1');
 
-    expect(res).toEqual(contract);
+    expect(res).toBeDefined();
+    expect(res.campaign_id).toBeUndefined();
+    expect(res.contract_id).toBeUndefined();
+    expect(mockCampaignsService.resolveCampaignPublicId).toHaveBeenCalledWith(
+      'pub-camp-1',
+    );
     expect(mockContractsService.findContractByCampaignId).toHaveBeenCalledWith(
       'camp-1',
     );
@@ -58,11 +74,17 @@ describe('ContractsController', () => {
       },
     };
     const updated = { contract_id: 'contract-1', ...dto };
+    mockContractsService.resolvePublicId.mockResolvedValue('contract-1');
     mockContractsService.updateContractDetails.mockResolvedValue(updated);
 
-    const res = await controller.update('contract-1', dto);
+    const res = await controller.update('pub-contract-1', dto);
 
-    expect(res).toEqual(updated);
+    expect(res).toBeDefined();
+    expect(res.cancellation_period).toBe(14);
+    expect(res.contract_id).toBeUndefined();
+    expect(mockContractsService.resolvePublicId).toHaveBeenCalledWith(
+      'pub-contract-1',
+    );
     expect(mockContractsService.updateContractDetails).toHaveBeenCalledWith(
       'contract-1',
       dto,

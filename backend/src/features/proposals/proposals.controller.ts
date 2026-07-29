@@ -11,6 +11,8 @@ import {
 import { NotificationsService } from '../notifications/notifications.service';
 import { CampaignsService } from '../campaigns/campaigns.service';
 import { ProposalStatus } from '@prisma/client';
+import { plainToInstance } from 'class-transformer';
+import { ProposalsEntity } from './entities/proposals.entity';
 
 @Controller('proposals')
 export class ProposalsController {
@@ -23,22 +25,32 @@ export class ProposalsController {
 
   @ApiFindProposal()
   @Get(':publicId')
-  findOneActive(@Param('publicId') publicId: string) {
-    return this.proposalsService.findActiveProposalByPublicId(publicId);
+  async findOneActive(@Param('publicId') publicId: string) {
+    const proposalId = await this.proposalsService.resolvePublicId(publicId);
+    const proposal = await this.proposalsService.findActiveProposal(proposalId);
+
+    return plainToInstance(ProposalsEntity, proposal);
   }
 
   @ApiFindProposalByCampaign()
-  @Get('/campaign/:campaignId')
-  findOneByCampaign(@Param('campaignId') campaignId: string) {
-    return this.proposalsService.findProposalByCampaignId(campaignId);
+  @Get('/campaign/:publicId')
+  async findOneByCampaign(@Param('publicId') publicId: string) {
+    const campaignPublicId =
+      await this.campaignsService.resolveCampaignPublicId(publicId);
+    const proposal =
+      this.proposalsService.findProposalByCampaignId(campaignPublicId);
+
+    return plainToInstance(ProposalsEntity, proposal);
   }
 
   @ApiUpdateProposalComments()
-  @Patch(':proposalId/comments')
+  @Patch('comments/:publicId')
   async updateComments(
-    @Param('proposalId') proposalId: string,
+    @Param('publicId') publicId: string,
     @Body() dto: UpdateProposalCommentDTO,
   ) {
+    const proposalId = await this.proposalsService.resolvePublicId(publicId);
+
     const updatedProposal = await this.proposalsService.updateProposalComments(
       proposalId,
       dto,
@@ -58,19 +70,20 @@ export class ProposalsController {
       this.logger.warn(`Failed to send notification`, err);
     }
 
-    return updatedProposal;
+    return plainToInstance(ProposalsEntity, updatedProposal);
   }
 
   @ApiUpdateProposalStatus()
-  @Patch(':proposalId/status')
+  @Patch('/status/:publicId')
   async updateStatus(
-    @Param('proposalId') proposalId: string,
+    @Param('publicId') publicId: string,
     @Body() dto: UpdateProposalStatusDTO,
   ) {
     const notifiableStatuses = [
       ProposalStatus.ACCEPTED,
       ProposalStatus.REJECTED,
     ] as ProposalStatus[];
+    const proposalId = await this.proposalsService.resolvePublicId(publicId);
 
     const updatedProposal = await this.proposalsService.updateProposalStatus(
       proposalId,
@@ -98,6 +111,6 @@ export class ProposalsController {
       }
     }
 
-    return updatedProposal;
+    return plainToInstance(ProposalsEntity, updatedProposal);
   }
 }

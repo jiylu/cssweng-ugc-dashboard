@@ -5,21 +5,37 @@ import {
   ApiFindDeliverablesForCampaign,
   ApiGetCalendarForUser,
 } from './docs/deliverables.controller.swagger';
+import { CampaignsService } from '../campaigns/campaigns.service';
+import { plainToInstance } from 'class-transformer';
+import { DeliverablesEntity } from './entities/deliverables.entity';
 
 @Controller('deliverables')
 export class DeliverablesController {
-  constructor(private readonly deliverablesService: DeliverablesService) {}
+  constructor(
+    private readonly deliverablesService: DeliverablesService,
+    private readonly campaignsService: CampaignsService,
+  ) {}
 
   @ApiFindDeliverable()
   @Get(':publicId')
-  findOne(@Param('publicId') publicId: string) {
-    return this.deliverablesService.findOneDeliverableByPublicId(publicId);
+  async findOne(@Param('publicId') publicId: string) {
+    const deliverableId =
+      await this.deliverablesService.resolvePublicId(publicId);
+    const deliverable =
+      await this.deliverablesService.findOneDeliverableByUID(deliverableId);
+
+    return plainToInstance(DeliverablesEntity, deliverable);
   }
 
   @ApiFindDeliverablesForCampaign()
-  @Get('/campaign/:campaignId')
-  findMany(@Param('campaignId') campaignId: string) {
-    return this.deliverablesService.findDeliverablesForCampaign(campaignId);
+  @Get('/campaign/:publicId')
+  async findMany(@Param('publicId') publicId: string) {
+    const campaignId =
+      await this.campaignsService.resolveCampaignPublicId(publicId);
+    const deliverables =
+      await this.deliverablesService.findDeliverablesForCampaign(campaignId);
+
+    return plainToInstance(DeliverablesEntity, deliverables);
   }
 
   @ApiGetCalendarForUser()

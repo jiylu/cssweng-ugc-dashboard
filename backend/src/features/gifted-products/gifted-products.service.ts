@@ -10,6 +10,7 @@ import { CampaignsService } from '../campaigns/campaigns.service';
 import { CreateGiftedProductDTO } from './dto/create-gifted-product.dto';
 import { Prisma } from '@prisma/client';
 import { UpdateGiftedProductDTO } from './dto/update-gifted-product.dto';
+import { nanoid } from 'nanoid';
 
 @Injectable()
 export class GiftedProductsService {
@@ -25,9 +26,12 @@ export class GiftedProductsService {
   ) {
     this.logger.debug(`Creating gifted product ${dto.productName}`);
 
+    const publicId = nanoid(10);
+
     const giftedProduct = await tx.giftedProducts.create({
       data: {
         campaign_id: dto.campaignId,
+        public_id: publicId,
         product_name: dto.productName,
         value: dto.value,
         delivery_address: dto.deliveryAddress,
@@ -183,5 +187,39 @@ export class GiftedProductsService {
     );
 
     return deletedGiftedProduct;
+  }
+
+  async resolvePublicId(
+    publicId: string,
+    tx: Prisma.TransactionClient | PrismaService = this.prisma,
+  ) {
+    this.logger.debug(`Resolving gifted product publicId ${publicId}`);
+
+    const giftedProduct = await tx.giftedProducts.findFirst({
+      where: {
+        public_id: publicId,
+        is_deleted: false,
+      },
+      select: {
+        gifted_product_id: true,
+      },
+    });
+
+    if (!giftedProduct) {
+      this.logger.warn(
+        `Gifted product with publicId ${publicId} not found or is deleted.`,
+      );
+      throw new NotFoundException({
+        status: HttpStatus.NOT_FOUND,
+        code: 'GIFTED_PRODUCT_PUBLIC_ID_CANNOT_BE_RESOLVED',
+        message: 'Gifted product public ID cannot be resolved.',
+      });
+    }
+
+    this.logger.log(
+      `Gifted product publicId ${publicId} resolved: ${giftedProduct.gifted_product_id}`,
+    );
+
+    return giftedProduct.gifted_product_id;
   }
 }
