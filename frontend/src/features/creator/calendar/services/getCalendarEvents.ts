@@ -26,13 +26,13 @@ export function mapCampaignsToEvents(campaigns: Campaign[]): CalendarEvent[] {
 
       // Due date chip
       events.push({
-        id: `due-${d.deliverable_id}`,
+        id: `due-${d.public_id}`,
         title: label,
         date: new Date(d.due_date),
         type: 'DELIVERABLE_DUE',
         status: campaign.campaign_status,
-        campaignId: campaign.campaign_id,
-        sourceId: d.deliverable_id,
+        campaignId: campaign.public_id,
+        sourceId: d.public_id,
         campaignName: campaign.project_name,
         campaignCurrency: campaign.currency,
         deliverable: d,
@@ -40,13 +40,13 @@ export function mapCampaignsToEvents(campaigns: Campaign[]): CalendarEvent[] {
 
       // Post date chip
       events.push({
-        id: `post-${d.deliverable_id}`,
+        id: `post-${d.public_id}`,
         title: label,
         date: new Date(d.post_date),
         type: 'DELIVERABLE_POST',
         status: campaign.campaign_status,
-        campaignId: campaign.campaign_id,
-        sourceId: d.deliverable_id,
+        campaignId: campaign.public_id,
+        sourceId: d.public_id,
         campaignName: campaign.project_name,
         campaignCurrency: campaign.currency,
         deliverable: d,
@@ -77,11 +77,11 @@ export async function getCalendarEvents(creatorId: string): Promise<CalendarEven
   const deliverableGroups = await Promise.all(
     campaigns.map(async (c) => {
       const res = await fetch(
-        `${API_URL}/deliverables/campaign/${c.campaign_id}`,
+        `${API_URL}/deliverables/campaign/${c.public_id}`,
         { credentials: 'include' }
       );
       if (!res.ok) {
-        throw new Error(`Failed to fetch deliverables for campaign ${c.campaign_id}: ${res.status}`);
+        throw new Error(`Failed to fetch deliverables for campaign ${c.public_id}: ${res.status}`);
       }
       return res.json() as Promise<Deliverable[]>;
     })
