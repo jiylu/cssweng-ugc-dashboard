@@ -23,7 +23,7 @@ export function LocationSelectField({ label, value, onValueChange, options, plac
         </SelectTrigger>
         <SelectContent>
           {options.map((opt) => (
-            <SelectItem key={opt.key} value={opt.value}>{opt.value}</SelectItem>
+            <SelectItem key={opt.key} value={opt.value} className="whitespace-normal break-words">{opt.value}</SelectItem>
           ))}
         </SelectContent>
       </Select>
