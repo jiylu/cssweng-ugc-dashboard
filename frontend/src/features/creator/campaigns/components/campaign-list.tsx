@@ -16,7 +16,7 @@ export function CampaignList({ campaigns }: CampaignListProps) {
     <div className="flex flex-col gap-3">
       {campaigns.map((campaign) => (
         <CampaignCard
-          key={campaign.campaign_id}
+          key={campaign.public_id}
           campaign={campaign}
           onOpenWorkspace={(id) => router.push(`/workspace/${id}`)}
         />

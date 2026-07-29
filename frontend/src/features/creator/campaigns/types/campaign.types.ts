@@ -11,7 +11,6 @@ export interface CampaignDeliverable {
 }
 
 export interface Campaign {
-  campaign_id: string
   public_id: string
   ugc_creator_id: string
   client_id: string | null

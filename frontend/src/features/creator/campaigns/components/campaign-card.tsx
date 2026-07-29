@@ -48,7 +48,7 @@ export function CampaignCard({ campaign, onOpenWorkspace }: CampaignCardProps) {
         <span className={cn("text-xs font-medium px-4 py-1.5 rounded-[2px] tracking-wide", statusStyles[campaign.campaign_status])}>
           {campaign.campaign_status.replace("_", " ")}
         </span>
-        <Button type="button" size="lg" className="cursor-pointer" onClick={() => onOpenWorkspace(campaign.campaign_id)}>
+        <Button type="button" size="lg" className="cursor-pointer" onClick={() => onOpenWorkspace(campaign.public_id)}>
           Open Workspace
         </Button>
       </div>

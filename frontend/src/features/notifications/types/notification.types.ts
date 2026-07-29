@@ -1,5 +1,5 @@
 export interface Notification {
-  notification_id: string
+  public_id: string
   user_id: string
   title: string
   message: string
