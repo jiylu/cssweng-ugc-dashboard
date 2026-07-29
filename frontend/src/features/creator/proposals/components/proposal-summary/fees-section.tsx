@@ -27,7 +27,7 @@ export function FeesSection({ baseFee, tax, taxRate, total, currency }: FeesSect
             <TableCell className="text-xs text-right font-medium">{formatAmount(tax)}</TableCell>
           </TableRow>
           <TableRow className="bg-muted font-bold">
-            <TableCell className="text-xs font-bold">Total Payout ({taxRate}%)</TableCell>
+            <TableCell className="text-xs font-bold">Total Payout</TableCell>
             <TableCell className="text-xs text-right font-bold">{formatAmount(total)}</TableCell>
           </TableRow>
         </TableBody>

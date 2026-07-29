@@ -8,7 +8,7 @@ interface PriceSummaryProps {
 }
 
 export function PriceSummarySection({ baseCreatorFee, currency = "PHP", taxRate }: PriceSummaryProps) {
-  const tax = baseCreatorFee * taxRate
+  const tax = baseCreatorFee * (taxRate / 100)
   const totalDue = baseCreatorFee + tax
 
   function formatPHP(amount: number) {

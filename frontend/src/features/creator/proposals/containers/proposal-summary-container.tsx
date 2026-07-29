@@ -37,11 +37,11 @@ export function ProposalSummaryContainer({ form, contractTerms, addOns, paymentT
                 <p className="text-[18px] text-muted-foreground">
                     Please review the campaign details and contract terms before final submission.
                 </p>
-                </div>
+            </div>
 
                 <Separator className="mb-6" />
 
-                <div className="flex gap-6">
+            <div className="flex gap-6">
                 {/* Left sidebar */}
                 <div className="w-56 shrink-0">
                     <EarningsSnapshot
