@@ -58,7 +58,11 @@ export function ProposalSummaryContainer({ form, contractTerms, addOns, paymentT
 
                 {/* Main content */}
                 <div className="flex-1 border border-border rounded-[3px] p-8 flex flex-col gap-8 bg-white">
-                    <AgreementHeader />
+                    <AgreementHeader
+                        brand={summary.campaign.brand}
+                        creator={summary.campaign.creator}
+                        effectiveDate={summary.campaign.startDate}
+                    />
 
                     <CampaignSummarySection
                         brand={summary.campaign.brand}
