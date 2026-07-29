@@ -26,7 +26,7 @@ export default function CampaignOverviewCard({
           <span className="text-[#141518]">Creator:</span> {creatorName}
         </p>
         <p className="mt-3 text-[#141518]">Campaign Description:</p>
-        <p className="max-w-[820px]">{description}</p>
+        <p className="max-w-[820px] break-words">{description}</p>
       </div>
     </section>
   );
