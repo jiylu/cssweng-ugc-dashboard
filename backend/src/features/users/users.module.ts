@@ -9,9 +9,10 @@ import { UserService } from './users.service';
 import { UserController } from './users.controller';
 import { SupabaseModule } from 'src/supabase/supabase.module';
 import { AuthSessionMiddleware } from './middleware/auth-session.middleware';
+import { OtpModule } from '../otp/otp.module';
 
 @Module({
-  imports: [PrismaModule, SupabaseModule],
+  imports: [PrismaModule, SupabaseModule, OtpModule],
   providers: [UserService, AuthSessionMiddleware],
   controllers: [UserController],
   exports: [UserService],

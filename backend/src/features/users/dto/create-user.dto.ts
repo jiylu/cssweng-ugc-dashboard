@@ -38,4 +38,9 @@ export class CreateUserDTO {
     message: 'Role must be a valid user role (CREATOR or CLIENT).',
   })
   role!: UserRoles;
+
+  @ApiProperty({ description: 'Token returned after validating the email OTP' })
+  @IsString()
+  @IsNotEmpty()
+  verificationToken!: string;
 }
