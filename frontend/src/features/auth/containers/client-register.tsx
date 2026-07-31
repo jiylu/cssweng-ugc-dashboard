@@ -8,6 +8,7 @@ import ClientRegisterCard from "../components/client-register-card";
 import { useClientOnboarding } from "../hooks/useClientOnboarding";
 import { useRegister } from "../hooks/useRegister";
 import { clientRegisterParamsSchema } from "../schemas/client-register-params.schema";
+import OtpCard from "../components/otp-card";
 
 export default function ClientRegister() {
   const [step, setStep] = useState<"account" | "onboarding">("account");
@@ -50,8 +51,10 @@ export default function ClientRegister() {
           </h1>
 
           <div className="mt-5 w-full">
-            {step === "account" ? (
+            {step === "account" && registerForm.step === "details" ? (
               <ClientRegisterCard registerForm={registerForm} />
+            ) : step === "account" ? (
+              <OtpCard registerForm={registerForm} />
             ) : (
               <ClientOnboardingCard onboardingForm={onboardingForm} />
             )}

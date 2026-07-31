@@ -22,6 +22,20 @@ model User {
   //targeted_activity_logs ActivityLog[] @relation("ActivityLogTargetUser")
 }
 
+model RegistrationOtp {
+  otp_id                  String    @id @default(uuid())
+  email                   String
+  role                    UserRoles
+  otp_hash                String
+  verification_token_hash String?   @unique
+  expires_at              DateTime
+  verified_at             DateTime?
+  consumed_at             DateTime?
+  created_at              DateTime  @default(now())
+
+  @@index([email, role, created_at])
+}
+
 model Clients {
   client_id                 String @id @default(uuid())
   user_id                   String @unique

@@ -13,20 +13,23 @@ import { UpdateUserDTO } from './dto/update-user.dto';
 import { SupabaseService } from 'src/supabase/supabase.service';
 import { LoginUserDTO } from './dto/login-user.dto';
 import { AuthError, User } from '@supabase/supabase-js';
+import { OtpService } from '../otp/otp.service';
 
 @Injectable()
 export class UserService {
   constructor(
     private prisma: PrismaService,
     private supabase: SupabaseService,
+    private otpService: OtpService,
   ) {}
 
   private readonly logger = new Logger(UserService.name);
 
   async createUser(dto: CreateUserDTO) {
-    this.logger.debug(`Creating new ${dto.role} user ${dto.email}`);
+    const email = dto.email.trim().toLowerCase();
+    this.logger.debug(`Creating new ${dto.role} user ${email}`);
 
-    const existingUser = await this.findActiveUserByEmail(dto.email);
+    const existingUser = await this.findActiveUserByEmail(email);
 
     if (existingUser) {
       this.logger.warn(`Email ${dto.email} already exists in the database.`);
@@ -37,10 +40,16 @@ export class UserService {
       });
     }
 
+    await this.otpService.consumeVerification(
+      email,
+      dto.role,
+      dto.verificationToken,
+    );
+
     this.logger.debug(`Creating new user with email ${dto.email}`);
 
     const { data: authData, error } = await this.supabase.client.auth.signUp({
-      email: dto.email,
+      email,
       password: dto.password,
       options: {
         data: {
@@ -56,7 +65,7 @@ export class UserService {
     const newUser = await this.prisma.user.create({
       data: {
         user_id: authData.user.id,
-        email: dto.email,
+        email,
         first_name: dto.firstName,
         last_name: dto.lastName,
         role: dto.role,

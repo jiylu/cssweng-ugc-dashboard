@@ -6,7 +6,30 @@ export type CreateUserPayload = {
   firstName: string;
   lastName: string;
   role: "CLIENT" | "CREATOR";
+  verificationToken: string;
 };
+
+export type OtpPayload = Pick<CreateUserPayload, "email" | "role">;
+
+export async function requestRegistrationOtp(payload: OtpPayload) {
+  const response = await fetch(`${API_BASE_URL}/otps`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok) throw new Error(await parseApiError(response, "Unable to send verification code."));
+  return response.json();
+}
+
+export async function validateRegistrationOtp(payload: OtpPayload & { otp: string }) {
+  const response = await fetch(`${API_BASE_URL}/otps/validate`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok) throw new Error(await parseApiError(response, "Unable to verify code."));
+  return response.json() as Promise<{ verificationToken: string }>;
+}
 
 export type LoginUserPayload = {
   email: string;
