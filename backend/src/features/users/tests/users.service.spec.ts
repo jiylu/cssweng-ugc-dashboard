@@ -7,6 +7,7 @@ import { UserRoles } from '@prisma/client';
 import { UpdateUserDTO } from '../dto/update-user.dto';
 import { SupabaseService } from 'src/supabase/supabase.service';
 import { LoginUserDTO } from '../dto/login-user.dto';
+import { OtpService } from '../../otp/otp.service';
 
 describe('UserService', () => {
   let service: UserService;
@@ -28,6 +29,10 @@ describe('UserService', () => {
     },
   };
 
+  const mockOtp = {
+    consumeVerification: jest.fn(),
+  };
+
   beforeEach(async () => {
     jest.clearAllMocks();
 
@@ -41,6 +46,10 @@ describe('UserService', () => {
         {
           provide: SupabaseService,
           useValue: mockSupabase,
+        },
+        {
+          provide: OtpService,
+          useValue: mockOtp,
         },
       ],
     }).compile();
