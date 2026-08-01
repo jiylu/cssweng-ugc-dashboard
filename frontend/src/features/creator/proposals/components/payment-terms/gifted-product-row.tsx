@@ -34,7 +34,7 @@ export function GiftedProductRow({ item, index, currency, errors, onUpdate, onRe
     }
 
     return (
-    <div className="bg-[#F2F0EA] border border-border rounded-[3px] p-5 flex gap-4 relative">
+    <div className="bg-[#F2F0EA] border border-border rounded-[3px] p-5 min-w-0 flex gap-4 relative">
         <button
             type="button"
             onClick={onRemove}
@@ -44,18 +44,18 @@ export function GiftedProductRow({ item, index, currency, errors, onUpdate, onRe
         </button>
 
         {/* Left side */}
-        <div className="flex-1 flex flex-col gap-4">
+        <div className="flex-1 flex flex-col gap-4 min-w-0">
             <div className="flex items-end gap-4">
                 {/* Product Name */}
                 <div className="flex flex-col gap-1 flex-1">
-                <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">PRODUCT NAME</label>
-                <Input
-                    value={item.productName}
-                    onChange={(e) => onUpdate('productName', e.target.value)}
-                    placeholder="Enter product name"
-                    className="border-border rounded-[3px] text-sm bg-white"
-                />
-                <p className="text-xs mt-1 text-[#ff6467] min-h-[16px]">{e('productName') ?? ""}</p>
+                    <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">PRODUCT NAME</label>
+                    <Input
+                        value={item.productName}
+                        onChange={(e) => onUpdate('productName', e.target.value)}
+                        placeholder="Enter product name"
+                        className="border-border rounded-[3px] text-sm bg-white"
+                    />
+                    <p className="text-xs mt-1 text-[#ff6467] min-h-[16px]">{e('productName') ?? ""}</p>
                 </div>
 
                 {/* Value */}
@@ -90,13 +90,13 @@ export function GiftedProductRow({ item, index, currency, errors, onUpdate, onRe
             </div>
 
             {/* Ownership Terms */}
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-1 min-w-0">
                 <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">OWNERSHIP TERMS</label>
                 <Textarea
                 value={item.ownershipTerms}
                 onChange={(e) => onUpdate('ownershipTerms', e.target.value)}
                 placeholder="Enter ownership terms"
-                className="min-h-[160px] bg-white resize-none border border-border rounded-[3px] text-sm text-foreground placeholder:text-muted-foreground placeholder:italic"
+                className="w-full min-w-0 break-words min-h-[160px] bg-white resize-none border border-border rounded-[3px] text-sm text-foreground placeholder:text-muted-foreground placeholder:italic"
                 />
                 {e('ownershipTerms') && <p className="text-xs mt-1 text-[#ff6467]">{e('ownershipTerms')}</p>}
             </div>

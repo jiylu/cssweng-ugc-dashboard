@@ -67,7 +67,7 @@ export function ShippingAddressPopup({ open, onClose, form, errors, onFieldChang
             helper="Apartment, suite, unit, building, floor, etc."
           />
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-4 items-start">
             <LocationSelectField
               label="Country"
               value={form.country}
@@ -89,7 +89,7 @@ export function ShippingAddressPopup({ open, onClose, form, errors, onFieldChang
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-4 items-start">
             <LocationSelectField
               label="City"
               value={form.city}

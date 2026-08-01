@@ -18,8 +18,8 @@ export function LocationSelectField({ label, value, onValueChange, options, plac
     <div className="flex flex-col gap-1">
       <label className="text-sm text-foreground">{label}</label>
       <Select value={value} onValueChange={onValueChange} disabled={disabled}>
-        <SelectTrigger className="bg-white border-border rounded-[3px] text-sm whitespace-normal text-left h-auto min-h-8">
-          <SelectValue placeholder={displayPlaceholder} />
+        <SelectTrigger className="bg-white border-border rounded-[3px] text-sm whitespace-normal break-words text-left w-full data-[size=default]:h-auto min-h-8 items-start py-2 *:data-[slot=select-value]:min-w-0 *:data-[slot=select-value]:whitespace-normal">
+          <SelectValue placeholder={displayPlaceholder} className="min-w-0 whitespace-normal break-words"/>
         </SelectTrigger>
         <SelectContent position="popper" className="max-w-[var(--radix-select-trigger-width)]">
           {options.map((opt) => (
