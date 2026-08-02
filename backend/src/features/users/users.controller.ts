@@ -1,20 +1,22 @@
 import { Body, Controller, Get, Param, Post, Req, Res } from '@nestjs/common';
 import type { Response } from 'express';
 import { UserService } from './users.service';
-import { CreateUserDTO } from './dto/create-user.dto';
 import { LoginUserDTO } from './dto/login-user.dto';
 import {
   serializeAuthCookie,
   serializeExpiredAuthCookie,
 } from './utils/auth-cookie';
 import type { AuthenticatedRequest } from './types/authenticated-request.types';
+import { CreateUserTransactionDTO } from './dto/create-user-transaction.dto';
+import { ApiCreateUser } from './docs/users.controller.swagger';
 
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
   // TODO: Safeguard
+  @ApiCreateUser()
   @Post()
-  create(@Body() dto: CreateUserDTO) {
+  create(@Body() dto: CreateUserTransactionDTO) {
     return this.userService.createUser(dto);
   }
 

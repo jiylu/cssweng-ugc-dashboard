@@ -9,6 +9,15 @@ export type CreateUserPayload = {
   verificationToken: string;
 };
 
+export type CreateClientPayload = {
+  companyLegalName: string;
+  companyEmail: string;
+  billablePerson: string;
+  contactPerson: string;
+  companyContactNumber: string;
+  contactPersonContactNumber: string;
+};
+
 export type OtpPayload = Pick<CreateUserPayload, "email" | "role">;
 
 export async function requestRegistrationOtp(payload: OtpPayload) {
@@ -69,7 +78,12 @@ export async function parseApiError(response: Response, fallback: string) {
   return message ?? body?.error ?? fallback;
 }
 
-export async function createUser(payload: CreateUserPayload) {
+export async function createUser(
+  userDTO: CreateUserPayload,
+  clientDTO?: CreateClientPayload,
+) {
+  const payload = { userDTO, clientDTO };
+
   const response = await fetch(`${API_BASE_URL}/users`, {
     method: "POST",
     headers: {
@@ -78,11 +92,9 @@ export async function createUser(payload: CreateUserPayload) {
     credentials: "include",
     body: JSON.stringify(payload),
   });
-
   if (!response.ok) {
     throw new Error(await parseApiError(response, "Unable to create account."));
   }
-
   return response.json();
 }
 

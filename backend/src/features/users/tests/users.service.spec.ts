@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UserService } from '../users.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ConflictException, NotFoundException } from '@nestjs/common';
-import { CreateUserDTO } from '../dto/create-user.dto';
+import { CreateUserTransactionDTO } from '../dto/create-user-transaction.dto';
 import { UserRoles } from '@prisma/client';
 import { UpdateUserDTO } from '../dto/update-user.dto';
 import { SupabaseService } from 'src/supabase/supabase.service';
@@ -68,12 +68,15 @@ describe('UserService', () => {
       is_active: true,
     };
 
-    const dto: CreateUserDTO = {
-      email: 'john@test.com',
-      password: 'Password1!',
-      firstName: 'John',
-      lastName: 'Doe',
-      role: UserRoles.CREATOR,
+    const dto: CreateUserTransactionDTO = {
+      userDTO: {
+        email: 'john@test.com',
+        password: 'Password1!',
+        firstName: 'John',
+        lastName: 'Doe',
+        role: UserRoles.CREATOR,
+        verificationToken: 'token',
+      },
     };
 
     mockPrisma.user.findFirst.mockResolvedValue(null);
@@ -90,35 +93,38 @@ describe('UserService', () => {
     const res = await service.createUser(dto);
     expect(res).toEqual(mockUser);
     expect(mockSupabase.client.auth.signUp).toHaveBeenCalledWith({
-      email: dto.email,
-      password: dto.password,
+      email: dto.userDTO.email,
+      password: dto.userDTO.password,
       options: {
         data: {
-          firstName: dto.firstName,
-          lastName: dto.lastName,
-          role: dto.role,
+          firstName: dto.userDTO.firstName,
+          lastName: dto.userDTO.lastName,
+          role: dto.userDTO.role,
         },
       },
     });
     expect(mockPrisma.user.create).toHaveBeenCalledWith({
       data: {
         user_id: 'abc123',
-        email: dto.email,
-        first_name: dto.firstName,
-        last_name: dto.lastName,
-        role: dto.role,
+        email: dto.userDTO.email,
+        first_name: dto.userDTO.firstName,
+        last_name: dto.userDTO.lastName,
+        role: dto.userDTO.role,
       },
     });
   });
 
   it('should throw if required fields are missing', async () => {
     const dto = {
-      email: '',
-      password: '',
-      firstName: '',
-      lastName: '',
-      role: '' as unknown,
-    } as CreateUserDTO;
+      userDTO: {
+        email: '',
+        password: '',
+        firstName: '',
+        lastName: '',
+        role: '' as unknown,
+        verificationToken: '',
+      },
+    } as CreateUserTransactionDTO;
 
     mockPrisma.user.findFirst.mockResolvedValue(null);
     mockSupabase.client.auth.signUp.mockResolvedValue({
@@ -147,12 +153,15 @@ describe('UserService', () => {
     mockPrisma.user.findFirst.mockResolvedValue(mockUser1);
 
     const dto = {
-      email: 'john@test.com',
-      password: 'Password1!',
-      firstName: 'John',
-      lastName: 'Eod',
-      role: UserRoles.CREATOR,
-    } as CreateUserDTO;
+      userDTO: {
+        email: 'john@test.com',
+        password: 'Password1!',
+        firstName: 'John',
+        lastName: 'Eod',
+        role: UserRoles.CREATOR,
+        verificationToken: 'token',
+      },
+    } as CreateUserTransactionDTO;
 
     await expect(service.createUser(dto)).rejects.toThrow(ConflictException);
     expect(mockSupabase.client.auth.signUp).not.toHaveBeenCalled();

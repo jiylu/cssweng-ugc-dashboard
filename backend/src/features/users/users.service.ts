@@ -8,12 +8,13 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CreateUserDTO } from './dto/create-user.dto';
 import { UpdateUserDTO } from './dto/update-user.dto';
 import { SupabaseService } from 'src/supabase/supabase.service';
 import { LoginUserDTO } from './dto/login-user.dto';
 import { AuthError, User } from '@supabase/supabase-js';
 import { OtpService } from '../otp/otp.service';
+import { CreateUserTransactionDTO } from './dto/create-user-transaction.dto';
+import { UserRoles } from '@prisma/client';
 
 @Injectable()
 export class UserService {
@@ -25,14 +26,75 @@ export class UserService {
 
   private readonly logger = new Logger(UserService.name);
 
-  async createUser(dto: CreateUserDTO) {
-    const email = dto.email.trim().toLowerCase();
-    this.logger.debug(`Creating new ${dto.role} user ${email}`);
+  async createUser(dto: CreateUserTransactionDTO) {
+    const userDTO = dto.userDTO;
+    this.logger.debug(`Creating new ${userDTO.role} user ${userDTO.email}`);
 
+    const email = await this.validateEmail(userDTO.email);
+
+    await this.otpService.consumeVerification(
+      email,
+      userDTO.role,
+      userDTO.verificationToken,
+    );
+
+    const { data: authData, error } = await this.supabase.client.auth.signUp({
+      email,
+      password: userDTO.password,
+      options: {
+        data: {
+          firstName: userDTO.firstName,
+          lastName: userDTO.lastName,
+          role: userDTO.role,
+        },
+      },
+    });
+    this.handleSupabaseUserCreationErrors(email, error, authData.user);
+
+    const newUser = await this.prisma.user.create({
+      data: {
+        user_id: authData.user.id,
+        email,
+        first_name: userDTO.firstName,
+        last_name: userDTO.lastName,
+        role: userDTO.role,
+      },
+    });
+
+    if (userDTO.role === UserRoles.CLIENT) {
+      const clientDTO = dto.clientDTO;
+      if (!clientDTO) {
+        throw new BadRequestException({
+          code: 'CLIENT_DETAILS_NOT_FILLED',
+          message: 'Client details not filled up.',
+        });
+      }
+      await this.prisma.clients.create({
+        data: {
+          user_id: newUser.user_id,
+          company_legal_name: clientDTO.companyLegalName,
+          company_email: clientDTO.companyEmail,
+          billable_person: clientDTO.billablePerson,
+          contact_person: clientDTO.contactPerson,
+          company_contact_no: clientDTO.companyContactNumber,
+          contact_person_contact_no: clientDTO.contactPersonContactNumber,
+        },
+      });
+    }
+
+    this.logger.log(
+      `Created new user with email: ${newUser.email} id: ${newUser.user_id}`,
+    );
+
+    return newUser;
+  }
+
+  async validateEmail(email: string) {
+    const safeEmail = email.trim().toLowerCase();
     const existingUser = await this.findActiveUserByEmail(email);
 
     if (existingUser) {
-      this.logger.warn(`Email ${dto.email} already exists in the database.`);
+      this.logger.warn(`Email ${email} already exists in the database.`);
 
       throw new ConflictException({
         code: 'EMAIL_ALREADY_EXISTS',
@@ -40,43 +102,7 @@ export class UserService {
       });
     }
 
-    await this.otpService.consumeVerification(
-      email,
-      dto.role,
-      dto.verificationToken,
-    );
-
-    this.logger.debug(`Creating new user with email ${dto.email}`);
-
-    const { data: authData, error } = await this.supabase.client.auth.signUp({
-      email,
-      password: dto.password,
-      options: {
-        data: {
-          firstName: dto.firstName,
-          lastName: dto.lastName,
-          role: dto.role,
-        },
-      },
-    });
-
-    this.handleSupabaseUserCreationErrors(dto.email, error, authData.user);
-
-    const newUser = await this.prisma.user.create({
-      data: {
-        user_id: authData.user.id,
-        email,
-        first_name: dto.firstName,
-        last_name: dto.lastName,
-        role: dto.role,
-      },
-    });
-
-    this.logger.log(
-      `Created new user with email: ${newUser.email} id: ${newUser.user_id}`,
-    );
-
-    return newUser;
+    return safeEmail;
   }
 
   private handleSupabaseUserCreationErrors(

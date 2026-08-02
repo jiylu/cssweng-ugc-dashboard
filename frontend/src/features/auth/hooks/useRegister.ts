@@ -42,21 +42,23 @@ export function useRegister({
   const { mutate: verifyAndRegister, isPending: isRegistering, error, isSuccess } = useMutation({
     mutationFn: async () => {
       const { verificationToken } = await validateRegistrationOtp({ email: form.email, role, otp });
-      return createUser({
-      email: form.email,
-      password: form.password,
-      firstName: form.fname,
-      lastName: form.lname,
-      role,
-      verificationToken,
-      });
+  
+      const userDTO: CreateUserPayload = {
+        email: form.email,
+        password: form.password,
+        firstName: form.fname,
+        lastName: form.lname,
+        role,
+        verificationToken,
+      };
+
+      return createUser(userDTO);
     },
     onSuccess: () => {
       if (onSuccess) {
         onSuccess(form);
         return;
       }
-
       window.setTimeout(() => router.push(redirectTo), 700);
     },
   });
