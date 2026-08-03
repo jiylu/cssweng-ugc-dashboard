@@ -12,13 +12,25 @@ export function useProposalSummary(
   paymentTerms: ReturnType<typeof usePaymentTerms>,
   userName: string
 ) {
-  const baseFee = calculateBaseCreatorFee(
+  const enabledAddOns = addOns.addOns.filter((a) => a.isEnabled)
+
+  const baseFeeWithoutAddOns = calculateBaseCreatorFee(
     form.deliverables,
-    addOns.addOns.filter((a) => a.isEnabled),
+    [],
     contractTerms.exclusivityFee,
     contractTerms.hasExclusivity,
     paymentTerms.giftedProducts
   )
+
+  const baseFee = calculateBaseCreatorFee(
+    form.deliverables,
+    enabledAddOns,
+    contractTerms.exclusivityFee,
+    contractTerms.hasExclusivity,
+    paymentTerms.giftedProducts
+  )
+
+  const addOnsTotal = enabledAddOns.reduce((sum, a) => sum + (a.fee ?? 0), 0)
 
   const taxAmount = baseFee * (paymentTerms.taxRate / 100)
   const total = baseFee + taxAmount
@@ -35,6 +47,8 @@ export function useProposalSummary(
     earnings: {
       currency: form.currency,
       baseFee,
+      baseFeeWithoutAddOns,
+      addOnsTotal,
       tax: taxAmount,
       taxRate: paymentTerms.taxRate,
       total,
@@ -53,7 +67,9 @@ export function useProposalSummary(
       qty: Number(d.quantity ?? 1),
       deliverable: d.platform,
       format: [d.platform, d.contentType].filter(Boolean).join(", "),
-      dueDate: d.draftDeadline ? formatDate(new Date(d.draftDeadline)) : "TBD",
+      dueDate: d.draftDeadline ? formatDate(new Date(d.draftDeadline)) : "",
+      price: parseFloat((d.pricing ?? "").replace(/,/g, "") || "0"),
+      currency: form.currency,
     })),
     creativeDirection: {
       revisionRounds: contractTerms.revisionRounds,
@@ -105,6 +121,7 @@ export function useProposalSummary(
     payment: {
       schedule: paymentTerms.paymentSchedule,
       method: paymentTerms.paymentMethod,
+      shippingAddress: paymentTerms.giftedProducts.find((p) => p.shippingAddress)?.shippingAddress ?? null,
     },
     addOns: addOns.addOns.filter((a) => a.isEnabled),
     giftedProducts: paymentTerms.giftedProducts,
