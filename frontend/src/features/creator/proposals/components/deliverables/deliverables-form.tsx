@@ -51,7 +51,7 @@ export default function DeliverablesForm({ deliverables, currency, errors, platf
 
         <Card className="px-6 py-3 flex items-center gap-4">
           <span className="text-sm text-muted-foreground">Total Price</span>
-          <span className="text-2xl font-medium text-foreground">
+          <span className="text-2xl font-medium text-foreground -mt-3">
             {currency} {totalPrice.toLocaleString("en-US", { minimumFractionDigits: 2 })}
           </span>
         </Card>

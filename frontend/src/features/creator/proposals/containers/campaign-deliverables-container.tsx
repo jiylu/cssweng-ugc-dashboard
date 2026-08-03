@@ -23,25 +23,25 @@ export function CampaignDeliverablesContainer({ form, onNext }: CampaignDelivera
                 setContactEmail={form.setContactEmail}
                 errors={form.errors}
             />
-            </div>
+        </div>
 
-            <DeliverablesForm
-                deliverables={form.deliverables}
-                currency={form.currency}
-                errors={form.errors}
-                platformOptions={form.platforms.map((entry) => entry.platform)}
-                addDeliverable={form.addDeliverable}
-                removeDeliverable={form.removeDeliverable}
-                updateDeliverable={form.updateDeliverable}
-            />
+        <DeliverablesForm
+            deliverables={form.deliverables}
+            currency={form.currency}
+            errors={form.errors}
+            platformOptions={form.platforms.map((entry) => entry.platform)}
+            addDeliverable={form.addDeliverable}
+            removeDeliverable={form.removeDeliverable}
+            updateDeliverable={form.updateDeliverable}
+        />
 
-            <div className="flex justify-end gap-3 mt-6 pb-8">
+        <div className="flex justify-end gap-3 mt-6 pb-8">
             <Button
                 onClick={() => {
                     const isValid = form.validateForm()
                     if (isValid) onNext()
                 }}
-                className="bg-[#6b1fa8] hover:bg-[#5a1a8f] text-white flex items-center gap-2"
+                className="bg-[#6b1fa8] hover:bg-[#5a1a8f] text-white flex items-center gap-2 p-5"
             >
                 Contract Terms  <ArrowRight size={16} />
             </Button>
