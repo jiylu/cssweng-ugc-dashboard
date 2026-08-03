@@ -86,7 +86,7 @@ export default function CreatorDashboard() {
           </div>
 
           {/* TODOS */}
-          <h2 className="text-xl sm:text-2xl font-bold mb-4">Urgent / To Do</h2>
+          <h2 className="text-xl sm:text-2xl font-bold mb-2">Urgent / To Do</h2>
           <div className="flex flex-row gap-2 flex-start mb-10">
             <CreatorTodoCard
               campaignName="Summer Glow 2026"
@@ -99,11 +99,11 @@ export default function CreatorDashboard() {
           </div>
 
           {/* ONGOING DELIVERABLES */}
-          <div className="bg-white rounded-xs shadow-[0_1px_2px_rgba(0,0,0,0.08)] p-4 sm:p-6 w-full h-fit">
+          <div className="bg-white rounded-xs shadow-[0_1px_2px_rgba(0,0,0,0.08)] p-4 sm:p-6 w-full h-fit border border-solid border-[#d8d4cb]">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl sm:text-2xl font-bold">Ongoing Deliverables</h2>
               <Button variant="ghost" className="flex items-center gap-1">
-                <Filter size={16} /> Filter By
+                <Filter size={16} className="-mt-[5px] mr-1" /> Filter By
               </Button>
             </div>
 
@@ -111,7 +111,7 @@ export default function CreatorDashboard() {
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
-                  <TableRow className="bg-gray-100 text-xs font-semibold text-gray-600 uppercase tracking-wide">
+                  <TableRow className="text-[13px] font-semibold text-gray-600 uppercase tracking-wide bg-[#e8e4dc]">
                     <TableHead>Campaign Name</TableHead>
                     <TableHead>Deliverable</TableHead>
                     <TableHead>Type</TableHead>
@@ -121,7 +121,7 @@ export default function CreatorDashboard() {
                 </TableHeader>
                 <TableBody>
                   {creatorDeliverables.map((row, i) => (
-                    <TableRow key={i} className="text-sm text-gray-700">
+                    <TableRow key={i} className="text-sm">
                       <TableCell>{row.campaign}</TableCell>
                       <TableCell>{row.deliverable}</TableCell>
                       <TableCell>{row.type}</TableCell>

@@ -15,9 +15,9 @@ export function CurrencySelect({ value, onChange, error }: CurrencySelectProps) 
         <SelectTrigger className="border-muted rounded-[3px] text-sm w-full">
           <SelectValue placeholder="Select currency" />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent className="p-1">
           {CURRENCIES.map((currency) => (
-            <SelectItem key={currency.code} value={currency.code} className="text-sm">
+            <SelectItem key={currency.code} value={currency.code} className="text-sm rounded-[3px]">
               <span className="font-medium mr-2">{currency.code}</span>
               <span>{currency.name}</span>
             </SelectItem>
