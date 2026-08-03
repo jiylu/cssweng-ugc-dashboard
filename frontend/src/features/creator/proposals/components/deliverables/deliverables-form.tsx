@@ -43,9 +43,9 @@ export default function DeliverablesForm({ deliverables, currency, errors, platf
         <Button
           variant="outline"
           onClick={addDeliverable}
-          className="border-[#6b1fa8] text-[#6b1fa8] hover:bg-[#6b1fa8]/10 rounded-[2px]"
+          className="border-[#6b1fa8] text-[#6b1fa8] hover:bg-[#6b1fa8] hover:text-[#ffffff] rounded-[2px] p-5"
         >
-          <Plus size={16} />
+          <Plus size={16} className="-mt-1"/>
           Add another deliverable
         </Button>
 
