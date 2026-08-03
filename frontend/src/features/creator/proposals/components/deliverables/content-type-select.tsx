@@ -28,9 +28,9 @@ export function ContentTypeSelect({ platform, contentType, platformOptions, onPl
             <SelectTrigger className={`text-sm bg-white border-border rounded-[3px] ${!hasPlatformOptions ? "opacity-50" : ""}`}>
               <SelectValue placeholder={hasPlatformOptions ? "Set Platform" : "Select campaign platform first"} />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="p-1">
               {platformOptions.map((p) => (
-                <SelectItem key={p} value={p} className="text-sm">{p}</SelectItem>
+                <SelectItem key={p} value={p} className="text-sm rounded-[3px]">{p}</SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -47,9 +47,9 @@ export function ContentTypeSelect({ platform, contentType, platformOptions, onPl
             <SelectTrigger className={`text-sm bg-white border-border rounded-[3px] ${!platform ? "opacity-50" : ""}`}>
               <SelectValue placeholder="Set Type" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="p-1">
               {contentTypeOptions.map((type) => (
-                <SelectItem key={type} value={type}>{type}</SelectItem>
+                <SelectItem key={type} value={type} className="rounded-[3px]">{type}</SelectItem>
               ))}
             </SelectContent>
           </Select>
