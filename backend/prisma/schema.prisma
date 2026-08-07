@@ -22,6 +22,19 @@ model User {
   //targeted_activity_logs ActivityLog[] @relation("ActivityLogTargetUser")
 }
 
+model Drafts {
+  draft_id                  String @id @default(uuid())
+  public_id                 String @unique
+  user_id                   String @unique
+  campaign_content          Json?
+  proposal_content          Json?
+  deliverable_content       Json?
+  contract_content          Json?
+  add_ons_content           Json?
+  gifted_products_content   Json?
+  is_deleted                Boolean @default(false)
+}
+
 model RegistrationOtp {
   otp_id                  String    @id @default(uuid())
   email                   String

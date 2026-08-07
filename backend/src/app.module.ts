@@ -13,6 +13,7 @@ import { GiftedProductsModule } from './features/gifted-products/gifted-products
 import { NotificationsModule } from './features/notifications/notifications.module';
 import { AnalyticsModule } from './features/analytics/analytics.module';
 import { OtpModule } from './features/otp/otp.module';
+import { DraftsModule } from './features/drafts/drafts.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { OtpModule } from './features/otp/otp.module';
     NotificationsModule,
     AnalyticsModule,
     OtpModule,
+    DraftsModule,
   ],
   controllers: [],
   providers: [],
