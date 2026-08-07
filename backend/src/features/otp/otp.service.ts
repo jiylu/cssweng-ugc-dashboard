@@ -62,7 +62,9 @@ export class OtpService {
     });
 
     const actual = Buffer.from(this.hash(dto.otp), 'hex');
-    const expected = record ? Buffer.from(record.otp_hash, 'hex') : randomBytes(32);
+    const expected = record
+      ? Buffer.from(record.otp_hash, 'hex')
+      : randomBytes(32);
     if (!record || !timingSafeEqual(actual, expected)) {
       throw new UnauthorizedException({
         code: 'INVALID_OR_EXPIRED_OTP',
@@ -79,13 +81,19 @@ export class OtpService {
       },
     });
     if (result.count !== 1) {
-      throw new UnauthorizedException('The verification code has already been used.');
+      throw new UnauthorizedException(
+        'The verification code has already been used.',
+      );
     }
 
     return { verificationToken };
   }
 
-  async consumeVerification(emailValue: string, role: CreateOtpDto['role'], token: string) {
+  async consumeVerification(
+    emailValue: string,
+    role: CreateOtpDto['role'],
+    token: string,
+  ) {
     const email = emailValue.trim().toLowerCase();
     const record = await this.prisma.registrationOtp.findFirst({
       where: {

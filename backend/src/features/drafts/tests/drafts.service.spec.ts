@@ -77,9 +77,7 @@ describe('DraftsService', () => {
       const res = await service.createDraft(dto);
 
       expect(res).toEqual(mockDraft);
-      expect(mockUserService.getActiveUserById).toHaveBeenCalledWith(
-        'user-1',
-      );
+      expect(mockUserService.getActiveUserById).toHaveBeenCalledWith('user-1');
       expect(mockPrisma.drafts.create).toHaveBeenCalledWith({
         data: {
           public_id: 'mock-public-id',
@@ -206,9 +204,9 @@ describe('DraftsService', () => {
     it('should throw NotFoundException when draft does not exist', async () => {
       mockPrisma.drafts.findFirst.mockResolvedValue(null);
 
-      await expect(service.findOneDraft('missing-draft')).rejects.toBeInstanceOf(
-        NotFoundException,
-      );
+      await expect(
+        service.findOneDraft('missing-draft'),
+      ).rejects.toBeInstanceOf(NotFoundException);
     });
   });
 
@@ -227,7 +225,7 @@ describe('DraftsService', () => {
       mockPrisma.drafts.findFirst.mockResolvedValue(existing);
       mockPrisma.drafts.update.mockResolvedValue(updated);
 
-      const res = await service.updateDraft('draft-1', dto as any);
+      const res = await service.updateDraft('draft-1', dto);
 
       expect(res).toEqual(updated);
       expect(mockPrisma.drafts.update).toHaveBeenCalledWith({
@@ -258,7 +256,7 @@ describe('DraftsService', () => {
       mockPrisma.drafts.findFirst.mockResolvedValue(existing);
       mockPrisma.drafts.update.mockResolvedValue(updated);
 
-      const res = await service.updateDraft('draft-2', dto as any);
+      const res = await service.updateDraft('draft-2', dto);
 
       expect(res).toEqual(updated);
       expect(mockPrisma.drafts.update).toHaveBeenCalledWith({
