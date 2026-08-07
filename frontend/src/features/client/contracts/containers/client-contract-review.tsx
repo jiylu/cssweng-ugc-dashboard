@@ -1,7 +1,14 @@
+import { useAuth } from "@/src/features/auth/hooks/useAuth";
 import ContractActionPanel from "../components/contract-action-panel";
 import ContractReviewHeader from "../components/contract-review-header";
 
 export default function ClientContractReview() {
+  const { user } = useAuth();
+
+  if (!user) {
+    return;
+  }
+
   return (
     <main className="min-h-screen bg-[#f2f0ea] pb-10">
       <ContractReviewHeader />
@@ -27,7 +34,9 @@ export default function ClientContractReview() {
         </section>
 
         <aside className="pt-0">
-          <ContractActionPanel />
+          <ContractActionPanel
+            id={user.user_id}
+          />
         </aside>
       </div>
     </main>

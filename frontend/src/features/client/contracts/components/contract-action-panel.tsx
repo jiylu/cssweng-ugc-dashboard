@@ -1,8 +1,12 @@
 import { useRouter } from "next/navigation";
 import Button from "@/src/components/atoms/button";
-import SlideToSign from "./slide-to-sign";
+import SignContractModal from "./sign-contract-modal";
 
-export default function ContractActionPanel() {
+interface ContractActionPanelProps {
+  id: string;
+}
+
+export default function ContractActionPanel({ id }: ContractActionPanelProps) {
   const router = useRouter();
 
   return (
@@ -17,7 +21,9 @@ export default function ContractActionPanel() {
       </p>
 
       <div className="mt-12 space-y-3">
-        <SlideToSign onSigned={() => window.setTimeout(() => router.push("/dashboard"), 650)} />
+        <SignContractModal
+          id={id}
+        />
         <Button
           type="button"
           variant="outline"
