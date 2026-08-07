@@ -6,7 +6,39 @@ export type CreateUserPayload = {
   firstName: string;
   lastName: string;
   role: "CLIENT" | "CREATOR";
+  verificationToken: string;
 };
+
+export type CreateClientPayload = {
+  companyLegalName: string;
+  companyEmail: string;
+  billablePerson: string;
+  contactPerson: string;
+  companyContactNumber: string;
+  contactPersonContactNumber: string;
+};
+
+export type OtpPayload = Pick<CreateUserPayload, "email" | "role">;
+
+export async function requestRegistrationOtp(payload: OtpPayload) {
+  const response = await fetch(`${API_BASE_URL}/otps`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok) throw new Error(await parseApiError(response, "Unable to send verification code."));
+  return response.json();
+}
+
+export async function validateRegistrationOtp(payload: OtpPayload & { otp: string }) {
+  const response = await fetch(`${API_BASE_URL}/otps/validate`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok) throw new Error(await parseApiError(response, "Unable to verify code."));
+  return response.json() as Promise<{ verificationToken: string }>;
+}
 
 export type LoginUserPayload = {
   email: string;
@@ -46,7 +78,12 @@ export async function parseApiError(response: Response, fallback: string) {
   return message ?? body?.error ?? fallback;
 }
 
-export async function createUser(payload: CreateUserPayload) {
+export async function createUser(
+  userDTO: CreateUserPayload,
+  clientDTO?: CreateClientPayload,
+) {
+  const payload = { userDTO, clientDTO };
+
   const response = await fetch(`${API_BASE_URL}/users`, {
     method: "POST",
     headers: {
@@ -55,11 +92,9 @@ export async function createUser(payload: CreateUserPayload) {
     credentials: "include",
     body: JSON.stringify(payload),
   });
-
   if (!response.ok) {
     throw new Error(await parseApiError(response, "Unable to create account."));
   }
-
   return response.json();
 }
 

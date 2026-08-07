@@ -34,10 +34,10 @@ export function ApiFindAddOnsForCampaign() {
         'Retrieves all add-ons associated with a campaign. Returns null when the campaign exists but has no add-ons. Campaign existence is validated before querying add-ons.',
     }),
     ApiParam({
-      name: 'campaignId',
+      name: 'publicId',
       type: String,
-      description: 'UUID of the campaign',
-      example: '550e8400-e29b-41d4-a716-446655440000',
+      description: 'Public ID of the campaign',
+      example: 'x21E9dlf0F',
     }),
     ApiResponse({
       status: 200,
@@ -58,10 +58,10 @@ export function ApiUpdateAddOnOptIn() {
         'Updates whether an add-on is selected for a campaign using UpdateOptInDTO. Request body only accepts the `optIn` boolean field.',
     }),
     ApiParam({
-      name: 'addOnId',
+      name: 'publicId',
       type: String,
-      description: 'UUID of the add-on',
-      example: '550e8400-e29b-41d4-a716-446655440001',
+      description: 'Public ID of the add-on',
+      example: 'adn_x21E9dlf0F',
     }),
     ApiBody({ type: UpdateOptInDTO }),
     ApiResponse({

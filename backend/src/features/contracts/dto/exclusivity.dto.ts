@@ -1,4 +1,4 @@
-import { Type } from 'class-transformer';
+import { Expose, Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsDateString,
@@ -10,12 +10,14 @@ import {
 } from 'class-validator';
 
 export class ExclusivityDTO {
+  @Expose()
   @ApiProperty({ example: 'Skincare' })
   @IsString({ message: 'Category must be a string.' })
   @IsNotEmpty({ message: 'Category is required.' })
   @MaxLength(500, { message: 'Category must not exceed 500 characters.' })
   category!: string;
 
+  @Expose()
   @ApiProperty({ example: '2026-07-01T00:00:00.000Z' })
   @IsDateString(
     {},
@@ -24,6 +26,7 @@ export class ExclusivityDTO {
   @IsNotEmpty({ message: 'Start date is required.' })
   startDate!: string;
 
+  @Expose()
   @ApiProperty({ example: '2026-07-01T00:00:00.000Z' })
   @IsDateString(
     {},
@@ -32,12 +35,14 @@ export class ExclusivityDTO {
   @IsNotEmpty({ message: 'End date is required.' })
   endDate!: string;
 
+  @Expose()
   @ApiProperty({ example: 'Southeast Asia' })
   @IsString({ message: 'Territory must be a string.' })
   @IsNotEmpty({ message: 'Territory is required.' })
   @MaxLength(500, { message: 'Territory must not exceed 500 characters.' })
   territory!: string;
 
+  @Expose()
   @ApiProperty({
     example: 'Brand A, Brand B, Brand C',
   })
@@ -46,6 +51,7 @@ export class ExclusivityDTO {
   @MaxLength(500, { message: 'Brand list must not exceed 500 characters.' })
   brandlist!: string;
 
+  @Expose()
   @ApiProperty({ example: 5000 })
   @IsNumber({}, { message: 'Exclusivity fee must be a number.' })
   @Type(() => Number)

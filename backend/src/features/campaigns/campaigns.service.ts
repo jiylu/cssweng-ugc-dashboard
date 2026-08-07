@@ -89,6 +89,34 @@ export class CampaignsService {
       });
     }
   }
+
+  async resolveCampaignPublicId(publicId: string) {
+    this.logger.debug(`Finding campaignId for publicId ${publicId}`);
+
+    const campaign = await this.prisma.campaigns.findFirst({
+      where: {
+        public_id: publicId,
+      },
+      select: {
+        campaign_id: true,
+      },
+    });
+
+    if (!campaign) {
+      this.logger.warn(`Campaign with publicId ${publicId} not found.`);
+      throw new NotFoundException({
+        code: 'CAMPAIGN_NOT_FOUND',
+        message: 'Campaign not found.',
+      });
+    }
+
+    this.logger.log(
+      `Campaign with public id ${publicId} resolved: ${campaign.campaign_id}`,
+    );
+
+    return campaign.campaign_id;
+  }
+
   async findOneCampaign(
     campaignId: string,
     tx: Prisma.TransactionClient | PrismaService = this.prisma,
@@ -110,32 +138,6 @@ export class CampaignsService {
     }
 
     this.logger.log(`Found campaign ${campaign.campaign_id}`);
-    return campaign;
-  }
-
-  async findOneActiveCampaignByPublicId(publicId: string) {
-    this.logger.debug(`Finding active campaign with publicId ${publicId}`);
-
-    const campaign = await this.prisma.campaigns.findFirst({
-      where: {
-        public_id: publicId,
-        campaign_status: CampaignStatus.ACTIVE,
-      },
-    });
-
-    if (!campaign) {
-      this.logger.warn(`No active campaign found with publicId ${publicId}`);
-      throw new NotFoundException({
-        status: HttpStatus.NOT_FOUND,
-        code: 'CAMPAIGN_NOT_FOUND',
-        message: 'Campaign not found',
-      });
-    }
-
-    this.logger.log(
-      `Found active campaign with publicId ${publicId} with campaignId ${campaign.campaign_id}`,
-    );
-
     return campaign;
   }
 

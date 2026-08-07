@@ -19,6 +19,7 @@ export function AddOnsContainer({ addOns, currency, onBack, onNext }: AddOnsCont
                 currency={currency}
                 addOns={addOns.addOns}
                 onAddCustom={addOns.addCustom}
+                onToggle={addOns.toggleAddOn}
                 onRemove={addOns.removeAddOn}
                 onAdjustPrice={addOns.adjustPrice}
                 onUpdateAddOn={addOns.updateAddOn}

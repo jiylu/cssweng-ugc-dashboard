@@ -1,5 +1,20 @@
 import { z } from "zod"
 
+export const shippingAddressSchema = z.object({
+  addressLine1: z.string()
+    .min(1, "Address Line 1 is required."),
+  addressLine2: z.string()
+    .optional(),
+  country: z.string()
+    .min(1, "Country is required."),
+  stateProvince: z.string()
+    .optional(),
+  city: z.string()
+    .optional(),
+  zipCode: z.string()
+    .min(1, "Zip Code is required."),
+})
+
 export const giftedProductSchema = z.object({
   productName: z.string()
     .min(1, "Product name is required.")
@@ -8,8 +23,10 @@ export const giftedProductSchema = z.object({
     .min(1, "Value is required."),
   ownershipTerms: z.string()
     .min(1, "Ownership terms are required.").max(500, "Ownership terms must be less than 500 characters."),
-  shippingAddress: z.string()
-    .min(1, "Shipping address is required.").max(200, "Shipping address must be less than 200 characters."),
+  shippingAddress: shippingAddressSchema.nullable().refine(
+    (val) => val !== null && val.addressLine1.length > 0,
+    { message: "Shipping address is required." }
+  ),
   deliveryInstructions: z.string()
     .optional(),
 })

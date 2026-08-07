@@ -9,6 +9,8 @@ import {
   ApiUpdateCampaignClient,
   ApiUpdateCampaignStatus,
 } from './docs/campaigns.controller.swagger';
+import { plainToInstance } from 'class-transformer';
+import { CampaignsEntity } from './entities/campaigns.entity';
 
 @Controller('campaigns')
 export class CampaignsController {
@@ -16,31 +18,52 @@ export class CampaignsController {
 
   @ApiFindOneCampaign()
   @Get(':publicId')
-  findOne(@Param('publicId') publicId: string) {
-    return this.campaignsService.findOneActiveCampaignByPublicId(publicId);
+  async findOne(@Param('publicId') publicId: string) {
+    const campaignId =
+      await this.campaignsService.resolveCampaignPublicId(publicId);
+    const campaign = await this.campaignsService.findOneCampaign(campaignId);
+
+    return plainToInstance(CampaignsEntity, campaign);
   }
 
   @ApiFindAllCampaigns()
   @Get()
-  findAll(@Query() query: CampaignQueryDTO) {
-    return this.campaignsService.findAllCampaigns(query);
+  async findAll(@Query() query: CampaignQueryDTO) {
+    const campaigns = await this.campaignsService.findAllCampaigns(query);
+    return plainToInstance(CampaignsEntity, campaigns);
   }
 
   @ApiUpdateCampaignStatus()
-  @Patch(':campaignId/status')
-  updateStatus(
-    @Param('campaignId') campaignId: string,
+  @Patch('status/:publicId')
+  async updateStatus(
+    @Param('publicId') publicId: string,
     @Body() dto: UpdateCampaignStatusDto,
   ) {
-    return this.campaignsService.updateCampaignStatus(campaignId, dto);
+    const campaignId =
+      await this.campaignsService.resolveCampaignPublicId(publicId);
+
+    const updatedCampaign = await this.campaignsService.updateCampaignStatus(
+      campaignId,
+      dto,
+    );
+
+    return plainToInstance(CampaignsEntity, updatedCampaign);
   }
 
   @ApiUpdateCampaignClient()
-  @Patch(':campaignId/client')
-  updateClientId(
-    @Param('campaignId') campaignId: string,
+  @Patch('client/:publicId')
+  async updateClientId(
+    @Param('publicId') publicId: string,
     @Body() dto: UpdateCampaignClientDTO,
   ) {
-    return this.campaignsService.updateCampaignClientId(campaignId, dto);
+    const campaignId =
+      await this.campaignsService.resolveCampaignPublicId(publicId);
+
+    const updatedCampaign = await this.campaignsService.updateCampaignClientId(
+      campaignId,
+      dto,
+    );
+
+    return plainToInstance(CampaignsEntity, updatedCampaign);
   }
 }

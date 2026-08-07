@@ -1,5 +1,6 @@
 import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { Expose } from 'class-transformer';
 
 export enum PAYMENT_SCHEDULE {
   NET_15 = 'NET_15',
@@ -9,6 +10,7 @@ export enum PAYMENT_SCHEDULE {
 }
 
 export class PaymentTermsDTO {
+  @Expose()
   @ApiProperty({
     enum: PAYMENT_SCHEDULE,
     example: PAYMENT_SCHEDULE.NET_30,
@@ -18,6 +20,7 @@ export class PaymentTermsDTO {
   })
   payment_schedule!: PAYMENT_SCHEDULE;
 
+  @Expose()
   @ApiProperty({ example: 'Bank Transfer' })
   @IsString({ message: 'Payment method must be a string.' })
   @IsNotEmpty({ message: 'Payment method is required.' })

@@ -7,18 +7,21 @@ import CreatorTodoCard from "../components/creator-todo-card";
 import Button from "@/src/components/atoms/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useAuth } from "@/src/features/auth/hooks/useAuth";
+import { useAnalytics } from "../hooks/useAnalytics";
 import LogoLoader from "@/src/components/molecules/logo-loader";
 
 export default function CreatorDashboard() {
   const { user, loading } = useAuth();
-  if (loading) return <LogoLoader label="Loading creator dashboard" />;
+  const { data: analytics, isLoading: analyticsLoading } = useAnalytics();
+
+  if (loading || analyticsLoading) return <LogoLoader label="Loading creator dashboard" />;
   if (!user) return null;
 
   const creatorDashboardStats = [
-    { icon: Megaphone, label: "Active Campaigns", value: 3 },
-    { icon: NotebookPen, label: "Pending Proposals", value: 67 },
-    { icon: TrendingUp, label: "Revenue Generated", value: "Php 72,500" },
-    { icon: CheckCircle, label: "Monthly Completed", value: 5 },
+    { icon: Megaphone, label: "Active Campaigns", value: analytics?.active_campaigns ?? 0 },
+    { icon: NotebookPen, label: "Pending Proposals", value: analytics?.pending_proposals ?? 0 },
+    { icon: TrendingUp, label: "Revenue Generated", value: `Php ${(analytics?.revenue_generated ?? 0).toLocaleString()}` },
+    { icon: CheckCircle, label: "Monthly Completed", value: analytics?.monthly_completed ?? 0 },
   ];
 
   const creatorDeliverables = [

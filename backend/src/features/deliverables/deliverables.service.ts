@@ -181,6 +181,40 @@ export class DeliverablesService {
     return deliverable;
   }
 
+  async resolvePublicId(
+    publicId: string,
+    tx: Prisma.TransactionClient | PrismaService = this.prisma,
+  ) {
+    this.logger.debug(`Resolving deliverable publicId ${publicId}`);
+
+    const deliverable = await tx.deliverables.findFirst({
+      where: {
+        public_id: publicId,
+        is_deleted: false,
+      },
+      select: {
+        deliverable_id: true,
+      },
+    });
+
+    if (!deliverable) {
+      this.logger.warn(
+        `Deliverable with publicId ${publicId} not found or is deleted.`,
+      );
+      throw new NotFoundException({
+        status: HttpStatus.NOT_FOUND,
+        code: 'DELIVERABLE_PUBLIC_ID_CANNOT_BE_RESOLVED',
+        message: 'Deliverable public ID cannot be resolved.',
+      });
+    }
+
+    this.logger.log(
+      `Deliverable publicId ${publicId} resolved: ${deliverable.deliverable_id}`,
+    );
+
+    return deliverable.deliverable_id;
+  }
+
   async findDeliverablesForCampaign(
     campaignId: string,
     tx: Prisma.TransactionClient | PrismaService = this.prisma,

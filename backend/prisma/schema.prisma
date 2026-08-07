@@ -22,6 +22,20 @@ model User {
   //targeted_activity_logs ActivityLog[] @relation("ActivityLogTargetUser")
 }
 
+model RegistrationOtp {
+  otp_id                  String    @id @default(uuid())
+  email                   String
+  role                    UserRoles
+  otp_hash                String
+  verification_token_hash String?   @unique
+  expires_at              DateTime
+  verified_at             DateTime?
+  consumed_at             DateTime?
+  created_at              DateTime  @default(now())
+
+  @@index([email, role, created_at])
+}
+
 model Clients {
   client_id                 String @id @default(uuid())
   user_id                   String @unique
@@ -76,6 +90,7 @@ model Contracts {
 
 model GiftedProducts {
   gifted_product_id     String  @id @default(uuid())
+  public_id             String  @unique @db.VarChar(10)
   campaign_id           String
   product_name          String
   value                 Decimal
@@ -189,6 +204,7 @@ model ActivityLog {
 
 model Notifications {
   notification_id String   @id @default(uuid())
+  public_id       String   @unique @db.VarChar(10)
   user_id         String
   title           String
   message         String

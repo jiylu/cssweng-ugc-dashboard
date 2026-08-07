@@ -31,7 +31,7 @@ export default function DeliverablesTable({
             >
               <td className="px-6 py-4 align-top">{deliverable.quantity}</td>
               <td className="px-6 py-4 align-top">{deliverable.deliverable}</td>
-              <td className="px-6 py-4 align-top">
+              <td className="px-6 py-4 align-top break-words">
                 {deliverable.requirements}
               </td>
               <td className="px-6 py-4 align-top">{deliverable.dueDate}</td>

@@ -13,6 +13,7 @@ import { CampaignDeliverablesContainer } from "@/src/features/creator/proposals/
 import { ContractTermsContainer } from "@/src/features/creator/proposals/containers/contract-terms-container";
 import { PaymentTermsContainer } from "@/src/features/creator/proposals/containers/payment-terms-container";
 import { AddOnsContainer } from "@/src/features/creator/proposals/containers/add-ons-container";
+import { ProposalSummaryContainer } from "@/src/features/creator/proposals/containers/proposal-summary-container"
 import { buildProposalPayload } from "@/src/features/creator/proposals/utils/buildProposalPayload"
 import { useContractTerms } from "@/src/features/creator/proposals/hooks/useContractTerms"
 import { usePaymentTerms } from "@/src/features/creator/proposals/hooks/usePaymentTerms"
@@ -126,7 +127,7 @@ export default function CreateCampaign() {
               onStepChange={form.setActiveStep}
               onValidateStep={(step) => {
                 if (step === 1) return form.validateForm()
-                if (step === 2) return contractTerms.validateForm()
+                if (step === 2) return contractTerms.validateForm({ startDate: form.startDate, endDate: form.endDate })
                 if (step === 3) return addOns.validateForm()
                 if (step === 4) return paymentTerms.validateForm()
                 return true
@@ -147,6 +148,7 @@ export default function CreateCampaign() {
             <ContractTermsContainer
               contractTerms={contractTerms}
               currency={form.currency}
+              campaignDates={{ startDate: form.startDate, endDate: form.endDate }}
               onBack={() => form.setActiveStep(1)}
               onNext={() => form.setActiveStep(3)}
             />
@@ -167,13 +169,28 @@ export default function CreateCampaign() {
             <PaymentTermsContainer
               paymentTerms={paymentTerms}
               onBack={() => form.setActiveStep(3)}
+              onNext={() => form.setActiveStep(5)}
               onSaveDraft={handleSaveDraft}
               onSubmit={handleSendProposal}
               isPending={isPending}
               baseCreatorFee={baseCreatorFee}
               currency={form.currency}
-              taxRate={0.12}
+              taxRate={paymentTerms.taxRate}
             />  
+          )}
+
+          {/* Step 5 - Review & Submit */}
+          {form.activeStep === 5 && (
+            <ProposalSummaryContainer
+              form={form}
+              contractTerms={contractTerms}
+              addOns={addOns}
+              paymentTerms={paymentTerms}
+              userName={`${user.first_name} ${user.last_name}`}
+              onBack={() => form.setActiveStep(4)}
+              onSubmit={handleSendProposal}
+              isPending={isPending}
+            />
           )}
         </div>
       </section>

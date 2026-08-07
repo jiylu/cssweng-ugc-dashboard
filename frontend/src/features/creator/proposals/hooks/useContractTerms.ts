@@ -25,8 +25,8 @@ export function useContractTerms() {
     }
   }
 
-  function validateForm(): boolean {
-    const newErrors = validateContractTerms(buildData())
+  function validateForm(campaignDates?: { startDate: string; endDate: string }): boolean {
+    const newErrors = validateContractTerms(buildData(), campaignDates)
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }

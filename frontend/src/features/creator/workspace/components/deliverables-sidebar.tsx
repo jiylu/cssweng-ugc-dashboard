@@ -13,7 +13,7 @@ export function DeliverablesSidebar({ deliverables, activeDeliverable, onChange 
       <p className="text-sm font-medium text-foreground mb-2">Deliverables</p>
       {deliverables.map((deliverable, index) => (
         <button
-          key={deliverable.deliverable_id}
+          key={deliverable.public_id}
           onClick={() => onChange(index)}
           className={cn(
             "text-left px-4 py-2 text-sm rounded-[3px] transition-colors",

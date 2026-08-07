@@ -24,7 +24,6 @@ export type CampaignCurrency = 'CAD' | 'USD' | 'PHP' | 'EUR' | 'GBP';
 
 /** Represents one deliverable row from the Deliverables table / API response. */
 export interface Deliverable {
-  deliverable_id: string;
   public_id: string;
   campaign_id: string;
   quantity: number;
@@ -43,7 +42,6 @@ export interface Deliverable {
 /** Represents one campaign row from the Campaigns table / API response. */
 export interface Campaign {
   /** UUID primary key */
-  campaign_id: string;
   /** Short public identifier, e.g. "UGC-001" */
   public_id: string;
   ugc_creator_id: string;

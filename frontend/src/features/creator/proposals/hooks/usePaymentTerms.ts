@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { GiftedProduct, PaymentTermsData } from "@/src/features/creator/proposals/types/payment-terms.types"
+import { GiftedProduct, PaymentTermsData, ShippingAddress } from "@/src/features/creator/proposals/types/payment-terms.types"
 import { validatePaymentTerms } from "@/src/features/creator/proposals/utils/validators"
 
 export function usePaymentTerms() {
@@ -9,7 +9,7 @@ export function usePaymentTerms() {
       productName: "",
       value: "",
       ownershipTerms: "",
-      shippingAddress: "",
+      shippingAddress: null,
       deliveryInstructions: "",
     }
   ])
@@ -25,7 +25,7 @@ export function usePaymentTerms() {
       productName: "",
       value: "",
       ownershipTerms: "",
-      shippingAddress: "",
+      shippingAddress: null,
       deliveryInstructions: "",
     }])
   }
@@ -34,7 +34,7 @@ export function usePaymentTerms() {
     setGiftedProducts(prev => prev.filter(p => p.id !== id))
   }
 
-  function updateGiftedProduct(id: number, field: keyof GiftedProduct, value: string) {
+  function updateGiftedProduct(id: number, field: keyof GiftedProduct, value: string | ShippingAddress | null) {
     setGiftedProducts(prev => prev.map(p => p.id === id ? { ...p, [field]: value } : p))
   }
 

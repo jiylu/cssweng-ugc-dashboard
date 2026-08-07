@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button"
 import { Plus } from "lucide-react"
-import { GiftedProduct } from "@/src/features/creator/proposals/types/payment-terms.types"
+import { GiftedProduct, ShippingAddress  } from "@/src/features/creator/proposals/types/payment-terms.types"
 import { GiftedProductRow } from "@/src/features/creator/proposals/components/payment-terms/gifted-product-row"
 
 interface GiftedProductsSectionProps {
@@ -9,7 +9,7 @@ interface GiftedProductsSectionProps {
   currency: string
   onAdd: () => void
   onRemove: (id: number) => void
-  onUpdate: (id: number, field: keyof GiftedProduct, value: string) => void
+  onUpdate: (id: number, field: keyof GiftedProduct, value: string | ShippingAddress | null) => void
 }
 
 export function GiftedProductsSection({ giftedProducts, currency, errors, onAdd, onRemove, onUpdate }: GiftedProductsSectionProps) {

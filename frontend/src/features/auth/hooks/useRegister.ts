@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
-import { createUser, type CreateUserPayload } from "@/src/features/auth/services/users-api";
+import { createUser, requestRegistrationOtp, validateRegistrationOtp, type CreateUserPayload } from "@/src/features/auth/services/users-api";
 import { validateRegisterFields } from "../utils/validators";
 import type { RegisterForm } from "../types/register-types";
 
@@ -30,22 +30,35 @@ export function useRegister({
   const [errors, setErrors] = useState<RegisterForm>(getInitialForm());
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [step, setStep] = useState<"details" | "otp">("details");
+  const [otp, setOtp] = useState("");
   const router = useRouter();
 
-  const { mutate: register, isPending, error, isSuccess } = useMutation({
-    mutationFn: () => createUser({
-      email: form.email,
-      password: form.password,
-      firstName: form.fname,
-      lastName: form.lname,
-      role,
-    }),
+  const { mutate: sendOtp, isPending: isSendingOtp, error: sendOtpError } = useMutation({
+    mutationFn: () => requestRegistrationOtp({ email: form.email, role }),
+    onSuccess: () => setStep("otp"),
+  });
+
+  const { mutate: verifyAndRegister, isPending: isRegistering, error, isSuccess } = useMutation({
+    mutationFn: async () => {
+      const { verificationToken } = await validateRegistrationOtp({ email: form.email, role, otp });
+  
+      const userDTO: CreateUserPayload = {
+        email: form.email,
+        password: form.password,
+        firstName: form.fname,
+        lastName: form.lname,
+        role,
+        verificationToken,
+      };
+
+      return createUser(userDTO);
+    },
     onSuccess: () => {
       if (onSuccess) {
         onSuccess(form);
         return;
       }
-
       window.setTimeout(() => router.push(redirectTo), 700);
     },
   });
@@ -62,7 +75,13 @@ export function useRegister({
       return;
     }
     setErrors(newErrors);
-    register();
+    sendOtp();
+  };
+
+  const handleOtpSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!/^\d{8}$/.test(otp)) return;
+    verifyAndRegister();
   };
 
   return {
@@ -72,8 +91,14 @@ export function useRegister({
     setShowPassword,
     showConfirmPassword,
     setShowConfirmPassword,
-    isSubmitting: isPending,
-    submitError: error instanceof Error ? error.message : error ? "Unable to create account." : "",
+    step,
+    otp,
+    setOtp,
+    setStep,
+    handleOtpSubmit,
+    resendOtp: sendOtp,
+    isSubmitting: isSendingOtp || isRegistering,
+    submitError: (error instanceof Error ? error.message : error ? "Unable to create account." : "") || (sendOtpError instanceof Error ? sendOtpError.message : ""),
     submitSuccess: isSuccess ? "Account created. Taking you to login..." : "",
     handleChange,
     handleSubmit,

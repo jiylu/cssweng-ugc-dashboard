@@ -2,7 +2,7 @@ import z from "zod"
 
 export const usageRightsSchema = z.object({
   includedOrganicUsage: z.string()
-    .min(1, "Included organic usage is required.")
+    .min(50, "Included organic usage must be at least 50 characters.")
     .max(500, "Included organic usage must be less than 500 characters."),
 
   territory: z.string()

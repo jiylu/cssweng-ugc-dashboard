@@ -29,8 +29,8 @@ export function buildProposalPayload({ userId, form, contractTerms, paymentTerms
       deliverableType: d.deliverableType as 'COLLABORATION' | 'UGC',
       deliverableContent: `${d.platform} ${d.contentType}`,
       requirements: d.description,
-      dueDate: new Date(d.draftDeadline).toISOString(),
-      postDate: d.postDate ? new Date(d.postDate).toISOString() : "",
+      dueDate: d.draftDeadline ? new Date(d.draftDeadline).toISOString() : new Date().toISOString(),
+      postDate: d.postDate ? new Date(d.postDate).toISOString() : new Date().toISOString(),
       pricing: parseFloat(d.pricing.replace(/,/g, '') || '0'),
     })),
     proposal: {
@@ -81,7 +81,7 @@ export function buildProposalPayload({ userId, form, contractTerms, paymentTerms
         payment_method: paymentTerms.paymentMethod,
       },
       invoice_requirements: {
-        name: "TEMPORARY_NAME",
+        name: form.contactPerson || "TEMPORARY_NAME",
         email: form.contactEmail,
         campaign_name: form.projectName,
         // tax_number: "",
@@ -103,7 +103,15 @@ export function buildProposalPayload({ userId, form, contractTerms, paymentTerms
       giftedProducts: paymentTerms.giftedProducts.map((p) => ({
         productName: p.productName,
         value: parseFloat(p.value.replace(/,/g, '') || '0'),
-        deliveryAddress: p.shippingAddress,
+        deliveryAddress: p.shippingAddress
+          ? [
+              p.shippingAddress.addressLine1,
+              p.shippingAddress.addressLine2,
+              p.shippingAddress.city,
+              p.shippingAddress.stateProvince,
+              `${p.shippingAddress.country} ${p.shippingAddress.zipCode}`,
+            ].filter(Boolean).join(", ")
+          : "",
         deliveryInstructions: p.deliveryInstructions,
         ownershipTerms: p.ownershipTerms,
       }))

@@ -30,9 +30,9 @@ function formatMoney(value: number, currency: string) {
 }
 
 export default function ClientProposalReview() {
-  const params = useParams<{ proposalId?: string }>();
+  const params = useParams<{ campaignId?: string }>();
   const router = useRouter();
-  const proposalPublicId = params.proposalId ?? "";
+  const proposalPublicId = params.campaignId ?? "";
   const { proposalQuery, revisionMutation, declineMutation, addOnMutation } =
     useClientProposal(proposalPublicId);
   const [feedback, setFeedback] = useState<string | null>(null);
@@ -65,7 +65,7 @@ export default function ClientProposalReview() {
     if (!comment) return;
     try {
       await revisionMutation.mutateAsync({
-        proposalId: data.proposal.proposal_id,
+        proposalId: data.proposal.public_id,
         comment,
       });
       toast.success("Revision request submitted.");
@@ -76,7 +76,7 @@ export default function ClientProposalReview() {
 
   const handleDecline = async () => {
     try {
-      await declineMutation.mutateAsync(data.proposal.proposal_id);
+      await declineMutation.mutateAsync(data.proposal.public_id);
       toast.success("Proposal declined.");
       router.push("/dashboard");
     } catch (error) {
