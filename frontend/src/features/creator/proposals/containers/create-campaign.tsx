@@ -118,6 +118,8 @@ export default function CreateCampaign() {
             </p>
           </div>
 
+          <Separator className="-mt-2 mb-5"/>
+
           {/* Progress Bar */}
           <div className="justify-center">
             <ProposalProgressBar

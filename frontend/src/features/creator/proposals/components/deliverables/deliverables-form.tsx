@@ -43,15 +43,15 @@ export default function DeliverablesForm({ deliverables, currency, errors, platf
         <Button
           variant="outline"
           onClick={addDeliverable}
-          className="border-[#6b1fa8] text-[#6b1fa8] hover:bg-[#6b1fa8]/10 rounded-[2px]"
+          className="border-[#6b1fa8] text-[#6b1fa8] hover:bg-[#6b1fa8] hover:text-[#ffffff] rounded-[2px] p-5"
         >
-          <Plus size={16} />
+          <Plus size={16} className="-mt-1"/>
           Add another deliverable
         </Button>
 
         <Card className="px-6 py-3 flex items-center gap-4">
           <span className="text-sm text-muted-foreground">Total Price</span>
-          <span className="text-2xl font-medium text-foreground">
+          <span className="text-2xl font-medium text-foreground -mt-3">
             {currency} {totalPrice.toLocaleString("en-US", { minimumFractionDigits: 2 })}
           </span>
         </Card>

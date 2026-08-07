@@ -24,145 +24,148 @@ export function DeliverableRow({ item, index, deliverablesCount, currency, error
   const e = (field: string) => errors[`deliverables.${index}.${field}`]
 
   return (
-    <div className="bg-[#F2F0EA] border border-border rounded-[3px] p-2 flex flex-row gap-2">
-      {/* Left side */}
-      <div className="flex flex-col gap-4 flex-1 min-w-0">
-        {/* Top row - Quantity, Type, Content Type, Delete */}
-        <div className="flex flex-wrap items-start gap-4 w-full">
-          {/* Quantity */}
-          <div className="flex flex-col gap-1 w-24 shrink-0">
-            <label className="text-xs text-muted-foreground uppercase tracking-[0.03em]">QUANTITY</label>
-            <div className="flex items-center justify-between border border-border bg-white rounded-[3px] px-2 py-1">
-              <Input
-                type="number"
-                value={item.quantity}
-                onChange={(e) => {
-                  const val = e.target.value
-                  if (Number(val) < 1) return
-                  onUpdate('quantity', val)
-                }}
-                className="border-0 p-0 h-auto text-sm shadow-none focus-visible:ring-0 w-10 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-              />
-              <div className="flex flex-col shrink-0">
-                <ChevronUp size={12} className="cursor-pointer text-muted-foreground hover:text-foreground"
-                  onClick={() => onUpdate('quantity', String(Number(item.quantity ?? 1) + 1))}
+    <div className="flex flex-row items-center gap-4 w-full">
+      <div className="bg-[#F2F0EA] border border-border rounded-[3px] p-3 flex flex-row flex-1 gap-2">
+        {/* Left side */}
+        <div className="flex flex-col gap-1 flex-1 min-w-0 self-stretch">
+          {/* Top row - Quantity, Type, Content Type, Delete */}
+          <div className="flex flex-wrap items-start gap-4 w-full">
+            {/* Quantity */}
+            <div className="flex flex-col gap-1 w-24 shrink-0">
+              <label className="text-xs text-muted-foreground uppercase tracking-[0.03em]">QUANTITY</label>
+              <div className="flex items-center justify-between border border-border bg-white rounded-[3px] px-2 h-8">
+                <Input
+                  type="number"
+                  value={item.quantity}
+                  onChange={(e) => {
+                    const val = e.target.value
+                    if (Number(val) < 1) return
+                    onUpdate('quantity', val)
+                  }}
+                  className="border-0 p-0 h-auto text-sm shadow-none focus-visible:ring-0 w-10 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 />
-                <ChevronDown size={12} className="cursor-pointer text-muted-foreground hover:text-foreground"
-                  onClick={() => onUpdate('quantity', String(Math.max(1, Number(item.quantity ?? 1) - 1)))}
+                <div className="flex flex-col shrink-0">
+                  <ChevronUp size={12} className="cursor-pointer text-muted-foreground hover:text-foreground"
+                    onClick={() => onUpdate('quantity', String(Number(item.quantity ?? 1) + 1))}
+                  />
+                  <ChevronDown size={12} className="cursor-pointer text-muted-foreground hover:text-foreground"
+                    onClick={() => onUpdate('quantity', String(Math.max(1, Number(item.quantity ?? 1) - 1)))}
+                  />
+                </div>
+              </div>
+              <p className="text-xs mt-1 text-[#ff6467] min-h-[16px]">{e('quantity') ?? ""}</p>
+            </div>
+
+            {/* Type */}
+            <div className="flex flex-col gap-1 w-40 shrink-0">
+              <label className="text-xs text-muted-foreground uppercase tracking-[0.03em]">TYPE</label>
+              <Select value={item.deliverableType} onValueChange={(v) => onUpdate('deliverableType', v)}>
+                <SelectTrigger className="text-sm bg-white border-border rounded-[3px]">
+                  <SelectValue placeholder="Set type" />
+                </SelectTrigger>
+                <SelectContent className="p-1">
+                  <SelectGroup className="p-0">
+                    <SelectItem value="COLLABORATION" className="rounded-[3px]">Partnership</SelectItem>
+                    <SelectItem value="UGC" className="rounded-[3px]">UGC</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+              <p className="text-xs mt-1 text-[#ff6467] min-h-[16px]">{e('deliverableType') ?? ""}</p>
+            </div>
+
+            {/* Content Type */}
+            <div className="flex-1 min-w-[200px]">
+              <ContentTypeSelect
+                platform={item.platform ?? ""}
+                contentType={item.contentType ?? ""}
+                platformOptions={platformOptions}
+                onPlatformChange={(v) => onUpdate('platform', v)}
+                onContentTypeChange={(v) => onUpdate('contentType', v)}
+                platformError={e('platform')}
+                contentTypeError={e('contentType')}
+              />
+            </div>
+          </div>
+
+          {/* Requirements */}
+          <div className="flex flex-col gap-1 flex-1 min-h-0">
+            <label className="text-xs text-muted-foreground uppercase tracking-[0.03em]">REQUIREMENTS</label>
+            <Textarea
+              value={item.description}
+              onChange={(e) => onUpdate('description', e.target.value)}
+              placeholder="Indicate requirements and format of the deliverable"
+              className="w-full flex-1 !h-full [field-sizing:fixed] bg-white border border-border rounded-[3px] text-sm text-foreground placeholder:text-muted-foreground placeholder:italic resize-none break-words overflow-hidden"            />
+            <p className="text-xs mt-1 text-[#ff6467] min-h-[16px]">{e('description') ?? ""}</p>
+          </div>
+        </div>
+
+        {/* Right side - Scheduling & Pricing */}
+        <div className="w-52 shrink-0 bg-white border border-border rounded-[3px] p-4 flex flex-col gap-1">
+          <p className="text-sm font-medium text-[#6b1fa8] uppercase tracking-[0.03em]">Scheduling & Pricing</p>
+
+          <div className="flex flex-col gap-1">
+            <label className="text-xs text-muted-foreground mt-2">DRAFT DUE DATE</label>
+            <DatePickerInput
+              value={item.draftDeadline}
+              onChange={(iso) => onUpdate('draftDeadline', iso)}
+            />
+            <p className="text-xs mt-1 text-[#ff6467] min-h-[16px]">{e('draftDeadline') ?? ""}</p>
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label className="text-xs text-muted-foreground">POST DATE</label>
+            <DatePickerInput
+              value={item.postDate ?? ""}
+              onChange={(iso) => onUpdate('postDate', iso)}
+            />
+            <p className="text-xs mt-1 text-[#ff6467] min-h-[16px]">{e('postDate') ?? ""}</p>
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label className="text-xs text-muted-foreground">PRICE</label>
+            <div className="flex items-center gap-1 border border-border rounded-[3px] px-2 h-8">
+              <InputGroup className="border-0 flex-1 focus-within:!ring-0 focus-within:!border-transparent focus-within:!outline-none">
+                <InputGroupAddon className="bg-transparent border-0 pl-1 pr-1 text-muted-foreground">{currency}</InputGroupAddon>
+                <InputGroupInput
+                  placeholder="Set a price"
+                  className="border-0 p-0 h-auto text-sm shadow-none focus-visible:ring-0"
+                  value={item.pricing}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/[^0-9.]/g, '')
+                    const parts = val.split('.')
+                    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                    onUpdate('pricing', parts.slice(0, 2).join('.'))
+                  }}
+                />
+                
+              </InputGroup>
+              <div className="flex flex-col shrink-0">
+                <ChevronUp size={12} className="cursor-pointer text-muted-foreground hover:text-[#6b1fa8]"
+                  onClick={() => onUpdate('pricing', adjustPriceValue(item.pricing, 1000))}
+                />
+                <ChevronDown size={12} className="cursor-pointer text-muted-foreground hover:text-[#6b1fa8]"
+                  onClick={() => onUpdate('pricing', adjustPriceValue(item.pricing, -1000))}
                 />
               </div>
             </div>
-            <p className="text-xs mt-1 text-[#ff6467] min-h-[16px]">{e('quantity') ?? ""}</p>
+            <p className="text-xs mt-1 text-[#ff6467] min-h-[16px]">{e('pricing') ?? ""}</p>
           </div>
-
-          {/* Type */}
-          <div className="flex flex-col gap-1 w-40 shrink-0">
-            <label className="text-xs text-muted-foreground uppercase tracking-[0.03em]">TYPE</label>
-            <Select value={item.deliverableType} onValueChange={(v) => onUpdate('deliverableType', v)}>
-              <SelectTrigger className="text-sm bg-white border-border rounded-[3px]">
-                <SelectValue placeholder="Set type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <SelectItem value="COLLABORATION">Partnership</SelectItem>
-                  <SelectItem value="UGC">UGC</SelectItem>
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-            <p className="text-xs mt-1 text-[#ff6467] min-h-[16px]">{e('deliverableType') ?? ""}</p>
-          </div>
-
-          {/* Content Type */}
-          <div className="flex-1 min-w-[200px]">
-            <ContentTypeSelect
-              platform={item.platform ?? ""}
-              contentType={item.contentType ?? ""}
-              platformOptions={platformOptions}
-              onPlatformChange={(v) => onUpdate('platform', v)}
-              onContentTypeChange={(v) => onUpdate('contentType', v)}
-              platformError={e('platform')}
-              contentTypeError={e('contentType')}
-            />
-          </div>
-        </div>
-
-        {/* Requirements */}
-        <div className="flex flex-col gap-1">
-          <label className="text-xs text-muted-foreground uppercase tracking-[0.03em]">REQUIREMENTS</label>
-          <Textarea
-            value={item.description}
-            onChange={(e) => onUpdate('description', e.target.value)}
-            placeholder="Indicate requirements and format of the deliverable"
-            className="w-full min-h-[160px] bg-white border border-border rounded-[3px] text-sm text-foreground placeholder:text-muted-foreground placeholder:italic resize-none break-words overflow-hidden"
-          />
-          <p className="text-xs mt-1 text-[#ff6467] min-h-[16px]">{e('description') ?? ""}</p>
-        </div>
+        </div>  
       </div>
 
-      {/* Right side - Scheduling & Pricing */}
-      <div className="w-52 shrink-0 bg-white border border-border rounded-[3px] p-4 flex flex-col gap-3">
-        <p className="text-xs font-medium text-[#6b1fa8] uppercase tracking-[0.03em]">Scheduling & Pricing</p>
-
-        <div className="flex flex-col gap-1">
-          <label className="text-xs text-muted-foreground">Draft Due Date</label>
-          <DatePickerInput
-            value={item.draftDeadline}
-            onChange={(iso) => onUpdate('draftDeadline', iso)}
-          />
-          <p className="text-xs mt-1 text-[#ff6467] min-h-[16px]">{e('draftDeadline') ?? ""}</p>
-        </div>
-
-        <div className="flex flex-col gap-1">
-          <label className="text-xs text-muted-foreground">Post Date</label>
-          <DatePickerInput
-            value={item.postDate ?? ""}
-            onChange={(iso) => onUpdate('postDate', iso)}
-          />
-          <p className="text-xs mt-1 text-[#ff6467] min-h-[16px]">{e('postDate') ?? ""}</p>
-        </div>
-
-        <div className="flex flex-col gap-1">
-          <label className="text-xs text-muted-foreground">Price</label>
-          <div className="flex items-center gap-1 border border-border rounded-[3px] px-2 py-1">
-            <InputGroup className="border-0 flex-1">
-              <InputGroupInput
-                placeholder="Set a price"
-                className="border-0 p-0 h-auto text-sm shadow-none focus-visible:ring-0"
-                value={item.pricing}
-                onChange={(e) => {
-                  const val = e.target.value.replace(/[^0-9.]/g, '')
-                  const parts = val.split('.')
-                  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-                  onUpdate('pricing', parts.slice(0, 2).join('.'))
-                }}
-              />
-              <InputGroupAddon>{currency}</InputGroupAddon>
-            </InputGroup>
-            <div className="flex flex-col shrink-0">
-              <ChevronUp size={12} className="cursor-pointer text-muted-foreground hover:text-[#6b1fa8]"
-                onClick={() => onUpdate('pricing', adjustPriceValue(item.pricing, 1000))}
-              />
-              <ChevronDown size={12} className="cursor-pointer text-muted-foreground hover:text-[#6b1fa8]"
-                onClick={() => onUpdate('pricing', adjustPriceValue(item.pricing, -1000))}
-              />
-            </div>
-          </div>
-          <p className="text-xs mt-1 text-[#ff6467] min-h-[16px]">{e('pricing') ?? ""}</p>
-        </div>
-      </div>  
       {/* Delete button */}
-      {canRemove && (
-        <div className="!flex flex-wrap items-start gap-0">
-          <button
-            type="button"
-            onClick={onRemove}
-            aria-label={`Delete deliverable ${index + 1}`}
-            className="px-0 text-muted-foreground hover:text-destructive transition-colors"
-          >
-            <Trash2 size={16} />
-          </button>
-        </div>
-      )}
+        {canRemove && (
+          <div className="!flex flex-wrap items-start gap-0">
+            <button
+              type="button"
+              onClick={onRemove}
+              aria-label={`Delete deliverable ${index + 1}`}
+              className="px-0 text-muted-foreground hover:text-destructive transition-colors"
+            >
+              <Trash2 size={18} />
+            </button>
+          </div>
+        )}
     </div>
   )
 }

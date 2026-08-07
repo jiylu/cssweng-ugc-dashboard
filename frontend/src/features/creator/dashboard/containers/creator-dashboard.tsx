@@ -52,13 +52,13 @@ export default function CreatorDashboard() {
     <main className="flex flex-row w-full min-h-screen overflow-hidden">
       <CreatorSidebar />
 
-      <section className="flex-1 overflow-y-auto h-screen scrollbar-gutter-stable px-4 sm:px-6 lg:px-8 py-6">
+      <section className="flex-1 overflow-y-auto h-screen scrollbar-gutter-stable px-4 sm:px-6 lg:px-8 py-8">
         <div className="max-w-7xl mx-auto">
 
           {/* HEADER */}
-          <div className="mb-5 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+          <div className="mt-3 mb-3 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
             <div>
-              <h1 className="text-3xl sm:text-4xl lg:text-[64px] font-bold leading-tight text-[#141518]">
+              <h1 className="text-2xl sm:text-3xl lg:text-[56px] font-bold leading-tight text-[#141518]">
                 Welcome back, {user?.first_name ?? "User"}
               </h1>
             </div>
@@ -86,7 +86,7 @@ export default function CreatorDashboard() {
           </div>
 
           {/* TODOS */}
-          <h2 className="text-xl sm:text-2xl font-bold mb-4">Urgent / To Do</h2>
+          <h2 className="text-xl sm:text-2xl font-bold mb-2">Urgent / To Do</h2>
           <div className="flex flex-row gap-2 flex-start mb-10">
             <CreatorTodoCard
               campaignName="Summer Glow 2026"
@@ -99,11 +99,11 @@ export default function CreatorDashboard() {
           </div>
 
           {/* ONGOING DELIVERABLES */}
-          <div className="bg-white rounded-xs shadow-[0_1px_2px_rgba(0,0,0,0.08)] p-4 sm:p-6 w-full h-fit">
+          <div className="bg-white rounded-xs shadow-[0_1px_2px_rgba(0,0,0,0.08)] p-4 sm:p-6 w-full h-fit border border-solid border-[#d8d4cb]">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl sm:text-2xl font-bold">Ongoing Deliverables</h2>
               <Button variant="ghost" className="flex items-center gap-1">
-                <Filter size={16} /> Filter By
+                <Filter size={16} className="-mt-[5px] mr-1" /> Filter By
               </Button>
             </div>
 
@@ -111,7 +111,7 @@ export default function CreatorDashboard() {
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
-                  <TableRow className="bg-gray-100 text-xs font-semibold text-gray-600 uppercase tracking-wide">
+                  <TableRow className="text-[13px] font-semibold text-gray-600 uppercase tracking-wide bg-[#e8e4dc]">
                     <TableHead>Campaign Name</TableHead>
                     <TableHead>Deliverable</TableHead>
                     <TableHead>Type</TableHead>
@@ -121,7 +121,7 @@ export default function CreatorDashboard() {
                 </TableHeader>
                 <TableBody>
                   {creatorDeliverables.map((row, i) => (
-                    <TableRow key={i} className="text-sm text-gray-700">
+                    <TableRow key={i} className="text-sm">
                       <TableCell>{row.campaign}</TableCell>
                       <TableCell>{row.deliverable}</TableCell>
                       <TableCell>{row.type}</TableCell>
