@@ -1,5 +1,7 @@
 import { Button } from "@/components/ui/button"
 import { Pencil, ArrowRight } from "lucide-react"
+import { useState } from "react"
+import { ReviewContractTerms } from "@/src/features/creator/proposals/components/proposal-summary/review-contract-terms"
 
 interface SummaryFooterProps {
     onEdit: () => void
@@ -8,22 +10,36 @@ interface SummaryFooterProps {
 }
 
 export function SummaryFooter({ onEdit, onSubmit, isPending }: SummaryFooterProps) {
+    const [modalOpen, setModalOpen] = useState(false)
+
     return (
-        <div className="flex justify-end gap-3 mt-6 pb-8">
-            <Button
-                variant="outline"
-                onClick={onEdit}
-                className="flex items-center gap-2"
-            >
-                <Pencil size={16} /> Edit
-            </Button>
-            <Button
-                onClick={onSubmit}
-                disabled={isPending}
-                className="bg-[#6b1fa8] hover:bg-[#5a1a8f] text-white flex items-center gap-2"
-            >
-                {isPending ? "Submitting..." : "Submit Proposal"} <ArrowRight size={16} />
-            </Button>
-        </div>
+        <>
+            <div className="flex justify-end gap-3 mt-6 pb-8">
+                <Button
+                    variant="outline"
+                    onClick={onEdit}
+                    className="flex items-center gap-2"
+                >
+                    <Pencil size={16} /> Edit
+                </Button>
+                <Button
+                    onClick={() => setModalOpen(true)}
+                    disabled={isPending}
+                    className="bg-[#6b1fa8] hover:bg-[#5a1a8f] text-white flex items-center gap-2"
+                >
+                    {isPending ? "Submitting..." : "Submit Proposal"} <ArrowRight size={16} />
+                </Button>
+            </div>
+
+            <ReviewContractTerms
+                open={modalOpen}
+                onClose={() => setModalOpen(false)}
+                onSubmit={() => {
+                setModalOpen(false)
+                onSubmit()
+                }}
+                isPending={isPending}
+            />
+        </>
     )
 }
