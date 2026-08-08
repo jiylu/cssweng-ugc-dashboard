@@ -5,7 +5,7 @@ const STEPS = [
   { number: 2, label: "Contract Terms" },
   { number: 3, label: "Add-Ons" },
   { number: 4, label: "Payment Terms" },
-  { number: 5, label: "Review & Submit" },
+  { number: 5, label: "Proposal Summary" },
 ]
 
 interface ProposalProgressBarProps {
