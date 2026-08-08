@@ -3,7 +3,8 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import * as WebSocket from 'ws';
 
 // Force the existence of a global WebSocket constructor
-(global as any).WebSocket = WebSocket;
+(globalThis as unknown as { WebSocket: typeof WebSocket }).WebSocket =
+  WebSocket;
 
 type Database = any;
 

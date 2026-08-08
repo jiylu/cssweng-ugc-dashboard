@@ -1,7 +1,10 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
-import { SupabaseClient } from '@supabase/supabase-js';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import * as WebSocket from 'ws';
 import { nanoid } from 'nanoid';
-import { SupabaseService } from '../supabase/supabase.service';
+
+(globalThis as unknown as { WebSocket: typeof WebSocket }).WebSocket =
+  WebSocket;
 
 type Database = any;
 type StorageApi = ReturnType<
@@ -18,14 +21,19 @@ export interface SupabaseUploadResult {
 @Injectable()
 export class SupabaseStorageService {
   private readonly logger = new Logger(SupabaseStorageService.name);
+  private readonly supabase: SupabaseClient<Database, 'public', Database>;
   private readonly bucket: string;
 
-  constructor(private readonly supabaseService: SupabaseService) {
+  constructor() {
     this.bucket = process.env.SUPABASE_STORAGE_BUCKET ?? 'uploads';
+    this.supabase = createClient<Database>(
+      process.env.SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE!,
+    );
   }
 
   get client(): StorageApi {
-    return this.supabaseService.client.storage.from(this.bucket);
+    return this.supabase.storage.from(this.bucket);
   }
 
   private buildPath(file: Express.Multer.File, folder: string): string {
