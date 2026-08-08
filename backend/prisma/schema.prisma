@@ -83,11 +83,12 @@ model Campaigns {
 }
 
 model Contracts {
-  contract_id String    @id @default(uuid())
-  public_id   String    @unique @db.VarChar(10)
-  campaign_id String    @unique
-  is_signed   Boolean   @default(false)
-  signed_at   DateTime?
+  contract_id     String    @id @default(uuid())
+  public_id       String    @unique @db.VarChar(10)
+  campaign_id     String    @unique
+  creator_signed  Boolean   @default(false)
+  client_signed   Boolean   @default(false)
+  signed_at       DateTime?
 
   revision_policy          Json
   usage_rights             Json

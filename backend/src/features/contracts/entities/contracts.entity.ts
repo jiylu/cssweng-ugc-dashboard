@@ -19,7 +19,10 @@ export class ContractsEntity {
   campaign_id: string;
 
   @Expose()
-  is_signed: boolean;
+  creator_signed: boolean;
+
+  @Expose()
+  client_signed: boolean;
 
   @Expose()
   signed_at: string;
