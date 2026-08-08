@@ -16,6 +16,7 @@ describe('DraftsService', () => {
     drafts: {
       create: jest.fn(),
       findFirst: jest.fn(),
+      findMany: jest.fn(),
       update: jest.fn(),
     },
   };
@@ -207,6 +208,66 @@ describe('DraftsService', () => {
       await expect(
         service.findOneDraft('missing-draft'),
       ).rejects.toBeInstanceOf(NotFoundException);
+    });
+  });
+
+  describe('findDraftsForUser', () => {
+    it('should return all drafts for an active user', async () => {
+      const userId = '171005e9-10f1-4402-a655-7ef0e1ac1656';
+      const mockUser = { user_id: userId };
+      const mockDrafts = [
+        {
+          draft_id: 'draft-1',
+          public_id: 'pub-1',
+          user_id: userId,
+          campaign_content: { projectName: 'Summer Campaign' },
+        },
+        {
+          draft_id: 'draft-2',
+          public_id: 'pub-2',
+          user_id: userId,
+          proposal_content: { notes: 'Draft proposal' },
+        },
+      ];
+
+      mockUserService.getActiveUserById.mockResolvedValue(mockUser);
+      mockPrisma.drafts.findMany.mockResolvedValue(mockDrafts);
+
+      const res = await service.findDraftsForUser(userId);
+
+      expect(res).toEqual(mockDrafts);
+      expect(mockUserService.getActiveUserById).toHaveBeenCalledWith(userId);
+      expect(mockPrisma.drafts.findMany).toHaveBeenCalledWith({
+        where: { user_id: userId, is_deleted: false },
+      });
+    });
+
+    it('should return an empty array when the user has no drafts', async () => {
+      const userId = 'user-with-no-drafts';
+      const mockUser = { user_id: userId };
+
+      mockUserService.getActiveUserById.mockResolvedValue(mockUser);
+      mockPrisma.drafts.findMany.mockResolvedValue([]);
+
+      const res = await service.findDraftsForUser(userId);
+
+      expect(res).toEqual([]);
+      expect(mockPrisma.drafts.findMany).toHaveBeenCalledWith({
+        where: { user_id: userId, is_deleted: false },
+      });
+    });
+
+    it('should throw NotFoundException when the user does not exist', async () => {
+      const userId = 'missing-user';
+
+      mockUserService.getActiveUserById.mockRejectedValue(
+        new NotFoundException(),
+      );
+
+      await expect(service.findDraftsForUser(userId)).rejects.toBeInstanceOf(
+        NotFoundException,
+      );
+      expect(mockPrisma.drafts.findMany).not.toHaveBeenCalled();
     });
   });
 

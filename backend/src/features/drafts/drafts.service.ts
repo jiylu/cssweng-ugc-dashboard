@@ -91,6 +91,22 @@ export class DraftsService {
     return draft;
   }
 
+  async findDraftsForUser(userId: string) {
+    this.logger.debug(`Finding drafts for user ${userId}`);
+
+    const user = await this.userService.getActiveUserById(userId);
+
+    const drafts = await this.prisma.drafts.findMany({
+      where: {
+        user_id: user.user_id,
+        is_deleted: false,
+      },
+    });
+
+    this.logger.log(`Found ${drafts.length} drafts for user ${user.user_id}.`);
+    return drafts;
+  }
+
   async updateDraft(draftId: string, dto: UpdateDraftDto) {
     this.logger.debug(`Updating draft with UID ${draftId}`);
 

@@ -25,7 +25,7 @@ model User {
 model Drafts {
   draft_id                  String @id @default(uuid())
   public_id                 String @unique
-  user_id                   String @unique
+  user_id                   String
   campaign_content          Json?
   proposal_content          Json?
   deliverable_content       Json?
