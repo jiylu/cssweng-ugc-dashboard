@@ -203,13 +203,13 @@ describe('ContractsService', () => {
     it('should create a contract with all optional fields', async () => {
       const dto = buildCreateContractDTO({
         exclusivity: {
-        category: 'Tech',
-        startDate: '2025-01-01',
-        endDate: '2025-12-31',
-        territory: 'Global',
-        brandlist: 'Brand X',
-        exclusivity_fee: 500,
-      },
+          category: 'Tech',
+          startDate: '2025-01-01',
+          endDate: '2025-12-31',
+          territory: 'Global',
+          brandlist: 'Brand X',
+          exclusivity_fee: 500,
+        },
         expenses_purchases_terms: {
           reimbursement_period: 30,
           gifted_product_terms: 'Return after campaign',

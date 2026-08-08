@@ -167,6 +167,7 @@ export class ContractsService {
     return contract;
   }
 
+  // TODO: Implement new schema changes
   async signContract(contractId: string) {
     this.logger.debug(`Signing contract ${contractId}`);
 
@@ -175,7 +176,6 @@ export class ContractsService {
     const signedContract = await this.prisma.contracts.update({
       where: { contract_id: unsignedContract.contract_id },
       data: {
-        is_signed: true,
         signed_at: new Date(),
       },
     });
