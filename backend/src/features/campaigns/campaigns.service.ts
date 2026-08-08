@@ -7,7 +7,7 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { CreateCampaignDTO } from './dto/create-campaign.dto';
 import { CampaignStatus, Prisma, UserRoles } from '@prisma/client';
 import { CampaignQueryDTO } from './dto/campaign-query-dto';

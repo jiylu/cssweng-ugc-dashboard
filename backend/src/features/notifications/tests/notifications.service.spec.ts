@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConflictException, NotFoundException } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { UserService } from 'src/features/users/users.service';
 import { NotificationsService } from '../notifications.service';
 import { CreateNotificationDTO } from '../dto/create-notification.dto';

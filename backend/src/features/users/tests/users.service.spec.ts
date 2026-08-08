@@ -1,11 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UserService } from '../users.service';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { ConflictException, NotFoundException } from '@nestjs/common';
 import { CreateUserTransactionDTO } from '../dto/create-user-transaction.dto';
 import { UserRoles } from '@prisma/client';
 import { UpdateUserDTO } from '../dto/update-user.dto';
-import { SupabaseService } from 'src/supabase/supabase.service';
+import { SupabaseService } from 'src/shared/supabase/supabase.service';
 import { LoginUserDTO } from '../dto/login-user.dto';
 import { OtpService } from '../../otp/otp.service';
 

@@ -5,7 +5,7 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { CreateProposalDTO } from './dto/create-proposal.dto';
 import { CampaignsService } from '../campaigns/campaigns.service';
 import { Prisma, ProposalStatus, User } from '@prisma/client';

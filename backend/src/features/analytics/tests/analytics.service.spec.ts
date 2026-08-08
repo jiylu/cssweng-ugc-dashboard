@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CampaignStatus } from '@prisma/client';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { UserService } from 'src/features/users/users.service';
 import { ProposalsService } from 'src/features/proposals/proposals.service';
 import { AnalyticsService } from '../analytics.service';

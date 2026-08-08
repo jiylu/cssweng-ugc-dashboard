@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { ContractsService } from '../contracts.service';
 import { NotFoundException } from '@nestjs/common';
 import { CampaignsService } from 'src/features/campaigns/campaigns.service';
@@ -99,7 +99,8 @@ describe('ContractsService', () => {
     contract_id: 'contract-1',
     public_id: 'mock-pb-id',
     campaign_id: dto.campaignId,
-    is_signed: false,
+    creator_signed: false,
+    client_signed: false,
     signed_at: null,
     revision_policy: { ...dto.revision_policy },
     usage_rights: { ...dto.usage_rights },
@@ -203,13 +204,13 @@ describe('ContractsService', () => {
     it('should create a contract with all optional fields', async () => {
       const dto = buildCreateContractDTO({
         exclusivity: {
-        category: 'Tech',
-        startDate: '2025-01-01',
-        endDate: '2025-12-31',
-        territory: 'Global',
-        brandlist: 'Brand X',
-        exclusivity_fee: 500,
-      },
+          category: 'Tech',
+          startDate: '2025-01-01',
+          endDate: '2025-12-31',
+          territory: 'Global',
+          brandlist: 'Brand X',
+          exclusivity_fee: 500,
+        },
         expenses_purchases_terms: {
           reimbursement_period: 30,
           gifted_product_terms: 'Return after campaign',
@@ -299,7 +300,8 @@ describe('ContractsService', () => {
         contract_id: 'contract-1',
         public_id: 'abc1234567',
         campaign_id: 'camp-1',
-        is_signed: false,
+        creator_signed: false,
+        client_signed: false,
         signed_at: null,
         revision_policy: { revision_rounds: 3 },
         cancellation_period: 30,
@@ -330,7 +332,8 @@ describe('ContractsService', () => {
         contract_id: 'contract-1',
         public_id: 'abc1234567',
         campaign_id: 'camp-1',
-        is_signed: false,
+        creator_signed: false,
+        client_signed: false,
         signed_at: null,
         revision_policy: { revision_rounds: 3 },
         cancellation_period: 30,
@@ -359,7 +362,8 @@ describe('ContractsService', () => {
         contract_id: 'contract-1',
         public_id: 'abc1234567',
         campaign_id: 'camp-1',
-        is_signed: false,
+        creator_signed: false,
+        client_signed: false,
         signed_at: null,
         revision_policy: { revision_rounds: 3 },
         cancellation_period: 30,
@@ -401,13 +405,13 @@ describe('ContractsService', () => {
         contract_id: 'contract-1',
         public_id: 'abc1234567',
         campaign_id: 'camp-1',
-        is_signed: false,
+        creator_signed: false,
+        client_signed: false,
         signed_at: null,
       };
 
       const signedContract = {
         ...unsignedContract,
-        is_signed: true,
         signed_at: new Date(),
       };
 
@@ -416,7 +420,6 @@ describe('ContractsService', () => {
 
       const res = await service.signContract('abc1234567');
       expect(res).toEqual(signedContract);
-      expect(res.is_signed).toBe(true);
       expect(res.signed_at).toBeInstanceOf(Date);
       expect(mockPrisma.contracts.findFirst).toHaveBeenCalledWith({
         where: { contract_id: 'abc1234567' },
@@ -424,7 +427,6 @@ describe('ContractsService', () => {
       expect(mockPrisma.contracts.update).toHaveBeenCalledWith({
         where: { contract_id: 'contract-1' },
         data: {
-          is_signed: true,
           signed_at: expect.any(Date),
         },
       });

@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { ProposalsService } from '../proposals.service';
 import { ProposalStatus } from '@prisma/client';
 import { CreateProposalDTO } from '../dto/create-proposal.dto';

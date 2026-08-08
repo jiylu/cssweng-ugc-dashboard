@@ -1,7 +1,7 @@
 jest.mock('nanoid', () => ({ nanoid: jest.fn(() => 'mock-pub-id') }));
 
 import { Test, TestingModule } from '@nestjs/testing';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { CampaignSetupService } from '../campaign-setup.service';
 import { CampaignsService } from 'src/features/campaigns/campaigns.service';
 import { DeliverablesService } from 'src/features/deliverables/deliverables.service';

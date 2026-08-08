@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
 import { UsersModule } from '../users/users.module';
-import { PrismaModule } from 'src/prisma/prisma.module';
+import { PrismaModule } from 'src/shared/prisma/prisma.module';
 import { NotificationsController } from './notifications.controller';
 
 @Module({

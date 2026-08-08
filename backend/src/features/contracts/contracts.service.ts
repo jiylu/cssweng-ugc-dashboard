@@ -4,7 +4,7 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { CampaignsService } from '../campaigns/campaigns.service';
 import { CreateContractDTO } from './dto/create-contract.dto';
 import { Prisma } from '@prisma/client';
@@ -167,6 +167,7 @@ export class ContractsService {
     return contract;
   }
 
+  // TODO: Implement new schema changes
   async signContract(contractId: string) {
     this.logger.debug(`Signing contract ${contractId}`);
 
@@ -175,7 +176,6 @@ export class ContractsService {
     const signedContract = await this.prisma.contracts.update({
       where: { contract_id: unsignedContract.contract_id },
       data: {
-        is_signed: true,
         signed_at: new Date(),
       },
     });

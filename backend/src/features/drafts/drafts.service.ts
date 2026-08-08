@@ -1,5 +1,5 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { CreateDraftDto } from './dto/create-draft.dto';
 import { nanoid } from 'nanoid';
 import { UserService } from '../users/users.service';

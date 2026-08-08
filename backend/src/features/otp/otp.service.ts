@@ -4,7 +4,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { createHash, randomBytes, randomInt, timingSafeEqual } from 'crypto';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { EmailService } from '../email/email.service';
 import { CreateOtpDto } from './dto/create-otp.dto';
 import { ValidateOtpDto } from './dto/validate-otp.dto';
