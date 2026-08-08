@@ -60,7 +60,7 @@ export function PaymentTermsContainer({ paymentTerms, onBack, onNext, baseCreato
           }}
           className="bg-[#6b1fa8] hover:bg-[#5a1a8f] text-white flex items-center gap-2"
       >
-          Review & Submit <ArrowRight size={16} />
+          Proposal Summary <ArrowRight size={16} />
       </Button>
     </div>
   </>
