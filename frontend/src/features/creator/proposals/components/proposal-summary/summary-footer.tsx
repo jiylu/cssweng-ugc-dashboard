@@ -29,7 +29,7 @@ export function SummaryFooter({ onEdit, onSubmit, isPending, summary }: SummaryF
                     disabled={isPending}
                     className="bg-[#6b1fa8] hover:bg-[#5a1a8f] text-white flex items-center gap-2"
                 >
-                    {isPending ? "Submitting..." : "Submit Proposal"} <ArrowRight size={16} />
+                    {isPending ? "Submitting..." : "Review Contract Terms"} <ArrowRight size={16} />
                 </Button>
             </div>
 
