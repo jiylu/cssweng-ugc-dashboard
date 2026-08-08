@@ -2,14 +2,16 @@ import { Button } from "@/components/ui/button"
 import { Pencil, ArrowRight } from "lucide-react"
 import { useState } from "react"
 import { ReviewContractTerms } from "@/src/features/creator/proposals/components/proposal-summary/review-contract-terms"
+import { ProposalSummaryData } from "../../types/proposal-summary.types"
 
 interface SummaryFooterProps {
     onEdit: () => void
     onSubmit: () => void
     isPending: boolean
+    summary: ProposalSummaryData
 }
 
-export function SummaryFooter({ onEdit, onSubmit, isPending }: SummaryFooterProps) {
+export function SummaryFooter({ onEdit, onSubmit, isPending, summary }: SummaryFooterProps) {
     const [modalOpen, setModalOpen] = useState(false)
 
     return (
@@ -39,6 +41,7 @@ export function SummaryFooter({ onEdit, onSubmit, isPending }: SummaryFooterProp
                 onSubmit()
                 }}
                 isPending={isPending}
+                summary={summary}
             />
         </>
     )

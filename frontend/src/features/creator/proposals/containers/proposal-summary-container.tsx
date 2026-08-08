@@ -108,6 +108,7 @@ export function ProposalSummaryContainer({ form, contractTerms, addOns, paymentT
         onEdit={onBack}
         onSubmit={onSubmit}
         isPending={isPending}
+        summary={summary}
       />
     </div>
   )
