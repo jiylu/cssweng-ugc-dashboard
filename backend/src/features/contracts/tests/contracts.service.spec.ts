@@ -155,6 +155,7 @@ describe('ContractsService', () => {
         exclusivity: {
           category: 'Skincare',
           startDate: '2026-08-01T00:00:00.000Z',
+          endDate: '2026-08-01T00:00:00.000Z',
           territory: 'Philippines',
           brandlist: 'Brand A, Brand B',
           exclusivity_fee: 5000,
@@ -202,12 +203,13 @@ describe('ContractsService', () => {
     it('should create a contract with all optional fields', async () => {
       const dto = buildCreateContractDTO({
         exclusivity: {
-          category: 'Beauty',
-          startDate: '2026-09-01T00:00:00.000Z',
-          territory: 'Southeast Asia',
-          brandlist: 'Brand X',
-          exclusivity_fee: 10000,
-        },
+        category: 'Tech',
+        startDate: '2025-01-01',
+        endDate: '2025-12-31',
+        territory: 'Global',
+        brandlist: 'Brand X',
+        exclusivity_fee: 500,
+      },
         expenses_purchases_terms: {
           reimbursement_period: 30,
           gifted_product_terms: 'Return after campaign',
