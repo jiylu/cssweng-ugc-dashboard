@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { GiftedProductsService } from '../gifted-products.service';
 import { NotFoundException } from '@nestjs/common';
 import { CampaignsService } from 'src/features/campaigns/campaigns.service';

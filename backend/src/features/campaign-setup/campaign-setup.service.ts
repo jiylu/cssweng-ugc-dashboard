@@ -3,7 +3,7 @@ import { CampaignsService } from '../campaigns/campaigns.service';
 import { DeliverablesService } from '../deliverables/deliverables.service';
 import { ProposalsService } from '../proposals/proposals.service';
 import { CreateCampaignRequestDto } from './dto/create-campaign-request-dto';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { ContractsService } from '../contracts/contracts.service';
 import { AddOnsService } from '../add-ons/add-ons.service';
 import { GiftedProductsService } from '../gifted-products/gifted-products.service';

@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { ActivityLogService } from '../activity-log.service';
 import { CreateActivityLogDto } from '../dto/create-activity-log.dto';
 import { EntityType, Action } from '@prisma/client';

@@ -7,9 +7,9 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { UpdateUserDTO } from './dto/update-user.dto';
-import { SupabaseService } from 'src/supabase/supabase.service';
+import { SupabaseService } from 'src/shared/supabase/supabase.service';
 import { LoginUserDTO } from './dto/login-user.dto';
 import { AuthError, User } from '@supabase/supabase-js';
 import { OtpService } from '../otp/otp.service';

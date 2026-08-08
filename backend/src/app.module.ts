@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
-import { PrismaModule } from './prisma/prisma.module';
+import { PrismaModule } from './shared/prisma/prisma.module';
 import { UsersModule } from './features/users/users.module';
-import { SupabaseModule } from './supabase/supabase.module';
+import { SupabaseModule } from './shared/supabase/supabase.module';
 import { CampaignsModule } from './features/campaigns/campaigns.module';
 import { ProposalsModule } from './features/proposals/proposals.module';
 import { DeliverablesModule } from './features/deliverables/deliverables.module';

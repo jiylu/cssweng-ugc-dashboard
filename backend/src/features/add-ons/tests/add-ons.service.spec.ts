@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { AddOnsService } from '../add-ons.service';
 import { CreateAddOnDTO } from '../dto/create-add-on-dto';
 import { NotFoundException } from '@nestjs/common';
