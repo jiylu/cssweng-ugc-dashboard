@@ -30,7 +30,7 @@ export function ReviewContractTerms({ open, onClose, onSubmit, isPending, summar
 
     return (
     <Dialog open={open} onOpenChange={onClose}>
-        <DialogContent className="max-w-4xl w-full bg-[#F2F0EA]" showCloseButton>
+        <DialogContent className="!max-w-4xl w-full bg-[#F2F0EA]" showCloseButton>
             <DialogHeader>
                 <DialogTitle className="text-2xl font-normal text-foreground">
                 Review Contract Terms
