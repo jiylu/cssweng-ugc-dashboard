@@ -1,5 +1,8 @@
+import Link from "next/link"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Trash2 } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty"
+import { FileText, PenLine, Trash2 } from "lucide-react"
 import { ProposalDraft } from "@/src/features/creator/proposals/types/proposal-draft.types"
 
 interface ProposalDraftsTableProps {
@@ -10,6 +13,30 @@ interface ProposalDraftsTableProps {
 }
 
 export function ProposalDraftsTable({ drafts, onContinueEditing, onDelete, isDeleting }: ProposalDraftsTableProps) {
+    if (drafts.length === 0) {
+        return (
+            <Empty className="border border-border bg-white py-16">
+                <EmptyHeader>
+                    <EmptyMedia variant="icon">
+                        <FileText />
+                    </EmptyMedia>
+                    <EmptyTitle>No proposal drafts yet</EmptyTitle>
+                    <EmptyDescription>
+                        You don&apos;t have any saved proposal drafts. Start a new campaign proposal to get going.
+                    </EmptyDescription>
+                </EmptyHeader>
+                <EmptyContent>
+                    <Button asChild>
+                        <Link href="/proposals/create-campaign">
+                            <PenLine />
+                            Create a Proposal
+                        </Link>
+                    </Button>
+                </EmptyContent>
+            </Empty>
+        )
+    }
+
     return (
         <div className="rounded overflow-hidden border border-border">
             <Table>

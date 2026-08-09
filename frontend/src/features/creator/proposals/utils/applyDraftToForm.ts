@@ -4,6 +4,8 @@ import { usePaymentTerms } from "../hooks/usePaymentTerms"
 import { useAddOns } from "../hooks/useAddOns"
 import { DraftEntity } from "../types/draft.types"
 import { PlatformEntry } from "../types/campaign-setup.types"
+import { ShippingAddress } from "../types/payment-terms.types"
+import { DEFAULT_ADD_ONS } from "./defaultAddOns"
 
 interface ApplyDraftParams {
   form: ReturnType<typeof useCampaignForm>
@@ -56,7 +58,13 @@ export function applyDraftToForm({ form, contractTerms, paymentTerms, addOns, dr
   form.setContactPerson(asString(record(contract.invoice_requirements).name))
 
   const platforms: PlatformEntry[] = Array.isArray(campaign.platforms)
-    ? (campaign.platforms as unknown[]).map((p) => ({ platform: asString(p), handle: "" }))
+    ? (campaign.platforms as unknown[]).map((p) => {
+        const entry = record(p)
+        return {
+          platform: typeof p === "string" ? p : asString(entry.platform),
+          handle: typeof p === "string" ? "" : asString(entry.handle),
+        }
+      })
     : []
   form.setPlatforms(platforms)
 
@@ -124,16 +132,25 @@ export function applyDraftToForm({ form, contractTerms, paymentTerms, addOns, dr
   contractTerms.setDisputeLocation(asString(generalTerms.disputes_handled_in))
   contractTerms.setExtraNotes(asString(contract.extra_notes))
 
+  const defaultAddOnsByTitle = new Map(
+    DEFAULT_ADD_ONS.map((a) => [a.title, a]),
+  )
+
   addOns.setAddOns(
     draftAddOns.map((a, index) => {
       const addOn = record(a)
+      const title = asString(addOn.addOnName)
+      const defaultAddOn = defaultAddOnsByTitle.get(title)
       return {
-        id: `draft-${index}`,
-        title: asString(addOn.addOnName),
+        id: defaultAddOn?.id ?? `draft-${index}`,
+        title,
         desc: asString(addOn.description),
         fee: asNumber(addOn.fee),
-        isPermanent: false,
-        isEnabled: true,
+        isPermanent: defaultAddOn ? true : false,
+        isEnabled:
+          typeof addOn.enabled === "boolean"
+            ? addOn.enabled
+            : (defaultAddOn?.isEnabled ?? true),
       }
     }),
   )
@@ -141,12 +158,16 @@ export function applyDraftToForm({ form, contractTerms, paymentTerms, addOns, dr
   paymentTerms.setGiftedProducts(
     giftedProducts.map((p, index) => {
       const product = record(p)
+      const storedAddress = record(product.shippingAddress)
       return {
         id: index + 1,
         productName: asString(product.productName),
         value: String(asNumber(product.value)),
         ownershipTerms: asString(product.ownershipTerms),
-        shippingAddress: null,
+        shippingAddress:
+          Object.keys(storedAddress).length > 0
+            ? (storedAddress as unknown as ShippingAddress)
+            : null,
         deliveryInstructions: asString(product.deliveryInstructions),
       }
     }),

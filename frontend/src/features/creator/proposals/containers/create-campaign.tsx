@@ -84,12 +84,26 @@ export default function CreateCampaign() {
 
     const payload = buildPayload();
     const draftPayload = {
-      campaign: payload.campaign,
+      campaign: {
+        ...payload.campaign,
+        platforms: form.platforms.map((p) => ({ platform: p.platform, handle: p.handle })),
+      },
       proposal: payload.proposal,
       deliverables: payload.deliverables,
       contract: payload.contract,
-      addOns: payload.addOns,
-      giftedProducts: payload.giftedProducts,
+      addOns: addOns.addOns.map((a) => ({
+        addOnName: a.title,
+        description: a.desc ?? "",
+        fee: a.fee ?? 0,
+        enabled: a.isEnabled ?? true,
+      })),
+      giftedProducts: paymentTerms.giftedProducts.map((p) => ({
+        productName: p.productName,
+        value: p.value,
+        shippingAddress: p.shippingAddress,
+        deliveryInstructions: p.deliveryInstructions,
+        ownershipTerms: p.ownershipTerms,
+      })),
     };
 
     if (draftId) {

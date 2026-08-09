@@ -7,6 +7,9 @@ export function usePlatformsCheckbox(value: PlatformEntry[], onChange: (value: P
   const [customLabel, setCustomLabel] = useState("Other")
   const [editingCustom, setEditingCustom] = useState(false)
 
+  const customPlatform = value.find((p) => !DEFAULT_PLATFORMS.includes(p.platform))
+  const effectiveCustomLabel = customPlatform?.platform ?? customLabel
+
   const isChecked = (platform: string) => value.some((p) => p.platform === platform)
   const getHandle = (platform: string) => value.find((p) => p.platform === platform)?.handle ?? ""
 
@@ -22,7 +25,12 @@ export function usePlatformsCheckbox(value: PlatformEntry[], onChange: (value: P
     onChange(value.map((p) => p.platform === platform ? { ...p, handle } : p))
   }
 
-  const platforms = DEFAULT_PLATFORMS.map((p) => p === "Other" ? customLabel : p)
+  function editCustom() {
+    setCustomLabel(effectiveCustomLabel)
+    setEditingCustom(true)
+  }
+
+  const platforms = DEFAULT_PLATFORMS.map((p) => p === "Other" ? effectiveCustomLabel : p)
 
   return {
     platforms,
@@ -35,5 +43,6 @@ export function usePlatformsCheckbox(value: PlatformEntry[], onChange: (value: P
     getHandle,
     togglePlatform,
     updateHandle,
+    editCustom,
   }
 }
