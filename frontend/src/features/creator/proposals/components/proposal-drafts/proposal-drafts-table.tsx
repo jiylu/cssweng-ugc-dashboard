@@ -77,7 +77,7 @@ export function ProposalDraftsTable({ drafts, onContinueEditing, onDuplicate, on
                                 onClick={() => onDelete(draft.id)}
                                 className="text-foreground hover:text-[#ff6467]"
                                 >
-                                <Trash2 size={16} />
+                                <Trash2 size={20} />
                                 </button>
                             </div>
                         </TableCell>
