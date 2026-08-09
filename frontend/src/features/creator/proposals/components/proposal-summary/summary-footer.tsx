@@ -1,17 +1,18 @@
 import { Button } from "@/components/ui/button"
-import { Pencil, ArrowRight } from "lucide-react"
+import { Pencil, ArrowRight, Save } from "lucide-react"
 import { useState } from "react"
 import { ReviewContractTerms } from "@/src/features/creator/proposals/components/proposal-summary/review-contract-terms"
 import { ProposalSummaryData } from "../../types/proposal-summary.types"
 
 interface SummaryFooterProps {
     onEdit: () => void
+    onSaveDraft: () => void
     onSubmit: () => void
     isPending: boolean
     summary: ProposalSummaryData
 }
 
-export function SummaryFooter({ onEdit, onSubmit, isPending, summary }: SummaryFooterProps) {
+export function SummaryFooter({ onEdit, onSaveDraft, onSubmit, isPending, summary }: SummaryFooterProps) {
     const [modalOpen, setModalOpen] = useState(false)
 
     return (
@@ -23,6 +24,14 @@ export function SummaryFooter({ onEdit, onSubmit, isPending, summary }: SummaryF
                     className="flex items-center gap-2"
                 >
                     <Pencil size={16} /> Edit
+                </Button>
+                <Button
+                    variant="outline"
+                    onClick={onSaveDraft}
+                    disabled={isPending}
+                    className="flex items-center gap-2"
+                >
+                    <Save size={16} /> Save Draft
                 </Button>
                 <Button
                     onClick={() => setModalOpen(true)}

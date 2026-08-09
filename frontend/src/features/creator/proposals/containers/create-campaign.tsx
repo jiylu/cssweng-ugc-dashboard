@@ -188,6 +188,7 @@ export default function CreateCampaign() {
               paymentTerms={paymentTerms}
               userName={`${user.first_name} ${user.last_name}`}
               onBack={() => form.setActiveStep(4)}
+              onSaveDraft={handleSaveDraft}
               onSubmit={handleSendProposal}
               isPending={isPending}
             />
