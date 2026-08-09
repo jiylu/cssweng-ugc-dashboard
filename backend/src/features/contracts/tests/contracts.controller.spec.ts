@@ -4,6 +4,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ContractsController } from '../contracts.controller';
 import { ContractsService } from '../contracts.service';
 import { CampaignsService } from 'src/features/campaigns/campaigns.service';
+import { NotificationsService } from 'src/features/notifications/notifications.service';
 import { UpdateContractDTO } from '../dto/update-contract.dto';
 import { PAYMENT_SCHEDULE } from '../dto/payment-terms.dto';
 
@@ -20,6 +21,11 @@ describe('ContractsController', () => {
 
   const mockCampaignsService = {
     resolveCampaignPublicId: jest.fn(),
+    findOneCampaign: jest.fn(),
+  };
+
+  const mockNotificationsService = {
+    createNotification: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -33,6 +39,10 @@ describe('ContractsController', () => {
         {
           provide: CampaignsService,
           useValue: mockCampaignsService,
+        },
+        {
+          provide: NotificationsService,
+          useValue: mockNotificationsService,
         },
       ],
     }).compile();
@@ -49,8 +59,15 @@ describe('ContractsController', () => {
       contract_id: 'contract-1',
       campaign_id: 'camp-1',
     };
+    const campaign = {
+      campaign_id: 'camp-1',
+      ugc_creator_id: 'creator-1',
+      project_name: 'Test Project',
+    };
     mockCampaignsService.resolveCampaignPublicId.mockResolvedValue('camp-1');
+    mockCampaignsService.findOneCampaign.mockResolvedValue(campaign);
     mockContractsService.findContractByCampaignId.mockResolvedValue(contract);
+    mockNotificationsService.createNotification.mockResolvedValue(undefined);
 
     const res = await controller.findOneByCampaignId('pub-camp-1');
 
@@ -60,6 +77,13 @@ describe('ContractsController', () => {
     expect(mockCampaignsService.resolveCampaignPublicId).toHaveBeenCalledWith(
       'pub-camp-1',
     );
+    expect(mockCampaignsService.findOneCampaign).toHaveBeenCalledWith('camp-1');
+    expect(mockNotificationsService.createNotification).toHaveBeenCalledWith({
+      userId: 'creator-1',
+      title: 'Contract Signed For:  Test Project',
+      message:
+        'Your client has signed the contract for Test Project, you may now sign the contract.',
+    });
     expect(mockContractsService.findContractByCampaignId).toHaveBeenCalledWith(
       'camp-1',
     );
