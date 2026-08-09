@@ -20,7 +20,6 @@ export class CampaignSetupService {
     private contractService: ContractsService,
     private addOnService: AddOnsService,
     private giftedProductsService: GiftedProductsService,
-    private emailService: EmailService,
   ) {}
 
   private readonly logger = new Logger(CampaignSetupService.name);
@@ -93,16 +92,6 @@ export class CampaignSetupService {
       };
     });
 
-    await this.emailService
-      .sendProposalReminderEmail(
-        dto.proposal.clientEmail,
-        result.proposal.public_id,
-        result.campaign.public_id,
-        dto.campaign.projectName,
-      )
-      .catch((err) => {
-        this.logger.warn('Failed to send proposal reminder email', err);
-      });
     return result;
   }
 

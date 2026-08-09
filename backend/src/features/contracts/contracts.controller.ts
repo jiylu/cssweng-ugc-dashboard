@@ -10,12 +10,14 @@ import { UpdateContractDTO } from './dto/update-contract.dto';
 import { CampaignsService } from '../campaigns/campaigns.service';
 import { plainToInstance } from 'class-transformer';
 import { ContractsEntity } from './entities/contracts.entity';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Controller('contracts')
 export class ContractsController {
   constructor(
     private readonly contractsService: ContractsService,
     private readonly campaignsService: CampaignsService,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   @ApiFindContractByPublicId()
@@ -32,8 +34,17 @@ export class ContractsController {
   async findOneByCampaignId(@Param('publicId') publicId: string) {
     const campaignId =
       await this.campaignsService.resolveCampaignPublicId(publicId);
+
+    const campaign = await this.campaignsService.findOneCampaign(campaignId);
+
     const contract =
       await this.contractsService.findContractByCampaignId(campaignId);
+
+    await this.notificationsService.createNotification({
+      userId: campaign.ugc_creator_id,
+      title: `Contract Signed For:  ${campaign.project_name}`,
+      message: `Your client has signed the contract for ${campaign.project_name}, you may now sign the contract.`,
+    });
 
     return plainToInstance(ContractsEntity, contract);
   }
