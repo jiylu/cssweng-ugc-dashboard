@@ -70,6 +70,7 @@ describe('DraftsService', () => {
         contract_content: dto.contract,
         add_ons_content: dto.addOns,
         gifted_products_content: dto.giftedProducts,
+        updated_at: new Date('2026-01-01T00:00:00Z'),
       };
 
       mockUserService.getActiveUserById.mockResolvedValue(mockUser);
@@ -105,6 +106,7 @@ describe('DraftsService', () => {
         public_id: 'mock-public-id',
         user_id: 'user-1',
         campaign_content: dto.campaign,
+        updated_at: new Date('2026-01-01T00:00:00Z'),
       };
 
       mockUserService.getActiveUserById.mockResolvedValue(mockUser);
@@ -190,6 +192,7 @@ describe('DraftsService', () => {
         public_id: 'pub-1',
         user_id: 'user-1',
         campaign_content: { projectName: 'Summer Campaign' },
+        updated_at: new Date('2026-01-01T00:00:00Z'),
       };
 
       mockPrisma.drafts.findFirst.mockResolvedValue(mockDraft);
@@ -221,12 +224,14 @@ describe('DraftsService', () => {
           public_id: 'pub-1',
           user_id: userId,
           campaign_content: { projectName: 'Summer Campaign' },
+          updated_at: new Date('2026-01-01T00:00:00Z'),
         },
         {
           draft_id: 'draft-2',
           public_id: 'pub-2',
           user_id: userId,
           proposal_content: { notes: 'Draft proposal' },
+          updated_at: new Date('2026-01-02T00:00:00Z'),
         },
       ];
 
@@ -278,10 +283,15 @@ describe('DraftsService', () => {
         public_id: 'pub-1',
         user_id: 'user-1',
         campaign_content: { projectName: 'Old Campaign' },
+        updated_at: new Date('2026-01-01T00:00:00Z'),
       };
 
       const dto = { campaign: { projectName: 'New Campaign' } };
-      const updated = { ...existing, campaign_content: dto.campaign };
+      const updated = {
+        ...existing,
+        campaign_content: dto.campaign,
+        updated_at: new Date('2026-01-02T00:00:00Z'),
+      };
 
       mockPrisma.drafts.findFirst.mockResolvedValue(existing);
       mockPrisma.drafts.update.mockResolvedValue(updated);
@@ -291,7 +301,7 @@ describe('DraftsService', () => {
       expect(res).toEqual(updated);
       expect(mockPrisma.drafts.update).toHaveBeenCalledWith({
         where: { draft_id: 'draft-1' },
-        data: { campaign_content: dto.campaign },
+        data: { campaign_content: dto.campaign, updated_at: expect.any(Date) },
       });
     });
 
@@ -302,6 +312,7 @@ describe('DraftsService', () => {
         user_id: 'user-1',
         campaign_content: null,
         contract_content: null,
+        updated_at: new Date('2026-01-01T00:00:00Z'),
       };
 
       const dto = {
@@ -312,6 +323,7 @@ describe('DraftsService', () => {
         ...existing,
         campaign_content: dto.campaign,
         contract_content: dto.contract,
+        updated_at: new Date('2026-01-02T00:00:00Z'),
       };
 
       mockPrisma.drafts.findFirst.mockResolvedValue(existing);
@@ -325,6 +337,7 @@ describe('DraftsService', () => {
         data: {
           campaign_content: dto.campaign,
           contract_content: dto.contract,
+          updated_at: expect.any(Date),
         },
       });
     });
@@ -345,8 +358,13 @@ describe('DraftsService', () => {
         draft_id: 'draft-1',
         public_id: 'pub-1',
         user_id: 'user-1',
+        updated_at: new Date('2026-01-01T00:00:00Z'),
       };
-      const deleted = { ...existing, is_deleted: true };
+      const deleted = {
+        ...existing,
+        updated_at: new Date('2026-01-02T00:00:00Z'),
+        is_deleted: true,
+      };
 
       mockPrisma.drafts.findFirst.mockResolvedValue(existing);
       mockPrisma.drafts.update.mockResolvedValue(deleted);

@@ -23,8 +23,8 @@ model User {
 }
 
 model Drafts {
-  draft_id                  String @id @default(uuid())
-  public_id                 String @unique
+  draft_id                  String    @id @default(uuid())
+  public_id                 String    @unique
   user_id                   String
   campaign_content          Json?
   proposal_content          Json?
@@ -32,7 +32,8 @@ model Drafts {
   contract_content          Json?
   add_ons_content           Json?
   gifted_products_content   Json?
-  is_deleted                Boolean @default(false)
+  updated_at                DateTime  @default(now())
+  is_deleted                Boolean   @default(false)
 }
 
 model RegistrationOtp {
