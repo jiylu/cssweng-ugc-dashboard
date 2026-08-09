@@ -19,6 +19,7 @@ interface SignatureFieldProps {
   penColor?: string
   height?: number
   className?: string
+  onChange?: (dataUrl: string) => void
 }
 
 export default function SignatureField({
@@ -27,8 +28,26 @@ export default function SignatureField({
   penColor = "#78746e",
   height = 80,
   className,
+  onChange,
 }: SignatureFieldProps) {
   const sigRef = React.useRef<SignatureCanvas>(null)
+  const canvasContainerRef = React.useRef<HTMLDivElement>(null)
+  const [canvasWidth, setCanvasWidth] = React.useState(0)
+
+  React.useLayoutEffect(() => {
+    const container = canvasContainerRef.current
+    if (!container) return
+
+    const updateCanvasWidth = () => {
+      setCanvasWidth(Math.max(1, Math.floor(container.getBoundingClientRect().width)))
+    }
+
+    updateCanvasWidth()
+    const observer = new ResizeObserver(updateCanvasWidth)
+    observer.observe(container)
+
+    return () => observer.disconnect()
+  }, [])
 
   return (
     <div className={cn("relative", className)}>
@@ -36,23 +55,30 @@ export default function SignatureField({
         {label}
       </span>
 
-      <div className="relative px-2 pb-4 pt-1">
+      <div className="relative pb-4">
         <Corner className="top-0 left-0" />
         <Corner className="top-0 right-0 rotate-90" />
         <Corner className="bottom-0 left-0 -rotate-90" />
         <Corner className="bottom-0 right-0 rotate-180" />
 
-        <SignatureCanvas
-          ref={sigRef}
-          penColor={penColor}
-          canvasProps={{
-            className: "w-full",
-            style: { height },
-          }}
-        />
+        <div ref={canvasContainerRef} className="w-full overflow-hidden">
+          {canvasWidth > 0 && (
+            <SignatureCanvas
+              ref={sigRef}
+              penColor={penColor}
+              canvasProps={{
+                width: canvasWidth,
+                height,
+                className: "block w-full cursor-crosshair touch-none bg-white/50",
+                "aria-label": label,
+              }}
+              onEnd={() => onChange?.(sigRef.current?.toDataURL("image/png") ?? "")}
+            />
+          )}
+        </div>
 
         {id && (
-          <p className="absolute bottom-0.5 left-2 truncate text-[10px] text-muted-foreground">
+          <p className="absolute bottom-0.5 left-0 truncate text-[10px] text-muted-foreground">
             {id}
           </p>
         )}

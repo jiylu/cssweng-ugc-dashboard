@@ -10,6 +10,7 @@ import { UpdateContractDTO } from './dto/update-contract.dto';
 import { CampaignsService } from '../campaigns/campaigns.service';
 import { plainToInstance } from 'class-transformer';
 import { ContractsEntity } from './entities/contracts.entity';
+import { SignContractDTO } from './dto/sign-contract.dto';
 
 @Controller('contracts')
 export class ContractsController {
@@ -40,9 +41,12 @@ export class ContractsController {
 
   @ApiSignContract()
   @Post('/sign/:publicId')
-  async sign(@Param('publicId') publicId: string) {
+  async sign(
+    @Param('publicId') publicId: string,
+    @Body() dto: SignContractDTO,
+  ) {
     const contractId = await this.contractsService.resolvePublicId(publicId);
-    const contract = await this.contractsService.signContract(contractId);
+    const contract = await this.contractsService.signContract(contractId, dto);
 
     return plainToInstance(ContractsEntity, contract);
   }

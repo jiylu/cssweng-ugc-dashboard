@@ -24,7 +24,7 @@ export default function ProposalFeedbackPanel({
   const canSubmitRevision = feedback.trim().length >= 30;
 
   return (
-    <section className="rounded border border-[#d8d4cb] bg-white p-5">
+    <section className="rounded border border-[#d8d4cb] bg-white p-4">
       <h2 className="text-[28px] leading-none text-[#141518]">
         Add your Feedback here
       </h2>
@@ -35,7 +35,7 @@ export default function ProposalFeedbackPanel({
       </p>
 
       <textarea
-        className="mt-4 h-[230px] w-full resize-none border border-[#d8d4cb] p-3 text-sm italic text-[#141518] outline-none focus:border-[#6b1fa8]"
+        className="mt-4 h-[230px] w-full resize-none border border-[#d8d4cb] p-3 text-sm italic text-[#141518] outline-none placeholder:text-[#7b7771] focus:border-[#6b1fa8]"
         placeholder="Enter any comment or revisions about specific terms you want to change"
         value={feedback}
         minLength={30}

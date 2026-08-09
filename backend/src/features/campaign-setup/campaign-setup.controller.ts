@@ -110,6 +110,27 @@ export class CampaignSetupController {
   }
 
   @ApiGetFullCampaignDetails()
+  @Get('proposal/:publicId')
+  async findOneByProposal(@Param('publicId') publicId: string) {
+    const result =
+      await this.campaignSetupService.getFullCampaignDetailsByProposalPublicId(
+        publicId,
+      );
+
+    return {
+      campaign: plainToInstance(CampaignsEntity, result.campaign),
+      proposal: plainToInstance(ProposalsEntity, result.proposal),
+      deliverables: plainToInstance(DeliverablesEntity, result.deliverables),
+      contract: plainToInstance(ContractsEntity, result.contract),
+      addOns: plainToInstance(AddOnsEntity, result.addOns),
+      giftedProducts: plainToInstance(
+        GiftedProductsEntity,
+        result.giftedProducts,
+      ),
+    };
+  }
+
+  @ApiGetFullCampaignDetails()
   @Get(':publicId')
   async findOne(@Param('publicId') publicId: string) {
     const campaignId =

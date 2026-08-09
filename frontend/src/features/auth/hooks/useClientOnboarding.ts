@@ -69,7 +69,8 @@ export function useClientOnboarding({
       JSON.stringify(result.data),
     );
 
-    router.push(campaignId ? `/proposals/${campaignId}` : "/proposals/preview");
+    const reviewId = proposalId ?? campaignId;
+    router.push(reviewId ? `/proposals/${reviewId}` : "/proposals/preview");
   };
 
   return {

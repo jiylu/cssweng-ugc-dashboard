@@ -3,10 +3,10 @@ import Button from "@/src/components/atoms/button";
 import SignContractModal from "./sign-contract-modal";
 
 interface ContractActionPanelProps {
-  id: string;
+  contractPublicId: string;
 }
 
-export default function ContractActionPanel({ id }: ContractActionPanelProps) {
+export default function ContractActionPanel({ contractPublicId }: ContractActionPanelProps) {
   const router = useRouter();
 
   return (
@@ -22,7 +22,7 @@ export default function ContractActionPanel({ id }: ContractActionPanelProps) {
 
       <div className="mt-12 space-y-3">
         <SignContractModal
-          id={id}
+          contractPublicId={contractPublicId}
         />
         <Button
           type="button"
