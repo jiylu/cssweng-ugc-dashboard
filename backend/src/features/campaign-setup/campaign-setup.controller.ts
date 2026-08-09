@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Get, Logger, Param, Patch, Post } from '@nestjs/common';
 import { CampaignSetupService } from './campaign-setup.service';
 import { CreateCampaignRequestDto } from './dto/create-campaign-request-dto';
 import {
@@ -17,13 +17,17 @@ import { DeliverablesEntity } from '../deliverables/entities/deliverables.entity
 import { ContractsEntity } from '../contracts/entities/contracts.entity';
 import { AddOnsEntity } from '../add-ons/entities/add-ons.entity';
 import { GiftedProductsEntity } from '../gifted-products/entities/gifted-products.entity';
+import { EmailService } from '../email/email.service';
 
 @Controller('campaign-setup')
 export class CampaignSetupController {
+  private readonly logger = new Logger(CampaignSetupController.name);
+
   constructor(
     private readonly campaignSetupService: CampaignSetupService,
     private readonly activityLogService: ActivityLogService,
     private readonly campaignsService: CampaignsService,
+    private readonly emailService: EmailService,
   ) {}
 
   @ApiCreateFullCampaign()
@@ -38,6 +42,17 @@ export class CampaignSetupController {
       entityId: result.campaign.campaign_id,
       action: Action.SUBMISSION,
     });
+
+    await this.emailService
+      .sendProposalReminderEmail(
+        dto.proposal.clientEmail,
+        result.proposal.public_id,
+        result.campaign.public_id,
+        dto.campaign.projectName,
+      )
+      .catch((err) => {
+        this.logger.warn('Failed to send proposal email:', err);
+      });
 
     return {
       campaign: plainToInstance(CampaignsEntity, result.campaign),

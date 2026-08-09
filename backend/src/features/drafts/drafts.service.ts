@@ -135,6 +135,7 @@ export class DraftsService {
         ...(dto.contract !== undefined && {
           contract_content: dto.contract,
         }),
+        updated_at: new Date(),
       },
     });
 
