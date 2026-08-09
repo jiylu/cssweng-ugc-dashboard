@@ -6,7 +6,6 @@ import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/src/features/auth/hooks/useAuth";
 import { useCreateCampaign } from "@/src/features/creator/proposals/hooks/useCreateCampaignMutation";
 import { toast } from "sonner";
-import { CreateCampaignPayload } from "@/src/features/creator/proposals/types/campaign-setup.types";
 import { useRouter } from "next/navigation"
 import { ProposalProgressBar } from "@/src/features/creator/proposals/components/proposal-progress-bar";
 import { CampaignDeliverablesContainer } from "@/src/features/creator/proposals/containers/campaign-deliverables-container";

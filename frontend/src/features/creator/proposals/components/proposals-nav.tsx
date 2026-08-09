@@ -1,48 +1,51 @@
-import Button from "@/src/components/atoms/button";
-import { FilePen, Files, StickyNote } from "lucide-react";
+import Link from "next/link"
+import { cn } from "@/lib/utils"
+import { PenLine, FileText, FileCheck2 } from "lucide-react"
 import Profile from "@/src/components/molecules/profile";
 
+type ProposalsTabKey = "create" | "drafts" | "submitted"
+
 interface CreatorProposalNavigationProps {
+  activeTab: ProposalsTabKey
   userFirstName: string
   userLastName: string
   userEmail: string
 }
 
-export default function CreatorProposalsNavigation({ userFirstName, userLastName, userEmail }: CreatorProposalNavigationProps) {
+interface ProposalsTabConfigItem {
+  key: ProposalsTabKey
+  label: string
+  href: string
+  icon: React.ReactNode
+}
+
+const TAB_CONFIG: ProposalsTabConfigItem[] = [
+  { key: "create", label: "Create a Proposal", href: "/proposals/create", icon: <PenLine size={16} /> },
+  { key: "drafts", label: "Drafts", href: "/proposals/drafts", icon: <FileText size={16} /> },
+  { key: "submitted", label: "Submitted Proposals", href: "/proposals/submitted", icon: <FileCheck2 size={16} /> },
+]
+
+export default function CreatorProposalsNavigation({ userFirstName, userLastName, userEmail, activeTab }: CreatorProposalNavigationProps) {
   return (
     <div className="flex justify-between items-center mb-3">
-      <div className="flex gap-8">
-        <Button
-          selected={true}
-          variant="ghost"
-          className="pb-1 flex items-center gap-1"
-        >
-          <FilePen
-            size={18}
-            className="mb-1" />
-          CREATE A PROPOSAL
-        </Button>
-        <Button
-          variant="ghost"
-          className="pb-1 flex items-center gap-1"
-        >
-          <StickyNote
-            size={18}
-            className="mb-1"
-          />
-          DRAFTS
-        </Button>
-        <Button
-          variant="ghost"
-          className="pb-1 flex items-center gap-1"
-        >
-          <Files
-            size={18}
-            className="mb-1"
-          />
-          SUBMITTED PROPOSALS
-        </Button>
+      <div className="flex items-center gap-8">
+        {TAB_CONFIG.map((tab) => (
+          <Link
+            key={tab.key}
+            href={tab.href}
+            className={cn(
+              "flex items-center gap-2 text-sm uppercase tracking-[0.03em]",
+              activeTab === tab.key
+                ? "text-[#6b1fa8] font-medium"
+                : "text-muted-foreground/60"
+            )}
+          >
+            {tab.icon}
+            {tab.label}
+          </Link>
+        ))}
       </div>
+
       <Profile 
         firstName={userFirstName}
         lastName={userLastName}
