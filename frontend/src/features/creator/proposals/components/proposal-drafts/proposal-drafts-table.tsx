@@ -37,7 +37,7 @@ export function ProposalDraftsTable({ drafts, onContinueEditing, onDuplicate, on
                 </TableHeader>
                 <TableBody>
                     {drafts.map((draft) => (
-                    <TableRow key={draft.id} className="hover:bg-transparent bg-white">
+                    <TableRow key={draft.id} className="group hover:bg-transparent bg-white">
                         <TableCell>
                             <p className="text-sm font-medium text-[#6b1fa8]">
                                 {draft.campaignName}
@@ -56,16 +56,16 @@ export function ProposalDraftsTable({ drafts, onContinueEditing, onDuplicate, on
                             {draft.totalPrice}
                         </TableCell>
                         <TableCell>
-                            <p className="text-sm text-foreground">{draft.lastSavedAt}</p>
-                            {draft.isContinuing && (
+                            <div className="flex items-center gap-2">
+                                <p className="text-sm text-foreground">{draft.lastSavedAt}</p>
                                 <button
                                 type="button"
                                 onClick={() => onContinueEditing(draft.id)}
-                                className="text-xs text-[#6b1fa8] font-medium hover:underline"
+                                className="text-sm text-[#6b1fa8] font-medium opacity-0 transition-opacity group-hover:opacity-100 hover:underline"
                                 >
                                 Continue Editing
                                 </button>
-                            )}
+                            </div>
                         </TableCell>
                         <TableCell>
                             <div className="flex items-center justify-end gap-3">
