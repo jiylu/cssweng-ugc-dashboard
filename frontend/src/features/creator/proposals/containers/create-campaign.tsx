@@ -1,12 +1,16 @@
 "use client"
+import { useEffect } from "react"
 import CreatorProposalsNavigation from "@/src/features/creator/proposals/components/proposals-nav";
 import CreatorSidebar from "@/src/components/organisms/creator-sidebar";
 import { useCampaignForm } from "../hooks/useCampaignForm";
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/src/features/auth/hooks/useAuth";
 import { useCreateCampaign } from "@/src/features/creator/proposals/hooks/useCreateCampaignMutation";
+import { useCreateDraft, useDraft, useUpdateDraft } from "@/src/features/creator/proposals/hooks/useProposalDrafts";
+import { applyDraftToForm } from "@/src/features/creator/proposals/utils/applyDraftToForm";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
+import { useQueryClient } from "@tanstack/react-query"
 import { ProposalProgressBar } from "@/src/features/creator/proposals/components/proposal-progress-bar";
 import { CampaignDeliverablesContainer } from "@/src/features/creator/proposals/containers/campaign-deliverables-container";
 import { ContractTermsContainer } from "@/src/features/creator/proposals/containers/contract-terms-container";
@@ -25,9 +29,16 @@ export default function CreateCampaign() {
   const { user, loading } = useAuth();
   const { mutate: submitCampaign, isPending } = useCreateCampaign();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const queryClient = useQueryClient();
   const contractTerms = useContractTerms()
   const paymentTerms = usePaymentTerms()
   const addOns = useAddOns()
+  const draftId = searchParams.get("draft")
+  const { mutate: saveNewDraft, isPending: isSavingNewDraft } = useCreateDraft()
+  const { mutate: saveExistingDraft, isPending: isSavingExistingDraft } = useUpdateDraft(draftId ?? undefined)
+  const { data: draft, isLoading: draftLoading } = useDraft(draftId ?? undefined)
+  const isSavingDraft = isSavingNewDraft || isSavingExistingDraft
   const baseCreatorFee = calculateBaseCreatorFee(
     form.deliverables,
     addOns.addOns,
@@ -36,9 +47,18 @@ export default function CreateCampaign() {
     paymentTerms.giftedProducts
   )
 
+  useEffect(() => {
+    if (draft && user) {
+      applyDraftToForm({ form, contractTerms, paymentTerms, addOns, draft })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [draft, user])
+
   if (loading) return <LogoLoader label="Loading proposal form" />;
 
   if (!user) return null;
+
+  if (draftLoading) return <LogoLoader label="Loading draft" />;
 
   const buildPayload = () => buildProposalPayload({
     userId: user.user_id,
@@ -61,10 +81,33 @@ export default function CreateCampaign() {
       }
       return;
     };
-    submitCampaign(
-      { payload: buildPayload() },
-      {
+
+    const payload = buildPayload();
+    const draftPayload = {
+      campaign: payload.campaign,
+      proposal: payload.proposal,
+      deliverables: payload.deliverables,
+      contract: payload.contract,
+      addOns: payload.addOns,
+      giftedProducts: payload.giftedProducts,
+    };
+
+    if (draftId) {
+      saveExistingDraft(draftPayload, {
         onSuccess: () => toast.success("Draft saved!"),
+        onError: (err) => toast.error(err.message),
+      });
+      return;
+    }
+
+    saveNewDraft(
+      { userId: user.user_id, ...draftPayload },
+      {
+        onSuccess: (data) => {
+          toast.success("Draft saved!");
+          queryClient.setQueryData(["draft", data.public_id], data);
+          router.replace(`/proposals/create-campaign?draft=${data.public_id}`, { scroll: false });
+        },
         onError: (err) => toast.error(err.message),
       }
     );
@@ -191,6 +234,7 @@ export default function CreateCampaign() {
               onSaveDraft={handleSaveDraft}
               onSubmit={handleSendProposal}
               isPending={isPending}
+              isSavingDraft={isSavingDraft}
             />
           )}
         </div>

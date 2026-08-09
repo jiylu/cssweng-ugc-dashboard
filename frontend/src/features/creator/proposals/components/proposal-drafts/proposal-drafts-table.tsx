@@ -1,15 +1,15 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Copy, Trash2 } from "lucide-react"
+import { Trash2 } from "lucide-react"
 import { ProposalDraft } from "@/src/features/creator/proposals/types/proposal-draft.types"
 
 interface ProposalDraftsTableProps {
   drafts: ProposalDraft[]
   onContinueEditing: (id: string) => void
-  onDuplicate: (id: string) => void
   onDelete: (id: string) => void
+  isDeleting?: boolean
 }
 
-export function ProposalDraftsTable({ drafts, onContinueEditing, onDuplicate, onDelete }: ProposalDraftsTableProps) {
+export function ProposalDraftsTable({ drafts, onContinueEditing, onDelete, isDeleting }: ProposalDraftsTableProps) {
     return (
         <div className="rounded overflow-hidden border border-border">
             <Table>
@@ -75,7 +75,8 @@ export function ProposalDraftsTable({ drafts, onContinueEditing, onDuplicate, on
                                 type="button"
                                 aria-label="Delete draft"
                                 onClick={() => onDelete(draft.id)}
-                                className="text-foreground hover:text-[#ff6467]"
+                                disabled={isDeleting}
+                                className="text-foreground hover:text-[#ff6467] disabled:opacity-50"
                                 >
                                 <Trash2 size={20} />
                                 </button>

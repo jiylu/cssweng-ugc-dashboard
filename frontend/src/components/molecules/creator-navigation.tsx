@@ -7,7 +7,7 @@ export default function CreatorNavigation() {
 
   return (
     <div className="flex flex-col justify-start">
-      <Button type="button" onClick={() => router.push('/create-campaign')} className="cursor-pointer w-full lg:w-57 h-12.5 mt-10 mb-6 text-base lg:text-lg">
+      <Button type="button" onClick={() => router.push('/proposals/create-campaign')} className="cursor-pointer w-full lg:w-57 h-12.5 mt-10 mb-6 text-base lg:text-lg">
         + New Campaign
       </Button>
       <div className="flex flex-col justify-start items-start">

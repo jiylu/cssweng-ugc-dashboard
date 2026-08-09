@@ -45,7 +45,7 @@ export default function Campaigns() {
               {/* Tabs + Create Button */}
               <div className="flex items-center justify-between">
                 <CampaignTabs active={activeTab} onChange={setActiveTab} />
-                <Button onClick={() => router.push('/create-campaign')} className="px-5 py-2 cursor-pointer">
+                <Button onClick={() => router.push('/proposals/create-campaign')} className="px-5 py-2 cursor-pointer">
                   + Create Proposal
                 </Button>
               </div>

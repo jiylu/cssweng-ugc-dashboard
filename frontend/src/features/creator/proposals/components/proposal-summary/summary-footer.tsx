@@ -9,10 +9,11 @@ interface SummaryFooterProps {
     onSaveDraft: () => void
     onSubmit: () => void
     isPending: boolean
+    isSavingDraft: boolean
     summary: ProposalSummaryData
 }
 
-export function SummaryFooter({ onEdit, onSaveDraft, onSubmit, isPending, summary }: SummaryFooterProps) {
+export function SummaryFooter({ onEdit, onSaveDraft, onSubmit, isPending, isSavingDraft, summary }: SummaryFooterProps) {
     const [modalOpen, setModalOpen] = useState(false)
 
     return (
@@ -28,10 +29,10 @@ export function SummaryFooter({ onEdit, onSaveDraft, onSubmit, isPending, summar
                 <Button
                     variant="outline"
                     onClick={onSaveDraft}
-                    disabled={isPending}
+                    disabled={isSavingDraft || isPending}
                     className="flex items-center gap-2"
                 >
-                    <Save size={16} /> Save Draft
+                    <Save size={16} /> {isSavingDraft ? "Saving..." : "Save Draft"}
                 </Button>
                 <Button
                     onClick={() => setModalOpen(true)}

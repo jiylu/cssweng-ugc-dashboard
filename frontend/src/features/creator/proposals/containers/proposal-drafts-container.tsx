@@ -3,63 +3,35 @@ import CreatorProposalsNavigation from "@/src/features/creator/proposals/compone
 import CreatorSidebar from "@/src/components/organisms/creator-sidebar";
 import { ProposalDraftsHeader } from "@/src/features/creator/proposals/components/proposal-drafts/proposal-drafts-header";
 import { ProposalDraftsTable } from "@/src/features/creator/proposals/components/proposal-drafts/proposal-drafts-table";
-import { ProposalDraft } from "@/src/features/creator/proposals/types/proposal-draft.types";
 import { useAuth } from "@/src/features/auth/hooks/useAuth";
+import {
+  useDeleteDraft,
+  useProposalDrafts,
+} from "@/src/features/creator/proposals/hooks/useProposalDrafts";
+import { mapDraftToRow } from "@/src/features/creator/proposals/utils/mapDraftToRow";
 import LogoLoader from "@/src/components/molecules/logo-loader";
 import { Separator } from "@/components/ui/separator";
-
-// TODO: replace with dynamic data from useProposalDrafts() hook / API call
-const MOCK_DRAFTS: ProposalDraft[] = [
-  {
-    id: "1",
-    campaignName: "Campaign Quick Glance",
-    campaignType: "TikTok Video",
-    clientName: "Client Name",
-    durationStart: "Jul 7",
-    durationEnd: "Oct 15, 2026",
-    totalPrice: "CAD $2,825.00",
-    lastSavedAt: "Oct 24, 2026 - 4:30 PM",
-    isContinuing: true,
-  },
-  {
-    id: "2",
-    campaignName: "Campaign Quick Glance",
-    campaignType: "TikTok Video",
-    clientName: "Client Name",
-    durationStart: "Jul 7",
-    durationEnd: "Oct 15, 2026",
-    totalPrice: "CAD $2,825.00",
-    lastSavedAt: "Oct 24, 2026 - 4:30 PM",
-  },
-  {
-    id: "3",
-    campaignName: "Campaign Quick Glance",
-    campaignType: "TikTok Video",
-    clientName: "Client Name",
-    durationStart: "Jul 7",
-    durationEnd: "Oct 15, 2026",
-    totalPrice: "CAD $2,825.00",
-    lastSavedAt: "Oct 24, 2026 - 4:30 PM",
-  },
-]
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export function ProposalDraftsContainer() {
     const { user, loading } = useAuth();
+    const router = useRouter();
+    const { data: drafts, isLoading: draftsLoading } = useProposalDrafts(user?.user_id ?? undefined);
+    const { mutate: deleteDraft, isPending: isDeleting } = useDeleteDraft();
 
-    // TODO: wire up real handlers once the drafts API/service layer exists
     const handleContinueEditing = (id: string) => {
-        console.log("continue editing", id)
-    }
-
-    const handleDuplicate = (id: string) => {
-        console.log("duplicate draft", id)
-    }
+        router.push(`/proposals/create-campaign?draft=${id}`);
+    };
 
     const handleDelete = (id: string) => {
-        console.log("delete draft", id)
-    }
+        deleteDraft(id, {
+            onSuccess: () => toast.success("Draft deleted!"),
+            onError: (err) => toast.error(err.message),
+        });
+    };
 
-    if (loading) return <LogoLoader label="Loading proposal drafts" />;
+    if (loading || draftsLoading) return <LogoLoader label="Loading proposal drafts" />;
 
     if (!user) return null;
 
@@ -79,10 +51,10 @@ export function ProposalDraftsContainer() {
                     <ProposalDraftsHeader />
                     <Separator />
                     <ProposalDraftsTable
-                        drafts={MOCK_DRAFTS}
+                        drafts={(drafts ?? []).map(mapDraftToRow)}
                         onContinueEditing={handleContinueEditing}
-                        onDuplicate={handleDuplicate}
                         onDelete={handleDelete}
+                        isDeleting={isDeleting}
                     />
                 </div>
             </div>
