@@ -15,22 +15,24 @@ export function ProposalDraftsTable({ drafts, onContinueEditing, onDuplicate, on
             <Table>
                 <TableHeader>
                     <TableRow className="hover:bg-transparent bg-[#E4E0D5]">
-                        <TableHead className="text-xs text-muted-foreground uppercase tracking-[0.03em]">
+                        <TableHead className="text-sm uppercase tracking-[0.03em]">
                             Campaign Details
                         </TableHead>
-                        <TableHead className="text-xs text-muted-foreground uppercase tracking-[0.03em]">
+                        <TableHead className="text-sm uppercase tracking-[0.03em]">
                             Client
                         </TableHead>
-                        <TableHead className="text-xs text-muted-foreground uppercase tracking-[0.03em]">
+                        <TableHead className="text-sm textuppercase tracking-[0.03em]">
                             Duration
                         </TableHead>
-                        <TableHead className="text-xs text-muted-foreground uppercase tracking-[0.03em]">
+                        <TableHead className="text-sm uppercase tracking-[0.03em]">
                             Total Price
                         </TableHead>
-                        <TableHead className="text-xs text-muted-foreground uppercase tracking-[0.03em]">
+                        <TableHead className="text-sm uppercase tracking-[0.03em]">
                             Last Saved
                         </TableHead>
-                        <TableHead className="text-xs text-muted-foreground uppercase tracking-[0.03em] text-right">
+                        <TableHead className="text-sm uppercase tracking-[0.03em]">
+                        </TableHead>
+                        <TableHead className="text-sm uppercase tracking-[0.03em] text-right">
                             Actions
                         </TableHead>
                     </TableRow>
@@ -56,27 +58,19 @@ export function ProposalDraftsTable({ drafts, onContinueEditing, onDuplicate, on
                             {draft.totalPrice}
                         </TableCell>
                         <TableCell>
-                            <div className="flex items-center gap-2">
-                                <p className="text-sm text-foreground">{draft.lastSavedAt}</p>
-                                <button
-                                type="button"
-                                onClick={() => onContinueEditing(draft.id)}
-                                className="text-sm text-[#6b1fa8] font-medium opacity-0 transition-opacity group-hover:opacity-100 hover:underline"
-                                >
-                                Continue Editing
-                                </button>
-                            </div>
+                            <p className="text-sm text-foreground">{draft.lastSavedAt}</p>
                         </TableCell>
                         <TableCell>
-                            <div className="flex items-center justify-end gap-3">
-                                <button
-                                type="button"
-                                aria-label="Duplicate draft"
-                                onClick={() => onDuplicate(draft.id)}
-                                className="text-foreground hover:text-[#6b1fa8]"
-                                >
-                                <Copy size={16} />
-                                </button>
+                            <button
+                            type="button"
+                            onClick={() => onContinueEditing(draft.id)}
+                            className="text-sm text-[#6b1fa8] font-medium opacity-0 transition-opacity group-hover:opacity-100 hover:underline"
+                            >
+                            Continue Editing
+                            </button>
+                        </TableCell>
+                        <TableCell>
+                            <div className="flex items-center justify-center gap-3">
                                 <button
                                 type="button"
                                 aria-label="Delete draft"

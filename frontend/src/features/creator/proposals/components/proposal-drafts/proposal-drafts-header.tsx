@@ -4,7 +4,7 @@ export function ProposalDraftsHeader() {
             <h1 className="text-[44px] font-normal text-foreground">
                 Proposal Drafts
             </h1>
-            <p className="text-[18px] text-[#6b1fa8]">
+            <p className="text-[18px]">
                 Manage and continue editing your unfinished campaign pitches.
             </p>
         </div>
