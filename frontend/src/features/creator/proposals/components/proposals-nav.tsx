@@ -20,7 +20,7 @@ interface ProposalsTabConfigItem {
 }
 
 const TAB_CONFIG: ProposalsTabConfigItem[] = [
-  { key: "create", label: "Create a Proposal", href: "/proposals/create", icon: <PenLine size={16} /> },
+  { key: "create", label: "Create a Proposal", href: "/proposals/create-campaign", icon: <PenLine size={16} /> },
   { key: "drafts", label: "Drafts", href: "/proposals/drafts", icon: <FileText size={16} /> },
   { key: "submitted", label: "Submitted Proposals", href: "/proposals/submitted", icon: <FileCheck2 size={16} /> },
 ]

@@ -1,11 +1,12 @@
 "use client"
 import CreatorProposalsNavigation from "@/src/features/creator/proposals/components/proposals-nav";
 import CreatorSidebar from "@/src/components/organisms/creator-sidebar";
-import { ProposalDraftsHeader } from "@/src/features/creator/proposals/components/proposal-drafts/proposal-drafts-header"
-import { ProposalDraftsTable } from "@/src/features/creator/proposals/components/proposal-drafts/proposal-drafts-table"
-import { ProposalDraft } from "@/src/features/creator/proposals/types/proposal-draft.types"
-import { useAuth } from "@/src/features/auth/hooks/useAuth"
+import { ProposalDraftsHeader } from "@/src/features/creator/proposals/components/proposal-drafts/proposal-drafts-header";
+import { ProposalDraftsTable } from "@/src/features/creator/proposals/components/proposal-drafts/proposal-drafts-table";
+import { ProposalDraft } from "@/src/features/creator/proposals/types/proposal-draft.types";
+import { useAuth } from "@/src/features/auth/hooks/useAuth";
 import LogoLoader from "@/src/components/molecules/logo-loader";
+import { Separator } from "@/components/ui/separator";
 
 // TODO: replace with dynamic data from useProposalDrafts() hook / API call
 const MOCK_DRAFTS: ProposalDraft[] = [
@@ -43,47 +44,49 @@ const MOCK_DRAFTS: ProposalDraft[] = [
 ]
 
 export function ProposalDraftsContainer() {
-  const { user, loading } = useAuth();
+    const { user, loading } = useAuth();
 
-  // TODO: wire up real handlers once the drafts API/service layer exists
-  const handleContinueEditing = (id: string) => {
-    console.log("continue editing", id)
-  }
+    // TODO: wire up real handlers once the drafts API/service layer exists
+    const handleContinueEditing = (id: string) => {
+        console.log("continue editing", id)
+    }
 
-  const handleDuplicate = (id: string) => {
-    console.log("duplicate draft", id)
-  }
+    const handleDuplicate = (id: string) => {
+        console.log("duplicate draft", id)
+    }
 
-  const handleDelete = (id: string) => {
-    console.log("delete draft", id)
-  }
+    const handleDelete = (id: string) => {
+        console.log("delete draft", id)
+    }
 
-  if (loading) return <LogoLoader label="Loading proposal drafts" />;
+    if (loading) return <LogoLoader label="Loading proposal drafts" />;
 
-  if (!user) return null;
+    if (!user) return null;
 
-  return (
+    return (
     <main className="flex flex-row w-full h-screen overflow-hidden">
-      <CreatorSidebar />
-      <section className="flex-1 h-screen overflow-y-scroll scrollbar-gutter-stable">
-        <div className="p-7.5 w-full max-w-300 m-auto text-[#141518]">
-          <CreatorProposalsNavigation
-            activeTab="drafts"
-            userFirstName={user.first_name}
-            userLastName={user.last_name}
-            userEmail={user.email}
-          />
-          <div className="flex flex-col gap-6 mt-5">
-            <ProposalDraftsHeader />
-            <ProposalDraftsTable
-              drafts={MOCK_DRAFTS}
-              onContinueEditing={handleContinueEditing}
-              onDuplicate={handleDuplicate}
-              onDelete={handleDelete}
-            />
-          </div>
-        </div>
-      </section>
+        <CreatorSidebar />
+        <section className="flex-1 h-screen overflow-y-scroll scrollbar-gutter-stable">
+            <div className="p-7.5 w-full max-w-300 m-auto text-[#141518]">
+                <CreatorProposalsNavigation
+                    activeTab="drafts"
+                    userFirstName={user.first_name}
+                    userLastName={user.last_name}
+                    userEmail={user.email}
+                />
+                <Separator />
+                <div className="flex flex-col gap-6 mt-5">
+                    <ProposalDraftsHeader />
+                    <Separator />
+                    <ProposalDraftsTable
+                        drafts={MOCK_DRAFTS}
+                        onContinueEditing={handleContinueEditing}
+                        onDuplicate={handleDuplicate}
+                        onDelete={handleDelete}
+                    />
+                </div>
+            </div>
+        </section>
     </main>
-  )
+    )
 }

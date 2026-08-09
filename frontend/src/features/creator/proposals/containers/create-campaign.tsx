@@ -101,6 +101,7 @@ export default function CreateCampaign() {
       <section className="flex-1 h-screen overflow-y-scroll scrollbar-gutter-stable">
         <div className="p-7.5 w-full max-w-300 m-auto text-[#141518]">
           <CreatorProposalsNavigation 
+            activeTab="create"
             userFirstName={user.first_name}
             userLastName={user.last_name}
             userEmail={user.email}

@@ -5,8 +5,7 @@ export function ProposalDraftsHeader() {
                 Proposal Drafts
             </h1>
             <p className="text-[18px] text-[#6b1fa8]">
-                Please review the campaign details and contract terms before final
-                submission
+                Manage and continue editing your unfinished campaign pitches.
             </p>
         </div>
     )

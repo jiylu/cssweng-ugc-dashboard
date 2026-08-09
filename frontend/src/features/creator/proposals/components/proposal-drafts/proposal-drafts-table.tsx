@@ -37,7 +37,7 @@ export function ProposalDraftsTable({ drafts, onContinueEditing, onDuplicate, on
                 </TableHeader>
                 <TableBody>
                     {drafts.map((draft) => (
-                    <TableRow key={draft.id} className="hover:bg-transparent bg-background">
+                    <TableRow key={draft.id} className="hover:bg-transparent bg-white">
                         <TableCell>
                             <p className="text-sm font-medium text-[#6b1fa8]">
                                 {draft.campaignName}
