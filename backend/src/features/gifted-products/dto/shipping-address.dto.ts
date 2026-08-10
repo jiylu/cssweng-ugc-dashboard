@@ -3,6 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import {
   IsNotEmpty,
   IsNumber,
+  IsOptional,
   IsString,
   MaxLength,
   Min,
@@ -21,11 +22,11 @@ export class ShippingAddressDTO {
   @Expose()
   @ApiProperty({ example: 'Building 2, Unit 4' })
   @IsString({ message: 'Delivery address line 2 must be a string.' })
-  @IsNotEmpty({ message: 'Delivery address line 2 is required.' })
+  @IsOptional()
   @MaxLength(200, {
     message: 'Delivery address line 2 must not exceed 200 characters.',
   })
-  delivery_address_line_2!: string;
+  delivery_address_line_2?: string;
 
   @Expose()
   @ApiProperty({ example: 'Philippines' })
