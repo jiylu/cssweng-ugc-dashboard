@@ -8,6 +8,8 @@ import { NotificationsService } from 'src/features/notifications/notifications.s
 import { UpdateContractDTO } from '../dto/update-contract.dto';
 import { SignContractDTO } from '../dto/sign-contract.dto';
 import { PAYMENT_SCHEDULE } from '../dto/payment-terms.dto';
+import { UploadService } from 'src/shared/upload/upload.service';
+import { ContractSignaturesService } from '../contract-signatures.service';
 
 describe('ContractsController', () => {
   let controller: ContractsController;
@@ -29,6 +31,14 @@ describe('ContractsController', () => {
     createNotification: jest.fn(),
   };
 
+  const mockUploadService = {
+    upload: jest.fn(),
+  };
+
+  const mockContractSignaturesService = {
+    storeSignature: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [ContractsController],
@@ -44,6 +54,14 @@ describe('ContractsController', () => {
         {
           provide: NotificationsService,
           useValue: mockNotificationsService,
+        },
+        {
+          provide: UploadService,
+          useValue: mockUploadService,
+        },
+        {
+          provide: ContractSignaturesService,
+          useValue: mockContractSignaturesService,
         },
       ],
     }).compile();
@@ -94,18 +112,23 @@ describe('ContractsController', () => {
       ugc_creator_id: 'creator-1',
       project_name: 'Test Project',
     };
-    const dto: SignContractDTO = {
-      firstName: 'Jane',
-      lastName: 'Doe',
-      signatureDataUrl: 'data:image/png;base64,...',
-      initialsDataUrl: 'data:image/png;base64,...',
+    const dto = {
+      signerRole: 'CLIENT' as any,
     };
+    const files = {
+      signature: [{}] as any,
+      initials: [{}] as any,
+    };
+
     mockContractsService.resolvePublicId.mockResolvedValue('contract-1');
     mockContractsService.signContract.mockResolvedValue(contract);
     mockCampaignsService.findOneCampaign.mockResolvedValue(campaign);
     mockNotificationsService.createNotification.mockResolvedValue(undefined);
+    mockUploadService.upload.mockResolvedValueOnce({ url: 'signature.png', type: 'image' });
+    mockUploadService.upload.mockResolvedValueOnce({ url: 'initials.png', type: 'image' });
+    mockContractSignaturesService.storeSignature.mockResolvedValue(undefined);
 
-    const res = await controller.sign('pub-contract-1', dto);
+    const res = await controller.sign(files, 'pub-contract-1', dto as any);
 
     expect(res).toBeDefined();
     expect(mockContractsService.resolvePublicId).toHaveBeenCalledWith(
@@ -113,9 +136,15 @@ describe('ContractsController', () => {
     );
     expect(mockContractsService.signContract).toHaveBeenCalledWith(
       'contract-1',
-      dto,
+      'CLIENT',
     );
     expect(mockCampaignsService.findOneCampaign).toHaveBeenCalledWith('camp-1');
+    expect(mockContractSignaturesService.storeSignature).toHaveBeenCalledWith({
+      contractId: 'contract-1',
+      signerRole: 'CLIENT',
+      signatureURL: 'signature.png',
+      initialsURL: 'initials.png',
+    });
     expect(mockNotificationsService.createNotification).toHaveBeenCalledWith({
       userId: 'creator-1',
       title: 'Contract Signed For:  Test Project',
