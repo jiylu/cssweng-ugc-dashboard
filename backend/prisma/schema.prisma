@@ -89,7 +89,6 @@ model Contracts {
   campaign_id     String    @unique
   creator_signed  Boolean   @default(false)
   client_signed   Boolean   @default(false)
-  signed_at       DateTime?
 
   revision_policy          Json
   usage_rights             Json

@@ -494,7 +494,9 @@ describe('ContractsService', () => {
           signatureDataUrl: 'data:image/png;base64,c2lnbmF0dXJl',
           initialsDataUrl: 'data:image/png;base64,aW5pdGlhbHM=',
         }),
-      ).rejects.toMatchObject({ response: { code: 'CONTRACT_ALREADY_SIGNED' } });
+      ).rejects.toMatchObject({
+        response: { code: 'CONTRACT_ALREADY_SIGNED' },
+      });
 
       expect(mockPrisma.contracts.updateMany).not.toHaveBeenCalled();
     });

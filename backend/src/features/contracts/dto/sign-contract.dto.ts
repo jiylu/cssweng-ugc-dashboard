@@ -1,21 +1,7 @@
-import { IsDataURI, IsString, MaxLength, MinLength } from 'class-validator';
+import { IsEnum } from 'class-validator';
+import { UserRoles } from 'src/generated/prisma/enums';
 
 export class SignContractDTO {
-  @IsString()
-  @MinLength(1)
-  @MaxLength(100)
-  firstName: string;
-
-  @IsString()
-  @MinLength(1)
-  @MaxLength(100)
-  lastName: string;
-
-  @IsDataURI()
-  @MaxLength(500_000)
-  signatureDataUrl: string;
-
-  @IsDataURI()
-  @MaxLength(150_000)
-  initialsDataUrl: string;
+  @IsEnum(UserRoles)
+  signerRole!: UserRoles;
 }

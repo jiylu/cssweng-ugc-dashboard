@@ -4,9 +4,10 @@ import { CampaignsModule } from '../campaigns/campaigns.module';
 import { ContractsService } from './contracts.service';
 import { ContractsController } from './contracts.controller';
 import { NotificationsModule } from '../notifications/notifications.module';
+import { UploadModule } from 'src/shared/upload/upload.module';
 
 @Module({
-  imports: [PrismaModule, CampaignsModule, NotificationsModule],
+  imports: [PrismaModule, CampaignsModule, NotificationsModule, UploadModule],
   providers: [ContractsService],
   controllers: [ContractsController],
   exports: [ContractsService],
