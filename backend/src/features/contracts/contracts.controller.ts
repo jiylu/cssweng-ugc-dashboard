@@ -15,6 +15,7 @@ import {
   ApiFindContractByPublicId,
   ApiSignContract,
   ApiUpdateContractDetails,
+  ApiGetContractSignatures,
 } from './docs/contracts.controller.swagger';
 import { UpdateContractDTO } from './dto/update-contract.dto';
 import { CampaignsService } from '../campaigns/campaigns.service';
@@ -60,7 +61,8 @@ export class ContractsController {
     return plainToInstance(ContractsEntity, contract);
   }
 
-  @Get('/campaign/signatures/:publicId')
+  @ApiGetContractSignatures()
+  @Get('/signatures/:publicId')
   async findManySignatures(@Param('publicId') publicId: string) {
     const contractId = await this.contractsService.resolvePublicId(publicId);
 
