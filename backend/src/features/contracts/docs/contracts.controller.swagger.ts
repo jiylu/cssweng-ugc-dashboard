@@ -114,6 +114,10 @@ export function ApiSignContract() {
       description: 'Bad request. The provided public ID or query parameters are invalid.',
     }),
     ApiResponse({
+      status: 403,
+      description: 'Forbidden. The client must sign the contract before the creator.',
+    }),
+    ApiResponse({
       status: 404,
       description:
         'Contract not found. No contract exists with the given public ID.',

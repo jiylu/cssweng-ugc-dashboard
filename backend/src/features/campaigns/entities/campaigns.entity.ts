@@ -32,7 +32,7 @@ export class CampaignsEntity {
   pricing: number;
 
   @Expose()
-  platforms: string[];
+  platforms: object;
 
   @Expose()
   start_date: string;
