@@ -148,7 +148,7 @@ export default function CreateCampaign() {
           if (draftId) {
             deleteDraft(draftId);
           }
-          router.push('/creator-dashboard');
+          router.push('/proposals/submitted');
         },
         onError: (err) => toast.error(err.message),
       }
