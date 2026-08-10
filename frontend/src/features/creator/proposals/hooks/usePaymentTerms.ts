@@ -49,6 +49,7 @@ export function usePaymentTerms() {
 
   return {
     giftedProducts,
+    setGiftedProducts,
     addGiftedProduct,
     removeGiftedProduct,
     updateGiftedProduct,

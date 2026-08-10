@@ -5,7 +5,7 @@ export interface CreateCampaignPayload {
     description: string
     currency: string
     tax: number
-    platforms: string[]
+    platforms: Record<string, string>
     startDate: string
     endDate: string
   }
@@ -20,6 +20,8 @@ export interface CreateCampaignPayload {
   }[]
   proposal: {
     clientEmail: string
+    client_first_name: string
+    client_last_name: string
   }
   contract: {
     revision_policy: {
@@ -79,10 +81,19 @@ export interface CreateCampaignPayload {
   giftedProducts?: {
     productName: string
     value: number
-    deliveryAddress: string
+    shippingAddress: GiftedProductShippingAddress | null
     deliveryInstructions: string
     ownershipTerms: string
   }[]
+}
+
+export interface GiftedProductShippingAddress {
+  delivery_address_line_1: string
+  delivery_address_line_2?: string
+  country: string
+  state_province: string
+  city: string
+  zip_code: number
 }
 
 

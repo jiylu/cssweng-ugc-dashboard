@@ -1,4 +1,5 @@
-import { CreateCampaignPayload } from "@/src/features/creator/proposals/types/campaign-setup.types"
+import { CreateCampaignPayload, GiftedProductShippingAddress } from "@/src/features/creator/proposals/types/campaign-setup.types"
+import { ShippingAddress } from "@/src/features/creator/proposals/types/payment-terms.types"
 import { useCampaignForm } from "@/src/features/creator/proposals/hooks/useCampaignForm"
 import { useContractTerms } from "@/src/features/creator/proposals/hooks/useContractTerms"
 import { usePaymentTerms } from "@/src/features/creator/proposals/hooks/usePaymentTerms"
@@ -12,7 +13,25 @@ interface BuildPayloadParams {
   addOns: ReturnType<typeof useAddOns>
 }
 
+export function toShippingAddressPayload(
+  address: ShippingAddress | null | undefined,
+): GiftedProductShippingAddress | null {
+  if (!address) return null
+  return {
+    delivery_address_line_1: address.addressLine1,
+    delivery_address_line_2: address.addressLine2 || undefined,
+    country: address.country,
+    state_province: address.stateProvince,
+    city: address.city,
+    zip_code: Number(address.zipCode) || 0,
+  }
+}
+
 export function buildProposalPayload({ userId, form, contractTerms, paymentTerms, addOns }: BuildPayloadParams): CreateCampaignPayload {
+  const [clientFirstName = "", ...clientLastNameParts] =
+    form.contactPerson.trim().split(/\s+/)
+  const clientLastName = clientLastNameParts.join(" ") || clientFirstName
+
   return {
     campaign: {
       ugcId: userId,
@@ -20,7 +39,9 @@ export function buildProposalPayload({ userId, form, contractTerms, paymentTerms
       description: form.campaignDescription,
       currency: form.currency,
       tax: paymentTerms.taxRate,
-      platforms: form.platforms.map((p) => p.platform),
+      platforms: Object.fromEntries(
+        form.platforms.map((p) => [p.platform, p.handle]),
+      ),
       startDate: new Date(form.startDate).toISOString(),
       endDate: new Date(form.endDate).toISOString(),
     },
@@ -35,6 +56,8 @@ export function buildProposalPayload({ userId, form, contractTerms, paymentTerms
     })),
     proposal: {
       clientEmail: form.contactEmail,
+      client_first_name: clientFirstName || form.contactPerson,
+      client_last_name: clientLastName,
     },
     contract: {
       revision_policy: {
@@ -103,15 +126,7 @@ export function buildProposalPayload({ userId, form, contractTerms, paymentTerms
       giftedProducts: paymentTerms.giftedProducts.map((p) => ({
         productName: p.productName,
         value: parseFloat(p.value.replace(/,/g, '') || '0'),
-        deliveryAddress: p.shippingAddress
-          ? [
-              p.shippingAddress.addressLine1,
-              p.shippingAddress.addressLine2,
-              p.shippingAddress.city,
-              p.shippingAddress.stateProvince,
-              `${p.shippingAddress.country} ${p.shippingAddress.zipCode}`,
-            ].filter(Boolean).join(", ")
-          : "",
+        shippingAddress: toShippingAddressPayload(p.shippingAddress),
         deliveryInstructions: p.deliveryInstructions,
         ownershipTerms: p.ownershipTerms,
       }))

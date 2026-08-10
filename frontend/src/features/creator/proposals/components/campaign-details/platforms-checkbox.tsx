@@ -20,6 +20,7 @@ export function PlatformsCheckbox({ value, onChange, errors }: PlatformsCheckbox
     getHandle,
     togglePlatform,
     updateHandle,
+    editCustom,
   } = usePlatformsCheckbox(value, onChange)
 
   return (
@@ -41,7 +42,7 @@ export function PlatformsCheckbox({ value, onChange, errors }: PlatformsCheckbox
             error={errors?.[errorKey]}
             onToggle={() => togglePlatform(platform)}
             onHandleChange={(handle) => updateHandle(platform, handle)}
-            onEditCustom={() => setEditingCustom(true)}
+            onEditCustom={editCustom}
             onCustomLabelChange={setCustomLabel}
             onCustomLabelBlur={() => setEditingCustom(false)}
           />

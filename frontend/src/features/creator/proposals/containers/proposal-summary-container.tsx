@@ -20,11 +20,13 @@ interface ProposalSummaryContainerProps {
   paymentTerms: ReturnType<typeof usePaymentTerms>
   userName: string
   onBack: () => void
+  onSaveDraft: () => void
   onSubmit: () => void
   isPending: boolean
+  isSavingDraft: boolean
 }
 
-export function ProposalSummaryContainer({ form, contractTerms, addOns, paymentTerms, userName, onBack, onSubmit, isPending }: ProposalSummaryContainerProps) {
+export function ProposalSummaryContainer({ form, contractTerms, addOns, paymentTerms, userName, onBack, onSaveDraft, onSubmit, isPending, isSavingDraft }: ProposalSummaryContainerProps) {
   const summary = useProposalSummary(form, contractTerms, addOns, paymentTerms, userName)
 
   const addOnRows = summary.addOns.map((a) => ({
@@ -106,8 +108,10 @@ export function ProposalSummaryContainer({ form, contractTerms, addOns, paymentT
 
       <SummaryFooter
         onEdit={onBack}
+        onSaveDraft={onSaveDraft}
         onSubmit={onSubmit}
         isPending={isPending}
+        isSavingDraft={isSavingDraft}
         summary={summary}
       />
     </div>

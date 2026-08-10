@@ -1,20 +1,23 @@
 "use client"
+import { useEffect } from "react"
 import CreatorProposalsNavigation from "@/src/features/creator/proposals/components/proposals-nav";
 import CreatorSidebar from "@/src/components/organisms/creator-sidebar";
 import { useCampaignForm } from "../hooks/useCampaignForm";
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/src/features/auth/hooks/useAuth";
 import { useCreateCampaign } from "@/src/features/creator/proposals/hooks/useCreateCampaignMutation";
+import { useCreateDraft, useDeleteDraft, useDraft, useUpdateDraft } from "@/src/features/creator/proposals/hooks/useProposalDrafts";
+import { applyDraftToForm } from "@/src/features/creator/proposals/utils/applyDraftToForm";
 import { toast } from "sonner";
-import { CreateCampaignPayload } from "@/src/features/creator/proposals/types/campaign-setup.types";
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
+import { useQueryClient } from "@tanstack/react-query"
 import { ProposalProgressBar } from "@/src/features/creator/proposals/components/proposal-progress-bar";
 import { CampaignDeliverablesContainer } from "@/src/features/creator/proposals/containers/campaign-deliverables-container";
 import { ContractTermsContainer } from "@/src/features/creator/proposals/containers/contract-terms-container";
 import { PaymentTermsContainer } from "@/src/features/creator/proposals/containers/payment-terms-container";
 import { AddOnsContainer } from "@/src/features/creator/proposals/containers/add-ons-container";
 import { ProposalSummaryContainer } from "@/src/features/creator/proposals/containers/proposal-summary-container"
-import { buildProposalPayload } from "@/src/features/creator/proposals/utils/buildProposalPayload"
+import { buildProposalPayload, toShippingAddressPayload } from "@/src/features/creator/proposals/utils/buildProposalPayload"
 import { useContractTerms } from "@/src/features/creator/proposals/hooks/useContractTerms"
 import { usePaymentTerms } from "@/src/features/creator/proposals/hooks/usePaymentTerms"
 import { useAddOns } from "@/src/features/creator/proposals/hooks/useAddOns"
@@ -26,9 +29,17 @@ export default function CreateCampaign() {
   const { user, loading } = useAuth();
   const { mutate: submitCampaign, isPending } = useCreateCampaign();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const queryClient = useQueryClient();
   const contractTerms = useContractTerms()
   const paymentTerms = usePaymentTerms()
   const addOns = useAddOns()
+  const draftId = searchParams.get("draft")
+  const { mutate: saveNewDraft, isPending: isSavingNewDraft } = useCreateDraft()
+  const { mutate: saveExistingDraft, isPending: isSavingExistingDraft } = useUpdateDraft(draftId ?? undefined)
+  const { mutate: deleteDraft } = useDeleteDraft()
+  const { data: draft, isLoading: draftLoading } = useDraft(draftId ?? undefined)
+  const isSavingDraft = isSavingNewDraft || isSavingExistingDraft
   const baseCreatorFee = calculateBaseCreatorFee(
     form.deliverables,
     addOns.addOns,
@@ -37,9 +48,18 @@ export default function CreateCampaign() {
     paymentTerms.giftedProducts
   )
 
+  useEffect(() => {
+    if (draft && user) {
+      applyDraftToForm({ form, contractTerms, paymentTerms, addOns, draft })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [draft, user])
+
   if (loading) return <LogoLoader label="Loading proposal form" />;
 
   if (!user) return null;
+
+  if (draftLoading) return <LogoLoader label="Loading draft" />;
 
   const buildPayload = () => buildProposalPayload({
     userId: user.user_id,
@@ -62,10 +82,46 @@ export default function CreateCampaign() {
       }
       return;
     };
-    submitCampaign(
-      { payload: buildPayload() },
-      {
+
+    const payload = buildPayload();
+    const draftPayload = {
+      campaign: {
+        ...payload.campaign,
+        platforms: payload.campaign.platforms,
+      },
+      proposal: payload.proposal,
+      deliverables: payload.deliverables,
+      contract: payload.contract,
+      addOns: addOns.addOns.map((a) => ({
+        addOnName: a.title,
+        description: a.desc ?? "",
+        fee: a.fee ?? 0,
+      })),
+      giftedProducts: paymentTerms.giftedProducts.map((p) => ({
+        productName: p.productName,
+        value: parseFloat(p.value.replace(/,/g, "") || "0"),
+        shippingAddress: toShippingAddressPayload(p.shippingAddress),
+        deliveryInstructions: p.deliveryInstructions,
+        ownershipTerms: p.ownershipTerms,
+      })),
+    };
+
+    if (draftId) {
+      saveExistingDraft(draftPayload, {
         onSuccess: () => toast.success("Draft saved!"),
+        onError: (err) => toast.error(err.message),
+      });
+      return;
+    }
+
+    saveNewDraft(
+      { userId: user.user_id, ...draftPayload },
+      {
+        onSuccess: (data) => {
+          toast.success("Draft saved!");
+          queryClient.setQueryData(["draft", data.public_id], data);
+          router.replace(`/proposals/create-campaign?draft=${data.public_id}`, { scroll: false });
+        },
         onError: (err) => toast.error(err.message),
       }
     );
@@ -89,6 +145,9 @@ export default function CreateCampaign() {
       {
         onSuccess: () => {
           toast.success("Proposal sent!");
+          if (draftId) {
+            deleteDraft(draftId);
+          }
           router.push('/creator-dashboard');
         },
         onError: (err) => toast.error(err.message),
@@ -102,6 +161,7 @@ export default function CreateCampaign() {
       <section className="flex-1 h-screen overflow-y-scroll scrollbar-gutter-stable">
         <div className="p-7.5 w-full max-w-300 m-auto text-[#141518]">
           <CreatorProposalsNavigation 
+            activeTab="create"
             userFirstName={user.first_name}
             userLastName={user.last_name}
             userEmail={user.email}
@@ -188,8 +248,10 @@ export default function CreateCampaign() {
               paymentTerms={paymentTerms}
               userName={`${user.first_name} ${user.last_name}`}
               onBack={() => form.setActiveStep(4)}
+              onSaveDraft={handleSaveDraft}
               onSubmit={handleSendProposal}
               isPending={isPending}
+              isSavingDraft={isSavingDraft}
             />
           )}
         </div>

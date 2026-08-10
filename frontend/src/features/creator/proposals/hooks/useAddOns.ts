@@ -74,6 +74,7 @@ export function useAddOns() {
 
   return { 
     addOns, 
+    setAddOns,
     addCustom, 
     toggleAddOn,
     removeAddOn, 

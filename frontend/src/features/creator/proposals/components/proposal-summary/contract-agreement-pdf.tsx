@@ -246,7 +246,7 @@ export function ContractAgreementDocument({
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Campaign Overview</Text>
           <LabelValueRow label="Campaign Name" value={summary.campaign.campaignName} />
-          <LabelValueRow label="Brand" value={summary.campaign.brand} />
+          <LabelValueRow label="Client" value={summary.campaign.brand} />
           <LabelValueRow label="Creator" value={summary.campaign.creator} />
           <LabelValueRow label="Campaign Period" value={summary.campaign.period} />
           <LabelValueRow label="Platforms" value={summary.campaign.platforms.join(", ")} />

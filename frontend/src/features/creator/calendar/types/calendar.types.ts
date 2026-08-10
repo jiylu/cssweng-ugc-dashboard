@@ -51,7 +51,7 @@ export interface Campaign {
   currency: CampaignCurrency;
   tax: number;
   pricing: number;
-  platforms: string[];
+  platforms: Record<string, string>;
   /** ISO date string for campaign kick-off */
   start_date: string;
   /** ISO date string for campaign completion */

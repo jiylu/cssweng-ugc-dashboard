@@ -7,7 +7,7 @@ export default function CreatorNavigation() {
 
   return (
     <div className="flex flex-col justify-start">
-      <Button type="button" onClick={() => router.push('/create-campaign')} className="cursor-pointer w-full lg:w-57 h-12.5 mt-10 mb-6 text-base lg:text-lg">
+      <Button type="button" onClick={() => router.push('/proposals/create-campaign')} className="cursor-pointer w-full lg:w-57 h-12.5 mt-10 mb-6 text-base lg:text-lg">
         + New Campaign
       </Button>
       <div className="flex flex-col justify-start items-start">
@@ -17,7 +17,7 @@ export default function CreatorNavigation() {
         <Button variant="ghost" onClick={() => router.push('/campaigns')} className="justify-start items-center cursor-pointer w-57 h-12.5 text-lg">
           <Megaphone />Campaigns
         </Button>
-        <Button variant="ghost" onClick={() => router.push('/create-campaign')} className="justify-start items-center cursor-pointer w-57 h-12.5 text-lg">
+        <Button variant="ghost" onClick={() => router.push('/proposals/create-campaign')} className="justify-start items-center cursor-pointer w-57 h-12.5 text-lg">
           <NotebookPen />Proposals
         </Button>
         <Button variant="ghost" onClick={() => router.push('/calendar')} className="justify-start items-center cursor-pointer w-57 h-12.5 text-lg">
