@@ -28,22 +28,22 @@ export function SubmittedProposalsTable({ proposals, onView, onSendReminder, onC
             <Table>
                 <TableHeader>
                     <TableRow className="hover:bg-transparent bg-[#E4E0D5]">
-                        <TableHead className="text-xs text-muted-foreground uppercase tracking-[0.03em]">
+                        <TableHead className="text-sm text-foreground uppercase tracking-[0.03em]">
                             Campaign Details
                         </TableHead>
-                        <TableHead className="text-xs text-muted-foreground uppercase tracking-[0.03em]">
+                        <TableHead className="text-sm text-foreground uppercase tracking-[0.03em]">
                             Client
                         </TableHead>
-                        <TableHead className="text-xs text-muted-foreground uppercase tracking-[0.03em]">
+                        <TableHead className="text-sm text-foreground uppercase tracking-[0.03em]">
                             Duration
                         </TableHead>
-                        <TableHead className="text-xs text-muted-foreground uppercase tracking-[0.03em]">
+                        <TableHead className="text-sm text-foreground uppercase tracking-[0.03em]">
                             Total Price
                         </TableHead>
-                        <TableHead className="text-xs text-muted-foreground uppercase tracking-[0.03em]">
+                        <TableHead className="text-sm text-foreground uppercase tracking-[0.03em]">
                             Status
                         </TableHead>
-                        <TableHead className="text-xs text-muted-foreground uppercase tracking-[0.03em] text-right">
+                        <TableHead className="text-sm text-foreground uppercase tracking-[0.03em] text-right">
                             Actions
                         </TableHead>
                     </TableRow>
@@ -53,7 +53,7 @@ export function SubmittedProposalsTable({ proposals, onView, onSendReminder, onC
                         const isClosed = proposal.status === "CLOSED"
 
                         return (
-                            <TableRow key={proposal.id} className="hover:bg-transparent bg-background">
+                            <TableRow key={proposal.id} className="hover:bg-transparent bg-white">
                                 <TableCell>
                                     <p className="text-sm font-medium text-[#6b1fa8]">
                                     {proposal.campaignName}
