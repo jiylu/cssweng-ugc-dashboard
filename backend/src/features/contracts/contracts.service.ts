@@ -174,16 +174,12 @@ export class ContractsService {
     this.logger.debug(`${signerRole} Signing contract ${contractId}`);
     const contract = await this.findContractByUID(contractId);
 
-    if (!contract.client_signed && signerRole === UserRoles.CREATOR) {
-      this.logger.warn(
-        `Creator attempted to sign contract ${contractId} before client`,
-      );
-
-      throw new ForbiddenException({
-        code: 'CLIENT_SIGNATURE_REQUIRED',
-        message: 'The client must sign the contract before the creator.',
-      });
-    }
+    this.handleContractConflicts(
+      contractId,
+      contract.client_signed,
+      contract.creator_signed,
+      signerRole,
+    );
 
     const updatedContract = await this.prisma.contracts.update({
       where: { contract_id: contract.contract_id },
@@ -195,6 +191,44 @@ export class ContractsService {
 
     this.logger.log(`${signerRole} Signed contract ${contractId}`);
     return updatedContract;
+  }
+
+  handleContractConflicts(
+    contractId: string,
+    clientSigned: boolean,
+    creatorSigned: boolean,
+    signerRole: UserRoles,
+  ) {
+    if (!clientSigned && signerRole === UserRoles.CREATOR) {
+      this.logger.warn(
+        `Creator attempted to sign contract ${contractId} before client`,
+      );
+
+      throw new ForbiddenException({
+        code: 'CLIENT_SIGNATURE_REQUIRED',
+        message: 'The client must sign the contract before the creator.',
+      });
+    }
+
+    if (clientSigned && creatorSigned) {
+      this.logger.warn(`Contract ${contractId} is already signed.`);
+
+      throw new ConflictException({
+        code: 'CONTRACT_ALREADY_SIGNED',
+        message: 'Contract is already signed by both client and creator',
+      });
+    }
+
+    if (clientSigned) {
+      this.logger.warn(
+        `Contract ${contractId} is already signed by the client.`,
+      );
+
+      throw new ConflictException({
+        code: 'CONTRACT_ALREADY_SIGNED_BY_CLIENT',
+        message: 'Contract is already signed by client.',
+      });
+    }
   }
 
   async updateContractDetails(
