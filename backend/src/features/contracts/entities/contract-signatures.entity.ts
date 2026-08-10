@@ -1,5 +1,5 @@
+import { UserRoles } from '@prisma/client';
 import { Exclude, Expose } from 'class-transformer';
-import { UserRoles } from 'src/generated/prisma/enums';
 
 export class ContractSignaturesEntity {
   @Exclude()
