@@ -1,4 +1,4 @@
-export type ProposalStatus = "PENDING_CLIENT" | "OVERDUE" | "CLOSED"
+export type ProposalStatus = "ACTIVE" | "REJECTED" | "COMPLETED"
 
 export interface SubmittedProposal {
     id: string
