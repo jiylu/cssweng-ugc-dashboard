@@ -41,12 +41,6 @@ export class ContractsController {
     const contract =
       await this.contractsService.findContractByCampaignId(campaignId);
 
-    await this.notificationsService.createNotification({
-      userId: campaign.ugc_creator_id,
-      title: `Contract Signed For:  ${campaign.project_name}`,
-      message: `Your client has signed the contract for ${campaign.project_name}, you may now sign the contract.`,
-    });
-
     return plainToInstance(ContractsEntity, contract);
   }
 
@@ -58,6 +52,15 @@ export class ContractsController {
   ) {
     const contractId = await this.contractsService.resolvePublicId(publicId);
     const contract = await this.contractsService.signContract(contractId, dto);
+    const campaign = await this.campaignsService.findOneCampaign(
+      contract.campaign_id,
+    );
+
+    await this.notificationsService.createNotification({
+      userId: campaign.ugc_creator_id,
+      title: `Contract Signed For:  ${campaign.project_name}`,
+      message: `Your client has signed the contract for ${campaign.project_name}, you may now sign the contract.`,
+    });
 
     return plainToInstance(ContractsEntity, contract);
   }

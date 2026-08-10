@@ -28,6 +28,7 @@ import { RevisionPolicyDTO } from 'src/features/contracts/dto/revision-policy.dt
 import { UsageRightsDTO } from 'src/features/contracts/dto/usage-rights.dto';
 import { CreateDeliverableDTO } from 'src/features/deliverables/dto/create-deliverable.dto';
 import { CreateGiftedProductDTO } from 'src/features/gifted-products/dto/create-gifted-product.dto';
+import { ShippingAddressDTO } from 'src/features/gifted-products/dto/shipping-address.dto';
 import { CreateProposalDTO } from 'src/features/proposals/dto/create-proposal.dto';
 
 type DraftJsonValue = Prisma.InputJsonValue | null | undefined;
@@ -55,10 +56,20 @@ class DraftAddOnDto extends PartialType(
   [key: string]: DraftJsonValue;
 }
 
+class DraftShippingAddressDto extends ShippingAddressDTO {
+  [key: string]: DraftJsonValue;
+}
+
 class DraftGiftedProductDto extends PartialType(
   OmitType(CreateGiftedProductDTO, ['campaignId'] as const),
 ) {
   [key: string]: DraftJsonValue;
+
+  @ApiPropertyOptional({ type: DraftShippingAddressDto })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => DraftShippingAddressDto)
+  shippingAddress?: DraftShippingAddressDto;
 }
 
 class DraftRevisionPolicyDto extends PartialType(RevisionPolicyDTO) {

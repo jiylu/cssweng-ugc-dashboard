@@ -93,6 +93,8 @@ export class ProposalsService {
         public_id: publicId,
         campaign_id: dto.campaignId,
         client_email: dto.clientEmail,
+        client_first_name: dto.client_first_name,
+        client_last_name: dto.client_last_name,
       },
     });
 
