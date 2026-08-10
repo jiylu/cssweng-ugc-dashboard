@@ -6,7 +6,7 @@ import { useCampaignForm } from "../hooks/useCampaignForm";
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/src/features/auth/hooks/useAuth";
 import { useCreateCampaign } from "@/src/features/creator/proposals/hooks/useCreateCampaignMutation";
-import { useCreateDraft, useDraft, useUpdateDraft } from "@/src/features/creator/proposals/hooks/useProposalDrafts";
+import { useCreateDraft, useDeleteDraft, useDraft, useUpdateDraft } from "@/src/features/creator/proposals/hooks/useProposalDrafts";
 import { applyDraftToForm } from "@/src/features/creator/proposals/utils/applyDraftToForm";
 import { toast } from "sonner";
 import { useRouter, useSearchParams } from "next/navigation"
@@ -17,7 +17,7 @@ import { ContractTermsContainer } from "@/src/features/creator/proposals/contain
 import { PaymentTermsContainer } from "@/src/features/creator/proposals/containers/payment-terms-container";
 import { AddOnsContainer } from "@/src/features/creator/proposals/containers/add-ons-container";
 import { ProposalSummaryContainer } from "@/src/features/creator/proposals/containers/proposal-summary-container"
-import { buildProposalPayload } from "@/src/features/creator/proposals/utils/buildProposalPayload"
+import { buildProposalPayload, toShippingAddressPayload } from "@/src/features/creator/proposals/utils/buildProposalPayload"
 import { useContractTerms } from "@/src/features/creator/proposals/hooks/useContractTerms"
 import { usePaymentTerms } from "@/src/features/creator/proposals/hooks/usePaymentTerms"
 import { useAddOns } from "@/src/features/creator/proposals/hooks/useAddOns"
@@ -37,6 +37,7 @@ export default function CreateCampaign() {
   const draftId = searchParams.get("draft")
   const { mutate: saveNewDraft, isPending: isSavingNewDraft } = useCreateDraft()
   const { mutate: saveExistingDraft, isPending: isSavingExistingDraft } = useUpdateDraft(draftId ?? undefined)
+  const { mutate: deleteDraft } = useDeleteDraft()
   const { data: draft, isLoading: draftLoading } = useDraft(draftId ?? undefined)
   const isSavingDraft = isSavingNewDraft || isSavingExistingDraft
   const baseCreatorFee = calculateBaseCreatorFee(
@@ -99,6 +100,7 @@ export default function CreateCampaign() {
       giftedProducts: paymentTerms.giftedProducts.map((p) => ({
         productName: p.productName,
         value: parseFloat(p.value.replace(/,/g, "") || "0"),
+        shippingAddress: toShippingAddressPayload(p.shippingAddress),
         deliveryInstructions: p.deliveryInstructions,
         ownershipTerms: p.ownershipTerms,
       })),
@@ -143,6 +145,9 @@ export default function CreateCampaign() {
       {
         onSuccess: () => {
           toast.success("Proposal sent!");
+          if (draftId) {
+            deleteDraft(draftId);
+          }
           router.push('/creator-dashboard');
         },
         onError: (err) => toast.error(err.message),

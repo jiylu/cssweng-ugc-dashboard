@@ -4,7 +4,6 @@ import { usePaymentTerms } from "../hooks/usePaymentTerms"
 import { useAddOns } from "../hooks/useAddOns"
 import { DraftEntity } from "../types/draft.types"
 import { PlatformEntry } from "../types/campaign-setup.types"
-import { ShippingAddress } from "../types/payment-terms.types"
 import { DEFAULT_ADD_ONS } from "./defaultAddOns"
 
 interface ApplyDraftParams {
@@ -57,6 +56,7 @@ export function applyDraftToForm({ form, contractTerms, paymentTerms, addOns, dr
   form.setContactEmail(asString(proposal.clientEmail))
   form.setContactPerson(asString(record(contract.invoice_requirements).name))
 
+  const platformsValue = record(campaign.platforms)
   const platforms: PlatformEntry[] = Array.isArray(campaign.platforms)
     ? (campaign.platforms as unknown[]).map((p) => {
         const entry = record(p)
@@ -65,7 +65,12 @@ export function applyDraftToForm({ form, contractTerms, paymentTerms, addOns, dr
           handle: typeof p === "string" ? "" : asString(entry.handle),
         }
       })
-    : []
+    : Object.keys(platformsValue).length > 0
+      ? Object.entries(platformsValue).map(([platform, handle]) => ({
+          platform,
+          handle: asString(handle),
+        }))
+      : []
   form.setPlatforms(platforms)
 
   form.setDeliverables(
@@ -166,7 +171,18 @@ export function applyDraftToForm({ form, contractTerms, paymentTerms, addOns, dr
         ownershipTerms: asString(product.ownershipTerms),
         shippingAddress:
           Object.keys(storedAddress).length > 0
-            ? (storedAddress as unknown as ShippingAddress)
+            ? {
+                addressLine1: asString(storedAddress.delivery_address_line_1),
+                addressLine2: asString(storedAddress.delivery_address_line_2),
+                country: asString(storedAddress.country),
+                stateProvince: asString(storedAddress.state_province),
+                city: asString(storedAddress.city),
+                zipCode:
+                  storedAddress.zip_code !== undefined &&
+                  storedAddress.zip_code !== null
+                    ? String(storedAddress.zip_code)
+                    : "",
+              }
             : null,
         deliveryInstructions: asString(product.deliveryInstructions),
       }

@@ -15,6 +15,12 @@ export function useDatePickerInput(value: string, onChange: (iso: string) => voi
   const [month, setMonth] = React.useState<Date | undefined>(selectedDate)
   const [inputText, setInputText] = React.useState(formatDate(selectedDate))
 
+  React.useEffect(() => {
+    if (!selectedDate) return
+    setInputText(formatDate(selectedDate))
+    setMonth(selectedDate)
+  }, [selectedDate])
+
 function handleTextChange(e: React.ChangeEvent<HTMLInputElement>) {
   const raw = e.target.value
   setInputText(raw)

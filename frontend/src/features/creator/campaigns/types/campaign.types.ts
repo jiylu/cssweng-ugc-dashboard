@@ -19,7 +19,7 @@ export interface Campaign {
   currency: string
   tax: string
   pricing: string
-  platforms: string[]
+  platforms: Record<string, string>
   start_date: string
   end_date: string
   created_at: string
