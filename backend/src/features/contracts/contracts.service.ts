@@ -1,5 +1,6 @@
 import {
   ConflictException,
+  ForbiddenException,
   HttpStatus,
   Injectable,
   Logger,
@@ -172,6 +173,17 @@ export class ContractsService {
   async signContract(contractId: string, signerRole: UserRoles) {
     this.logger.debug(`${signerRole} Signing contract ${contractId}`);
     const contract = await this.findContractByUID(contractId);
+
+    if (!contract.client_signed && signerRole === UserRoles.CREATOR) {
+      this.logger.warn(
+        `Creator attempted to sign contract ${contractId} before client`,
+      );
+
+      throw new ForbiddenException({
+        code: 'CLIENT_SIGNATURE_REQUIRED',
+        message: 'The client must sign the contract before the creator.',
+      });
+    }
 
     const updatedContract = await this.prisma.contracts.update({
       where: { contract_id: contract.contract_id },

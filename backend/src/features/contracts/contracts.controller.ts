@@ -24,10 +24,12 @@ import { SignContractDTO } from './dto/sign-contract.dto';
 import { NotificationsService } from '../notifications/notifications.service';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { UploadService } from 'src/shared/upload/upload.service';
+import { ContractSignaturesService } from './contract-signatures.service';
 @Controller('contracts')
 export class ContractsController {
   constructor(
     private readonly contractsService: ContractsService,
+    private readonly contractSignatureService: ContractSignaturesService,
     private readonly campaignsService: CampaignsService,
     private readonly notificationsService: NotificationsService,
     private readonly uploadService: UploadService,
@@ -72,11 +74,15 @@ export class ContractsController {
       initials?: Express.Multer.File[];
     },
     @Param('publicId') publicId: string,
-    @Query() dto: SignContractDTO,
+    @Body() dto: SignContractDTO,
   ) {
     const signatureFile = files.signature?.[0];
     const initialsFile = files.initials?.[0];
-    const promises: Promise<any>[] = [];
+    const promises: Promise<{
+      upload_type: string;
+      url: string;
+      type: 'image' | 'video';
+    }>[] = [];
 
     if (signatureFile) {
       promises.push(
@@ -94,7 +100,7 @@ export class ContractsController {
       );
     }
 
-    // const uploadResults = await Promise.all(promises);
+    const [signatureData, initialsData] = await Promise.all(promises);
 
     const contractId = await this.contractsService.resolvePublicId(publicId);
     const contract = await this.contractsService.signContract(
@@ -102,15 +108,22 @@ export class ContractsController {
       dto.signerRole,
     );
 
-    // const campaign = await this.campaignsService.findOneCampaign(
-    //   contract.campaign_id,
-    // );
+    const campaign = await this.campaignsService.findOneCampaign(
+      contract.campaign_id,
+    );
 
-    // await this.notificationsService.createNotification({
-    //   userId: campaign.ugc_creator_id,
-    //   title: `Contract Signed For:  ${campaign.project_name}`,
-    //   message: `Your client has signed the contract for ${campaign.project_name}, you may now sign the contract.`,
-    // });
+    await this.contractSignatureService.storeSignature({
+      contractId: contract.contract_id,
+      signerRole: dto.signerRole,
+      signatureURL: signatureData.url,
+      initialsURL: initialsData.url,
+    });
+
+    await this.notificationsService.createNotification({
+      userId: campaign.ugc_creator_id,
+      title: `Contract Signed For:  ${campaign.project_name}`,
+      message: `Your client has signed the contract for ${campaign.project_name}, you may now sign the contract.`,
+    });
 
     return plainToInstance(ContractsEntity, contract);
   }
