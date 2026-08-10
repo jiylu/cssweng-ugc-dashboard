@@ -1,5 +1,6 @@
 import {
   ConflictException,
+  ForbiddenException,
   HttpStatus,
   Injectable,
   Logger,
@@ -8,7 +9,7 @@ import {
 import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { CampaignsService } from '../campaigns/campaigns.service';
 import { CreateContractDTO } from './dto/create-contract.dto';
-import { Prisma } from '@prisma/client';
+import { Prisma, UserRoles } from '@prisma/client';
 import { nanoid } from 'nanoid';
 import { UpdateContractDTO } from './dto/update-contract.dto';
 import { SignContractDTO } from './dto/sign-contract.dto';
@@ -169,64 +170,65 @@ export class ContractsService {
     return contract;
   }
 
-  async signContract(contractId: string, dto: SignContractDTO) {
-    this.logger.debug(`Signing contract ${contractId}`);
+  async signContract(contractId: string, signerRole: UserRoles) {
+    this.logger.debug(`${signerRole} Signing contract ${contractId}`);
+    const contract = await this.findContractByUID(contractId);
 
-    const signedContract = await this.prisma.$transaction(async (tx) => {
-      const contract = await this.findContractByUID(contractId, tx);
-
-      if (contract.client_signed) {
-        throw new ConflictException({
-          status: HttpStatus.CONFLICT,
-          code: 'CONTRACT_ALREADY_SIGNED',
-          message: 'Contract has already been signed by the client.',
-        });
-      }
-
-      const signedAt = new Date();
-      const currentGeneralTerms =
-        contract.general_terms &&
-        typeof contract.general_terms === 'object' &&
-        !Array.isArray(contract.general_terms)
-          ? (contract.general_terms as Prisma.JsonObject)
-          : {};
-      const electronicSignature: Prisma.JsonObject = {
-        signer_name: `${dto.firstName.trim()} ${dto.lastName.trim()}`,
-        signature_data_url: dto.signatureDataUrl,
-        initials_data_url: dto.initialsDataUrl,
-        signed_at: signedAt.toISOString(),
-      };
-
-      const result = await tx.contracts.updateMany({
-        where: { contract_id: contract.contract_id, client_signed: false },
-        data: {
-          client_signed: true,
-          signed_at: signedAt,
-          general_terms: {
-            ...currentGeneralTerms,
-            electronic_signature: electronicSignature,
-          },
-        },
-      });
-
-      if (result.count !== 1) {
-        throw new ConflictException({
-          status: HttpStatus.CONFLICT,
-          code: 'CONTRACT_ALREADY_SIGNED',
-          message: 'Contract has already been signed by the client.',
-        });
-      }
-
-      return tx.contracts.findUniqueOrThrow({
-        where: { contract_id: contract.contract_id },
-      });
-    });
-
-    this.logger.debug(
-      `Successfully signed contract ${signedContract.contract_id}`,
+    this.handleContractConflicts(
+      contractId,
+      contract.client_signed,
+      contract.creator_signed,
+      signerRole,
     );
 
-    return signedContract;
+    const updatedContract = await this.prisma.contracts.update({
+      where: { contract_id: contract.contract_id },
+      data:
+        signerRole === UserRoles.CLIENT
+          ? { client_signed: true }
+          : { creator_signed: true },
+    });
+
+    this.logger.log(`${signerRole} Signed contract ${contractId}`);
+    return updatedContract;
+  }
+
+  handleContractConflicts(
+    contractId: string,
+    clientSigned: boolean,
+    creatorSigned: boolean,
+    signerRole: UserRoles,
+  ) {
+    if (!clientSigned && signerRole === UserRoles.CREATOR) {
+      this.logger.warn(
+        `Creator attempted to sign contract ${contractId} before client`,
+      );
+
+      throw new ForbiddenException({
+        code: 'CLIENT_SIGNATURE_REQUIRED',
+        message: 'The client must sign the contract before the creator.',
+      });
+    }
+
+    if (clientSigned && creatorSigned) {
+      this.logger.warn(`Contract ${contractId} is already signed.`);
+
+      throw new ConflictException({
+        code: 'CONTRACT_ALREADY_SIGNED',
+        message: 'Contract is already signed by both client and creator',
+      });
+    }
+
+    if (clientSigned) {
+      this.logger.warn(
+        `Contract ${contractId} is already signed by the client.`,
+      );
+
+      throw new ConflictException({
+        code: 'CONTRACT_ALREADY_SIGNED_BY_CLIENT',
+        message: 'Contract is already signed by client.',
+      });
+    }
   }
 
   async updateContractDetails(

@@ -89,7 +89,6 @@ model Contracts {
   campaign_id     String    @unique
   creator_signed  Boolean   @default(false)
   client_signed   Boolean   @default(false)
-  signed_at       DateTime?
 
   revision_policy          Json
   usage_rights             Json
@@ -101,6 +100,15 @@ model Contracts {
   invoice_requirements     Json
   general_terms            Json
   extra_notes              String?
+}
+
+model ContractSignatures {
+  signature_id        String @id @default(uuid())
+  contract_id         String
+  signer_role         UserRoles
+  signature_url       String
+  initials_url        String
+  signed_at           DateTime @default(now())
 }
 
 model GiftedProducts {

@@ -1,5 +1,5 @@
 import { applyDecorators } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
+import { ApiBody, ApiConsumes, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { UpdateContractDTO } from '../dto/update-contract.dto';
 import { SignContractDTO } from '../dto/sign-contract.dto';
 
@@ -71,11 +71,32 @@ export function ApiSignContract() {
       summary: 'Sign a contract by its Public ID',
       description:
         'Signs an existing contract identified by its public ID. ' +
-        'This records the signer name, signature, initials, and current timestamp and sets `client_signed` to true. ' +
-        'A contract can only be signed once; attempting to sign an already-signed contract may result in a conflict error. ' +
-        'Contracts are created through the campaign-setup endpoint, not directly through this controller.',
+        'Requires uploading `signature` and `initials` image files via multipart/form-data. ' +
+        'It sets either `client_signed` or `creator_signed` to true based on the provided signerRole.',
     }),
-    ApiBody({ type: SignContractDTO }),
+    ApiConsumes('multipart/form-data'),
+    ApiBody({
+      schema: {
+        type: 'object',
+        properties: {
+          signerRole: {
+            type: 'string',
+            description: 'The role of the signer (e.g., CLIENT)',
+          },
+          signature: {
+            type: 'string',
+            format: 'binary',
+            description: 'Image file for the signature',
+          },
+          initials: {
+            type: 'string',
+            format: 'binary',
+            description: 'Image file for the initials',
+          },
+        },
+        required: ['signerRole', 'signature', 'initials'],
+      },
+    }),
     ApiParam({
       name: 'publicId',
       type: String,
@@ -86,20 +107,20 @@ export function ApiSignContract() {
     ApiResponse({
       status: 200,
       description:
-        'Contract signed successfully. The `is_signed` field is now true and `signed_at` has been recorded.',
+        'Contract signed successfully.',
     }),
     ApiResponse({
       status: 400,
-      description: 'Bad request. The provided public ID is invalid.',
+      description: 'Bad request. The provided public ID or query parameters are invalid.',
+    }),
+    ApiResponse({
+      status: 403,
+      description: 'Forbidden. The client must sign the contract before the creator.',
     }),
     ApiResponse({
       status: 404,
       description:
         'Contract not found. No contract exists with the given public ID.',
-    }),
-    ApiResponse({
-      status: 409,
-      description: 'Conflict. The contract has already been signed.',
     }),
     ApiResponse({
       status: 500,
@@ -132,6 +153,33 @@ export function ApiUpdateContractDetails() {
       status: 400,
       description:
         'Invalid request body. One or more fields failed DTO validation.',
+    }),
+    ApiResponse({
+      status: 404,
+      description: 'Contract not found.',
+    }),
+    ApiResponse({
+      status: 500,
+      description: 'Internal server error.',
+    }),
+  );
+}
+
+export function ApiGetContractSignatures() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Get signatures for a contract',
+      description: 'Retrieves all signatures (both client and creator, if available) for a given contract identified by its public ID.',
+    }),
+    ApiParam({
+      name: 'publicId',
+      type: String,
+      description: 'Public ID of the contract',
+      example: 'ctr_a1B2c3D4e5',
+    }),
+    ApiResponse({
+      status: 200,
+      description: 'Signatures retrieved successfully.',
     }),
     ApiResponse({
       status: 404,
