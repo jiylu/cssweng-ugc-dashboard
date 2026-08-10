@@ -11,15 +11,15 @@ interface SubmittedProposalsTableProps {
 }
 
 const STATUS_LABELS: Record<ProposalStatus, string> = {
-  PENDING_CLIENT: "Pending Client",
-  OVERDUE: "Overdue",
-  CLOSED: "Closed",
+  ACTIVE: "Active",
+  REJECTED: "Rejected",
+  COMPLETED: "Completed",
 }
 
 const STATUS_STYLES: Record<ProposalStatus, string> = {
-  PENDING_CLIENT: "text-[#6b1fa8]",
-  OVERDUE: "text-[#ff6467]",
-  CLOSED: "text-[#b8862f]",
+  ACTIVE: "text-[#6b1fa8]",
+  REJECTED: "text-[#ff6467]",
+  COMPLETED: "text-[#2d7a3a]",
 }
 
 export function SubmittedProposalsTable({ proposals, onView, onSendReminder, onCancel }: SubmittedProposalsTableProps) {
@@ -50,7 +50,7 @@ export function SubmittedProposalsTable({ proposals, onView, onSendReminder, onC
                 </TableHeader>
                 <TableBody>
                     {proposals.map((proposal) => {
-                        const isClosed = proposal.status === "CLOSED"
+                        const isClosed = proposal.status === "COMPLETED" || proposal.status === "REJECTED"
 
                         return (
                             <TableRow key={proposal.id} className="hover:bg-transparent bg-white">
