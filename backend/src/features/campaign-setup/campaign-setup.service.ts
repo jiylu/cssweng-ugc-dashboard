@@ -131,6 +131,14 @@ export class CampaignSetupService {
     });
   }
 
+  async getFullCampaignDetailsByProposalPublicId(proposalPublicId: string) {
+    const proposalId =
+      await this.proposalService.resolvePublicId(proposalPublicId);
+    const proposal = await this.proposalService.findActiveProposal(proposalId);
+
+    return this.getFullCampaignDetails(proposal.campaign_id);
+  }
+
   async updateCampaignSetup(campaignId: string, dto: UpdateCampaignSetupDto) {
     this.logger.debug(`Updating campaign setup for campaign ${campaignId}`);
 

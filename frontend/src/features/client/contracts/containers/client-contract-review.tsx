@@ -1,8 +1,10 @@
 import { useAuth } from "@/src/features/auth/hooks/useAuth";
+import { useParams } from "next/navigation";
 import ContractActionPanel from "../components/contract-action-panel";
 import ContractReviewHeader from "../components/contract-review-header";
 
 export default function ClientContractReview() {
+  const params = useParams<{ proposalId: string }>();
   const { user } = useAuth();
 
   if (!user) {
@@ -35,7 +37,7 @@ export default function ClientContractReview() {
 
         <aside className="pt-0">
           <ContractActionPanel
-            id={user.user_id}
+            contractPublicId={params.proposalId}
           />
         </aside>
       </div>

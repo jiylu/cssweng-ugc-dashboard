@@ -13,10 +13,13 @@ describe('ContractsService', () => {
   let service: ContractsService;
 
   const mockPrisma = {
+    $transaction: jest.fn((callback) => callback(mockPrisma)),
     contracts: {
       create: jest.fn(),
       findFirst: jest.fn(),
+      findUniqueOrThrow: jest.fn(),
       update: jest.fn(),
+      updateMany: jest.fn(),
     },
   };
 
@@ -25,6 +28,10 @@ describe('ContractsService', () => {
   };
 
   beforeEach(async () => {
+    mockPrisma.$transaction.mockImplementation((callback) =>
+      callback(mockPrisma),
+    );
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ContractsService,
@@ -408,26 +415,54 @@ describe('ContractsService', () => {
         creator_signed: false,
         client_signed: false,
         signed_at: null,
+        general_terms: { governed_by: 'Philippine law' },
       };
 
       const signedContract = {
         ...unsignedContract,
+        client_signed: true,
+        general_terms: {
+          governed_by: 'Philippine law',
+          electronic_signature: {
+            signer_name: 'Jane Doe',
+            signature_data_url: 'data:image/png;base64,c2lnbmF0dXJl',
+            initials_data_url: 'data:image/png;base64,aW5pdGlhbHM=',
+            signed_at: expect.any(String),
+          },
+        },
         signed_at: new Date(),
       };
 
       mockPrisma.contracts.findFirst.mockResolvedValue(unsignedContract);
+      mockPrisma.contracts.updateMany.mockResolvedValue({ count: 1 });
+      mockPrisma.contracts.findUniqueOrThrow.mockResolvedValue(signedContract);
       mockPrisma.contracts.update.mockResolvedValue(signedContract);
 
-      const res = await service.signContract('abc1234567');
+      const res = await service.signContract('abc1234567', {
+        firstName: 'Jane',
+        lastName: 'Doe',
+        signatureDataUrl: 'data:image/png;base64,c2lnbmF0dXJl',
+        initialsDataUrl: 'data:image/png;base64,aW5pdGlhbHM=',
+      });
       expect(res).toEqual(signedContract);
       expect(res.signed_at).toBeInstanceOf(Date);
       expect(mockPrisma.contracts.findFirst).toHaveBeenCalledWith({
         where: { contract_id: 'abc1234567' },
       });
-      expect(mockPrisma.contracts.update).toHaveBeenCalledWith({
-        where: { contract_id: 'contract-1' },
+      expect(mockPrisma.contracts.updateMany).toHaveBeenCalledWith({
+        where: { contract_id: 'contract-1', client_signed: false },
         data: {
+          client_signed: true,
           signed_at: expect.any(Date),
+          general_terms: {
+            governed_by: 'Philippine law',
+            electronic_signature: {
+              signer_name: 'Jane Doe',
+              signature_data_url: 'data:image/png;base64,c2lnbmF0dXJl',
+              initials_data_url: 'data:image/png;base64,aW5pdGlhbHM=',
+              signed_at: expect.any(String),
+            },
+          },
         },
       });
     });
@@ -435,10 +470,33 @@ describe('ContractsService', () => {
     it('should throw NotFoundException when contract to sign does not exist', async () => {
       mockPrisma.contracts.findFirst.mockResolvedValue(null);
 
-      await expect(service.signContract('nonexistent')).rejects.toBeInstanceOf(
-        NotFoundException,
-      );
+      await expect(
+        service.signContract('nonexistent', {
+          firstName: 'Jane',
+          lastName: 'Doe',
+          signatureDataUrl: 'data:image/png;base64,c2lnbmF0dXJl',
+          initialsDataUrl: 'data:image/png;base64,aW5pdGlhbHM=',
+        }),
+      ).rejects.toBeInstanceOf(NotFoundException);
       expect(mockPrisma.contracts.update).not.toHaveBeenCalled();
+    });
+
+    it('should reject a contract that has already been signed', async () => {
+      mockPrisma.contracts.findFirst.mockResolvedValue({
+        contract_id: 'contract-1',
+        client_signed: true,
+      });
+
+      await expect(
+        service.signContract('contract-1', {
+          firstName: 'Jane',
+          lastName: 'Doe',
+          signatureDataUrl: 'data:image/png;base64,c2lnbmF0dXJl',
+          initialsDataUrl: 'data:image/png;base64,aW5pdGlhbHM=',
+        }),
+      ).rejects.toMatchObject({ response: { code: 'CONTRACT_ALREADY_SIGNED' } });
+
+      expect(mockPrisma.contracts.updateMany).not.toHaveBeenCalled();
     });
   });
 

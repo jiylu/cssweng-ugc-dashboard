@@ -12,7 +12,8 @@ export default function DeliverablesTable({
       <h2 className="px-4 py-4 text-[26px] leading-none text-[#141518]">
         Deliverables
       </h2>
-      <table className="w-full table-fixed border-collapse text-left">
+      <div className="overflow-x-auto">
+      <table className="min-w-[850px] w-full table-fixed border-collapse text-left">
         <thead className="bg-[#d8d4cb] text-base text-[#2f2d2a]">
           <tr>
             <th className="w-[80px] px-6 py-4 font-normal">Qty</th>
@@ -41,6 +42,7 @@ export default function DeliverablesTable({
           ))}
         </tbody>
       </table>
+      </div>
     </section>
   );
 }
