@@ -7,7 +7,6 @@ import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { ContractsService } from '../contracts/contracts.service';
 import { AddOnsService } from '../add-ons/add-ons.service';
 import { GiftedProductsService } from '../gifted-products/gifted-products.service';
-import { EmailService } from '../email/email.service';
 import { UpdateCampaignSetupDto } from './dto/update-campaign-setup.dto';
 
 @Injectable()

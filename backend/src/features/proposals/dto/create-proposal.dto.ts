@@ -11,4 +11,14 @@ export class CreateProposalDTO {
   @IsString({ message: 'Client email must be a string.' })
   @IsNotEmpty({ message: 'Client email is required.' })
   clientEmail!: string;
+
+  @ApiProperty({ example: 'Jane' })
+  @IsString({ message: 'Client first name must be a string.' })
+  @IsNotEmpty({ message: 'Client first name is required.' })
+  client_first_name!: string;
+
+  @ApiProperty({ example: 'Doe' })
+  @IsString({ message: 'Client last name must be a string.' })
+  @IsNotEmpty({ message: 'Client last name is required.' })
+  client_last_name!: string;
 }

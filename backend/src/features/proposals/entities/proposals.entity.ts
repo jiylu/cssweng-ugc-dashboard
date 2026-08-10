@@ -15,6 +15,12 @@ export class ProposalsEntity {
   client_email: string;
 
   @Expose()
+  client_first_name: string;
+
+  @Expose()
+  client_last_name: string;
+
+  @Expose()
   client_comments: string;
 
   @Expose()
