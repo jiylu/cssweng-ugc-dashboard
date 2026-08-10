@@ -30,6 +30,28 @@ export class ContractSignaturesService {
       },
     });
 
+    this.logger.log(
+      `Stored ${dto.signerRole} signature for contract ${dto.contractId}`,
+    );
+
     return storedSignature;
+  }
+
+  async getSignatures(contractId: string) {
+    this.logger.debug(`Getting signatures for contract ${contractId}`);
+
+    const contract = await this.contractService.findContractByUID(contractId);
+
+    const signatures = await this.prisma.contractSignatures.findMany({
+      where: {
+        contract_id: contract.contract_id,
+      },
+    });
+
+    this.logger.debug(
+      `Retrieved ${signatures.length} signatures for ${contractId}`,
+    );
+
+    return signatures;
   }
 }

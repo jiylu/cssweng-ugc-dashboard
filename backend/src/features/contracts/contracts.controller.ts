@@ -25,6 +25,7 @@ import { NotificationsService } from '../notifications/notifications.service';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { UploadService } from 'src/shared/upload/upload.service';
 import { ContractSignaturesService } from './contract-signatures.service';
+import { ContractSignaturesEntity } from './entities/contract-signatures.entity';
 @Controller('contracts')
 export class ContractsController {
   constructor(
@@ -57,6 +58,16 @@ export class ContractsController {
     );
 
     return plainToInstance(ContractsEntity, contract);
+  }
+
+  @Get('/campaign/signatures/:publicId')
+  async findManySignatures(@Param('publicId') publicId: string) {
+    const contractId = await this.contractsService.resolvePublicId(publicId);
+
+    const signatures =
+      await this.contractSignatureService.getSignatures(contractId);
+
+    return plainToInstance(ContractSignaturesEntity, signatures);
   }
 
   @ApiSignContract()
