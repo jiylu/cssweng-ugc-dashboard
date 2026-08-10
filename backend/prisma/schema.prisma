@@ -103,6 +103,15 @@ model Contracts {
   extra_notes              String?
 }
 
+model ContractSignatures {
+  signature_id        String @id @default(uuid())
+  contract_id         String
+  signer_role         UserRoles
+  signature_url       String
+  initials_url        String
+  signed_at           DateTime @default(now())
+}
+
 model GiftedProducts {
   gifted_product_id     String  @id @default(uuid())
   public_id             String  @unique @db.VarChar(10)
