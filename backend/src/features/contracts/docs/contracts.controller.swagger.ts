@@ -164,3 +164,30 @@ export function ApiUpdateContractDetails() {
     }),
   );
 }
+
+export function ApiGetContractSignatures() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Get signatures for a contract',
+      description: 'Retrieves all signatures (both client and creator, if available) for a given contract identified by its public ID.',
+    }),
+    ApiParam({
+      name: 'publicId',
+      type: String,
+      description: 'Public ID of the contract',
+      example: 'ctr_a1B2c3D4e5',
+    }),
+    ApiResponse({
+      status: 200,
+      description: 'Signatures retrieved successfully.',
+    }),
+    ApiResponse({
+      status: 404,
+      description: 'Contract not found.',
+    }),
+    ApiResponse({
+      status: 500,
+      description: 'Internal server error.',
+    }),
+  );
+}
