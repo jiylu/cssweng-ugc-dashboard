@@ -42,6 +42,8 @@ export function ApiCreateFullCampaign() {
             ],
             proposal: {
               clientEmail: 'client@example.com',
+              client_first_name: 'Jane',
+              client_last_name: 'Doe',
             },
             contract: {
               revision_policy: {
@@ -108,7 +110,14 @@ export function ApiCreateFullCampaign() {
               {
                 productName: 'Hydrating Night Cream',
                 value: 1800,
-                deliveryAddress: '123 Sample St, Makati City',
+                shippingAddress: {
+                  delivery_address_line_1: '123 Sample St',
+                  delivery_address_line_2: 'Building 2, Unit 4',
+                  country: 'Philippines',
+                  state_province: 'Metro Manila',
+                  city: 'Makati City',
+                  zip_code: 1226,
+                },
                 deliveryInstructions: 'Deliver weekdays, 9AM-5PM.',
                 ownershipTerms:
                   'Creator keeps gifted items unless campaign is canceled.',
@@ -208,7 +217,14 @@ export function ApiUpdateCampaignSetup() {
                 {
                   productName: 'Hydrating Night Cream',
                   value: 1800,
-                  deliveryAddress: '123 Sample St, Makati City',
+                  shippingAddress: {
+                    delivery_address_line_1: '123 Sample St',
+                    delivery_address_line_2: 'Building 2, Unit 4',
+                    country: 'Philippines',
+                    state_province: 'Metro Manila',
+                    city: 'Makati City',
+                    zip_code: 1226,
+                  },
                   deliveryInstructions: 'Deliver weekdays, 9AM-5PM.',
                   ownershipTerms:
                     'Creator keeps gifted items unless campaign is canceled.',

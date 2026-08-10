@@ -6,7 +6,9 @@ import {
   IsString,
   MaxLength,
   Min,
+  ValidateNested,
 } from 'class-validator';
+import { ShippingAddressDTO } from './shipping-address.dto';
 
 export class CreateGiftedProductDTO {
   @ApiProperty({ example: '550e8400-e29b-41d4-a716-446655440000' })
@@ -26,13 +28,10 @@ export class CreateGiftedProductDTO {
   @Min(0, { message: 'Value must not be negative.' })
   value!: number;
 
-  @ApiProperty({ example: '123 Sample St, Makati City, Metro Manila' })
-  @IsString({ message: 'Delivery address must be a string.' })
-  @IsNotEmpty({ message: 'Delivery address is required.' })
-  @MaxLength(200, {
-    message: 'Delivery address must not exceed 200 characters.',
-  })
-  deliveryAddress!: string;
+  @ApiProperty({ type: ShippingAddressDTO })
+  @ValidateNested()
+  @Type(() => ShippingAddressDTO)
+  shippingAddress!: ShippingAddressDTO;
 
   @ApiProperty({
     example: 'Deliver weekdays 9AM-5PM, call recipient before arrival.',

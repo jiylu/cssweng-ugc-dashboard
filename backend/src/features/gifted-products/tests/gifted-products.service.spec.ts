@@ -54,7 +54,14 @@ describe('GiftedProductsService', () => {
     campaignId: 'camp-1',
     productName: 'Sample Skincare Set',
     value: 2500,
-    deliveryAddress: '123 Creator St, Manila',
+    shippingAddress: {
+      delivery_address_line_1: '123 Creator St',
+      delivery_address_line_2: 'Unit 7',
+      country: 'Philippines',
+      state_province: 'Metro Manila',
+      city: 'Manila',
+      zip_code: 1000,
+    },
     deliveryInstructions: 'Ship within 5 business days',
     ownershipTerms: 'Creator keeps the product after the campaign ends',
     ...overrides,
@@ -68,8 +75,8 @@ describe('GiftedProductsService', () => {
     campaign_id: dto.campaignId,
     product_name: dto.productName,
     value: dto.value,
-    delivery_address: dto.deliveryAddress,
     delivery_instructions: dto.deliveryInstructions,
+    shipping_address: dto.shippingAddress,
     ownership_terms: dto.ownershipTerms,
   });
 
@@ -90,8 +97,8 @@ describe('GiftedProductsService', () => {
           public_id: 'mock-pb-id',
           product_name: dto.productName,
           value: dto.value,
-          delivery_address: dto.deliveryAddress,
           delivery_instructions: dto.deliveryInstructions,
+          shipping_address: { ...dto.shippingAddress },
           ownership_terms: dto.ownershipTerms,
         },
       });
@@ -346,7 +353,14 @@ describe('GiftedProductsService', () => {
       const dto: UpdateGiftedProductDTO = {
         productName: 'Updated Skincare Set',
         value: 0,
-        deliveryAddress: '456 Updated St, Manila',
+        shippingAddress: {
+          delivery_address_line_1: '456 Updated St',
+          delivery_address_line_2: 'Floor 2',
+          country: 'Philippines',
+          state_province: 'Metro Manila',
+          city: 'Manila',
+          zip_code: 1001,
+        },
         deliveryInstructions: 'Leave with building reception',
         ownershipTerms: 'Creator keeps the product permanently',
       };
@@ -354,8 +368,8 @@ describe('GiftedProductsService', () => {
         ...existingProduct,
         product_name: dto.productName,
         value: dto.value,
-        delivery_address: dto.deliveryAddress,
         delivery_instructions: dto.deliveryInstructions,
+        shipping_address: dto.shippingAddress,
         ownership_terms: dto.ownershipTerms,
       };
 
@@ -373,8 +387,8 @@ describe('GiftedProductsService', () => {
         data: {
           product_name: dto.productName,
           value: dto.value,
-          delivery_address: dto.deliveryAddress,
           delivery_instructions: dto.deliveryInstructions,
+          shipping_address: { ...dto.shippingAddress },
           ownership_terms: dto.ownershipTerms,
         },
       });

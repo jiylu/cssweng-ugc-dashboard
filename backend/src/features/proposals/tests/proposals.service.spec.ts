@@ -66,6 +66,8 @@ describe('ProposalsService', () => {
       const dto: CreateProposalDTO = {
         campaignId: 'camp123',
         clientEmail: 'client@test.com',
+        client_first_name: 'Jane',
+        client_last_name: 'Doe',
       };
 
       const createdProposal = {
@@ -73,6 +75,8 @@ describe('ProposalsService', () => {
         public_id: 'mock_public_id_1234567890',
         campaign_id: 'camp123',
         client_email: 'client@test.com',
+        client_first_name: 'Jane',
+        client_last_name: 'Doe',
         proposal_status: ProposalStatus.PENDING,
         created_at: new Date(),
       };
@@ -94,6 +98,8 @@ describe('ProposalsService', () => {
           public_id: 'mock_public_id_1234567890',
           campaign_id: 'camp123',
           client_email: 'client@test.com',
+          client_first_name: 'Jane',
+          client_last_name: 'Doe',
         },
       });
     });
@@ -102,6 +108,8 @@ describe('ProposalsService', () => {
       const dto: CreateProposalDTO = {
         campaignId: 'missing',
         clientEmail: 'client@test.com',
+        client_first_name: 'Jane',
+        client_last_name: 'Doe',
       };
 
       mockCampaignService.findOneCampaign.mockRejectedValue(
@@ -117,6 +125,8 @@ describe('ProposalsService', () => {
       const dto: CreateProposalDTO = {
         campaignId: 'camp123',
         clientEmail: 'client@pending.com',
+        client_first_name: 'Jane',
+        client_last_name: 'Doe',
       };
 
       mockCampaignService.findOneCampaign.mockResolvedValue({
@@ -140,6 +150,8 @@ describe('ProposalsService', () => {
       const dto: CreateProposalDTO = {
         campaignId: 'camp123',
         clientEmail: 'client@active.com',
+        client_first_name: 'Jane',
+        client_last_name: 'Doe',
       };
 
       mockCampaignService.findOneCampaign.mockResolvedValue({

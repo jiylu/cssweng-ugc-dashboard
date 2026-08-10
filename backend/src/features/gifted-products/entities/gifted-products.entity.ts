@@ -1,4 +1,5 @@
 import { Exclude, Expose, Type } from 'class-transformer';
+import { ShippingAddressDTO } from '../dto/shipping-address.dto';
 
 export class GiftedProductsEntity {
   @Expose()
@@ -15,7 +16,8 @@ export class GiftedProductsEntity {
   value: number;
 
   @Expose()
-  delivery_address: string;
+  @Type(() => ShippingAddressDTO)
+  shipping_address: ShippingAddressDTO;
 
   @Expose()
   delivery_instructions: string;

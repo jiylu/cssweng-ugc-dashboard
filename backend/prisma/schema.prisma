@@ -71,7 +71,7 @@ model Campaigns {
   currency        CampaignCurrency
   tax             Decimal
   pricing         Decimal
-  platforms       String[]
+  platforms       Json
   start_date      DateTime
   end_date        DateTime
   created_at      DateTime         @default(now())
@@ -109,24 +109,11 @@ model GiftedProducts {
   campaign_id           String
   product_name          String
   value                 Decimal
-  delivery_address      String
+  shipping_address      Json
   delivery_instructions String
   ownership_terms       String
   is_deleted            Boolean @default(false)
 }
-
-// model Contract_Terms {
-//   contract_terms_id       String @id @default(uuid())
-//   contract_id             String
-//   revision_policy         Json
-//   payment_terms           Json
-//   usage_rights            Json
-//   posting_requirements    Json
-//   exclusivity             Json?
-//   breach_cure_period_days Int
-//   general_terms           Json
-//   extra_notes             Json?
-// }
 
 model Contract_Submission_History {
   history_id     String               @id @default(uuid())
@@ -138,12 +125,14 @@ model Contract_Submission_History {
 }
 
 model Proposals {
-  proposal_id     String         @id @default(uuid())
-  public_id       String         @unique @db.VarChar(10)
-  campaign_id     String
-  client_email    String
-  client_comments String         @default("")
-  proposal_status ProposalStatus @default(PENDING)
+  proposal_id       String         @id @default(uuid())
+  public_id         String         @unique @db.VarChar(10)
+  campaign_id       String
+  client_email      String
+  client_first_name String
+  client_last_name  String
+  client_comments   String         @default("")
+  proposal_status   ProposalStatus @default(PENDING)
 
   campaign Campaigns @relation(fields: [campaign_id], references: [campaign_id])
 }

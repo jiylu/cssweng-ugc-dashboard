@@ -10,6 +10,7 @@ import { UpdateContractDTO } from './dto/update-contract.dto';
 import { CampaignsService } from '../campaigns/campaigns.service';
 import { plainToInstance } from 'class-transformer';
 import { ContractsEntity } from './entities/contracts.entity';
+import { SignContractDTO } from './dto/sign-contract.dto';
 import { NotificationsService } from '../notifications/notifications.service';
 
 @Controller('contracts')
@@ -40,20 +41,26 @@ export class ContractsController {
     const contract =
       await this.contractsService.findContractByCampaignId(campaignId);
 
-    await this.notificationsService.createNotification({
-      userId: campaign.ugc_creator_id,
-      title: `Contract Signed For:  ${campaign.project_name}`,
-      message: `Your client has signed the contract for ${campaign.project_name}, you may now sign the contract.`,
-    });
-
     return plainToInstance(ContractsEntity, contract);
   }
 
   @ApiSignContract()
   @Post('/sign/:publicId')
-  async sign(@Param('publicId') publicId: string) {
+  async sign(
+    @Param('publicId') publicId: string,
+    @Body() dto: SignContractDTO,
+  ) {
     const contractId = await this.contractsService.resolvePublicId(publicId);
-    const contract = await this.contractsService.signContract(contractId);
+    const contract = await this.contractsService.signContract(contractId, dto);
+    const campaign = await this.campaignsService.findOneCampaign(
+      contract.campaign_id,
+    );
+
+    await this.notificationsService.createNotification({
+      userId: campaign.ugc_creator_id,
+      title: `Contract Signed For:  ${campaign.project_name}`,
+      message: `Your client has signed the contract for ${campaign.project_name}, you may now sign the contract.`,
+    });
 
     return plainToInstance(ContractsEntity, contract);
   }

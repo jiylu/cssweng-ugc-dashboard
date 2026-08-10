@@ -1,4 +1,5 @@
 import {
+  ConflictException,
   HttpStatus,
   Injectable,
   Logger,
@@ -10,6 +11,7 @@ import { CreateContractDTO } from './dto/create-contract.dto';
 import { Prisma } from '@prisma/client';
 import { nanoid } from 'nanoid';
 import { UpdateContractDTO } from './dto/update-contract.dto';
+import { SignContractDTO } from './dto/sign-contract.dto';
 
 @Injectable()
 export class ContractsService {
@@ -167,17 +169,57 @@ export class ContractsService {
     return contract;
   }
 
-  // TODO: Implement new schema changes
-  async signContract(contractId: string) {
+  async signContract(contractId: string, dto: SignContractDTO) {
     this.logger.debug(`Signing contract ${contractId}`);
 
-    const unsignedContract = await this.findContractByUID(contractId);
+    const signedContract = await this.prisma.$transaction(async (tx) => {
+      const contract = await this.findContractByUID(contractId, tx);
 
-    const signedContract = await this.prisma.contracts.update({
-      where: { contract_id: unsignedContract.contract_id },
-      data: {
-        signed_at: new Date(),
-      },
+      if (contract.client_signed) {
+        throw new ConflictException({
+          status: HttpStatus.CONFLICT,
+          code: 'CONTRACT_ALREADY_SIGNED',
+          message: 'Contract has already been signed by the client.',
+        });
+      }
+
+      const signedAt = new Date();
+      const currentGeneralTerms =
+        contract.general_terms &&
+        typeof contract.general_terms === 'object' &&
+        !Array.isArray(contract.general_terms)
+          ? (contract.general_terms as Prisma.JsonObject)
+          : {};
+      const electronicSignature: Prisma.JsonObject = {
+        signer_name: `${dto.firstName.trim()} ${dto.lastName.trim()}`,
+        signature_data_url: dto.signatureDataUrl,
+        initials_data_url: dto.initialsDataUrl,
+        signed_at: signedAt.toISOString(),
+      };
+
+      const result = await tx.contracts.updateMany({
+        where: { contract_id: contract.contract_id, client_signed: false },
+        data: {
+          client_signed: true,
+          signed_at: signedAt,
+          general_terms: {
+            ...currentGeneralTerms,
+            electronic_signature: electronicSignature,
+          },
+        },
+      });
+
+      if (result.count !== 1) {
+        throw new ConflictException({
+          status: HttpStatus.CONFLICT,
+          code: 'CONTRACT_ALREADY_SIGNED',
+          message: 'Contract has already been signed by the client.',
+        });
+      }
+
+      return tx.contracts.findUniqueOrThrow({
+        where: { contract_id: contract.contract_id },
+      });
     });
 
     this.logger.debug(

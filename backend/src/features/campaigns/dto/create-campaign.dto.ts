@@ -5,8 +5,10 @@ import {
   IsArray,
   IsDateString,
   IsEnum,
+  IsJSON,
   IsNotEmpty,
   IsNumber,
+  IsObject,
   IsString,
   MaxLength,
   Min,
@@ -52,10 +54,8 @@ export class CreateCampaignDTO {
   @Min(0, { message: 'Pricing must not be negative.' })
   pricing!: number;
 
-  @ApiProperty({ example: '["Instagram", "Facebook", "TikTok"]' })
-  @IsArray({ message: 'Platforms must be an array of strings.' })
-  @IsString({ each: true, message: 'Each platform must be a string.' })
-  platforms!: string[];
+  @IsObject()
+  platforms!: Record<string, string>;
 
   @ApiProperty({ example: '2026-06-07T00:00:00.000Z' })
   @IsDateString(

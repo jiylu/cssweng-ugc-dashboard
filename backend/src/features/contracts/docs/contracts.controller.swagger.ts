@@ -1,6 +1,7 @@
 import { applyDecorators } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { UpdateContractDTO } from '../dto/update-contract.dto';
+import { SignContractDTO } from '../dto/sign-contract.dto';
 
 export function ApiFindContractByPublicId() {
   return applyDecorators(
@@ -70,10 +71,11 @@ export function ApiSignContract() {
       summary: 'Sign a contract by its Public ID',
       description:
         'Signs an existing contract identified by its public ID. ' +
-        'This sets the `is_signed` field to true and records the current timestamp in `signed_at`. ' +
+        'This records the signer name, signature, initials, and current timestamp and sets `client_signed` to true. ' +
         'A contract can only be signed once; attempting to sign an already-signed contract may result in a conflict error. ' +
         'Contracts are created through the campaign-setup endpoint, not directly through this controller.',
     }),
+    ApiBody({ type: SignContractDTO }),
     ApiParam({
       name: 'publicId',
       type: String,
