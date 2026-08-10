@@ -7,7 +7,6 @@ import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { ContractsService } from '../contracts/contracts.service';
 import { AddOnsService } from '../add-ons/add-ons.service';
 import { GiftedProductsService } from '../gifted-products/gifted-products.service';
-import { EmailService } from '../email/email.service';
 import { UpdateCampaignSetupDto } from './dto/update-campaign-setup.dto';
 
 @Injectable()
@@ -129,6 +128,14 @@ export class CampaignSetupService {
         giftedProducts,
       };
     });
+  }
+
+  async getFullCampaignDetailsByProposalPublicId(proposalPublicId: string) {
+    const proposalId =
+      await this.proposalService.resolvePublicId(proposalPublicId);
+    const proposal = await this.proposalService.findActiveProposal(proposalId);
+
+    return this.getFullCampaignDetails(proposal.campaign_id);
   }
 
   async updateCampaignSetup(campaignId: string, dto: UpdateCampaignSetupDto) {

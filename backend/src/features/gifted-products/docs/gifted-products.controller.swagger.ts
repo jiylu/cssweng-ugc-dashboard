@@ -6,7 +6,7 @@ export function ApiFindGiftedProductById() {
     ApiOperation({
       summary: 'Find a gifted product by public ID',
       description:
-        'Retrieves a single gifted product by its publicId. Returns full details such as product name, declared value, delivery address/instructions, and ownership terms.',
+        'Retrieves a single gifted product by its publicId. Returns full details such as product name, declared value, shipping address/instructions, and ownership terms.',
     }),
     ApiParam({
       name: 'publicId',

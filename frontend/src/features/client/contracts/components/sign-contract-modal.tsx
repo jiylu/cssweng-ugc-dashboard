@@ -1,15 +1,48 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { Card } from "@/components/ui/card";
 import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import Button from "@/src/components/atoms/button";
 import SignatureField from "./signature-field";
+import { signContract } from "../services/contracts-api";
 
 interface SignContractModalProps {
-  id: string
+  contractPublicId: string;
 }
 
-export default function SignContractModal({ id }: SignContractModalProps) {
+export default function SignContractModal({ contractPublicId }: SignContractModalProps) {
+  const router = useRouter();
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [signatureDataUrl, setSignatureDataUrl] = useState("");
+  const [initialsDataUrl, setInitialsDataUrl] = useState("");
+  const signingMutation = useMutation({
+    mutationFn: () =>
+      signContract(contractPublicId, {
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        signatureDataUrl,
+        initialsDataUrl,
+      }),
+    onSuccess: () => {
+      toast.success("Contract signed successfully.");
+      router.push("/dashboard");
+    },
+    onError: (error) =>
+      toast.error(error instanceof Error ? error.message : "Unable to sign contract."),
+  });
+  const canSign =
+    firstName.trim().length > 0 &&
+    lastName.trim().length > 0 &&
+    Boolean(signatureDataUrl) &&
+    Boolean(initialsDataUrl);
+
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -38,6 +71,8 @@ export default function SignContractModal({ id }: SignContractModalProps) {
                   id="firstname-input"
                   placeholder="Enter First Name"
                   className="w-64 border-[#78746e]"
+                  value={firstName}
+                  onChange={(event) => setFirstName(event.target.value)}
                 />
               </Field>
           
@@ -47,6 +82,8 @@ export default function SignContractModal({ id }: SignContractModalProps) {
                   id="lastname-input"
                   placeholder="Enter Last Name"
                   className="w-64 border-[#78746e]"
+                  value={lastName}
+                  onChange={(event) => setLastName(event.target.value)}
                 />
               </Field>
 
@@ -56,15 +93,16 @@ export default function SignContractModal({ id }: SignContractModalProps) {
             <div className="flex gap-8 rounded-lg border border-input/40 p-4">
               <SignatureField
                 label="Signed by:"
-                id={id}
+                id={contractPublicId}
                 className="w-64"
                 height={50}
+                onChange={setSignatureDataUrl}
               />
               <SignatureField
-                label="DS"
-                id="ST" // gawin nalang dynamic wait
+                label="Initials"
                 height={50}
                 className="w-24"
+                onChange={setInitialsDataUrl}
               />
             </div>
 
@@ -77,15 +115,20 @@ export default function SignContractModal({ id }: SignContractModalProps) {
             <div className="flex flex-row gap-2">
               <Button
                 className="h-10 w-45 text-lg font-medium cursor-pointer"
+                disabled={!canSign || signingMutation.isPending}
+                onClick={() => signingMutation.mutate()}
               >
-                Adopt and Sign
+                {signingMutation.isPending ? "Signing..." : "Adopt and Sign"}
               </Button>
+              <DialogClose asChild>
               <Button
+                type="button"
                 variant="outline"
                 className="h-10 w-30 rounded-none border-[#d8d4cb] bg-white text-lg font-normal text-[#7b7771] cursor-pointer"
               >
                 Cancel
               </Button>
+              </DialogClose>
             </div>
             
           </Card>

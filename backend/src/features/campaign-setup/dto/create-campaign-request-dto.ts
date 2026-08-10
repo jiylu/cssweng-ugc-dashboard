@@ -75,7 +75,7 @@ export class CreateCampaignRequestDto {
     type: [GiftedProductSetupDto],
     required: false,
     description:
-      "Optional gifted products array (omit 'campaignId' for each). Each item includes productName, value, deliveryAddress, deliveryInstructions, and ownershipTerms.",
+      "Optional gifted products array (omit 'campaignId' for each). Each item includes productName, value, shippingAddress, deliveryInstructions, and ownershipTerms.",
   })
   @IsOptional()
   @ValidateNested({ each: true })

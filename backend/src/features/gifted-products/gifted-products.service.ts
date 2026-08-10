@@ -34,8 +34,8 @@ export class GiftedProductsService {
         public_id: publicId,
         product_name: dto.productName,
         value: dto.value,
-        delivery_address: dto.deliveryAddress,
         delivery_instructions: dto.deliveryInstructions,
+        shipping_address: { ...dto.shippingAddress },
         ownership_terms: dto.ownershipTerms,
       },
     });
@@ -138,11 +138,11 @@ export class GiftedProductsService {
           product_name: dto.productName,
         }),
         ...(dto.value !== undefined && { value: dto.value }),
-        ...(dto.deliveryAddress !== undefined && {
-          delivery_address: dto.deliveryAddress,
-        }),
         ...(dto.deliveryInstructions !== undefined && {
           delivery_instructions: dto.deliveryInstructions,
+        }),
+        ...(dto.shippingAddress !== undefined && {
+          shipping_address: { ...dto.shippingAddress },
         }),
         ...(dto.ownershipTerms !== undefined && {
           ownership_terms: dto.ownershipTerms,

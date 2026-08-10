@@ -80,7 +80,7 @@ export function ApiFindProposalByCampaign() {
     ApiOperation({
       summary: 'Finds a proposal by campaign public ID',
       description:
-        'Retrieves the proposal associated with a campaign (by campaign publicId). No request body. To create a proposal, use CreateProposalDTO (campaignId, clientEmail). Refer to CreateProposalDTO for creation payload shape.',
+        'Retrieves the proposal associated with a campaign (by campaign publicId). No request body. To create a proposal, use CreateProposalDTO (campaignId, clientEmail, clientFirstName, clientLastName). Refer to CreateProposalDTO for creation payload shape.',
     }),
     ApiParam({
       name: 'publicId',

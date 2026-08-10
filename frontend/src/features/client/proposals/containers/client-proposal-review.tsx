@@ -88,10 +88,10 @@ export default function ClientProposalReview() {
     <main className="min-h-screen bg-[#f2f0ea] pb-14">
       <ProposalReviewHeader />
 
-      <div className="grid grid-cols-[minmax(0,1fr)_340px] gap-10 px-10 pt-8">
+      <div className="mx-auto grid max-w-[1536px] grid-cols-1 gap-8 px-5 pt-8 sm:px-8 lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-10 lg:px-10">
         <section className="min-w-0 space-y-9">
-          <h1 className="text-[58px] leading-none text-[#141518]">
-            {data.campaign.project_name}
+          <h1 className="text-[46px] leading-none text-[#141518] sm:text-[58px]">
+            Proposal Review
           </h1>
 
           <CampaignOverviewCard
@@ -117,7 +117,7 @@ export default function ClientProposalReview() {
           />
         </section>
 
-        <aside className="space-y-12 pt-[44px]">
+        <aside className="space-y-12 lg:pt-[44px]">
           <ProposalFeedbackPanel
             feedback={displayedFeedback}
             onContractSigning={() => router.push(`/contracts/${data.contract.public_id}`)}

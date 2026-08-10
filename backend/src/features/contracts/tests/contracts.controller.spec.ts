@@ -6,6 +6,7 @@ import { ContractsService } from '../contracts.service';
 import { CampaignsService } from 'src/features/campaigns/campaigns.service';
 import { NotificationsService } from 'src/features/notifications/notifications.service';
 import { UpdateContractDTO } from '../dto/update-contract.dto';
+import { SignContractDTO } from '../dto/sign-contract.dto';
 import { PAYMENT_SCHEDULE } from '../dto/payment-terms.dto';
 
 describe('ContractsController', () => {
@@ -67,7 +68,6 @@ describe('ContractsController', () => {
     mockCampaignsService.resolveCampaignPublicId.mockResolvedValue('camp-1');
     mockCampaignsService.findOneCampaign.mockResolvedValue(campaign);
     mockContractsService.findContractByCampaignId.mockResolvedValue(contract);
-    mockNotificationsService.createNotification.mockResolvedValue(undefined);
 
     const res = await controller.findOneByCampaignId('pub-camp-1');
 
@@ -78,15 +78,50 @@ describe('ContractsController', () => {
       'pub-camp-1',
     );
     expect(mockCampaignsService.findOneCampaign).toHaveBeenCalledWith('camp-1');
+    expect(mockNotificationsService.createNotification).not.toHaveBeenCalled();
+    expect(mockContractsService.findContractByCampaignId).toHaveBeenCalledWith(
+      'camp-1',
+    );
+  });
+
+  it('should notify the creator when a contract is signed', async () => {
+    const contract = {
+      contract_id: 'contract-1',
+      campaign_id: 'camp-1',
+    };
+    const campaign = {
+      campaign_id: 'camp-1',
+      ugc_creator_id: 'creator-1',
+      project_name: 'Test Project',
+    };
+    const dto: SignContractDTO = {
+      firstName: 'Jane',
+      lastName: 'Doe',
+      signatureDataUrl: 'data:image/png;base64,...',
+      initialsDataUrl: 'data:image/png;base64,...',
+    };
+    mockContractsService.resolvePublicId.mockResolvedValue('contract-1');
+    mockContractsService.signContract.mockResolvedValue(contract);
+    mockCampaignsService.findOneCampaign.mockResolvedValue(campaign);
+    mockNotificationsService.createNotification.mockResolvedValue(undefined);
+
+    const res = await controller.sign('pub-contract-1', dto);
+
+    expect(res).toBeDefined();
+    expect(mockContractsService.resolvePublicId).toHaveBeenCalledWith(
+      'pub-contract-1',
+    );
+    expect(mockContractsService.signContract).toHaveBeenCalledWith(
+      'contract-1',
+      dto,
+    );
+    expect(mockCampaignsService.findOneCampaign).toHaveBeenCalledWith('camp-1');
     expect(mockNotificationsService.createNotification).toHaveBeenCalledWith({
       userId: 'creator-1',
       title: 'Contract Signed For:  Test Project',
       message:
         'Your client has signed the contract for Test Project, you may now sign the contract.',
     });
-    expect(mockContractsService.findContractByCampaignId).toHaveBeenCalledWith(
-      'camp-1',
-    );
   });
 
   it('should route contract update to the service', async () => {

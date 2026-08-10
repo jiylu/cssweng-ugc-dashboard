@@ -141,6 +141,8 @@ describe('CampaignSetupService', () => {
         ],
         proposal: {
           clientEmail: 'client@test.com',
+          client_first_name: 'Jane',
+          client_last_name: 'Doe',
         },
         contract: {
           revision_policy: {
@@ -254,7 +256,11 @@ describe('CampaignSetupService', () => {
           endDate: new Date().toISOString(),
         },
         deliverables: [],
-        proposal: { clientEmail: 'client@test.com' },
+        proposal: {
+          clientEmail: 'client@test.com',
+          client_first_name: 'Jane',
+          client_last_name: 'Doe',
+        },
         contract: {
           revision_policy: {
             revision_rounds: 3,
@@ -342,7 +348,14 @@ describe('CampaignSetupService', () => {
             {
               productName: 'Vitamin C Serum',
               value: 1500,
-              deliveryAddress: '123 Sample St, Makati City',
+              shippingAddress: {
+                delivery_address_line_1: '123 Sample St',
+                delivery_address_line_2: 'Building 2, Unit 4',
+                country: 'Philippines',
+                state_province: 'Metro Manila',
+                city: 'Makati City',
+                zip_code: 1226,
+              },
               deliveryInstructions: 'Call before delivery.',
               ownershipTerms: 'Creator keeps product.',
             },

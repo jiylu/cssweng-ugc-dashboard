@@ -13,15 +13,15 @@ export default function CampaignOverviewCard({
 }: CampaignOverviewCardProps) {
   return (
     <section className="rounded border border-[#d8d4cb] bg-white">
-      <div className="flex items-center justify-between border-b border-[#d8d4cb] px-6 py-5">
-        <h2 className="text-[30px] leading-none text-[#141518]">
+      <div className="flex flex-col gap-2 border-b border-[#d8d4cb] px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
+        <h2 className="text-[28px] leading-none text-[#141518]">
           Campaign Overview
         </h2>
-        <p className="text-base text-[#7b7771]">
+        <p className="text-sm text-[#7b7771] sm:text-base">
           Start: {startDate} - End: {endDate}
         </p>
       </div>
-      <div className="px-8 py-5 text-lg leading-relaxed text-[#5f5b56]">
+      <div className="px-6 py-5 text-base leading-relaxed text-[#5f5b56] sm:px-8 sm:text-lg">
         <p>
           <span className="text-[#141518]">Creator:</span> {creatorName}
         </p>
