@@ -6,6 +6,7 @@ import { SubmittedProposalsTable } from "@/src/features/creator/proposals/compon
 import { SubmittedProposalPreviewDialog } from "@/src/features/creator/proposals/components/submitted-proposals/submitted-proposal-preview-dialog"
 import { useAuth } from "@/src/features/auth/hooks/useAuth";
 import { useSubmittedProposals } from "@/src/features/creator/proposals/hooks/useSubmittedProposals";
+import { useProposalClientNames } from "@/src/features/creator/proposals/hooks/useProposalClientNames";
 import { mapCampaignToSubmittedProposal } from "@/src/features/creator/proposals/utils/mapCampaignToSubmittedProposal";
 import LogoLoader from "@/src/components/molecules/logo-loader";
 import { Separator } from "@/components/ui/separator";
@@ -14,6 +15,7 @@ import { useState } from "react";
 export function SubmittedProposalsContainer() {
     const { user, loading } = useAuth();
     const { data: campaigns, isLoading, isError } = useSubmittedProposals(user?.user_id);
+    const clientNames = useProposalClientNames(campaigns);
     const [previewPublicId, setPreviewPublicId] = useState<string | null>(null);
 
     const handleView = (id: string) => {
@@ -50,7 +52,9 @@ export function SubmittedProposalsContainer() {
                         <SubmittedProposalsHeader />
                         <Separator />
                         <SubmittedProposalsTable
-                            proposals={(campaigns ?? []).map(mapCampaignToSubmittedProposal)}
+                            proposals={(campaigns ?? []).map((campaign) =>
+                                mapCampaignToSubmittedProposal(campaign, clientNames.get(campaign.public_id))
+                            )}
                             onView={handleView}
                             onSendReminder={handleSendReminder}
                             onCancel={handleCancel}
