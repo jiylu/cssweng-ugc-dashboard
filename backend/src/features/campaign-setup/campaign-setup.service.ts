@@ -127,6 +127,7 @@ export class CampaignSetupService {
         await Promise.all([
           this.proposalService.findProposalByCampaignId(
             campaign.campaign_id,
+            false,
             tx,
           ),
           this.contractService.findContractByCampaignId(

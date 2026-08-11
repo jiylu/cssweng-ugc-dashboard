@@ -126,6 +126,32 @@ export class ProposalsService {
     return activeProposal;
   }
 
+  async findProposalsForUser(userId: string) {
+    this.logger.debug(`Finding proposals for user ${userId}`);
+
+    const user = await this.userService.getActiveUserById(userId);
+
+    const activeCampaigns =
+      await this.campaignService.findAllActiveCampaignsNoQuery(user.user_id);
+
+    if (activeCampaigns.length === 0) {
+      this.logger.log(`No active proposals for user ${userId}.`);
+      return [];
+    }
+
+    const proposals = await Promise.all(
+      activeCampaigns.map((campaign) =>
+        this.findProposalByCampaignId(campaign.campaign_id, true),
+      ),
+    );
+
+    this.logger.log(
+      `Found ${proposals.length} proposals for user ${user.user_id}`,
+    );
+
+    return proposals;
+  }
+
   async resolvePublicId(publicId: string) {
     this.logger.debug(`Finding proposal with publicId ${publicId}`);
 
@@ -181,6 +207,7 @@ export class ProposalsService {
 
   async findProposalByCampaignId(
     campaignId: string,
+    isPending: boolean = false,
     tx: Prisma.TransactionClient | PrismaService = this.prisma,
   ) {
     this.logger.debug(`Finding proposal for campaign ${campaignId}`);
@@ -188,6 +215,7 @@ export class ProposalsService {
     const proposal = await tx.proposals.findFirst({
       where: {
         campaign_id: campaignId,
+        ...(isPending && { proposal_status: ProposalStatus.PENDING }),
       },
     });
 

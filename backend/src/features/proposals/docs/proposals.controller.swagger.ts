@@ -170,3 +170,28 @@ export function ApiCancelProposal() {
   );
 }
 
+export function ApiFindProposalsForUser() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Find proposals for a user',
+      description:
+        'Retrieves the pending proposals associated with the active campaigns of a user ' +
+        '(creator or client) by their internal user ID. No request body is required.',
+    }),
+    ApiParam({
+      name: 'userId',
+      type: String,
+      description: 'Internal user ID of the creator or client',
+      example: '550e8400-e29b-41d4-a716-446655440000',
+    }),
+    ApiResponse({
+      status: 200,
+      description:
+        'Proposals retrieved successfully. Returns an array of proposals.',
+    }),
+    ApiResponse({
+      status: 404,
+      description: 'User or proposal not found.',
+    }),
+  );
+}

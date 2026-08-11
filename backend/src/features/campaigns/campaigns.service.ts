@@ -178,14 +178,25 @@ export class CampaignsService {
     const skip = (page - 1) * limit;
 
     this.logger.debug(
-      `Finding campaigns. creatorId=${query.creatorId}, activeOnly=${query.activeOnly}, page=${page}, limit=${limit}`,
+      `Finding campaigns. creatorId=${query.creatorId}, clientId=${query.clientId}, activeOnly=${query.activeOnly}, page=${page}, limit=${limit}`,
     );
 
-    await this.userService.getActiveUserById(query.creatorId);
+    const userId = query.creatorId ?? query.clientId;
+
+    if (!userId) {
+      throw new BadRequestException({
+        status: HttpStatus.BAD_REQUEST,
+        code: 'CAMPAIGN_USER_REQUIRED',
+        message: 'Either creatorId or clientId must be provided.',
+      });
+    }
+
+    await this.userService.getActiveUserById(userId);
 
     const campaigns = await this.prisma.campaigns.findMany({
       where: {
         ...(query.creatorId && { ugc_creator_id: query.creatorId }),
+        ...(query.clientId && { client_id: query.clientId }),
         ...(query.activeOnly && {
           campaign_status: CampaignStatus.ACTIVE,
         }),
@@ -195,8 +206,28 @@ export class CampaignsService {
       orderBy: { created_at: 'desc' },
     });
 
+    this.logger.log(`Found ${campaigns.length} campaigns for user ${userId}`);
+
+    return campaigns;
+  }
+
+  async findAllActiveCampaignsNoQuery(userId: string) {
+    this.logger.debug(`Finding campaigns. creatorId=${userId}`);
+
+    const user = await this.userService.getActiveUserById(userId);
+
+    const campaigns = await this.prisma.campaigns.findMany({
+      where: {
+        ...(user.role === UserRoles.CREATOR
+          ? { ugc_creator_id: user.user_id }
+          : { client_id: user.user_id }),
+        campaign_status: CampaignStatus.ACTIVE,
+      },
+      orderBy: { created_at: 'desc' },
+    });
+
     this.logger.log(
-      `Found ${campaigns.length} campaigns for creator ${query.creatorId}`,
+      `Found ${campaigns.length} campaigns for user ${user.user_id}`,
     );
 
     return campaigns;

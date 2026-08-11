@@ -8,6 +8,7 @@ import {
   ApiFindAllProposalHistory,
   ApiReviseProposal,
   ApiCancelProposal,
+  ApiFindProposalsForUser,
 } from './docs/proposals.controller.swagger';
 import { NotificationsService } from '../notifications/notifications.service';
 import { CampaignsService } from '../campaigns/campaigns.service';
@@ -39,6 +40,14 @@ export class ProposalsController {
     const proposal = await this.proposalsService.findActiveProposal(proposalId);
 
     return plainToInstance(ProposalsEntity, proposal);
+  }
+
+  @ApiFindProposalsForUser()
+  @Get('user/:userId')
+  async findProposalsForUser(@Param('userId') userId: string) {
+    const proposals = await this.proposalsService.findProposalsForUser(userId);
+
+    return plainToInstance(ProposalsEntity, proposals);
   }
 
   @ApiFindProposalByCampaign()
