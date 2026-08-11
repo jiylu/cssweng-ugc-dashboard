@@ -36,19 +36,25 @@ function formatDurationDate(value: unknown, withYear: boolean): string {
 
 function toProposalStatus(status: string): ProposalStatus {
   switch (status) {
+    case "ACCEPTED":
+      return "ACTIVE"
+    case "PENDING":
+    case "FOR_REVISION":
+      return "PENDING"
+    case "REJECTED":
+      return "REJECTED"
     case "COMPLETED":
     case "COMPLETE":
       return "COMPLETED"
-    case "REJECTED":
-      return "REJECTED"
     default:
-      return "ACTIVE"
+      return "PENDING"
   }
 }
 
 export function mapCampaignToSubmittedProposal(
   campaign: Campaign,
   clientName = "—",
+  proposalStatus?: string,
 ): SubmittedProposal {
   const currency = asString(campaign.currency) || "USD"
   const total = asNumber(campaign.pricing)
@@ -67,6 +73,6 @@ export function mapCampaignToSubmittedProposal(
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     })}`,
-    status: toProposalStatus(campaign.campaign_status),
+    status: toProposalStatus(proposalStatus ?? campaign.campaign_status),
   }
 }

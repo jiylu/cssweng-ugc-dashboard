@@ -2,11 +2,18 @@ import { useQueries } from "@tanstack/react-query"
 import { Campaign } from "@/src/features/creator/campaigns/types/campaign.types"
 import { getProposalClientByCampaign } from "../services/submitted-proposals-api"
 
+export interface CampaignProposalMeta {
+  clientName: string
+  proposalStatus: string
+}
+
 function toClientName(firstName: string, lastName: string): string {
   return [firstName, lastName].filter(Boolean).join(" ").trim()
 }
 
-export function useProposalClientNames(campaigns: Campaign[] | undefined) {
+export function useProposalMetaByCampaign(
+  campaigns: Campaign[] | undefined
+): Map<string, CampaignProposalMeta> {
   const queries = useQueries({
     queries: (campaigns ?? []).map((campaign) => ({
       queryKey: ["proposal-client", campaign.public_id],
@@ -16,16 +23,16 @@ export function useProposalClientNames(campaigns: Campaign[] | undefined) {
     })),
   })
 
-  const names = new Map<string, string>()
+  const meta = new Map<string, CampaignProposalMeta>()
   ;(campaigns ?? []).forEach((campaign, index) => {
     const data = queries[index]?.data
     if (data) {
-      names.set(
-        campaign.public_id,
-        toClientName(data.client_first_name, data.client_last_name)
-      )
+      meta.set(campaign.public_id, {
+        clientName: toClientName(data.client_first_name, data.client_last_name),
+        proposalStatus: data.proposal_status,
+      })
     }
   })
 
-  return names
+  return meta
 }

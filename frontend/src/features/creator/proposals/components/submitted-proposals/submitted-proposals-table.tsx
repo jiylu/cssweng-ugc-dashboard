@@ -11,12 +11,14 @@ interface SubmittedProposalsTableProps {
 }
 
 const STATUS_LABELS: Record<ProposalStatus, string> = {
+  PENDING: "Pending",
   ACTIVE: "Active",
   REJECTED: "Rejected",
   COMPLETED: "Completed",
 }
 
 const STATUS_STYLES: Record<ProposalStatus, string> = {
+  PENDING: "text-[#8a6d3b]",
   ACTIVE: "text-[#6b1fa8]",
   REJECTED: "text-[#ff6467]",
   COMPLETED: "text-[#2d7a3a]",
