@@ -110,6 +110,7 @@ export function useProposalSummary(
       territory: contractTerms.territory,
       restrictions: contractTerms.restrictions,
       includedOrganicUsage: contractTerms.includedOrganicUsage,
+      contentRetention: contractTerms.contentRetention,
       partnershipTags: contractTerms.partnershipTags,
       reimbursementDays: contractTerms.reimbursementDays,
       giftedProductTerms: contractTerms.giftedProductTerms,

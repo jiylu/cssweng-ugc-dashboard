@@ -55,6 +55,7 @@ export interface ProposalSummaryData {
     territory: string
     restrictions: string
     includedOrganicUsage: string
+    contentRetention: number
     partnershipTags: string
     reimbursementDays: number
     giftedProductTerms: string
