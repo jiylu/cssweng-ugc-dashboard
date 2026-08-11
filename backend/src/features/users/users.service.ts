@@ -3,6 +3,7 @@ import {
   ConflictException,
   HttpStatus,
   Injectable,
+  InternalServerErrorException,
   Logger,
   NotFoundException,
   UnauthorizedException,
@@ -230,12 +231,26 @@ export class UserService {
   async getActiveUserById(userId: string) {
     this.logger.debug(`Getting active user ${userId}`);
 
-    const user = await this.prisma.user.findFirst({
-      where: {
-        user_id: userId,
-        is_active: true,
-      },
-    });
+    let user;
+    try {
+      user = await this.prisma.user.findFirst({
+        where: {
+          user_id: userId,
+          is_active: true,
+        },
+      });
+    } catch (error) {
+      this.logger.error(
+        `Prisma query failed for user ${userId}`,
+        error instanceof Error ? error.stack : error,
+      );
+
+      throw new InternalServerErrorException({
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
+        code: 'DATABASE_ERROR',
+        message: 'Failed to connect to the database or execute query',
+      });
+    }
 
     if (!user) {
       this.logger.debug(`No active user with id ${userId} found.`);
