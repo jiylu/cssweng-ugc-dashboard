@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   termBlock: {
-    marginBottom: 6,
+    marginBottom: 5,
   },
   termTitle: {
     fontSize: 10,
@@ -111,14 +111,14 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: "bold",
     textTransform: "uppercase",
-    marginBottom: 2,
+    marginBottom: 1,
   },
   termBody: {
     lineHeight: 1.5,
   },
   termBullet: {
-    lineHeight: 1.35,
-    marginBottom: 2,
+    lineHeight: 1.25,
+    marginBottom: 1,
     paddingLeft: 9,
     textIndent: -9,
   },
@@ -366,10 +366,10 @@ export function ContractAgreementDocument({
           <View style={styles.termBlock}>
             <Text style={styles.clauseTitle}>6. Posting Requirements and Disclosure</Text>
             <Text style={styles.termBullet}>
-              • Creator will include required tags, mentions, links, promo codes, captions, and hashtags provided by Brand. {summary.contract.partnershipTags ? `Required tags and hashtags: ${summary.contract.partnershipTags}.` : ""}
+              • Creator will include required tags, mentions, links, promo codes, captions, and hashtags provided by Brand.
             </Text>
             <Text style={styles.termBullet}>
-              • Creator will clearly disclose the partnership using appropriate disclosure language, such as [#ad / #sponsored / gifted], in accordance with applicable advertising laws, platform rules, and industry guidelines.
+              • Creator will clearly disclose the partnership using appropriate disclosure language, such as {summary.contract.partnershipTags ? summary.contract.partnershipTags : "[#ad / #sponsored / gifted]"}, in accordance with applicable advertising laws, platform rules, and industry guidelines.
             </Text>
             <Text style={styles.termBullet}>
               • Creator will not make false claims, unsupported product claims, or statements that Creator does not honestly believe.
