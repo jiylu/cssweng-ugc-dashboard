@@ -107,6 +107,12 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 2,
   },
+  clauseTitle: {
+    fontSize: 10,
+    fontWeight: "bold",
+    textTransform: "uppercase",
+    marginBottom: 3,
+  },
   termBody: {
     lineHeight: 1.5,
   },
@@ -236,16 +242,17 @@ export function ContractAgreementDocument({
 }: {
   summary: ProposalSummaryData
 }) {
-  const exclusivity = summary.exclusivity.hasExclusivity
+  const exclusivityText = summary.exclusivity.hasExclusivity
     ? [
         ...(summary.exclusivity.category ? [`Category: ${summary.exclusivity.category}`] : []),
+        ...(summary.exclusivity.competitorList ? [`Competitor list: ${summary.exclusivity.competitorList}`] : []),
         ...(summary.exclusivity.territory ? [`Territory: ${summary.exclusivity.territory}`] : []),
         ...(summary.exclusivity.startDate || summary.exclusivity.endDate
           ? [`Period: ${summary.exclusivity.startDate || "TBD"} - ${summary.exclusivity.endDate || "TBD"}`]
           : []),
-        ...(summary.exclusivity.competitorList ? [`Competitors: ${summary.exclusivity.competitorList}`] : []),
+        ...(summary.exclusivity.fee ? [`Additional exclusivity fee: ${summary.exclusivity.fee}`] : []),
       ].join(". ")
-    : "No exclusivity applies."
+    : ""
 
   const usageRightsText = summary.usageRights.length
     ? summary.usageRights.map((u) => `${u.type} (${u.duration})`).join(", ")
@@ -351,39 +358,68 @@ export function ContractAgreementDocument({
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Contract Terms</Text>
           <View style={styles.termBlock}>
-            <Text style={styles.termTitle}>Revision Policy</Text>
+            <Text style={styles.clauseTitle}>6. Posting Requirements and Disclosure</Text>
             <Text style={styles.termBody}>
-              {summary.creativeDirection.revisionRounds} round(s) of revisions within {summary.creativeDirection.revisionDays} days of submission.
+              Creator will include required tags, mentions, links, promo codes, captions, and hashtags provided by Brand. {summary.contract.partnershipTags ? `Required tags and hashtags: ${summary.contract.partnershipTags}.` : ""}
+            </Text>
+            <Text style={styles.termBody}>
+              Creator will clearly disclose the partnership using appropriate disclosure language, such as [#ad / #sponsored / gifted], in accordance with applicable advertising laws, platform rules, and industry guidelines.
+            </Text>
+            <Text style={styles.termBody}>
+              Creator will not make false claims, unsupported product claims, or statements that Creator does not honestly believe.
+            </Text>
+            <Text style={styles.termBody}>
+              Unless otherwise stated, published posts must remain live for at least {summary.contract.contentRetention} months, subject to normal platform errors, removals, or account issues outside Creator's control.
             </Text>
           </View>
           <View style={styles.termBlock}>
-            <Text style={styles.termTitle}>Auto Approval</Text>
+            <Text style={styles.clauseTitle}>7. Exclusivity</Text>
             <Text style={styles.termBody}>
-              Content is automatically approved after {summary.creativeDirection.feedbackDays} business days if no feedback is provided.
+              {summary.exclusivity.hasExclusivity && exclusivityText
+                ? `Exclusivity applies as follows: ${exclusivityText}.`
+                : "No exclusivity applies unless selected as an add-on or stated here. If exclusivity applies, specify category, competitor list, territory, start date, end date, and additional exclusivity fee."}
             </Text>
           </View>
           <View style={styles.termBlock}>
-            <Text style={styles.termTitle}>Cancellation</Text>
+            <Text style={styles.clauseTitle}>8. Expenses, Purchases, and Product Delivery</Text>
             <Text style={styles.termBody}>
-              {summary.contract.cancellationDays}-day notice required before the campaign start date for full refund/cancellation without penalty.
+              Brand will provide any required products, access, discount codes, tickets, or location details needed for the content.
+            </Text>
+            <Text style={styles.termBody}>
+              Creator is not required to make out-of-pocket purchases unless approved in writing by both Parties.
+            </Text>
+            <Text style={styles.termBody}>
+              Approved expenses must be reimbursed by Brand within {summary.contract.reimbursementDays} days after Creator submits valid receipts.
+            </Text>
+            <Text style={styles.termBody}>
+              If gifted products are part of the compensation, any return, resale, damage, warranty, or repayment terms must be clearly listed here: {summary.contract.giftedProductTerms}
             </Text>
           </View>
-          {summary.contract.reimbursementDays > 0 && (
-            <View style={styles.termBlock}>
-              <Text style={styles.termTitle}>Reimbursement</Text>
-              <Text style={styles.termBody}>
-                Expenses are reimbursed within {summary.contract.reimbursementDays} days. {summary.contract.giftedProductTerms ? summary.contract.giftedProductTerms : ""}
-              </Text>
-            </View>
-          )}
           <View style={styles.termBlock}>
-            <Text style={styles.termTitle}>Exclusivity</Text>
-            <Text style={styles.termBody}>{exclusivity}</Text>
+            <Text style={styles.clauseTitle}>9. Cancellation and Termination</Text>
+            <Text style={styles.termBody}>
+              If Brand cancels after work has begun, Creator may invoice for work completed, time reserved, production costs, and any approved expenses.
+            </Text>
+            <Text style={styles.termBody}>
+              If Creator cannot complete the Deliverables due to illness, emergency, shipping delay, product issue, platform issue, or other reasonable cause, the Parties will work in good faith to update the timeline.
+            </Text>
+            <Text style={styles.termBody}>
+              Either Party may terminate this Agreement if the other Party materially breaches the Agreement and does not fix the issue within {summary.contract.cancellationDays} days after written notice.
+            </Text>
           </View>
           <View style={styles.termBlock}>
-            <Text style={styles.termTitle}>General Terms</Text>
+            <Text style={styles.clauseTitle}>10. Creator Responsibilities</Text>
             <Text style={styles.termBody}>
-              This Agreement shall be governed by the laws of {summary.contract.governingLaw || "the agreed jurisdiction"}, and disputes shall be resolved in {summary.contract.disputeLocation || "the agreed venue"}. {summary.contract.extraNotes ? summary.contract.extraNotes : ""}
+              Creator confirms that the Deliverables will be original to Creator and will not knowingly infringe third-party rights.
+            </Text>
+            <Text style={styles.termBody}>
+              Creator will obtain permission for any third-party music, images, locations, people, or materials used, unless provided or approved by Brand.
+            </Text>
+            <Text style={styles.termBody}>
+              Creator will perform the services as an independent contractor, not as an employee, partner, or agent of Brand.
+            </Text>
+            <Text style={styles.termBody}>
+              Creator is responsible for Creator's own taxes, filings, insurance, equipment, and business expenses, unless otherwise stated in this Agreement.
             </Text>
           </View>
         </View>
