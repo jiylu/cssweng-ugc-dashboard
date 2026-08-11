@@ -65,7 +65,8 @@ describe('ProposalHistoryService', () => {
       contract_content: { revisionPolicy: {} },
       add_ons_content: [{ addOnName: 'Rush delivery' }],
       gifted_products_content: [{ productName: 'Sample Kit' }],
-      client_comments: 'Looks good, minor changes needed on deliverables timeline.',
+      client_comments:
+        'Looks good, minor changes needed on deliverables timeline.',
       action: ProposalActions.REVISE,
       created_at: new Date('2026-01-03T00:00:00Z'),
       updated_at: new Date('2026-01-04T00:00:00Z'),
@@ -182,7 +183,9 @@ describe('ProposalHistoryService', () => {
     it('should return an empty array when no history exists for the proposal', async () => {
       mockPrisma.proposalHistory.findMany.mockResolvedValue([]);
 
-      const res = await service.findAllHistoryForProposal('non-existent-proposal');
+      const res = await service.findAllHistoryForProposal(
+        'non-existent-proposal',
+      );
 
       expect(res).toEqual([]);
       expect(res).toHaveLength(0);
@@ -207,4 +210,3 @@ describe('ProposalHistoryService', () => {
     });
   });
 });
-

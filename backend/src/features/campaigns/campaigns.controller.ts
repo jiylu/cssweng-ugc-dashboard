@@ -1,7 +1,6 @@
 import { Body, Controller, Get, Param, Patch, Query } from '@nestjs/common';
 import { CampaignsService } from './campaigns.service';
 import { CampaignQueryDTO } from './dto/campaign-query-dto';
-import { UpdateCampaignStatusDto } from './dto/update-campaign-status-dto';
 import { UpdateCampaignClientDTO } from './dto/update-campaign-client.dto';
 import {
   ApiFindAllCampaigns,

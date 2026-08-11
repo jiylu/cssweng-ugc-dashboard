@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { ProposalsService } from '../proposals.service';
-import { ProposalStatus } from '@prisma/client';
+import { ProposalStatus, UserRoles } from '@prisma/client';
 import { CreateProposalDTO } from '../dto/create-proposal.dto';
 import { NotFoundException, ConflictException } from '@nestjs/common';
 import { CampaignsService } from 'src/features/campaigns/campaigns.service';
@@ -25,10 +25,12 @@ describe('ProposalsService', () => {
   const mockCampaignService = {
     findOneCampaign: jest.fn(),
     findOneActiveCampaignByClientId: jest.fn(),
+    findAllActiveCampaignsNoQuery: jest.fn(),
   };
 
   const mockUserService = {
     findActiveUserByEmail: jest.fn(),
+    getActiveUserById: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -412,6 +414,101 @@ describe('ProposalsService', () => {
 
       expect(typeof res).toBe('string');
       expect(res).toBe('prop_select_check');
+    });
+  });
+
+  describe('findProposalsForUser', () => {
+    const mockUser = {
+      user_id: 'user-1',
+      email: 'user@test.com',
+      first_name: 'Jane',
+      last_name: 'Doe',
+      role: UserRoles.CREATOR,
+    };
+
+    it('should return pending proposals for the active campaigns of the user', async () => {
+      const campaigns = [{ campaign_id: 'camp-1' }, { campaign_id: 'camp-2' }];
+      const proposals = [
+        {
+          proposal_id: 'prop-1',
+          campaign_id: 'camp-1',
+          proposal_status: ProposalStatus.PENDING,
+        },
+        {
+          proposal_id: 'prop-2',
+          campaign_id: 'camp-2',
+          proposal_status: ProposalStatus.PENDING,
+        },
+      ];
+
+      mockUserService.getActiveUserById.mockResolvedValue(mockUser as any);
+      mockCampaignService.findAllActiveCampaignsNoQuery.mockResolvedValue(
+        campaigns,
+      );
+      jest
+        .spyOn(service, 'findProposalByCampaignId')
+        .mockImplementation((campaignId: string) =>
+          Promise.resolve(
+            proposals.find((p) => p.campaign_id === campaignId) as any,
+          ),
+        );
+
+      const res = await service.findProposalsForUser('user-1');
+
+      expect(res).toEqual(proposals);
+      expect(mockUserService.getActiveUserById).toHaveBeenCalledWith('user-1');
+      expect(
+        mockCampaignService.findAllActiveCampaignsNoQuery,
+      ).toHaveBeenCalledWith('user-1');
+      expect(service.findProposalByCampaignId).toHaveBeenNthCalledWith(
+        1,
+        'camp-1',
+        true,
+      );
+      expect(service.findProposalByCampaignId).toHaveBeenNthCalledWith(
+        2,
+        'camp-2',
+        true,
+      );
+    });
+
+    it('should return an empty array when the user has no active campaigns', async () => {
+      mockUserService.getActiveUserById.mockResolvedValue(mockUser as any);
+      mockCampaignService.findAllActiveCampaignsNoQuery.mockResolvedValue([]);
+
+      const res = await service.findProposalsForUser('user-1');
+
+      expect(res).toEqual([]);
+      expect(
+        mockCampaignService.findAllActiveCampaignsNoQuery,
+      ).toHaveBeenCalledWith('user-1');
+    });
+
+    it('should throw NotFoundException when the user is not found', async () => {
+      mockUserService.getActiveUserById.mockRejectedValue(
+        new NotFoundException(),
+      );
+
+      await expect(
+        service.findProposalsForUser('missing-user'),
+      ).rejects.toBeInstanceOf(NotFoundException);
+      expect(
+        mockCampaignService.findAllActiveCampaignsNoQuery,
+      ).not.toHaveBeenCalled();
+    });
+
+    it('should propagate NotFoundException when a campaign has no pending proposal', async () => {
+      mockUserService.getActiveUserById.mockResolvedValue(mockUser as any);
+      mockCampaignService.findAllActiveCampaignsNoQuery.mockResolvedValue([
+        { campaign_id: 'camp-1' },
+      ]);
+      jest
+        .spyOn(service, 'findProposalByCampaignId')
+        .mockRejectedValue(new NotFoundException());
+
+      await expect(
+        service.findProposalsForUser('user-1'),
+      ).rejects.toBeInstanceOf(NotFoundException);
     });
   });
 });

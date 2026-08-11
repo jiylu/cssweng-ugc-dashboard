@@ -14,4 +14,3 @@ import { ProposalHistoryService } from './proposal-history.service';
   exports: [ProposalsService, ProposalHistoryService],
 })
 export class ProposalsModule {}
-
