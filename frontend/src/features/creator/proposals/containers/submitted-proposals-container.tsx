@@ -3,19 +3,21 @@ import CreatorProposalsNavigation from "@/src/features/creator/proposals/compone
 import CreatorSidebar from "@/src/components/organisms/creator-sidebar";
 import { SubmittedProposalsHeader } from "@/src/features/creator/proposals/components/submitted-proposals/submitted-proposals-header"
 import { SubmittedProposalsTable } from "@/src/features/creator/proposals/components/submitted-proposals/submitted-proposals-table"
+import { SubmittedProposalPreviewDialog } from "@/src/features/creator/proposals/components/submitted-proposals/submitted-proposal-preview-dialog"
 import { useAuth } from "@/src/features/auth/hooks/useAuth";
 import { useSubmittedProposals } from "@/src/features/creator/proposals/hooks/useSubmittedProposals";
 import { mapCampaignToSubmittedProposal } from "@/src/features/creator/proposals/utils/mapCampaignToSubmittedProposal";
 import LogoLoader from "@/src/components/molecules/logo-loader";
 import { Separator } from "@/components/ui/separator";
+import { useState } from "react";
 
 export function SubmittedProposalsContainer() {
     const { user, loading } = useAuth();
     const { data: campaigns, isLoading, isError } = useSubmittedProposals(user?.user_id);
+    const [previewPublicId, setPreviewPublicId] = useState<string | null>(null);
 
-    // TODO: wire up real handlers once the proposals API/service layer exists
     const handleView = (id: string) => {
-        console.log("view proposal", id)
+        setPreviewPublicId(id)
     }
 
     const handleSendReminder = (id: string) => {
@@ -56,6 +58,11 @@ export function SubmittedProposalsContainer() {
                     </div>
                 </div>
             </section>
+            <SubmittedProposalPreviewDialog
+                publicId={previewPublicId}
+                creatorName={`${user.first_name} ${user.last_name}`.trim()}
+                onClose={() => setPreviewPublicId(null)}
+            />
         </main>
     )
 }
