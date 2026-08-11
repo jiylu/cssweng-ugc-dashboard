@@ -1,17 +1,19 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Megaphone, Settings, LogOut, Loader2 } from "lucide-react";
+import { ArrowLeft, Megaphone, Settings, LogOut, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 
 interface ClientSidebarProps {
   isSigningOut: boolean;
   onSignOut: () => void;
+  showBackToCampaigns?: boolean;
 }
 
 export default function ClientSidebar({
   isSigningOut,
   onSignOut,
+  showBackToCampaigns = false,
 }: ClientSidebarProps) {
   return (
     <aside className="flex h-screen w-[300px] shrink-0 flex-col border-r border-[#d8d4cb] bg-[#f2f0ea] px-9 py-10">
@@ -34,8 +36,12 @@ export default function ClientSidebar({
           className="h-12 justify-start gap-4 px-0 text-lg font-normal text-[#6b1fa8] hover:bg-transparent hover:text-[#6b1fa8]"
         >
           <Link href="/dashboard">
-            <Megaphone className="size-6" />
-            Campaigns
+            {showBackToCampaigns ? (
+              <ArrowLeft className="size-6" />
+            ) : (
+              <Megaphone className="size-6" />
+            )}
+            {showBackToCampaigns ? "Back to Campaigns" : "Campaigns"}
           </Link>
         </Button>
         <Button
