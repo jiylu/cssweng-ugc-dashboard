@@ -12,6 +12,7 @@ import { useCampaignForm } from "../hooks/useCampaignForm"
 import { useContractTerms } from "../hooks/useContractTerms"
 import { useAddOns } from "../hooks/useAddOns"
 import { usePaymentTerms } from "../hooks/usePaymentTerms"
+import { formatDate } from "@/src/utils/date"
 
 interface ProposalSummaryContainerProps {
   form: ReturnType<typeof useCampaignForm>
@@ -51,7 +52,15 @@ export function ProposalSummaryContainer({ form, contractTerms, addOns, paymentT
     ...(contractTerms.hasExclusivity
       ? [{
           title: "Exclusivity",
-          description: `No competing ${contractTerms.exclusivityCategory || "brands"} during the exclusivity period within ${contractTerms.exclusivityTerritory || "the agreed territory"}.`,
+          description: [
+            contractTerms.exclusivityCategory ? `Category: ${contractTerms.exclusivityCategory}` : "",
+            contractTerms.exclusivityCompetitorList ? `Competitors: ${contractTerms.exclusivityCompetitorList}` : "",
+            contractTerms.exclusivityTerritory ? `Territory: ${contractTerms.exclusivityTerritory}` : "",
+            contractTerms.exclusivityStartDate || contractTerms.exclusivityEndDate
+              ? `Period: ${contractTerms.exclusivityStartDate ? formatDate(new Date(contractTerms.exclusivityStartDate)) : "TBD"} - ${contractTerms.exclusivityEndDate ? formatDate(new Date(contractTerms.exclusivityEndDate)) : "TBD"}`
+              : "",
+            contractTerms.exclusivityFee ? `Additional exclusivity fee: ${contractTerms.exclusivityFee}` : "",
+          ].filter(Boolean).join(". "),
         }]
       : []),
     ...(contractTerms.contentRetention > 0
