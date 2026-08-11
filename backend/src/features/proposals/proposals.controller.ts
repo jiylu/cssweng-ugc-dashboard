@@ -132,10 +132,6 @@ export class ProposalsController {
     );
 
     try {
-      const campaign = await this.campaignsService.findOneCampaign(
-        updatedProposal.campaign_id,
-      );
-
       await this.notificationsService.createNotification({
         userId: campaign.ugc_creator_id,
         title: `Your Proposal Has Been Rejected.`,
