@@ -106,6 +106,9 @@ export class ProposalsController {
   async reject(@Param('publicId') publicId: string) {
     const proposalId = await this.proposalsService.resolvePublicId(publicId);
 
+    const proposal = await this.proposalsService.findActiveProposal(proposalId);
+    await this.campaignsService.assertCampaignUpdatable(proposal.campaign_id);
+
     const updatedProposal = await this.proposalsService.updateProposalStatus(
       proposalId,
       {
@@ -189,6 +192,9 @@ export class ProposalsController {
   @Patch('/cancel/:publicId')
   async cancel(@Param('publicId') publicId: string) {
     const proposalId = await this.proposalsService.resolvePublicId(publicId);
+
+    const proposal = await this.proposalsService.findActiveProposal(proposalId);
+    await this.campaignsService.assertCampaignUpdatable(proposal.campaign_id);
 
     const updatedProposal = await this.proposalsService.updateProposalStatus(
       proposalId,

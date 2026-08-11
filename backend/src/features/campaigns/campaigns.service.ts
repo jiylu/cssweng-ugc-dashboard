@@ -236,24 +236,7 @@ export class CampaignsService {
   async updateCampaignStatus(campaignId: string, dto: UpdateCampaignStatusDto) {
     this.logger.debug(`Updating campaign status for ${campaignId}`);
 
-    const campaign = await this.findOneCampaign(campaignId);
-    const terminalStatuses = [
-      CampaignStatus.REJECTED,
-      CampaignStatus.COMPLETED,
-      CampaignStatus.CANCELLED,
-    ] as CampaignStatus[];
-
-    if (terminalStatuses.includes(campaign.campaign_status)) {
-      this.logger.warn(
-        `Cannot update status for ${campaign.campaign_id} from ${campaign.campaign_status} to ${dto.campaignStatus} because current status is terminal.`,
-      );
-
-      throw new ConflictException({
-        status: HttpStatus.CONFLICT,
-        code: 'CAMPAIGN_STATUS_UPDATE_ERROR',
-        message: 'Campaign Status Update Error',
-      });
-    }
+    const campaign = await this.assertCampaignUpdatable(campaignId);
 
     const updatedCampaign = await this.prisma.campaigns.update({
       where: { campaign_id: campaignId },
@@ -267,6 +250,29 @@ export class CampaignsService {
     );
 
     return updatedCampaign;
+  }
+
+  async assertCampaignUpdatable(campaignId: string) {
+    const campaign = await this.findOneCampaign(campaignId);
+    const terminalStatuses = [
+      CampaignStatus.REJECTED,
+      CampaignStatus.COMPLETED,
+      CampaignStatus.CANCELLED,
+    ] as CampaignStatus[];
+
+    if (terminalStatuses.includes(campaign.campaign_status)) {
+      this.logger.warn(
+        `Cannot update campaign ${campaign.campaign_id} because current status ${campaign.campaign_status} is terminal.`,
+      );
+
+      throw new ConflictException({
+        status: HttpStatus.CONFLICT,
+        code: 'CAMPAIGN_STATUS_UPDATE_ERROR',
+        message: 'Campaign Status Update Error',
+      });
+    }
+
+    return campaign;
   }
 
   private async assertExistingCampaignAndNoClient(campaignId: string) {

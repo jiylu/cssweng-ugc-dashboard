@@ -7,6 +7,8 @@ import {
   UseInterceptors,
   UploadedFile,
   Patch,
+  ConflictException,
+  HttpStatus,
 } from '@nestjs/common';
 import { PaymentsService } from './payments.service';
 import { CampaignsService } from '../campaigns/campaigns.service';
@@ -14,7 +16,12 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { UploadService } from 'src/shared/upload/upload.service';
 import { plainToInstance } from 'class-transformer';
 import { PaymentsEntity } from './entities/payments.entity';
-import { CampaignStatus, PaymentSchedule } from '@prisma/client';
+import {
+  CampaignStatus,
+  PaymentSchedule,
+  ProposalStatus,
+} from '@prisma/client';
+import { ProposalsService } from '../proposals/proposals.service';
 import {
   ApiCreatePayment,
   ApiFindPaymentByPublicId,
@@ -28,6 +35,7 @@ export class PaymentsController {
     private readonly paymentsService: PaymentsService,
     private readonly campaignsService: CampaignsService,
     private readonly uploadService: UploadService,
+    private readonly proposalsService: ProposalsService,
   ) {}
 
   @ApiCreatePayment()
@@ -76,12 +84,24 @@ export class PaymentsController {
     const paymentRecord =
       await this.paymentsService.findOnePaymentRecord(paymentId);
 
-    const validatedPayment =
-      await this.paymentsService.validatePayment(paymentId);
-
     const campaign = await this.campaignsService.findOneCampaign(
       paymentRecord.campaign_id,
     );
+
+    const proposal = await this.proposalsService.findProposalByCampaignId(
+      paymentRecord.campaign_id,
+    );
+
+    if (proposal.proposal_status !== ProposalStatus.ACCEPTED) {
+      throw new ConflictException({
+        status: HttpStatus.CONFLICT,
+        code: 'CAMPAIGN_PROPOSAL_NOT_ACCEPTED',
+        message: 'Campaign proposal must be accepted before validating payment',
+      });
+    }
+
+    const validatedPayment =
+      await this.paymentsService.validatePayment(paymentId);
 
     const paidAmount =
       campaign.payment_schedule === PaymentSchedule.DUE_FINAL_DELIVERY
