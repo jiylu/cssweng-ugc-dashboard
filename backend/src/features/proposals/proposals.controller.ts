@@ -43,35 +43,35 @@ export class ProposalsController {
     return plainToInstance(ProposalsEntity, proposal);
   }
 
-  @ApiUpdateProposalComments()
-  @Patch('comments/:publicId')
-  async updateComments(
-    @Param('publicId') publicId: string,
-    @Body() dto: UpdateProposalCommentDTO,
-  ) {
-    const proposalId = await this.proposalsService.resolvePublicId(publicId);
+  // @ApiUpdateProposalComments()
+  // @Patch('comments/:publicId')
+  // async updateComments(
+  //   @Param('publicId') publicId: string,
+  //   @Body() dto: UpdateProposalCommentDTO,
+  // ) {
+  //   const proposalId = await this.proposalsService.resolvePublicId(publicId);
 
-    const updatedProposal = await this.proposalsService.updateProposalComments(
-      proposalId,
-      dto,
-    );
+  //   const updatedProposal = await this.proposalsService.updateProposalComments(
+  //     proposalId,
+  //     dto,
+  //   );
 
-    try {
-      const campaign = await this.campaignsService.findOneCampaign(
-        updatedProposal.campaign_id,
-      );
+  //   try {
+  //     const campaign = await this.campaignsService.findOneCampaign(
+  //       updatedProposal.campaign_id,
+  //     );
 
-      await this.notificationsService.createNotification({
-        userId: campaign.ugc_creator_id,
-        title: 'Your Proposal Has New comments',
-        message: `Comment for your proposal: ${updatedProposal.client_comments}`,
-      });
-    } catch (err) {
-      this.logger.warn(`Failed to send notification`, err);
-    }
+  //     await this.notificationsService.createNotification({
+  //       userId: campaign.ugc_creator_id,
+  //       title: 'Your Proposal Has New comments',
+  //       message: `Comment for your proposal: ${updatedProposal.client_comments}`,
+  //     });
+  //   } catch (err) {
+  //     this.logger.warn(`Failed to send notification`, err);
+  //   }
 
-    return plainToInstance(ProposalsEntity, updatedProposal);
-  }
+  //   return plainToInstance(ProposalsEntity, updatedProposal);
+  // }
 
   @ApiUpdateProposalStatus()
   @Patch('/status/:publicId')

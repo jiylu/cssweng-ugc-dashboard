@@ -8,6 +8,8 @@ import { ContractsService } from '../contracts/contracts.service';
 import { AddOnsService } from '../add-ons/add-ons.service';
 import { GiftedProductsService } from '../gifted-products/gifted-products.service';
 import { UpdateCampaignSetupDto } from './dto/update-campaign-setup.dto';
+import { PAYMENT_SCHEDULE } from '../contracts/dto/payment-terms.dto';
+import { PaymentSchedule } from '@prisma/client';
 
 @Injectable()
 export class CampaignSetupService {
@@ -36,8 +38,18 @@ export class CampaignSetupService {
 
       const totalPrice = initialPrice + initialPrice * (dto.campaign.tax / 100);
 
+      const paymentSchedule =
+        dto.contract.payment_terms.payment_schedule ===
+        PAYMENT_SCHEDULE.DUE_FINAL_DELIVERY
+          ? PaymentSchedule.DUE_FINAL_DELIVERY
+          : PaymentSchedule.DEPOSIT_50_FINAL_50;
+
       const campaign = await this.campaignService.createCampaign(
-        { ...dto.campaign, pricing: totalPrice },
+        {
+          ...dto.campaign,
+          pricing: totalPrice,
+          paymentSchedule: paymentSchedule,
+        },
         tx,
       );
 

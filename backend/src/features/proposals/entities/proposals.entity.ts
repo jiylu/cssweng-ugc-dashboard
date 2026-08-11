@@ -21,8 +21,5 @@ export class ProposalsEntity {
   client_last_name: string;
 
   @Expose()
-  client_comments: string;
-
-  @Expose()
   proposal_status: ProposalStatus;
 }

@@ -9,13 +9,19 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { CreateCampaignDTO } from './dto/create-campaign.dto';
-import { CampaignStatus, Prisma, UserRoles } from '@prisma/client';
+import {
+  CampaignStatus,
+  PaymentSchedule,
+  Prisma,
+  UserRoles,
+} from '@prisma/client';
 import { CampaignQueryDTO } from './dto/campaign-query-dto';
 import { UpdateCampaignStatusDto } from './dto/update-campaign-status-dto';
 import { UpdateCampaignClientDTO } from './dto/update-campaign-client.dto';
 import { UpdateCampaignDetailsDTO } from './dto/update-campaign-details.dto';
 import { UserService } from '../users/users.service';
 import { nanoid } from 'nanoid';
+import { UpdatePaidAmountDTO } from './dto/update-paid-amount.dto';
 
 @Injectable()
 export class CampaignsService {
@@ -53,6 +59,10 @@ export class CampaignsService {
         platforms: dto.platforms,
         start_date: startDate,
         end_date: endDate,
+        payment_schedule: dto.paymentSchedule,
+        ...(dto.paymentSchedule === PaymentSchedule.DEPOSIT_50_FINAL_50 && {
+          paid_amount: new Prisma.Decimal(dto.pricing).div(2),
+        }),
       },
     });
 
@@ -294,6 +304,27 @@ export class CampaignsService {
 
     this.logger.log(
       `Updated client id for campaign ${campaignId} to client id ${dto.clientId}.`,
+    );
+
+    return updatedCampaign;
+  }
+
+  async updatePaidAmount(campaignId: string, dto: UpdatePaidAmountDTO) {
+    this.logger.debug(
+      `Updating paid amount for campaign ${campaignId} to ${dto.paidAmount}`,
+    );
+
+    const campaign = await this.findOneCampaign(campaignId);
+
+    const updatedCampaign = await this.prisma.campaigns.update({
+      where: { campaign_id: campaign.campaign_id },
+      data: {
+        paid_amount: dto.paidAmount,
+      },
+    });
+
+    this.logger.log(
+      `Updated ${campaign.campaign_id} paid amount to ${updatedCampaign.paid_amount.toString()}`,
     );
 
     return updatedCampaign;

@@ -62,20 +62,22 @@ model Clients {
 }
 
 model Campaigns {
-  campaign_id     String           @id @default(uuid())
-  public_id       String           @unique @db.VarChar(10)
-  ugc_creator_id  String
-  client_id       String?
-  project_name    String
-  description     String
-  currency        CampaignCurrency
-  tax             Decimal
-  pricing         Decimal
-  platforms       Json
-  start_date      DateTime
-  end_date        DateTime
-  created_at      DateTime         @default(now())
-  campaign_status CampaignStatus   @default(ACTIVE)
+  campaign_id       String           @id @default(uuid())
+  public_id         String           @unique @db.VarChar(10)
+  ugc_creator_id    String
+  client_id         String?
+  project_name      String
+  description       String
+  currency          CampaignCurrency
+  tax               Decimal
+  pricing           Decimal
+  platforms         Json
+  start_date        DateTime
+  end_date          DateTime
+  created_at        DateTime         @default(now())
+  campaign_status   CampaignStatus   @default(ACTIVE)
+  paid_amount       Decimal          @default(0.0)
+  payment_schedule  PaymentSchedule
 
   creator      User           @relation("CreatorCampaigns", fields: [ugc_creator_id], references: [user_id])
   client       User?          @relation("ClientCampaigns", fields: [client_id], references: [user_id])
@@ -150,6 +152,7 @@ model ProposalHistory {
   client_comments           String          @default("")
   action                    ProposalStatus  @default(PENDING)
   created_at                DateTime
+  updated_at                DateTime
 }
 
 model Deliverables {
@@ -256,8 +259,7 @@ model Payments {
   public_id             String   @unique @db.VarChar(10)
   campaign_id           String
   proof_payment_url     String
-  payment_amt           Decimal
-  is_payment_verified   Boolean
+  is_payment_verified   Boolean @default(false)
   created_at            DateTime @default(now())
   verified_at           DateTime?
 }
@@ -316,4 +318,9 @@ enum SubmissionStatus {
   FOR_REVIEW
   FOR_REVISION
   APPROVED
+}
+
+enum PaymentSchedule {
+  DEPOSIT_50_FINAL_50
+  DUE_FINAL_DELIVERY
 }

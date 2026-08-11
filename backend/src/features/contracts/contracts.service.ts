@@ -12,7 +12,6 @@ import { CreateContractDTO } from './dto/create-contract.dto';
 import { Prisma, UserRoles } from '@prisma/client';
 import { nanoid } from 'nanoid';
 import { UpdateContractDTO } from './dto/update-contract.dto';
-import { SignContractDTO } from './dto/sign-contract.dto';
 
 @Injectable()
 export class ContractsService {

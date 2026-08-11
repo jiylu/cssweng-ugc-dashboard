@@ -12,6 +12,13 @@ export class UploadService {
   async upload(
     file: Express.Multer.File,
   ): Promise<{ url: string; type: 'image' | 'video' }> {
+    if (!file) {
+      throw new BadRequestException({
+        code: 'FILE_NOT_PROVIDED',
+        message: 'No file was uploaded.',
+      });
+    }
+
     if (file.mimetype.startsWith('image/')) {
       const result = await this.supabaseStorageService.upload(file);
 
