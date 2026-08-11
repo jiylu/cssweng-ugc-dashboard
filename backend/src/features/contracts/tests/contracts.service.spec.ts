@@ -425,8 +425,8 @@ describe('ContractsService', () => {
       mockPrisma.contracts.findFirst.mockResolvedValue(unsignedContract);
       mockPrisma.contracts.update.mockResolvedValue(signedContract);
 
-      const res = await service.signContract('abc1234567', 'CLIENT' as any);
-      
+      const res = await service.signContract('abc1234567', 'CLIENT');
+
       expect(res).toEqual(signedContract);
       expect(mockPrisma.contracts.findFirst).toHaveBeenCalledWith({
         where: { contract_id: 'abc1234567' },

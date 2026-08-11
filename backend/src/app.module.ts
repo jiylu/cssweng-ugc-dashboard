@@ -17,6 +17,7 @@ import { OtpModule } from './features/otp/otp.module';
 import { DraftsModule } from './features/drafts/drafts.module';
 import { CloudinaryModule } from './shared/cloudinary/cloudinary.module';
 import { UploadModule } from './shared/upload/upload.module';
+import { PaymentsModule } from './features/payments/payments.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { UploadModule } from './shared/upload/upload.module';
     DraftsModule,
     CloudinaryModule,
     UploadModule,
+    PaymentsModule,
   ],
   controllers: [],
   providers: [],

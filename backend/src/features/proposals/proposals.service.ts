@@ -207,22 +207,22 @@ export class ProposalsService {
     return proposal;
   }
 
-  async updateProposalComments(
-    proposalId: string,
-    dto: UpdateProposalCommentDTO,
-  ) {
-    this.logger.debug(`Updating comments for proposal ${proposalId}`);
+  // async updateProposalComments(
+  //   proposalId: string,
+  //   dto: UpdateProposalCommentDTO,
+  // ) {
+  //   this.logger.debug(`Updating comments for proposal ${proposalId}`);
 
-    await this.findActiveProposal(proposalId);
+  //   await this.findActiveProposal(proposalId);
 
-    const updated = await this.prisma.proposals.update({
-      where: { proposal_id: proposalId },
-      data: { client_comments: dto.comment },
-    });
+  //   const updated = await this.prisma.proposals.update({
+  //     where: { proposal_id: proposalId },
+  //     data: { client_comments: dto.comment },
+  //   });
 
-    this.logger.log(`Comments updated for proposal ${proposalId}`);
-    return updated;
-  }
+  //   this.logger.log(`Comments updated for proposal ${proposalId}`);
+  //   return updated;
+  // }
 
   async updateProposalStatus(proposalId: string, dto: UpdateProposalStatusDTO) {
     this.logger.debug(`Updating status for proposal ${proposalId}`);
