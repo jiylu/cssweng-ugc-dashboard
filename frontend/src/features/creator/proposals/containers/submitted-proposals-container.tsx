@@ -6,7 +6,7 @@ import { SubmittedProposalsTable } from "@/src/features/creator/proposals/compon
 import { SubmittedProposalPreviewDialog } from "@/src/features/creator/proposals/components/submitted-proposals/submitted-proposal-preview-dialog"
 import { useAuth } from "@/src/features/auth/hooks/useAuth";
 import { useSubmittedProposals } from "@/src/features/creator/proposals/hooks/useSubmittedProposals";
-import { useProposalClientNames } from "@/src/features/creator/proposals/hooks/useProposalClientNames";
+import { useProposalMetaByCampaign } from "@/src/features/creator/proposals/hooks/useProposalMetaByCampaign";
 import { mapCampaignToSubmittedProposal } from "@/src/features/creator/proposals/utils/mapCampaignToSubmittedProposal";
 import LogoLoader from "@/src/components/molecules/logo-loader";
 import { Separator } from "@/components/ui/separator";
@@ -15,7 +15,7 @@ import { useState } from "react";
 export function SubmittedProposalsContainer() {
     const { user, loading } = useAuth();
     const { data: campaigns, isLoading, isError } = useSubmittedProposals(user?.user_id);
-    const clientNames = useProposalClientNames(campaigns);
+    const proposalMeta = useProposalMetaByCampaign(campaigns);
     const [previewPublicId, setPreviewPublicId] = useState<string | null>(null);
 
     const handleView = (id: string) => {
@@ -52,9 +52,14 @@ export function SubmittedProposalsContainer() {
                         <SubmittedProposalsHeader />
                         <Separator />
                         <SubmittedProposalsTable
-                            proposals={(campaigns ?? []).map((campaign) =>
-                                mapCampaignToSubmittedProposal(campaign, clientNames.get(campaign.public_id))
-                            )}
+                            proposals={(campaigns ?? []).map((campaign) => {
+                                const meta = proposalMeta.get(campaign.public_id)
+                                return mapCampaignToSubmittedProposal(
+                                    campaign,
+                                    meta?.clientName,
+                                    meta?.proposalStatus,
+                                )
+                            })}
                             onView={handleView}
                             onSendReminder={handleSendReminder}
                             onCancel={handleCancel}
