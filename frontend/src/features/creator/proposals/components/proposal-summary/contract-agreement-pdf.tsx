@@ -85,9 +85,8 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     paddingHorizontal: 6,
   },
-  tableHeadCell: {
-    paddingVertical: 5,
-    paddingHorizontal: 6,
+  tableCellText: {},
+  tableHeadCellText: {
     fontWeight: "bold",
     color: "#5f5a53",
   },
@@ -157,6 +156,13 @@ function formatAgreementDate() {
   return `${month} ${d.getDate()}, ${d.getFullYear()}`
 }
 
+function formatAddressParts(addr: ProposalSummaryData["payment"]["shippingAddress"]): string {
+  if (!addr) return "—"
+  return [addr.addressLine1, addr.addressLine2, addr.city, addr.stateProvince, addr.zipCode, addr.country]
+    .filter(Boolean)
+    .join(", ")
+}
+
 function LabelValueRow({ label, value }: { label: string; value: string }) {
   if (!value) return null
   return (
@@ -167,6 +173,9 @@ function LabelValueRow({ label, value }: { label: string; value: string }) {
   )
 }
 
+const COLUMN_WIDTHS = [109, 149, 90, 149]
+const GIFTED_PRODUCT_COLUMN_WIDTHS = [89, 74, 119, 109, 104]
+
 function TermsTable({ children }: { children: React.ReactNode }) {
   return <View style={styles.table}>{children}</View>
 }
@@ -175,25 +184,40 @@ function TermsTableRow({
   cells,
   head,
   last,
+  widths = COLUMN_WIDTHS,
 }: {
   cells: string[]
   head?: boolean
   last?: boolean
+  widths?: number[]
 }) {
   return (
     <View style={head ? styles.tableHead : last ? styles.tableRowLast : styles.tableRow}>
       {cells.map((cell, i) => (
-        <Text
+        <View
           key={i}
           style={[
-            head ? styles.tableHeadCell : styles.tableCell,
+            styles.tableCell,
             {
-              width: i === 0 ? "22%" : i === 1 ? "30%" : i === 2 ? "18%" : "30%",
+              width: widths[i % widths.length],
+              flexShrink: 0,
+              flexGrow: 0,
+              minWidth: 0,
             },
           ]}
         >
-          {cell}
-        </Text>
+          <Text
+            hyphenationCallback={(word) =>
+              word.length > 15 ? (word.match(/.{1,15}/g) ?? [word]) : [word]
+            }
+            style={[
+              { width: "100%", minWidth: 0 },
+              head ? styles.tableHeadCellText : styles.tableCellText,
+            ]}
+          >
+            {cell}
+          </Text>
+        </View>
       ))}
     </View>
   )
@@ -300,6 +324,28 @@ export function ContractAgreementDocument({
           {summary.contract.territory ? <Text style={[styles.termBody, { marginTop: 4 }]}>Territory: {summary.contract.territory}</Text> : null}
           {summary.contract.restrictions ? <Text style={[styles.termBody, { marginTop: 4 }]}>Restrictions: {summary.contract.restrictions}</Text> : null}
           {summary.contract.partnershipTags ? <Text style={[styles.termBody, { marginTop: 4 }]}>Partnership Tags: {summary.contract.partnershipTags}</Text> : null}
+          {summary.giftedProducts.length > 0 && (
+            <>
+              <Text style={[styles.termTitle, { marginTop: 10 }]}>Gifted Products / In-Kind Items</Text>
+              <TermsTable>
+                <TermsTableRow head widths={GIFTED_PRODUCT_COLUMN_WIDTHS} cells={["Product", "Value", "Delivery Address", "Delivery Instructions", "Ownership Terms"]} />
+                {summary.giftedProducts.map((p, i) => (
+                  <TermsTableRow
+                    key={i}
+                    last={i === summary.giftedProducts.length - 1}
+                    widths={GIFTED_PRODUCT_COLUMN_WIDTHS}
+                    cells={[
+                      p.productName,
+                      formatCurrency(parseFloat(p.value.replace(/,/g, "") || "0"), summary.fees.currency),
+                      formatAddressParts(p.shippingAddress),
+                      p.deliveryInstructions || "—",
+                      p.ownershipTerms || "—",
+                    ]}
+                  />
+                ))}
+              </TermsTable>
+            </>
+          )}
         </View>
 
         <View style={styles.section}>
