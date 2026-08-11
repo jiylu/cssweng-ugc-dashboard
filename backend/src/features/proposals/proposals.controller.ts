@@ -11,7 +11,7 @@ import {
 } from './docs/proposals.controller.swagger';
 import { NotificationsService } from '../notifications/notifications.service';
 import { CampaignsService } from '../campaigns/campaigns.service';
-import { ProposalActions, ProposalStatus } from '@prisma/client';
+import { CampaignStatus, ProposalActions, ProposalStatus } from '@prisma/client';
 import { plainToInstance } from 'class-transformer';
 import { ProposalsEntity } from './entities/proposals.entity';
 import { ProposalHistoryService } from './proposal-history.service';
@@ -103,6 +103,14 @@ export class ProposalsController {
     const lastestVersion =
       await this.proposalHistoryService.findLatestVersion(proposalId);
 
+    const campaign = await this.campaignsService.findOneCampaign(
+      updatedProposal.campaign_id,
+    );
+
+    await this.campaignsService.updateCampaignStatus(campaign.campaign_id, {
+      campaignStatus: CampaignStatus.REJECTED,
+    });
+
     await this.proposalHistoryService.updateProposalActions(
       lastestVersion.history_id,
       {
@@ -179,6 +187,14 @@ export class ProposalsController {
         proposalStatus: ProposalStatus.CANCELLED,
       },
     );
+
+    const campaign = await this.campaignsService.findOneCampaign(
+      updatedProposal.campaign_id,
+    );
+
+    await this.campaignsService.updateCampaignStatus(campaign.campaign_id, {
+      campaignStatus: CampaignStatus.CANCELLED,
+    });
 
     const lastestVersion =
       await this.proposalHistoryService.findLatestVersion(proposalId);
