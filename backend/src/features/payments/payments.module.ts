@@ -4,9 +4,10 @@ import { PaymentsService } from './payments.service';
 import { PaymentsController } from './payments.controller';
 import { CampaignsModule } from '../campaigns/campaigns.module';
 import { UploadModule } from 'src/shared/upload/upload.module';
+import { ProposalsModule } from '../proposals/proposals.module';
 
 @Module({
-  imports: [PrismaModule, CampaignsModule, UploadModule],
+  imports: [PrismaModule, CampaignsModule, UploadModule, ProposalsModule],
   providers: [PaymentsService],
   controllers: [PaymentsController],
 })
