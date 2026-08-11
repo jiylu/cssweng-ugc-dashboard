@@ -45,6 +45,7 @@ function mapDeliverable(
     deliverable: d.deliverable_content,
     format: d.deliverable_type,
     dueDate: formatSummaryDate(d.due_date),
+    postDate: formatSummaryDate(d.post_date),
     price: parseMoney(d.pricing),
     currency,
   }

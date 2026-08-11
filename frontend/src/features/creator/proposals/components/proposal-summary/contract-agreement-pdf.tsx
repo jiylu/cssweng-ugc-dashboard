@@ -185,7 +185,7 @@ function LabelValueRow({ label, value }: { label: string; value: string }) {
   )
 }
 
-const COLUMN_WIDTHS = [109, 149, 90, 149]
+const COLUMN_WIDTHS = [95, 80, 40, 80, 95, 107]
 const GIFTED_PRODUCT_COLUMN_WIDTHS = [89, 74, 119, 109, 104]
 
 function TermsTable({ children }: { children: React.ReactNode }) {
@@ -295,7 +295,7 @@ export function ContractAgreementDocument({
           <TermsTable>
             <TermsTableRow
               head
-              cells={["Deliverable", "Format", "Due Date", "Fee"]}
+              cells={["Deliverable", "Format", "Qty", "Due Date", "Post Date", "Fee"]}
             />
             {summary.deliverables.map((d, i) => (
               <TermsTableRow
@@ -304,7 +304,9 @@ export function ContractAgreementDocument({
                 cells={[
                   d.deliverable,
                   d.format,
+                  String(d.qty ?? 1),
                   d.dueDate || "TBD",
+                  d.postDate || "TBD",
                   formatCurrency(d.price, d.currency),
                 ]}
               />
