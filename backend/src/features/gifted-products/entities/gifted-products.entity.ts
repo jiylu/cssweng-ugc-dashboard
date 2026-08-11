@@ -9,6 +9,9 @@ export class GiftedProductsEntity {
   campaign_id: string;
 
   @Expose()
+  public_id: string;
+
+  @Expose()
   product_name: string;
 
   @Expose()

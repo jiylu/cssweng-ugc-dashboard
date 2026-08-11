@@ -14,10 +14,6 @@ export class PaymentsEntity {
   proof_payment_url: string;
 
   @Expose()
-  @Type(() => Number)
-  payment_amt: number;
-
-  @Expose()
   is_payment_verified: boolean;
 
   @Expose()

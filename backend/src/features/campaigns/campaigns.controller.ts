@@ -7,7 +7,6 @@ import {
   ApiFindAllCampaigns,
   ApiFindOneCampaign,
   ApiUpdateCampaignClient,
-  ApiUpdateCampaignStatus,
 } from './docs/campaigns.controller.swagger';
 import { plainToInstance } from 'class-transformer';
 import { CampaignsEntity } from './entities/campaigns.entity';
@@ -31,23 +30,6 @@ export class CampaignsController {
   async findAll(@Query() query: CampaignQueryDTO) {
     const campaigns = await this.campaignsService.findAllCampaigns(query);
     return plainToInstance(CampaignsEntity, campaigns);
-  }
-
-  @ApiUpdateCampaignStatus()
-  @Patch('status/:publicId')
-  async updateStatus(
-    @Param('publicId') publicId: string,
-    @Body() dto: UpdateCampaignStatusDto,
-  ) {
-    const campaignId =
-      await this.campaignsService.resolveCampaignPublicId(publicId);
-
-    const updatedCampaign = await this.campaignsService.updateCampaignStatus(
-      campaignId,
-      dto,
-    );
-
-    return plainToInstance(CampaignsEntity, updatedCampaign);
   }
 
   @ApiUpdateCampaignClient()

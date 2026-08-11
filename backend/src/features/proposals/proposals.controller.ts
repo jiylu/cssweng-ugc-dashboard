@@ -11,7 +11,11 @@ import {
 } from './docs/proposals.controller.swagger';
 import { NotificationsService } from '../notifications/notifications.service';
 import { CampaignsService } from '../campaigns/campaigns.service';
-import { CampaignStatus, ProposalActions, ProposalStatus } from '@prisma/client';
+import {
+  CampaignStatus,
+  ProposalActions,
+  ProposalStatus,
+} from '@prisma/client';
 import { plainToInstance } from 'class-transformer';
 import { ProposalsEntity } from './entities/proposals.entity';
 import { ProposalHistoryService } from './proposal-history.service';
