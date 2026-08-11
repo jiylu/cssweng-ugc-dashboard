@@ -26,8 +26,8 @@ export const deliverableSchema = z.object({
     .min(1, "Post date is required."),
 }).refine((data) => {
   if (!data.postDate || !data.draftDeadline) return true
-  return new Date(data.postDate) <= new Date(data.draftDeadline)
+  return new Date(data.draftDeadline) <= new Date(data.postDate)
 }, {
-  message: "Post date cannot be after the due date.",
+  message: "Due date cannot be after the post date.",
   path: ["postDate"]
 })
