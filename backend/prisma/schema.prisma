@@ -142,7 +142,7 @@ model Proposals {
 model ProposalHistory {
   history_id                String         @id @default(uuid())
   proposal_id               String
-  version_number            Int
+  version_number            Int            @default(1)
   campaign_content          Json
   proposal_content          Json
   deliverable_content       Json
@@ -150,9 +150,9 @@ model ProposalHistory {
   add_ons_content           Json
   gifted_products_content   Json
   client_comments           String          @default("")
-  action                    ProposalStatus  @default(PENDING)
-  created_at                DateTime
-  updated_at                DateTime
+  action                    ProposalActions @default(PENDING)
+  created_at                DateTime        @default(now())
+  updated_at                DateTime?
 }
 
 model Deliverables {
@@ -293,6 +293,15 @@ enum ProposalStatus {
   FOR_REVISION
   REJECTED
   ACCEPTED
+  CANCELLED
+}
+
+enum ProposalActions {
+  PENDING
+  REVISE
+  APPROVE
+  REJECT
+  CANCEL
 }
 
 enum EntityType {
