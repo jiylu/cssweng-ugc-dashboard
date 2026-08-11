@@ -15,6 +15,12 @@ import { UploadService } from 'src/shared/upload/upload.service';
 import { plainToInstance } from 'class-transformer';
 import { PaymentsEntity } from './entities/payments.entity';
 import { CampaignStatus, PaymentSchedule } from '@prisma/client';
+import {
+  ApiCreatePayment,
+  ApiFindPaymentByPublicId,
+  ApiFindPaymentForCampaign,
+  ApiValidatePayment,
+} from './docs/payments.controller.swagger';
 
 @Controller('payments')
 export class PaymentsController {
@@ -24,6 +30,7 @@ export class PaymentsController {
     private readonly uploadService: UploadService,
   ) {}
 
+  @ApiCreatePayment()
   @Post('pay')
   @UseInterceptors(FileInterceptor('file'))
   async create(
@@ -42,6 +49,7 @@ export class PaymentsController {
     return plainToInstance(PaymentsEntity, paymentRecord);
   }
 
+  @ApiFindPaymentByPublicId()
   @Get(':publicId')
   async findOnePaymentRecord(@Param('publicId') publicId: string) {
     const paymentId = await this.paymentsService.resolvePublicId(publicId);
@@ -50,6 +58,7 @@ export class PaymentsController {
     return plainToInstance(PaymentsEntity, payment);
   }
 
+  @ApiFindPaymentForCampaign()
   @Get('/campaign/:publicId')
   async findPaymentForCampaign(@Param('publicId') publicId: string) {
     const campaignId =
@@ -60,6 +69,7 @@ export class PaymentsController {
     return plainToInstance(PaymentsEntity, payment);
   }
 
+  @ApiValidatePayment()
   @Patch('/validate/:publicId')
   async validatePayment(@Param('publicId') publicId: string) {
     const paymentId = await this.paymentsService.resolvePublicId(publicId);
