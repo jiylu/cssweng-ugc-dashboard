@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   termBlock: {
-    marginBottom: 8,
+    marginBottom: 6,
   },
   termTitle: {
     fontSize: 10,
@@ -111,10 +111,16 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: "bold",
     textTransform: "uppercase",
-    marginBottom: 3,
+    marginBottom: 2,
   },
   termBody: {
     lineHeight: 1.5,
+  },
+  termBullet: {
+    lineHeight: 1.35,
+    marginBottom: 2,
+    paddingLeft: 9,
+    textIndent: -9,
   },
   signatureRow: {
     flexDirection: "row",
@@ -359,67 +365,67 @@ export function ContractAgreementDocument({
           <Text style={styles.sectionTitle}>Contract Terms</Text>
           <View style={styles.termBlock}>
             <Text style={styles.clauseTitle}>6. Posting Requirements and Disclosure</Text>
-            <Text style={styles.termBody}>
-              Creator will include required tags, mentions, links, promo codes, captions, and hashtags provided by Brand. {summary.contract.partnershipTags ? `Required tags and hashtags: ${summary.contract.partnershipTags}.` : ""}
+            <Text style={styles.termBullet}>
+              • Creator will include required tags, mentions, links, promo codes, captions, and hashtags provided by Brand. {summary.contract.partnershipTags ? `Required tags and hashtags: ${summary.contract.partnershipTags}.` : ""}
             </Text>
-            <Text style={styles.termBody}>
-              Creator will clearly disclose the partnership using appropriate disclosure language, such as [#ad / #sponsored / gifted], in accordance with applicable advertising laws, platform rules, and industry guidelines.
+            <Text style={styles.termBullet}>
+              • Creator will clearly disclose the partnership using appropriate disclosure language, such as [#ad / #sponsored / gifted], in accordance with applicable advertising laws, platform rules, and industry guidelines.
             </Text>
-            <Text style={styles.termBody}>
-              Creator will not make false claims, unsupported product claims, or statements that Creator does not honestly believe.
+            <Text style={styles.termBullet}>
+              • Creator will not make false claims, unsupported product claims, or statements that Creator does not honestly believe.
             </Text>
-            <Text style={styles.termBody}>
-              Unless otherwise stated, published posts must remain live for at least {summary.contract.contentRetention} months, subject to normal platform errors, removals, or account issues outside Creator's control.
+            <Text style={styles.termBullet}>
+              • Unless otherwise stated, published posts must remain live for at least {summary.contract.contentRetention} months, subject to normal platform errors, removals, or account issues outside Creator's control.
             </Text>
           </View>
           <View style={styles.termBlock}>
             <Text style={styles.clauseTitle}>7. Exclusivity</Text>
-            <Text style={styles.termBody}>
-              {summary.exclusivity.hasExclusivity && exclusivityText
+            <Text style={styles.termBullet}>
+              • {summary.exclusivity.hasExclusivity && exclusivityText
                 ? `Exclusivity applies as follows: ${exclusivityText}.`
                 : "No exclusivity applies unless selected as an add-on or stated here. If exclusivity applies, specify category, competitor list, territory, start date, end date, and additional exclusivity fee."}
             </Text>
           </View>
           <View style={styles.termBlock}>
             <Text style={styles.clauseTitle}>8. Expenses, Purchases, and Product Delivery</Text>
-            <Text style={styles.termBody}>
-              Brand will provide any required products, access, discount codes, tickets, or location details needed for the content.
+            <Text style={styles.termBullet}>
+              • Brand will provide any required products, access, discount codes, tickets, or location details needed for the content.
             </Text>
-            <Text style={styles.termBody}>
-              Creator is not required to make out-of-pocket purchases unless approved in writing by both Parties.
+            <Text style={styles.termBullet}>
+              • Creator is not required to make out-of-pocket purchases unless approved in writing by both Parties.
             </Text>
-            <Text style={styles.termBody}>
-              Approved expenses must be reimbursed by Brand within {summary.contract.reimbursementDays} days after Creator submits valid receipts.
+            <Text style={styles.termBullet}>
+              • Approved expenses must be reimbursed by Brand within {summary.contract.reimbursementDays} days after Creator submits valid receipts.
             </Text>
-            <Text style={styles.termBody}>
-              If gifted products are part of the compensation, any return, resale, damage, warranty, or repayment terms must be clearly listed here: {summary.contract.giftedProductTerms}
+            <Text style={styles.termBullet}>
+              • If gifted products are part of the compensation, any return, resale, damage, warranty, or repayment terms must be clearly listed here: {summary.contract.giftedProductTerms}
             </Text>
           </View>
           <View style={styles.termBlock}>
             <Text style={styles.clauseTitle}>9. Cancellation and Termination</Text>
-            <Text style={styles.termBody}>
-              If Brand cancels after work has begun, Creator may invoice for work completed, time reserved, production costs, and any approved expenses.
+            <Text style={styles.termBullet}>
+              • If Brand cancels after work has begun, Creator may invoice for work completed, time reserved, production costs, and any approved expenses.
             </Text>
-            <Text style={styles.termBody}>
-              If Creator cannot complete the Deliverables due to illness, emergency, shipping delay, product issue, platform issue, or other reasonable cause, the Parties will work in good faith to update the timeline.
+            <Text style={styles.termBullet}>
+              • If Creator cannot complete the Deliverables due to illness, emergency, shipping delay, product issue, platform issue, or other reasonable cause, the Parties will work in good faith to update the timeline.
             </Text>
-            <Text style={styles.termBody}>
-              Either Party may terminate this Agreement if the other Party materially breaches the Agreement and does not fix the issue within {summary.contract.cancellationDays} days after written notice.
+            <Text style={styles.termBullet}>
+              • Either Party may terminate this Agreement if the other Party materially breaches the Agreement and does not fix the issue within {summary.contract.cancellationDays} days after written notice.
             </Text>
           </View>
           <View style={styles.termBlock}>
             <Text style={styles.clauseTitle}>10. Creator Responsibilities</Text>
-            <Text style={styles.termBody}>
-              Creator confirms that the Deliverables will be original to Creator and will not knowingly infringe third-party rights.
+            <Text style={styles.termBullet}>
+              • Creator confirms that the Deliverables will be original to Creator and will not knowingly infringe third-party rights.
             </Text>
-            <Text style={styles.termBody}>
-              Creator will obtain permission for any third-party music, images, locations, people, or materials used, unless provided or approved by Brand.
+            <Text style={styles.termBullet}>
+              • Creator will obtain permission for any third-party music, images, locations, people, or materials used, unless provided or approved by Brand.
             </Text>
-            <Text style={styles.termBody}>
-              Creator will perform the services as an independent contractor, not as an employee, partner, or agent of Brand.
+            <Text style={styles.termBullet}>
+              • Creator will perform the services as an independent contractor, not as an employee, partner, or agent of Brand.
             </Text>
-            <Text style={styles.termBody}>
-              Creator is responsible for Creator's own taxes, filings, insurance, equipment, and business expenses, unless otherwise stated in this Agreement.
+            <Text style={styles.termBullet}>
+              • Creator is responsible for Creator's own taxes, filings, insurance, equipment, and business expenses, unless otherwise stated in this Agreement.
             </Text>
           </View>
         </View>
