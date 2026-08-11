@@ -31,9 +31,9 @@ export function AddOnRow({ item, index, errors, currency, onToggle, onRemove, on
                     name="title"
                     placeholder="Name"
                     value={item.title}
-                    disabled={isDisabled}
+                    disabled={item.isPermanent}
                     onChange={(e) => onTitleChange?.(e.target.value)}
-                    className="w-full h-[40px] bg-white border border-border rounded-[3px] text-sm text-foreground shadow-none placeholder:italic"
+                    className="w-full h-[40px] bg-white border border-border rounded-[3px] text-sm text-foreground shadow-none placeholder:italic disabled:bg-white"
                 />
                 {e('title') && <p className="text-xs mt-1 text-[#ff6467]">{e('title')}</p>}
             </div>
