@@ -84,11 +84,13 @@ model Campaigns {
 }
 
 model Contracts {
-  contract_id     String    @id @default(uuid())
-  public_id       String    @unique @db.VarChar(10)
-  campaign_id     String    @unique
-  creator_signed  Boolean   @default(false)
-  client_signed   Boolean   @default(false)
+  contract_id              String    @id @default(uuid())
+  public_id                String    @unique @db.VarChar(10)
+  campaign_id              String    @unique
+  creator_signed           Boolean   @default(false)
+  client_signed            Boolean   @default(false)
+  effective_date           DateTime?
+  signed_contract_url      String?
 
   revision_policy          Json
   usage_rights             Json
@@ -123,15 +125,6 @@ model GiftedProducts {
   is_deleted            Boolean @default(false)
 }
 
-model Contract_Submission_History {
-  history_id     String               @id @default(uuid())
-  contract_id    String
-  action_status  ContractActionStatus
-  revision_notes String?
-  created_at     DateTime             @default(now())
-  updated_at     DateTime             @updatedAt
-}
-
 model Proposals {
   proposal_id       String         @id @default(uuid())
   public_id         String         @unique @db.VarChar(10)
@@ -139,10 +132,24 @@ model Proposals {
   client_email      String
   client_first_name String
   client_last_name  String
-  client_comments   String         @default("")
   proposal_status   ProposalStatus @default(PENDING)
 
   campaign Campaigns @relation(fields: [campaign_id], references: [campaign_id])
+}
+
+model ProposalHistory {
+  history_id                String         @id @default(uuid())
+  proposal_id               String
+  version_number            Int
+  campaign_content          Json
+  proposal_content          Json
+  deliverable_content       Json
+  contract_content          Json
+  add_ons_content           Json
+  gifted_products_content   Json
+  client_comments           String          @default("")
+  action                    ProposalStatus  @default(PENDING)
+  created_at                DateTime
 }
 
 model Deliverables {
@@ -162,23 +169,53 @@ model Deliverables {
   campaign Campaigns @relation(fields: [campaign_id], references: [campaign_id])
 }
 
-model Submissions {
-  submission_id     String @id @default(uuid())
-  deliverable_id    String
-  deliverable_index Int
+model DeliverableItems {
+  deliverable_item_id     String @id @default(uuid())
+  deliverable_id          String
+  public_id               String @unique @db.VarChar(10)
+  deliverable_index       Int
 }
 
-model SubmissionItems {
-  submission_item_id String           @id @default(uuid())
-  submission_id      String
-  public_id          String           @unique @db.VarChar(10)
-  is_video           Boolean
-  script_id          String?
-  content            String
-  submission_status  SubmissionStatus
-  client_comments    String
-  created_at         DateTime
-  updated_at         DateTime
+model MediaAssets {
+  media_asset_id           String           @id @default(uuid())
+  deliverable_item_id      String
+  public_id                String           @unique @db.VarChar(10)
+  version_number           Int
+  is_video                 Boolean
+  content_url              String
+  client_comments          String
+  submission_status        SubmissionStatus
+  created_at               DateTime
+  updated_at               DateTime?
+}
+
+model WrittenAssets {
+  written_asset_id         String @id @default(uuid())
+  deliverable_item_id      String
+  public_id                String @unique @db.VarChar(10)
+  version_number           Int
+  content                  String
+  client_comments          String
+  created_at               DateTime
+  updated_at               DateTime?
+}
+
+model WrittenAssetsDrafts {
+  written_asset_draft_id   String @id @default(uuid())
+  written_asset_id         String
+  public_id                String
+  content                  String
+  created_at               DateTime
+  updated_at               DateTime?
+}
+
+model MediaAssetsDrafts {
+  media_asset_draft_id   String @id @default(uuid())
+  media_asset_id         String
+  public_id              String
+  content_url            String
+  created_at             DateTime
+  updated_at             DateTime?
 }
 
 model AddOns {
@@ -191,16 +228,6 @@ model AddOns {
   initials    String
   is_deleted  Boolean @default(false)
   opt_in      Boolean @default(false)
-}
-
-model Scripts {
-  script_id         String           @id @default(uuid())
-  public_id         String           @unique @db.VarChar(10)
-  content           String
-  client_comments   String
-  submission_status SubmissionStatus
-  created_at        DateTime
-  updated_at        DateTime
 }
 
 model ActivityLog {
@@ -222,6 +249,17 @@ model Notifications {
   message         String
   is_read         Boolean  @default(false)
   created_at      DateTime @default(now())
+}
+
+model Payments {
+  payment_id            String   @id @default(uuid())
+  public_id             String   @unique @db.VarChar(10)
+  campaign_id           String
+  proof_payment_url     String
+  payment_amt           Decimal
+  is_payment_verified   Boolean
+  created_at            DateTime @default(now())
+  verified_at           DateTime?
 }
 
 enum UserRoles {
