@@ -108,7 +108,10 @@ export default function CreateCampaign() {
 
     if (draftId) {
       saveExistingDraft(draftPayload, {
-        onSuccess: () => toast.success("Draft saved!"),
+        onSuccess: () => {
+          toast.success("Draft saved!");
+          router.push('/proposals/drafts');
+        },
         onError: (err) => toast.error(err.message),
       });
       return;
@@ -120,7 +123,7 @@ export default function CreateCampaign() {
         onSuccess: (data) => {
           toast.success("Draft saved!");
           queryClient.setQueryData(["draft", data.public_id], data);
-          router.replace(`/proposals/create-campaign?draft=${data.public_id}`, { scroll: false });
+          router.push('/proposals/drafts');
         },
         onError: (err) => toast.error(err.message),
       }

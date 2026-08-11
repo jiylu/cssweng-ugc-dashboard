@@ -122,6 +122,7 @@ export function GiftedProductRow({ item, index, currency, errors, onUpdate, onRe
                 <p className="text-xs text-muted-foreground">{formatAddress(item.shippingAddress)}</p>
                 </div>
             </button>
+            {e('shippingAddress') && <p className="text-xs mt-1 text-[#ff6467]">{e('shippingAddress')}</p>}
             </div>
         
             {/* Delivery Instructions */}
@@ -133,6 +134,7 @@ export function GiftedProductRow({ item, index, currency, errors, onUpdate, onRe
                 placeholder="Indicate any delivery instructions"
                 className="min-h-[120px] resize-none border border-border rounded-[3px] text-sm bg-transparent placeholder:text-muted-foreground placeholder:italic"
                 />
+                {e('deliveryInstructions') && <p className="text-xs mt-1 text-[#ff6467]">{e('deliveryInstructions')}</p>}
             </div>
 
             {/* Shipping Address Popup */}
