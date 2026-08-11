@@ -209,6 +209,7 @@ export class CampaignsService {
     const terminalStatuses = [
       CampaignStatus.REJECTED,
       CampaignStatus.COMPLETED,
+      CampaignStatus.CANCELLED,
     ] as CampaignStatus[];
 
     if (terminalStatuses.includes(campaign.campaign_status)) {
