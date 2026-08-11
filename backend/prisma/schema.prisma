@@ -278,6 +278,7 @@ enum CampaignStatus {
   ACTIVE
   REJECTED
   COMPLETED
+  CANCELLED
 }
 
 enum CampaignCurrency {
