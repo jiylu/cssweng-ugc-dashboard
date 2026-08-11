@@ -23,6 +23,7 @@ export interface ProposalSummaryData {
     deliverable: string
     format: string
     dueDate: string
+    postDate: string
     price: number
     currency: string
   }[]

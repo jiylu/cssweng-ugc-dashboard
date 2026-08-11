@@ -68,6 +68,7 @@ export function useProposalSummary(
       deliverable: d.platform,
       format: [d.platform, d.contentType].filter(Boolean).join(", "),
       dueDate: d.draftDeadline ? formatDate(new Date(d.draftDeadline)) : "",
+      postDate: d.postDate ? formatDate(new Date(d.postDate)) : "",
       price: parseFloat((d.pricing ?? "").replace(/,/g, "") || "0"),
       currency: form.currency,
     })),
