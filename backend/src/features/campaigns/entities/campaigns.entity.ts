@@ -7,7 +7,7 @@ import { Exclude, Expose, Type } from 'class-transformer';
 
 export class CampaignsEntity {
   @Exclude()
-  contract_id: string;
+  campaign_id: string;
 
   @Expose()
   public_id: string;
