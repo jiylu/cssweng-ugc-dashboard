@@ -280,47 +280,6 @@ describe('ProposalsService', () => {
     });
   });
 
-  describe('updateProposalComments', () => {
-    it('should update comments when proposal is active', async () => {
-      const proposalId = 'prop-update-1';
-      const mockActive = {
-        proposal_id: proposalId,
-        public_id: 'pub_update_1',
-        campaign_id: 'camp1',
-        client_email: 'client@test.com',
-        proposal_status: ProposalStatus.PENDING,
-      };
-
-      const dto = { comment: 'New comment' };
-
-      jest
-        .spyOn(service, 'findActiveProposal')
-        .mockResolvedValue(mockActive as any);
-      mockPrisma.proposals.update.mockResolvedValue({
-        ...mockActive,
-        client_comments: dto.comment,
-      });
-
-      const res = await service.updateProposalComments(proposalId, dto);
-      expect(res).toEqual({ ...mockActive, client_comments: dto.comment });
-
-      expect(mockPrisma.proposals.update).toHaveBeenCalledWith({
-        where: { proposal_id: proposalId },
-        data: { client_comments: dto.comment },
-      });
-    });
-
-    it('should throw NotFoundException when proposal is not active', async () => {
-      const proposalId = 'prop-missing';
-      jest
-        .spyOn(service, 'findActiveProposal')
-        .mockRejectedValue(new NotFoundException());
-      await expect(
-        service.updateProposalComments(proposalId, { comment: 'x' }),
-      ).rejects.toBeInstanceOf(NotFoundException);
-    });
-  });
-
   describe('updateProposalStatus', () => {
     it('should update proposal status successfully from PENDING to ACCEPTED', async () => {
       const proposalId = 'prop-update-status-1';

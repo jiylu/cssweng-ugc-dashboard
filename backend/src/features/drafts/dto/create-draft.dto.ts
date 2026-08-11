@@ -33,7 +33,7 @@ import { CreateProposalDTO } from 'src/features/proposals/dto/create-proposal.dt
 
 type DraftJsonValue = Prisma.InputJsonValue | null | undefined;
 class DraftCampaignDto extends PartialType(
-  OmitType(CreateCampaignDTO, ['pricing'] as const),
+  OmitType(CreateCampaignDTO, ['pricing', 'paymentSchedule'] as const),
 ) {
   [key: string]: DraftJsonValue;
 }

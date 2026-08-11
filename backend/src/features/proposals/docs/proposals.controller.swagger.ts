@@ -1,7 +1,6 @@
 import { applyDecorators } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { UpdateProposalCommentDTO } from '../dto/update-proposal-comment.dto';
-import { UpdateProposalStatusDTO } from '../dto/update-proposal-status.dto';
 
 export function ApiFindProposal() {
   return applyDecorators(
@@ -24,12 +23,12 @@ export function ApiFindProposal() {
   );
 }
 
-export function ApiUpdateProposalComments() {
+export function ApiReviseProposal() {
   return applyDecorators(
     ApiOperation({
-      summary: 'Updates comments on a proposal',
+      summary: 'Revise a proposal',
       description:
-        'Updates the client_comments field for an active proposal. Request body must follow UpdateProposalCommentDTO (field: comment — 30 to 500 characters). Refer to UpdateProposalCommentDTO for validation rules and example payload.',
+        'Updates the client_comments field for an active proposal and sets the action to REVISE. Request body must follow UpdateProposalHistoryCommentDTO (field: comment — 30 to 500 characters). Refer to UpdateProposalHistoryCommentDTO for validation rules and example payload.',
     }),
     ApiParam({
       name: 'publicId',
@@ -40,21 +39,19 @@ export function ApiUpdateProposalComments() {
     ApiBody({ type: UpdateProposalCommentDTO }),
     ApiResponse({
       status: 200,
-      description: 'Proposal comments updated successfully',
+      description: 'Proposal revised successfully',
     }),
     ApiResponse({ status: 404, description: 'Proposal not found' }),
     ApiResponse({ status: 400, description: 'Invalid comment payload' }),
   );
 }
 
-export function ApiUpdateProposalStatus() {
+export function ApiRejectProposal() {
   return applyDecorators(
     ApiOperation({
-      summary: 'Updates the status of a proposal',
+      summary: 'Reject a proposal',
       description:
-        'Updates the proposal_status for an active proposal. Request body must follow UpdateProposalStatusDTO (field: proposalStatus - enum). ' +
-        'Allowed values: `PENDING`, `FOR_REVISION`, `ACCEPTED`, `REJECTED`. ' +
-        'Only proposals with status PENDING or FOR_REVISION can be updated. Refer to UpdateProposalStatusDTO for the request body schema.',
+        'Rejects an active proposal. Sets status to REJECTED and updates the action to REJECT.',
     }),
     ApiParam({
       name: 'publicId',
@@ -62,16 +59,14 @@ export function ApiUpdateProposalStatus() {
       description: 'Public ID of the proposal',
       example: 'e3Fx0pFGsF',
     }),
-    ApiBody({ type: UpdateProposalStatusDTO }),
     ApiResponse({
       status: 200,
-      description: 'Proposal status updated successfully',
+      description: 'Proposal rejected successfully',
     }),
     ApiResponse({
       status: 404,
       description: 'Proposal not found or not active',
     }),
-    ApiResponse({ status: 400, description: 'Invalid status payload' }),
   );
 }
 
@@ -98,3 +93,80 @@ export function ApiFindProposalByCampaign() {
     }),
   );
 }
+
+export function ApiAcceptProposal() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Accept a proposal',
+      description:
+        'Accepts an active proposal by setting its status to ACCEPTED and updating the latest ' +
+        'proposal history action to APPROVE. A notification is sent to the campaign creator. ' +
+        'No request body is required.',
+    }),
+    ApiParam({
+      name: 'publicId',
+      type: String,
+      description: 'Public ID of the proposal to accept',
+      example: 'e3Fx0pFGsF',
+    }),
+    ApiResponse({
+      status: 200,
+      description: 'Proposal accepted successfully.',
+    }),
+    ApiResponse({
+      status: 404,
+      description: 'Proposal not found or not active.',
+    }),
+  );
+}
+
+export function ApiFindAllProposalHistory() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Get all history entries for a proposal',
+      description:
+        'Retrieves all proposal history entries for a given proposal, ordered by version_number ascending. ' +
+        'Uses the proposal public ID to resolve the internal proposal ID. No request body is required.',
+    }),
+    ApiParam({
+      name: 'publicId',
+      type: String,
+      description: 'Public ID of the proposal',
+      example: 'e3Fx0pFGsF',
+    }),
+    ApiResponse({
+      status: 200,
+      description:
+        'Proposal history entries retrieved successfully. Returns an array of history entries.',
+    }),
+    ApiResponse({
+      status: 404,
+      description: 'Proposal not found.',
+    }),
+  );
+}
+
+export function ApiCancelProposal() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Cancel a proposal',
+      description:
+        'Cancels an active proposal. Sets status to CANCELLED and updates the action to CANCELLED.',
+    }),
+    ApiParam({
+      name: 'publicId',
+      type: String,
+      description: 'Public ID of the proposal',
+      example: 'e3Fx0pFGsF',
+    }),
+    ApiResponse({
+      status: 200,
+      description: 'Proposal cancelled successfully.',
+    }),
+    ApiResponse({
+      status: 404,
+      description: 'Proposal not found or not active.',
+    }),
+  );
+}
+
