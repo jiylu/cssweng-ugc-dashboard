@@ -46,7 +46,10 @@ function toProposalStatus(status: string): ProposalStatus {
   }
 }
 
-export function mapCampaignToSubmittedProposal(campaign: Campaign): SubmittedProposal {
+export function mapCampaignToSubmittedProposal(
+  campaign: Campaign,
+  clientName = "—",
+): SubmittedProposal {
   const currency = asString(campaign.currency) || "USD"
   const total = asNumber(campaign.pricing)
   const symbol = CURRENCY_SYMBOLS[currency] ?? "$"
@@ -57,7 +60,7 @@ export function mapCampaignToSubmittedProposal(campaign: Campaign): SubmittedPro
     id: campaign.public_id,
     campaignName: asString(campaign.project_name) || "Untitled Campaign",
     campaignType: firstPlatform || "Proposal",
-    clientName: "—",
+    clientName: clientName || "—",
     durationStart: formatDurationDate(campaign.start_date, false),
     durationEnd: formatDurationDate(campaign.end_date, true),
     totalPrice: `${currency} ${symbol}${total.toLocaleString("en-US", {
