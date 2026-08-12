@@ -11,6 +11,7 @@ import { DeliverablesSidebar } from "@/src/features/creator/workspace/components
 import { FeedbackPanel } from "@/src/features/creator/workspace/components/deliverables-submission/feedback-panel"
 import { HistoryOverlay } from "@/src/features/creator/workspace/components/deliverables-submission/history-overlay"
 import { VideoSubmission } from "@/src/features/creator/workspace/components/deliverables-submission/video-submission"
+import { DeliverableApprovedCard } from "@/src/features/creator/workspace/components/deliverables-submission/deliverable-approved-card"
 import { ContractSigningPanel } from "@/src/features/creator/workspace/components/contract-signing/contract-signing-panel"
 import { useWorkspace } from "@/src/features/creator/workspace/hooks/useWorkspace"
 import { useCampaignSetup } from "@/src/features/creator/workspace/hooks/useCampaignSetup"
@@ -54,27 +55,29 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
 
 
           {/* Main Content */}
-          <div className="flex gap-6">
+          <div className="flex gap-6 justify-center">
             <HistoryOverlay
               open={historyOpen}
               onClose={() => setHistoryOpen(false)}
               version={2}
               timestamp="DD/MM/YYYY HH:MM"
             />
-            <DeliverablesSidebar
-              deliverables={deliverables}
-              activeDeliverable={activeDeliverable}
-              onChange={setActiveDeliverable}
-              activeStep={activeDeliverableStep}
-              onStepChange={setActiveDeliverableStep}
-            />
+            {activeStep === 1 && (
+              <DeliverablesSidebar
+                deliverables={deliverables}
+                activeDeliverable={activeDeliverable}
+                onChange={setActiveDeliverable}
+                activeStep={activeDeliverableStep}
+                onStepChange={setActiveDeliverableStep}
+              />
+            )}
             {activeStep === 0 && (
               <ContractSigningPanel 
                 contract={campaignSetup?.contract} 
                 onSigned={() => setActiveStep(1)} 
               />
             )}
-            {activeStep === 1 && (
+            {activeStep === 1 && activeDeliverableStep === 0 && (
               <WrittenAssetsPanel
                 version={2}
                 onHistory={() => setHistoryOpen(true)}
@@ -82,14 +85,19 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
                 onSubmit={() => console.log("Submit")}
               />
             )}
-            {activeStep === 2 && (
+            {activeStep === 1 && activeDeliverableStep === 1 && (
               <VideoSubmission 
                 version={2}
                 onHistory={() => setHistoryOpen(true)}
                 onSubmit={() => console.log("Submit video")}
               />
             )}
-            <FeedbackPanel />
+            {activeStep === 1 && activeDeliverableStep === 2 && (
+              <DeliverableApprovedCard deliverableName={deliverables[activeDeliverable]?.deliverable_content ?? "Deliverable"} />
+            )}
+            {activeStep === 1 && activeDeliverableStep < 2 && (
+              <FeedbackPanel />
+            )}
           </div>
         </div>
       </section>

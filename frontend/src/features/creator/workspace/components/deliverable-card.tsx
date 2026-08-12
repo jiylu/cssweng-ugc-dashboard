@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
+import { formatDate } from "@/src/utils/date"
 import { Deliverable } from "../types/workspace.types"
 import { DeliverableStepList } from "./deliverable-step-list"
 
@@ -15,7 +16,7 @@ export function DeliverableCard({ deliverable, isActive, onClick, activeStep, on
   return (
     <div
       className={cn(
-        "w-full rounded-[3px] border border-border overflow-hidden bg-background",
+        "w-full rounded-[3px] border border-border overflow-hidden bg-white",
         isActive && "border-[#6b1fa8]"
       )}
     >
@@ -42,7 +43,7 @@ export function DeliverableCard({ deliverable, isActive, onClick, activeStep, on
               isActive ? "text-white/80" : "text-muted-foreground"
             )}
           >
-            Due: {deliverable.due_date}
+            Due: {formatDate(new Date(deliverable.due_date))}
           </span>
         </div>
 
