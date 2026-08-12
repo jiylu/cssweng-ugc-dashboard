@@ -1,6 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { SubmitWrittenAssetDTO } from '../written-assets/dto/submit-written-asset.dto';
 import { SubmitMediaAssetDTO } from '../media-assets/dto/submit-media-asset.dto';
+import { UpdateWrittenAssetCommentDTO } from '../written-assets/dto/update-written-asset-comment.dto';
+import { UpdateMediaAssetCommentDTO } from '../media-assets/dto/update-media-asset-comment.dto';
 import { WrittenAssetsService } from '../written-assets/written-assets.service';
 import { MediaAssetsService } from '../media-assets/media-assets.service';
 import {
@@ -78,6 +80,66 @@ export class DeliverableSubmissionsService {
       );
 
       return updatedWrittenAsset;
+    });
+
+    return result;
+  }
+
+  async reviseWrittenAsset(
+    writtenAssetId: string,
+    dto: UpdateWrittenAssetCommentDTO,
+  ) {
+    this.logger.debug(`Revising written asset ${writtenAssetId}`);
+
+    const result = this.prisma.$transaction(async (tx) => {
+      await this.writtenAssetsService.updateWrittenAssetComments(
+        writtenAssetId,
+        dto,
+        tx,
+      );
+
+      const revisedWrittenAsset =
+        await this.writtenAssetsService.updateWrittenAssetAction(
+          writtenAssetId,
+          { action: AssetActions.REVISE },
+          tx,
+        );
+
+      this.logger.log(
+        `Successfully revised written asset ${writtenAssetId} to ${revisedWrittenAsset.written_asset_action}`,
+      );
+
+      return revisedWrittenAsset;
+    });
+
+    return result;
+  }
+
+  async reviseMediaAsset(
+    mediaAssetId: string,
+    dto: UpdateMediaAssetCommentDTO,
+  ) {
+    this.logger.debug(`Revising media asset ${mediaAssetId}`);
+
+    const result = this.prisma.$transaction(async (tx) => {
+      await this.mediaAssetsService.updateMediaAssetComments(
+        mediaAssetId,
+        dto,
+        tx,
+      );
+
+      const revisedMediaAsset =
+        await this.mediaAssetsService.updateMediaAssetAction(
+          mediaAssetId,
+          { action: AssetActions.REVISE },
+          tx,
+        );
+
+      this.logger.log(
+        `Successfully revised media asset ${mediaAssetId} to ${revisedMediaAsset.media_asset_action}`,
+      );
+
+      return revisedMediaAsset;
     });
 
     return result;

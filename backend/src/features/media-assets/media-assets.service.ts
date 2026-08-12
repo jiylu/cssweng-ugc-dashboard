@@ -21,6 +21,7 @@ import {
 import { nanoid } from 'nanoid';
 import { SubmitMediaAssetDTO } from './dto/submit-media-asset.dto';
 import { UpdateMediaAssetActionDTO } from './dto/update-media-asset-action.dto';
+import { UpdateMediaAssetCommentDTO } from './dto/update-media-asset-comment.dto';
 
 @Injectable()
 export class MediaAssetsService {
@@ -207,6 +208,30 @@ export class MediaAssetsService {
     this.logger.log(
       `Action updated to ${updated.media_asset_action} for media asset ${mediaAssetId}`,
     );
+
+    return updated;
+  }
+
+  async updateMediaAssetComments(
+    mediaAssetId: string,
+    dto: UpdateMediaAssetCommentDTO,
+    tx: Prisma.TransactionClient | PrismaService = this.prisma,
+  ) {
+    this.logger.debug(
+      `Updating client comments for media asset ${mediaAssetId}`,
+    );
+
+    await this.findOneMediaAsset(mediaAssetId, tx);
+
+    const updated = await tx.mediaAssets.update({
+      where: { media_asset_id: mediaAssetId },
+      data: {
+        client_comments: dto.comment,
+        updated_at: new Date(),
+      },
+    });
+
+    this.logger.log(`Client comments updated for media asset ${mediaAssetId}`);
 
     return updated;
   }

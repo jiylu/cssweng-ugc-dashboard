@@ -25,6 +25,7 @@ import {
 import { nanoid } from 'nanoid';
 import { SubmitWrittenAssetDTO } from './dto/submit-written-asset.dto';
 import { UpdateWrittenAssetActionDTO } from './dto/update-written-asset-action.dto';
+import { UpdateWrittenAssetCommentDTO } from './dto/update-written-asset-comment.dto';
 
 @Injectable()
 export class WrittenAssetsService {
@@ -233,6 +234,31 @@ export class WrittenAssetsService {
 
     this.logger.log(
       `Action updated to ${updated.written_asset_action} for written asset ${writtenAssetId}`,
+    );
+
+    return updated;
+  }
+
+  async updateWrittenAssetComments(
+    writtenAssetId: string,
+    dto: UpdateWrittenAssetCommentDTO,
+    tx: Prisma.TransactionClient | PrismaService = this.prisma,
+  ) {
+    this.logger.debug(
+      `Updating client comments for written asset ${writtenAssetId}`,
+    );
+
+    await this.findOneWrittenAsset(writtenAssetId, tx);
+
+    const updated = await tx.writtenAssets.update({
+      where: { written_asset_id: writtenAssetId },
+      data: {
+        client_comments: dto.comment,
+      },
+    });
+
+    this.logger.log(
+      `Client comments updated for written asset ${writtenAssetId}`,
     );
 
     return updated;
