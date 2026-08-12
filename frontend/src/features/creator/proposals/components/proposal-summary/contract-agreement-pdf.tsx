@@ -185,7 +185,7 @@ function LabelValueRow({ label, value }: { label: string; value: string }) {
   )
 }
 
-const COLUMN_WIDTHS = [95, 80, 40, 80, 95, 107]
+const COLUMN_WIDTHS = [95, 120, 40, 80, 95, 107]
 const GIFTED_PRODUCT_COLUMN_WIDTHS = [89, 74, 119, 109, 104]
 
 function TermsTable({ children }: { children: React.ReactNode }) {
