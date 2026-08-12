@@ -1,6 +1,8 @@
 import { Button } from "@/components/ui/button"
 import { Card } from "@/src/components/atoms/card"
 import { Separator } from "@/components/ui/separator"
+import { useWrittenAssetsPanel } from "@/src/features/creator/workspace/hooks/useWrittenAssetsPanel"
+import RichTextEditor from "@/components/ui/rich-text-editor";
 import { Textarea } from "@/components/ui/textarea"
 
 interface WrittenAssetsPanelProps {
@@ -11,6 +13,8 @@ interface WrittenAssetsPanelProps {
 }
 
 export function WrittenAssetsPanel({ version, onSaveDraft, onSubmit, onHistory }: WrittenAssetsPanelProps) {
+  const { content, setContent } = useWrittenAssetsPanel()
+
   return (
     <Card className="flex-1 border border-[#6b1fa8] p-5 flex flex-col gap-4 min-w-0">
       <div className="flex items-center justify-between">
@@ -23,10 +27,12 @@ export function WrittenAssetsPanel({ version, onSaveDraft, onSubmit, onHistory }
 
       <Separator />
 
-      <Textarea
+      <RichTextEditor content={content} onChange={setContent} />
+
+      {/* <Textarea
         placeholder="Type here..."
         className="flex-1 min-h-[300px] resize-none border border-[#6b1fa8] rounded-[3px] bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none focus-visible:ring-0 p-4"
-      />
+      /> */}
 
       <div className="flex justify-end gap-2">
         <Button variant="outline" onClick={onSaveDraft}>Save Draft</Button>
