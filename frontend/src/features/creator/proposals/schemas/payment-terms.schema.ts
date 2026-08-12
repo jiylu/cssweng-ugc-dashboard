@@ -28,7 +28,7 @@ export const giftedProductSchema = z.object({
     { message: "Shipping address is required." }
   ),
   deliveryInstructions: z.string()
-    .optional(),
+    .min(1, "Delivery instructions are required."),
 })
 
 export const paymentTermsSchema = z.object({

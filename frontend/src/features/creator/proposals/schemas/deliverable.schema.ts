@@ -24,4 +24,16 @@ export const deliverableSchema = z.object({
 
   postDate: z.string()
     .min(1, "Post date is required."),
+}).refine((data) => {
+  if (!data.postDate || !data.draftDeadline) return true
+  return new Date(data.draftDeadline) <= new Date(data.postDate)
+}, {
+  message: "Due date cannot be after the post date.",
+  path: ["postDate"]
+}).refine((data) => {
+  if (!data.quantity) return true
+  return /^\d+$/.test(data.quantity) && Number(data.quantity) >= 1
+}, {
+  message: "Quantity must be a whole number.",
+  path: ["quantity"]
 })
