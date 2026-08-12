@@ -6,6 +6,7 @@ import { DeliverableSubmissionsService } from './deliverable-submissions.service
 import { DeliverableSubmissionsController } from './deliverable-submissions.controller';
 import { DeliverablesModule } from '../deliverables/deliverables.module';
 import { CampaignsModule } from '../campaigns/campaigns.module';
+import { UploadModule } from 'src/shared/upload/upload.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { CampaignsModule } from '../campaigns/campaigns.module';
     MediaAssetsModule,
     DeliverablesModule,
     CampaignsModule,
+    UploadModule,
   ],
   providers: [DeliverableSubmissionsService],
   controllers: [DeliverableSubmissionsController],

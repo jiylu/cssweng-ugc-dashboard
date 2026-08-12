@@ -7,6 +7,7 @@ import { WrittenAssetsService } from '../written-assets/written-assets.service';
 import { MediaAssetsService } from '../media-assets/media-assets.service';
 import {
   AssetActions,
+  DeliverableItemStatus,
   DeliverableItems,
   DeliverableStatus,
   Deliverables,
@@ -206,6 +207,16 @@ export class DeliverableSubmissionsService {
 
     this.logger.log(
       `All DeliverableItems for Deliverable ${deliverableItem.deliverable_id} have approved written and media assets. Setting deliverable status to APPROVED.`,
+    );
+
+    await Promise.all(
+      deliverableItems.map((item) =>
+        this.deliverableItemsService.updateDeliverableItemStatus(
+          item.deliverable_item_id,
+          DeliverableItemStatus.APPROVED,
+          tx,
+        ),
+      ),
     );
 
     const updatedDeliverable =
