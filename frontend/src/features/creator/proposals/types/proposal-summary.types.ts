@@ -23,6 +23,7 @@ export interface ProposalSummaryData {
     deliverable: string
     format: string
     dueDate: string
+    postDate: string
     price: number
     currency: string
   }[]
@@ -55,6 +56,7 @@ export interface ProposalSummaryData {
     territory: string
     restrictions: string
     includedOrganicUsage: string
+    contentRetention: number
     partnershipTags: string
     reimbursementDays: number
     giftedProductTerms: string

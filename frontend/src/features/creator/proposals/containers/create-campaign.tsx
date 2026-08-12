@@ -17,7 +17,7 @@ import { ContractTermsContainer } from "@/src/features/creator/proposals/contain
 import { PaymentTermsContainer } from "@/src/features/creator/proposals/containers/payment-terms-container";
 import { AddOnsContainer } from "@/src/features/creator/proposals/containers/add-ons-container";
 import { ProposalSummaryContainer } from "@/src/features/creator/proposals/containers/proposal-summary-container"
-import { buildProposalPayload, toShippingAddressPayload } from "@/src/features/creator/proposals/utils/buildProposalPayload"
+import { buildProposalPayload, toShippingAddressPayload, trimString } from "@/src/features/creator/proposals/utils/buildProposalPayload"
 import { useContractTerms } from "@/src/features/creator/proposals/hooks/useContractTerms"
 import { usePaymentTerms } from "@/src/features/creator/proposals/hooks/usePaymentTerms"
 import { useAddOns } from "@/src/features/creator/proposals/hooks/useAddOns"
@@ -93,22 +93,25 @@ export default function CreateCampaign() {
       deliverables: payload.deliverables,
       contract: payload.contract,
       addOns: addOns.addOns.map((a) => ({
-        addOnName: a.title,
-        description: a.desc ?? "",
+        addOnName: trimString(a.title),
+        description: trimString(a.desc),
         fee: a.fee ?? 0,
       })),
       giftedProducts: paymentTerms.giftedProducts.map((p) => ({
-        productName: p.productName,
+        productName: trimString(p.productName),
         value: parseFloat(p.value.replace(/,/g, "") || "0"),
         shippingAddress: toShippingAddressPayload(p.shippingAddress),
-        deliveryInstructions: p.deliveryInstructions,
-        ownershipTerms: p.ownershipTerms,
+        deliveryInstructions: trimString(p.deliveryInstructions),
+        ownershipTerms: trimString(p.ownershipTerms),
       })),
     };
 
     if (draftId) {
       saveExistingDraft(draftPayload, {
-        onSuccess: () => toast.success("Draft saved!"),
+        onSuccess: () => {
+          toast.success("Draft saved!");
+          router.push('/proposals/drafts');
+        },
         onError: (err) => toast.error(err.message),
       });
       return;
@@ -120,7 +123,7 @@ export default function CreateCampaign() {
         onSuccess: (data) => {
           toast.success("Draft saved!");
           queryClient.setQueryData(["draft", data.public_id], data);
-          router.replace(`/proposals/create-campaign?draft=${data.public_id}`, { scroll: false });
+          router.push('/proposals/drafts');
         },
         onError: (err) => toast.error(err.message),
       }
@@ -148,7 +151,7 @@ export default function CreateCampaign() {
           if (draftId) {
             deleteDraft(draftId);
           }
-          router.push('/creator-dashboard');
+          router.push('/proposals/submitted');
         },
         onError: (err) => toast.error(err.message),
       }
