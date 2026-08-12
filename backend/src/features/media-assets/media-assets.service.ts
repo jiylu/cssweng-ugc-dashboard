@@ -20,6 +20,7 @@ import {
 } from '@prisma/client';
 import { nanoid } from 'nanoid';
 import { SubmitMediaAssetDTO } from './dto/submit-media-asset.dto';
+import { UpdateMediaAssetActionDTO } from './dto/update-media-asset-action.dto';
 
 @Injectable()
 export class MediaAssetsService {
@@ -172,6 +173,42 @@ export class MediaAssetsService {
     );
 
     return latestMediaAsset;
+  }
+
+  async updateMediaAssetAction(
+    mediaAssetId: string,
+    dto: UpdateMediaAssetActionDTO,
+    tx: Prisma.TransactionClient | PrismaService = this.prisma,
+  ) {
+    this.logger.debug(`Updating action for media asset ${mediaAssetId}`);
+
+    const mediaAsset = await this.findOneMediaAsset(mediaAssetId, tx);
+
+    if (mediaAsset.media_asset_action !== AssetActions.PENDING) {
+      this.logger.warn(
+        `Cannot update action for MediaAsset ${mediaAssetId} since it is already ${mediaAsset.media_asset_action}.`,
+      );
+
+      throw new ConflictException({
+        code: 'MEDIA_ASSET_ACTION_CANNOT_BE_UPDATED',
+        message:
+          'Media asset action can only be updated while the action is PENDING.',
+      });
+    }
+
+    const updated = await tx.mediaAssets.update({
+      where: { media_asset_id: mediaAssetId },
+      data: {
+        media_asset_action: dto.action,
+        updated_at: new Date(),
+      },
+    });
+
+    this.logger.log(
+      `Action updated to ${updated.media_asset_action} for media asset ${mediaAssetId}`,
+    );
+
+    return updated;
   }
 
   // utils

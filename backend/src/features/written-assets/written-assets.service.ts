@@ -24,6 +24,7 @@ import {
 } from '@prisma/client';
 import { nanoid } from 'nanoid';
 import { SubmitWrittenAssetDTO } from './dto/submit-written-asset.dto';
+import { UpdateWrittenAssetActionDTO } from './dto/update-written-asset-action.dto';
 
 @Injectable()
 export class WrittenAssetsService {
@@ -199,6 +200,42 @@ export class WrittenAssetsService {
     );
 
     return latestWrittenAsset;
+  }
+
+  async updateWrittenAssetAction(
+    writtenAssetId: string,
+    dto: UpdateWrittenAssetActionDTO,
+    tx: Prisma.TransactionClient | PrismaService = this.prisma,
+  ) {
+    this.logger.debug(`Updating action for written asset ${writtenAssetId}`);
+
+    const writtenAsset = await this.findOneWrittenAsset(writtenAssetId, tx);
+
+    if (writtenAsset.written_asset_action !== AssetActions.PENDING) {
+      this.logger.warn(
+        `Cannot update action for WrittenAsset ${writtenAssetId} since it is already ${writtenAsset.written_asset_action}.`,
+      );
+
+      throw new ConflictException({
+        code: 'WRITTEN_ASSET_ACTION_CANNOT_BE_UPDATED',
+        message:
+          'Written asset action can only be updated while the action is PENDING.',
+      });
+    }
+
+    const updated = await tx.writtenAssets.update({
+      where: { written_asset_id: writtenAssetId },
+      data: {
+        written_asset_action: dto.action,
+        updated_at: new Date(),
+      },
+    });
+
+    this.logger.log(
+      `Action updated to ${updated.written_asset_action} for written asset ${writtenAssetId}`,
+    );
+
+    return updated;
   }
 
   // utils
