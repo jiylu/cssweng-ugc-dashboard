@@ -159,6 +159,9 @@ export class DeliverableItemsService {
     const deliverableItems = await tx.deliverableItems.findMany({
       where: {
         deliverable_id: deliverable.deliverable_id,
+        deliverable_item_status: {
+          not: 'DELETED',
+        },
       },
       orderBy: [{ deliverable_index: 'asc' }],
     });
@@ -184,7 +187,7 @@ export class DeliverableItemsService {
       status === DeliverableItemStatus.PENDING
     ) {
       throw new BadRequestException({
-        code: 'DELIVERABLE_INVALID_STATUS',
+        code: 'DELIVERABLE_ITEM_INVALID_STATUS',
         message: 'Status must be APPROVED or FOR_REVIEW.',
       });
     }
@@ -294,7 +297,7 @@ export class DeliverableItemsService {
     });
 
     this.logger.debug(
-      `Successfully set written_asset_approved to true for ${deliverableItemId}`,
+      `Successfully set media_asset_approved to true for ${deliverableItemId}`,
     );
 
     return updatedDeliverableItem;

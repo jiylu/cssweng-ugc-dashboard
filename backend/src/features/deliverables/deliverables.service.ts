@@ -312,6 +312,11 @@ export class DeliverablesService {
       },
     });
 
+    await this.deliverableItemsService.deleteAllDeliverableItemsForDeliverable(
+      deliverable.deliverable_id,
+      tx,
+    );
+
     this.logger.log(
       `Sucessfully deleted deliverable ${deletedDeliverable.deliverable_id}`,
     );
