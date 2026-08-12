@@ -1,6 +1,6 @@
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
-const tabs = ["ALL", "ACTIVE", "PENDING", "FOR REVISIONS", "COMPLETED"]
+const tabs = ["ALL", "ACTIVE", "REJECTED", "COMPLETED", "CANCELLED"]
 
 interface CampaignTabsProps {
   active: string
