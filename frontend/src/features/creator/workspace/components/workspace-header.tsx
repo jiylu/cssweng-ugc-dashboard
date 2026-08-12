@@ -5,9 +5,9 @@ interface WorkspaceHeaderProps {
 
 export function WorkspaceHeader({ campaignName, campaignOverview }: WorkspaceHeaderProps) {
   return (
-    <div className="flex flex-col gap-0">
-      <p className="text-sm text-muted-foreground">{campaignName}</p>
-      <p className="text-sm text-muted-foreground">{campaignOverview}</p>
+    <div className="flex flex-col gap-0 min-w-0">
+      <p className="text-sm text-muted-foreground break-words">{campaignName}</p>
+      <p className="text-sm text-muted-foreground break-words">{campaignOverview}</p>
     </div>
   )
 }

@@ -1,13 +1,11 @@
 import { cn } from "@/lib/utils"
 
-const STEPS = ["Contract Signing", "Script Drafting", "Video Submission", "Invoicing", "Completion"]
+const STEPS = ["Contract Signing", "Deliverables Submission", "Invoicing", "Completion"]
 
 interface CampaignProgressProps {
   activeStep: number
   onStepChange: (step: number) => void
 }
-
-
 
 export function CampaignProgress({ activeStep, onStepChange }: CampaignProgressProps) {
   return (

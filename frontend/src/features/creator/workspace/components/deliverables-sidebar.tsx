@@ -1,29 +1,27 @@
-import { cn } from "@/lib/utils"
-import { Deliverable } from "@/src/features/creator/workspace/types/workspace.types"
+import { Deliverable } from "../types/workspace.types"
+import { DeliverableCard } from "./deliverable-card"
 
 interface DeliverablesSidebarProps {
   deliverables: Deliverable[]
   activeDeliverable: number
   onChange: (index: number) => void
+  activeStep: number
+  onStepChange: (step: number) => void
 }
 
-export function DeliverablesSidebar({ deliverables, activeDeliverable, onChange }: DeliverablesSidebarProps) {
+export function DeliverablesSidebar({ deliverables, activeDeliverable, onChange, activeStep, onStepChange }: DeliverablesSidebarProps) {
   return (
-    <div className="flex flex-col gap-1 w-48 shrink-0">
-      <p className="text-sm font-medium text-foreground mb-2">Deliverables</p>
+    <div className="flex flex-col gap-3 w-64 shrink-0">
+      <p className="text-2xl text-foreground">Deliverables</p>
       {deliverables.map((deliverable, index) => (
-        <button
+        <DeliverableCard
           key={deliverable.public_id}
+          deliverable={deliverable}
+          isActive={activeDeliverable === index}
           onClick={() => onChange(index)}
-          className={cn(
-            "text-left px-4 py-2 text-sm rounded-[3px] transition-colors",
-            activeDeliverable === index
-              ? "bg-[#6b1fa8] text-white font-medium"
-              : "text-muted-foreground hover:bg-muted"
-          )}
-        >
-          {deliverable.deliverable_content}
-        </button>
+          activeStep={activeStep}
+          onStepChange={onStepChange}
+        />
       ))}
     </div>
   )

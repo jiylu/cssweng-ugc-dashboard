@@ -1,5 +1,4 @@
 "use client";
-
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -9,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import Button from "@/src/components/atoms/button";
 import SignatureField from "@/src/features/client/contracts/components/signature-field";
 import { signContract } from "@/src/features/client/contracts/services/contracts-api";
-import { CampaignContract } from "../services/getCampaignSetup";
+import { CampaignContract } from "@/src/features/creator/workspace/services/getCampaignSetup";
 
 interface ContractSigningPanelProps {
   contract?: CampaignContract;

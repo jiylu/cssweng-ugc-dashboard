@@ -1,16 +1,17 @@
 "use client"
+import { useState } from "react";
 import CreatorSidebar from "@/src/components/organisms/creator-sidebar"
 import { Separator } from "@/components/ui/separator"
 import { useAuth } from "@/src/features/auth/hooks/useAuth"
 import LogoLoader from "@/src/components/molecules/logo-loader";
 import { WorkspaceHeader } from "@/src/features/creator/workspace/components/workspace-header"
 import { CampaignProgress } from "@/src/features/creator/workspace/components/campaign-progress"
-import { WrittenAssetsPanel } from "@/src/features/creator/workspace/components/written-assets-panel"
+import { WrittenAssetsPanel } from "@/src/features/creator/workspace/components/deliverables-submission/written-assets-panel"
 import { DeliverablesSidebar } from "@/src/features/creator/workspace/components/deliverables-sidebar"
-import { FeedbackPanel } from "@/src/features/creator/workspace/components/feedback-panel"
-import { HistoryOverlay } from "@/src/features/creator/workspace/components/history-overlay"
-import { VideoSubmission } from "@/src/features/creator/workspace/components/video-submission"
-import { ContractSigningPanel } from "@/src/features/creator/workspace/components/contract-signing-panel"
+import { FeedbackPanel } from "@/src/features/creator/workspace/components/deliverables-submission/feedback-panel"
+import { HistoryOverlay } from "@/src/features/creator/workspace/components/deliverables-submission/history-overlay"
+import { VideoSubmission } from "@/src/features/creator/workspace/components/deliverables-submission/video-submission"
+import { ContractSigningPanel } from "@/src/features/creator/workspace/components/contract-signing/contract-signing-panel"
 import { useWorkspace } from "@/src/features/creator/workspace/hooks/useWorkspace"
 import { useCampaignSetup } from "@/src/features/creator/workspace/hooks/useCampaignSetup"
 
@@ -21,6 +22,7 @@ interface WorkspaceProps {
 export default function Workspace({ campaignId }: WorkspaceProps) {
   const { user, loading } = useAuth()
   const { activeStep, setActiveStep, activeDeliverable, setActiveDeliverable, historyOpen, setHistoryOpen } = useWorkspace()
+  const [activeDeliverableStep, setActiveDeliverableStep] = useState(0)
   const { data: campaignSetup, isLoading: campaignLoading } = useCampaignSetup(campaignId)
   const campaign = campaignSetup?.campaign
   const deliverables = campaignSetup?.deliverables ?? []
@@ -63,6 +65,8 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
               deliverables={deliverables}
               activeDeliverable={activeDeliverable}
               onChange={setActiveDeliverable}
+              activeStep={activeDeliverableStep}
+              onStepChange={setActiveDeliverableStep}
             />
             {activeStep === 0 && (
               <ContractSigningPanel 
