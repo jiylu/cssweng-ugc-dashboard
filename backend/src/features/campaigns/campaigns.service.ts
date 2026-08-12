@@ -233,12 +233,16 @@ export class CampaignsService {
     return campaigns;
   }
 
-  async updateCampaignStatus(campaignId: string, dto: UpdateCampaignStatusDto) {
+  async updateCampaignStatus(
+    campaignId: string,
+    dto: UpdateCampaignStatusDto,
+    tx: Prisma.TransactionClient | PrismaService = this.prisma,
+  ) {
     this.logger.debug(`Updating campaign status for ${campaignId}`);
 
-    const campaign = await this.assertCampaignUpdatable(campaignId);
+    const campaign = await this.assertCampaignUpdatable(campaignId, tx);
 
-    const updatedCampaign = await this.prisma.campaigns.update({
+    const updatedCampaign = await tx.campaigns.update({
       where: { campaign_id: campaignId },
       data: {
         campaign_status: dto.campaignStatus,
@@ -252,8 +256,11 @@ export class CampaignsService {
     return updatedCampaign;
   }
 
-  async assertCampaignUpdatable(campaignId: string) {
-    const campaign = await this.findOneCampaign(campaignId);
+  async assertCampaignUpdatable(
+    campaignId: string,
+    tx: Prisma.TransactionClient | PrismaService = this.prisma,
+  ) {
+    const campaign = await this.findOneCampaign(campaignId, tx);
     const terminalStatuses = [
       CampaignStatus.REJECTED,
       CampaignStatus.COMPLETED,
@@ -347,14 +354,18 @@ export class CampaignsService {
     return updatedCampaign;
   }
 
-  async updatePaidAmount(campaignId: string, dto: UpdatePaidAmountDTO) {
+  async updatePaidAmount(
+    campaignId: string,
+    dto: UpdatePaidAmountDTO,
+    tx: Prisma.TransactionClient | PrismaService = this.prisma,
+  ) {
     this.logger.debug(
       `Updating paid amount for campaign ${campaignId} to ${dto.paidAmount}`,
     );
 
-    const campaign = await this.findOneCampaign(campaignId);
+    const campaign = await this.findOneCampaign(campaignId, tx);
 
-    const updatedCampaign = await this.prisma.campaigns.update({
+    const updatedCampaign = await tx.campaigns.update({
       where: { campaign_id: campaign.campaign_id },
       data: {
         paid_amount: dto.paidAmount,
