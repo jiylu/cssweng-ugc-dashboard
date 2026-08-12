@@ -201,6 +201,8 @@ export class DeliverableItemsService {
       deliverableItem.deliverable_item_status,
     );
 
+    this.assertDeliverableItemCanBeApproved(status, deliverableItem);
+
     const updatedDeliverableItem = await tx.deliverableItems.update({
       where: { deliverable_item_id: deliverableItem.deliverable_item_id },
       data: {
@@ -344,6 +346,30 @@ export class DeliverableItemsService {
       throw new ConflictException({
         code: 'DELIVERABLE_ITEM_STATUS_CANNOT_BE_UPDATED',
         message: 'DeliverableItem status cannot be updated.',
+      });
+    }
+  }
+
+  assertDeliverableItemCanBeApproved(
+    status: DeliverableItemStatus,
+    deliverableItem: {
+      deliverable_item_id: string;
+      written_asset_approved: boolean;
+      media_asset_approved: boolean;
+    },
+  ) {
+    if (
+      status === DeliverableItemStatus.APPROVED &&
+      (!deliverableItem.written_asset_approved ||
+        !deliverableItem.media_asset_approved)
+    ) {
+      this.logger.warn(
+        `Cannot set DeliverableItem ${deliverableItem.deliverable_item_id} status to APPROVED since written_asset_approved and/or media_asset_approved is false.`,
+      );
+
+      throw new BadRequestException({
+        code: 'DELIVERABLE_ITEM_ASSETS_NOT_APPROVED',
+        message: 'Both written and media assets must be approved.',
       });
     }
   }

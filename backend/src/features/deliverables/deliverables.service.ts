@@ -61,6 +61,7 @@ export class DeliverablesService {
 
     await this.deliverableItemsService.createManyDeliverableItems(
       deliverable.deliverable_id,
+      tx,
     );
 
     this.logger.log(

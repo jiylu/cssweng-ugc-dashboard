@@ -60,6 +60,48 @@ export function ApiCreateDeliverable() {
   );
 }
 
+export function ApiFindDeliverableItems() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Finds deliverable items for a deliverable',
+      description:
+        'Retrieves all deliverable items for the given deliverable public ID, ordered by deliverable index. No request body. Refer to the DeliverableItemsEntity for the deliverable item shape.',
+    }),
+    ApiParam({
+      name: 'publicId',
+      type: String,
+      description: 'Public ID of the deliverable',
+      example: 'sf857pbKer',
+    }),
+    ApiResponse({
+      status: 200,
+      description: 'Deliverable items retrieved successfully',
+    }),
+    ApiResponse({ status: 404, description: 'Deliverable not found' }),
+  );
+}
+
+export function ApiFindDeliverableItem() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Finds a deliverable item by public id',
+      description:
+        'Retrieves a single deliverable item by its own publicId path parameter. No request body. Refer to the DeliverableItemsEntity for the deliverable item shape.',
+    }),
+    ApiParam({
+      name: 'publicId',
+      type: String,
+      description: 'Public ID of the deliverable item',
+      example: 'HD9WXeFLCK',
+    }),
+    ApiResponse({
+      status: 200,
+      description: 'Deliverable item retrieved successfully',
+    }),
+    ApiResponse({ status: 404, description: 'Deliverable item not found' }),
+  );
+}
+
 export function ApiGetCalendarForUser() {
   return applyDecorators(
     ApiOperation({
