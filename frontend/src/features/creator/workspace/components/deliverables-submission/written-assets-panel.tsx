@@ -8,12 +8,12 @@ import { Textarea } from "@/components/ui/textarea"
 interface WrittenAssetsPanelProps {
   version: number
   onSaveDraft: () => void
-  onSubmit: () => void
+  onSubmit: (content: string) => void
   onHistory: () => void
 }
 
 export function WrittenAssetsPanel({ version, onSaveDraft, onSubmit, onHistory }: WrittenAssetsPanelProps) {
-  const { content, setContent } = useWrittenAssetsPanel()
+  const { content, errors, updateContent, validateAndSave } = useWrittenAssetsPanel()
 
   return (
     <Card className="flex-1 border border-[#6b1fa8] p-5 flex flex-col gap-4 min-w-0">
@@ -27,7 +27,9 @@ export function WrittenAssetsPanel({ version, onSaveDraft, onSubmit, onHistory }
 
       <Separator />
 
-      <RichTextEditor content={content} onChange={setContent} />
+      <RichTextEditor content={content} onChange={updateContent} />
+
+      <p className="text-xs mt-1 text-[#ff6467] min-h-[16px]">{errors.content ?? ""}</p>
 
       {/* <Textarea
         placeholder="Type here..."
@@ -36,7 +38,7 @@ export function WrittenAssetsPanel({ version, onSaveDraft, onSubmit, onHistory }
 
       <div className="flex justify-end gap-2">
         <Button variant="outline" onClick={onSaveDraft}>Save Draft</Button>
-        <Button onClick={onSubmit} className="bg-[#6b1fa8] hover:bg-[#5a1a8f] text-white">Submit</Button>
+        <Button onClick={() => validateAndSave(onSubmit)} className="bg-[#6b1fa8] hover:bg-[#5a1a8f] text-white">Submit</Button>
       </div>
     </Card>
   )

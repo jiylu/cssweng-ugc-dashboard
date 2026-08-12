@@ -82,7 +82,7 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
                 version={2}
                 onHistory={() => setHistoryOpen(true)}
                 onSaveDraft={() => console.log("Save draft")}
-                onSubmit={() => console.log("Submit")}
+                onSubmit={(content) => console.log("Submit", content)}
               />
             )}
             {activeStep === 1 && activeDeliverableStep === 1 && (
