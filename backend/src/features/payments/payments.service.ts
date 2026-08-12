@@ -167,6 +167,7 @@ export class PaymentsService {
         where: { payment_id: paymentRecord.payment_id },
         data: {
           is_payment_verified: true,
+          verified_at: new Date(),
         },
       });
 
