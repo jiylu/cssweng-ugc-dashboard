@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Req, Res } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Req, Res } from '@nestjs/common';
 import type { Response } from 'express';
 import { UserService } from './users.service';
 import { LoginUserDTO } from './dto/login-user.dto';
@@ -9,6 +9,7 @@ import {
 import type { AuthenticatedRequest } from './types/authenticated-request.types';
 import { CreateUserTransactionDTO } from './dto/create-user-transaction.dto';
 import { ApiCreateUser } from './docs/users.controller.swagger';
+import { UpdateOwnProfileDTO } from './dto/update-own-profile.dto';
 
 @Controller('users')
 export class UserController {
@@ -49,6 +50,14 @@ export class UserController {
   @Get('me')
   me(@Req() req: AuthenticatedRequest) {
     return req.authUser;
+  }
+
+  @Patch('me')
+  updateMe(
+    @Req() req: AuthenticatedRequest,
+    @Body() dto: UpdateOwnProfileDTO,
+  ) {
+    return this.userService.updateOwnProfile(req.authUser.user_id, dto);
   }
 
   @Post('logout')

@@ -7,6 +7,8 @@ type UseClientOnboardingOptions = {
   initialEmail?: string;
   proposalId?: string;
   campaignId?: string;
+  onSubmit?: (form: ClientOnboardingForm) => Promise<void>;
+  redirectAfterSubmit?: boolean;
 };
 
 const getInitialForm = (initialEmail = ""): ClientOnboardingForm => ({
@@ -24,12 +26,16 @@ export function useClientOnboarding({
   initialEmail = "",
   proposalId,
   campaignId,
+  onSubmit,
+  redirectAfterSubmit = true,
 }: UseClientOnboardingOptions = {}) {
   const router = useRouter();
   const [form, setForm] = useState<ClientOnboardingForm>(
     getInitialForm(initialEmail),
   );
   const [errors, setErrors] = useState<ClientOnboardingForm>(getInitialForm());
+  const [submitError, setSubmitError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm((prev) => ({ ...prev, [e.target.id]: e.target.value }));
@@ -38,12 +44,12 @@ export function useClientOnboarding({
   const updateEmailFromAccount = (email: string) => {
     setForm((prev) => ({
       ...prev,
-      companyEmail: prev.companyEmail || email,
-      billingEmail: prev.billingEmail || email,
+      companyEmail: email,
+      billingEmail: email,
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const result = clientOnboardingSchema.safeParse(form);
@@ -64,10 +70,26 @@ export function useClientOnboarding({
     }
 
     setErrors(getInitialForm());
+    setSubmitError("");
+
+    try {
+      setIsSubmitting(true);
+      await onSubmit?.(result.data);
+    } catch (error) {
+      setSubmitError(
+        error instanceof Error ? error.message : "Unable to create account.",
+      );
+      return;
+    } finally {
+      setIsSubmitting(false);
+    }
+
     window.sessionStorage.setItem(
       "clientOnboardingDetails",
       JSON.stringify(result.data),
     );
+
+    if (!redirectAfterSubmit) return;
 
     const reviewId = proposalId ?? campaignId;
     router.push(reviewId ? `/proposals/${reviewId}` : "/proposals/preview");
@@ -76,6 +98,8 @@ export function useClientOnboarding({
   return {
     form,
     errors,
+    isSubmitting,
+    submitError,
     handleChange,
     handleSubmit,
     updateEmailFromAccount,

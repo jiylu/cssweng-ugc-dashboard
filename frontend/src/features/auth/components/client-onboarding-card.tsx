@@ -48,7 +48,7 @@ function Field({
 export default function ClientOnboardingCard({
   onboardingForm,
 }: ClientOnboardingCardProps) {
-  const { errors, form, handleChange, handleSubmit } = onboardingForm;
+  const { errors, form, handleChange, handleSubmit, isSubmitting, submitError } = onboardingForm;
 
   return (
     <section className="mx-auto w-full max-w-[760px] rounded border border-[#d8d4cb] bg-white px-8 py-5 max-md:px-5">
@@ -141,12 +141,15 @@ export default function ClientOnboardingCard({
           </div>
         </div>
 
+        {submitError && <p role="alert" className="text-sm text-[#ff6467]">{submitError}</p>}
+
         <div className="flex justify-center">
           <Button
             type="submit"
+            disabled={isSubmitting}
             className="h-11 w-full max-w-[320px] rounded-none bg-[#6b1fa8] text-lg font-normal hover:bg-[#5f1a96]"
           >
-            View Proposal
+            {isSubmitting ? "Creating Account..." : "View Proposal"}
             <span className="ml-5">--&gt;</span>
           </Button>
         </div>
