@@ -4,19 +4,31 @@ import CreatorSidebar from "@/src/components/organisms/creator-sidebar";
 import { SubmittedProposalsHeader } from "@/src/features/creator/proposals/components/submitted-proposals/submitted-proposals-header"
 import { SubmittedProposalsTable } from "@/src/features/creator/proposals/components/submitted-proposals/submitted-proposals-table"
 import { SubmittedProposalPreviewDialog } from "@/src/features/creator/proposals/components/submitted-proposals/submitted-proposal-preview-dialog"
+import { CancelProposalDialog } from "@/src/features/creator/proposals/components/submitted-proposals/cancel-proposal-dialog"
 import { useAuth } from "@/src/features/auth/hooks/useAuth";
 import { useSubmittedProposals } from "@/src/features/creator/proposals/hooks/useSubmittedProposals";
 import { useProposalMetaByCampaign } from "@/src/features/creator/proposals/hooks/useProposalMetaByCampaign";
+import { useCancelProposal } from "@/src/features/creator/proposals/hooks/useCancelProposal";
 import { mapCampaignToSubmittedProposal } from "@/src/features/creator/proposals/utils/mapCampaignToSubmittedProposal";
+import { SubmittedProposal } from "@/src/features/creator/proposals/types/submitted-proposal.types";
 import LogoLoader from "@/src/components/molecules/logo-loader";
 import { Separator } from "@/components/ui/separator";
+import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 
 export function SubmittedProposalsContainer() {
     const { user, loading } = useAuth();
     const { data: campaigns, isLoading, isError } = useSubmittedProposals(user?.user_id);
     const proposalMeta = useProposalMetaByCampaign(campaigns);
+    const queryClient = useQueryClient();
+    const { mutate: cancelProposal, isPending: isCancelling } = useCancelProposal();
     const [previewPublicId, setPreviewPublicId] = useState<string | null>(null);
+    const [cancelTarget, setCancelTarget] = useState<{
+        proposalPublicId: string
+        campaignPublicId: string
+        campaignName: string
+    } | null>(null);
 
     const handleView = (id: string) => {
         setPreviewPublicId(id)
@@ -26,8 +38,25 @@ export function SubmittedProposalsContainer() {
         console.log("send reminder", id)
     }
 
-    const handleCancel = (id: string) => {
-        console.log("cancel proposal", id)
+    const handleCancel = (proposal: SubmittedProposal) => {
+        setCancelTarget({
+            proposalPublicId: proposal.proposalPublicId,
+            campaignPublicId: proposal.id,
+            campaignName: proposal.campaignName,
+        })
+    }
+
+    const handleConfirmCancel = () => {
+        if (!cancelTarget) return;
+        cancelProposal(cancelTarget.proposalPublicId, {
+            onSuccess: () => {
+                toast.success("Proposal cancelled.");
+                queryClient.invalidateQueries({ queryKey: ["submitted-proposals", user?.user_id] });
+                queryClient.invalidateQueries({ queryKey: ["proposal-client", cancelTarget.campaignPublicId] });
+                setCancelTarget(null);
+            },
+            onError: (err) => toast.error(err.message),
+        });
     }
 
     if (loading || isLoading) return <LogoLoader label="Loading submitted proposals" />;
@@ -58,6 +87,7 @@ export function SubmittedProposalsContainer() {
                                     campaign,
                                     meta?.clientName,
                                     meta?.proposalStatus,
+                                    meta?.proposalPublicId,
                                 )
                             })}
                             onView={handleView}
@@ -71,6 +101,13 @@ export function SubmittedProposalsContainer() {
                 publicId={previewPublicId}
                 creatorName={`${user.first_name} ${user.last_name}`.trim()}
                 onClose={() => setPreviewPublicId(null)}
+            />
+            <CancelProposalDialog
+                open={!!cancelTarget}
+                campaignName={cancelTarget?.campaignName ?? ""}
+                isPending={isCancelling}
+                onConfirm={handleConfirmCancel}
+                onClose={() => setCancelTarget(null)}
             />
         </main>
     )

@@ -5,6 +5,7 @@ import { getProposalClientByCampaign } from "../services/submitted-proposals-api
 export interface CampaignProposalMeta {
   clientName: string
   proposalStatus: string
+  proposalPublicId: string
 }
 
 function toClientName(firstName: string, lastName: string): string {
@@ -30,6 +31,7 @@ export function useProposalMetaByCampaign(
       meta.set(campaign.public_id, {
         clientName: toClientName(data.client_first_name, data.client_last_name),
         proposalStatus: data.proposal_status,
+        proposalPublicId: data.public_id,
       })
     }
   })

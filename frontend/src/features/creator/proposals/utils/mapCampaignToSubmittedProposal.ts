@@ -46,6 +46,8 @@ function toProposalStatus(status: string): ProposalStatus {
     case "COMPLETED":
     case "COMPLETE":
       return "COMPLETED"
+    case "CANCELLED":
+      return "CANCELLED"
     default:
       return "PENDING"
   }
@@ -55,6 +57,7 @@ export function mapCampaignToSubmittedProposal(
   campaign: Campaign,
   clientName = "—",
   proposalStatus?: string,
+  proposalPublicId?: string,
 ): SubmittedProposal {
   const currency = asString(campaign.currency) || "USD"
   const total = asNumber(campaign.pricing)
@@ -64,6 +67,7 @@ export function mapCampaignToSubmittedProposal(
 
   return {
     id: campaign.public_id,
+    proposalPublicId: proposalPublicId ?? campaign.public_id,
     campaignName: asString(campaign.project_name) || "Untitled Campaign",
     campaignType: firstPlatform || "Proposal",
     clientName: clientName || "—",

@@ -46,3 +46,15 @@ export async function getProposalClientByCampaign(campaignPublicId: string): Pro
   }
   return response.json()
 }
+
+export async function cancelProposal(publicId: string): Promise<CampaignProposalClient> {
+  const response = await fetch(
+    `${API_BASE_URL}/proposals/cancel/${encodeURIComponent(publicId)}`,
+    { method: "PATCH", credentials: "include" }
+  )
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}))
+    throw new Error(error.message ?? "Failed to cancel proposal")
+  }
+  return response.json()
+}
