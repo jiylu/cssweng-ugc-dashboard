@@ -1,5 +1,6 @@
 import { Card } from "@/src/components/atoms/card";
 import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator"
 
 export interface ClientDetailsFormProps {
   contactPerson: string;
@@ -15,6 +16,8 @@ export default function ClientDetailsForm({ contactPerson, setContactPerson, con
       <h2 className="text-[26px] font-normal text-foreground">
         Client Information
       </h2>
+      <Separator className="-mt-4 mb-2"/>
+
 
       <p className="text-[16px] text-muted-foreground leading-relaxed -mt-4">
         Enter the client&apos;s name and contact email to send them access to view this campaign proposal.
