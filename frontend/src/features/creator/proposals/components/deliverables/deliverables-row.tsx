@@ -88,13 +88,13 @@ export function DeliverableRow({ item, index, deliverablesCount, currency, error
           </div>
 
           {/* Requirements */}
-          <div className="flex flex-col gap-1 flex-1 min-h-0">
+          <div className="flex flex-col gap-1 flex-1 min-h-0 min-w-0">
             <label className="text-xs text-muted-foreground uppercase tracking-[0.03em]">REQUIREMENTS</label>
             <Textarea
               value={item.description}
               onChange={(e) => onUpdate('description', e.target.value)}
               placeholder="Indicate requirements and format of the deliverable"
-              className="w-full flex-1 !h-full [field-sizing:fixed] bg-white border border-border rounded-[3px] text-sm text-foreground placeholder:text-muted-foreground placeholder:italic resize-none break-words overflow-hidden"            />
+              className="w-full min-w-0 flex-1 !h-full [field-sizing:fixed] bg-white border border-border rounded-[3px] text-sm text-foreground placeholder:text-muted-foreground placeholder:italic resize-none break-words overflow-hidden"            />
             <p className="text-xs mt-1 text-[#ff6467] min-h-[16px]">{e('description') ?? ""}</p>
           </div>
         </div>
