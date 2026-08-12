@@ -114,22 +114,12 @@ export class ContractsController {
 
     const [signatureData, initialsData] = await Promise.all(promises);
 
-    const contractId = await this.contractsService.resolvePublicId(publicId);
-    const contract = await this.contractsService.signContract(
-      contractId,
-      dto.signerRole,
-    );
-
-    const campaign = await this.campaignsService.findOneCampaign(
-      contract.campaign_id,
-    );
-
-    await this.contractSignatureService.storeSignature({
-      contractId: contract.contract_id,
-      signerRole: dto.signerRole,
-      signatureURL: signatureData.url,
-      initialsURL: initialsData.url,
-    });
+    const { contract, campaign } =
+      await this.contractSignatureService.signContractWithSignature(publicId, {
+        signerRole: dto.signerRole,
+        signatureURL: signatureData.url,
+        initialsURL: initialsData.url,
+      });
 
     await this.notificationsService.createNotification({
       userId: campaign.ugc_creator_id,
