@@ -11,7 +11,7 @@ import {
 import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { CampaignsService } from '../campaigns/campaigns.service';
 import { CreateDeliverableDTO } from './dto/create-deliverable.dto';
-import { DeliverableStatus, Prisma, ProposalStatus } from '@prisma/client';
+import { DeliverableItemStatus, DeliverableStatus, Prisma, ProposalStatus } from '@prisma/client';
 import { UpdateDeliverableDTO } from './dto/update-deliverable.dto';
 import { nanoid } from 'nanoid';
 import { CampaignDates } from './types/types';
@@ -322,6 +322,102 @@ export class DeliverablesService {
       `Sucessfully deleted deliverable ${deletedDeliverable.deliverable_id}`,
     );
     return deletedDeliverable;
+  }
+
+  async changeDeliverableStatus(
+    deliverableId: string,
+    status: DeliverableStatus,
+    tx: Prisma.TransactionClient | PrismaService = this.prisma,
+  ) {
+    this.logger.debug(
+      `Changing deliverable ${deliverableId} status to ${status}`,
+    );
+
+    this.assertDeliverableStatusChangeAllowed(status);
+
+    const deliverable = await this.findOneDeliverableByUID(deliverableId, tx);
+
+    this.assertDeliverableNonTerminalStatus(deliverable.deliverable_status);
+
+    if (status === DeliverableStatus.APPROVED) {
+      await this.assertDeliverableItemsApproved(deliverable.deliverable_id, tx);
+    }
+
+    const updatedDeliverable = await tx.deliverables.update({
+      where: { deliverable_id: deliverable.deliverable_id },
+      data: { deliverable_status: status },
+    });
+
+    this.logger.log(
+      `Successfully changed deliverable ${updatedDeliverable.deliverable_id} status to ${updatedDeliverable.deliverable_status}`,
+    );
+
+    return updatedDeliverable;
+  }
+
+  assertDeliverableStatusChangeAllowed(status: DeliverableStatus) {
+    if (
+      status === DeliverableStatus.PENDING ||
+      status === DeliverableStatus.DELETED
+    ) {
+      this.logger.warn(
+        `Cannot set deliverable status to ${status}. Only IN_PROGRESS or APPROVED are allowed.`,
+      );
+
+      throw new BadRequestException({
+        status: HttpStatus.BAD_REQUEST,
+        code: 'DELIVERABLE_INVALID_STATUS',
+        message: 'Status must be IN_PROGRESS or APPROVED.',
+      });
+    }
+  }
+
+  assertDeliverableNonTerminalStatus(deliverableStatus: DeliverableStatus) {
+    if (
+      deliverableStatus === DeliverableStatus.APPROVED ||
+      deliverableStatus === DeliverableStatus.DELETED
+    ) {
+      this.logger.warn(
+        `Cannot change status since it is already terminal (${deliverableStatus}).`,
+      );
+
+      throw new ConflictException({
+        status: HttpStatus.CONFLICT,
+        code: 'DELIVERABLE_STATUS_CANNOT_BE_UPDATED',
+        message: 'Deliverable status cannot be updated.',
+      });
+    }
+  }
+
+  async assertDeliverableItemsApproved(
+    deliverableId: string,
+    tx: Prisma.TransactionClient | PrismaService = this.prisma,
+  ) {
+    const deliverableItems =
+      await this.deliverableItemsService.findDeliverableItemsForDeliverable(
+        deliverableId,
+        tx,
+      );
+
+    const allItemsApproved =
+      deliverableItems.length > 0 &&
+      deliverableItems.every(
+        (item) =>
+          item.deliverable_item_status === DeliverableItemStatus.APPROVED,
+      );
+
+    if (!allItemsApproved) {
+      this.logger.warn(
+        `Cannot approve deliverable ${deliverableId} since not all deliverable items are APPROVED.`,
+      );
+
+      throw new ConflictException({
+        status: HttpStatus.CONFLICT,
+        code: 'DELIVERABLE_ITEMS_NOT_APPROVED',
+        message:
+          'All deliverable items must be APPROVED before approving the deliverable.',
+      });
+    }
   }
 
   async getCalendarDataForUser(userId: string) {
