@@ -77,26 +77,37 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
                 onSigned={() => setActiveStep(1)} 
               />
             )}
-            {activeStep === 1 && activeDeliverableStep === 0 && (
-              <WrittenAssetsPanel
-                version={2}
-                onHistory={() => setHistoryOpen(true)}
-                onSaveDraft={() => console.log("Save draft")}
-                onSubmit={(content) => console.log("Submit", content)}
-              />
-            )}
-            {activeStep === 1 && activeDeliverableStep === 1 && (
-              <VideoSubmissionContainer 
-                version={2}
-                onHistory={() => setHistoryOpen(true)}
-                onSubmit={() => console.log("Submit video")}
-              />
-            )}
-            {activeStep === 1 && activeDeliverableStep === 2 && (
-              <DeliverableApprovedCard deliverableName={deliverables[activeDeliverable]?.deliverable_content ?? "Deliverable"} />
-            )}
-            {activeStep === 1 && activeDeliverableStep < 2 && (
-              <FeedbackPanel />
+            {activeStep === 1 && (
+              <>
+                {activeDeliverableStep === 0 && (
+                  <WrittenAssetsPanel
+                    version={2}
+                    onHistory={() => setHistoryOpen(true)}
+                    onSaveDraft={() => console.log("Save draft")}
+                    onSubmit={(content) => console.log("Submit", content)}
+                  />
+                )}
+
+                {activeDeliverableStep === 1 && (
+                  <VideoSubmissionContainer
+                    version={2}
+                    onHistory={() => setHistoryOpen(true)}
+                    onSubmit={() => console.log("Submit video")}
+                  />
+                )}
+
+                {activeDeliverableStep === 2 && (
+                  <DeliverableApprovedCard
+                    deliverableName={
+                      deliverables[activeDeliverable]?.deliverable_content ?? "Deliverable"
+                    }
+                  />
+                )}
+
+                {activeDeliverableStep < 2 && (
+                  <FeedbackPanel />
+                )}
+              </>
             )}
           </div>
         </div>
