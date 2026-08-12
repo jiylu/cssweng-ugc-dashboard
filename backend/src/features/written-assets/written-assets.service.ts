@@ -1,4 +1,9 @@
-import { ConflictException, Injectable, Logger } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { CampaignsService } from '../campaigns/campaigns.service';
 import { ProposalsService } from '../proposals/proposals.service';
@@ -92,6 +97,108 @@ export class WrittenAssetsService {
     });
 
     return result;
+  }
+
+  async resolvePublicId(
+    publicId: string,
+    tx: Prisma.TransactionClient | PrismaService = this.prisma,
+  ) {
+    this.logger.debug(`Resolving written asset publicID ${publicId}`);
+
+    const writtenAsset = await tx.writtenAssets.findFirst({
+      where: { public_id: publicId },
+      select: { written_asset_id: true },
+    });
+
+    if (!writtenAsset) {
+      this.logger.warn(`WrittenAsset with publicId ${publicId} not found.`);
+
+      throw new NotFoundException({
+        code: 'WRITTEN_ASSET_PUBLIC_ID_CANNOT_BE_RESOLVED',
+        message: 'WrittenAsset not found.',
+      });
+    }
+
+    this.logger.log(
+      `WrittenAsset publicID ${publicId} resolved: ${writtenAsset.written_asset_id}`,
+    );
+
+    return writtenAsset.written_asset_id;
+  }
+
+  async findOneWrittenAsset(
+    writtenAssetId: string,
+    tx: Prisma.TransactionClient | PrismaService = this.prisma,
+  ) {
+    this.logger.debug(`Finding written asset ${writtenAssetId}`);
+
+    const writtenAsset = await tx.writtenAssets.findUnique({
+      where: { written_asset_id: writtenAssetId },
+    });
+
+    if (!writtenAsset) {
+      this.logger.warn(`WrittenAsset with id ${writtenAssetId} not found.`);
+
+      throw new NotFoundException({
+        code: 'WRITTEN_ASSET_NOT_FOUND',
+        message: 'WrittenAsset not found.',
+      });
+    }
+
+    this.logger.log(`WrittenAsset ${writtenAssetId} found.`);
+
+    return writtenAsset;
+  }
+
+  async getWrittenAssetHistoryForDeliverableItem(
+    deliverableItemId: string,
+    tx: Prisma.TransactionClient | PrismaService = this.prisma,
+  ) {
+    this.logger.debug(
+      `Finding written asset history for DeliverableItem ${deliverableItemId}`,
+    );
+
+    const writtenAssets = await tx.writtenAssets.findMany({
+      where: { deliverable_item_id: deliverableItemId },
+      orderBy: { version_number: 'asc' },
+    });
+
+    this.logger.log(
+      `Found ${writtenAssets.length} written asset versions for DeliverableItem ${deliverableItemId}.`,
+    );
+
+    return writtenAssets;
+  }
+
+  async getLatestAssetHistoryForDeliverableItem(
+    deliverableItemId: string,
+    tx: Prisma.TransactionClient | PrismaService = this.prisma,
+  ) {
+    this.logger.debug(
+      `Finding latest written asset version for DeliverableItem ${deliverableItemId}`,
+    );
+
+    const latestWrittenAsset = await this.findLatestWrittenAsset(
+      deliverableItemId,
+      tx,
+    );
+
+    if (!latestWrittenAsset) {
+      this.logger.warn(
+        `No written asset found for DeliverableItem ${deliverableItemId}.`,
+      );
+
+      throw new NotFoundException({
+        code: 'WRITTEN_ASSET_NOT_FOUND',
+        message: 'No written asset found for this deliverable item.',
+      });
+    }
+
+    this.logger.log(
+      `Latest written asset (v${latestWrittenAsset.version_number}) found for DeliverableItem ${deliverableItemId}.`,
+    );
+
+    return latestWrittenAsset;
   }
 
   // utils

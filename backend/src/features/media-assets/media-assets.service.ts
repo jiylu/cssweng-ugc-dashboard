@@ -1,4 +1,9 @@
-import { ConflictException, Injectable, Logger } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { CampaignsService } from '../campaigns/campaigns.service';
 import { ProposalsService } from '../proposals/proposals.service';
@@ -65,6 +70,108 @@ export class MediaAssetsService {
     });
 
     return result;
+  }
+
+  async resolvePublicId(
+    publicId: string,
+    tx: Prisma.TransactionClient | PrismaService = this.prisma,
+  ) {
+    this.logger.debug(`Resolving media asset publicID ${publicId}`);
+
+    const mediaAsset = await tx.mediaAssets.findFirst({
+      where: { public_id: publicId },
+      select: { media_asset_id: true },
+    });
+
+    if (!mediaAsset) {
+      this.logger.warn(`MediaAsset with publicId ${publicId} not found.`);
+
+      throw new NotFoundException({
+        code: 'MEDIA_ASSET_PUBLIC_ID_CANNOT_BE_RESOLVED',
+        message: 'MediaAsset not found.',
+      });
+    }
+
+    this.logger.log(
+      `MediaAsset publicID ${publicId} resolved: ${mediaAsset.media_asset_id}`,
+    );
+
+    return mediaAsset.media_asset_id;
+  }
+
+  async findOneMediaAsset(
+    mediaAssetId: string,
+    tx: Prisma.TransactionClient | PrismaService = this.prisma,
+  ) {
+    this.logger.debug(`Finding media asset ${mediaAssetId}`);
+
+    const mediaAsset = await tx.mediaAssets.findUnique({
+      where: { media_asset_id: mediaAssetId },
+    });
+
+    if (!mediaAsset) {
+      this.logger.warn(`MediaAsset with id ${mediaAssetId} not found.`);
+
+      throw new NotFoundException({
+        code: 'MEDIA_ASSET_NOT_FOUND',
+        message: 'MediaAsset not found.',
+      });
+    }
+
+    this.logger.log(`MediaAsset ${mediaAssetId} found.`);
+
+    return mediaAsset;
+  }
+
+  async getMediaAssetHistoryForDeliverableItem(
+    deliverableItemId: string,
+    tx: Prisma.TransactionClient | PrismaService = this.prisma,
+  ) {
+    this.logger.debug(
+      `Finding media asset history for DeliverableItem ${deliverableItemId}`,
+    );
+
+    const mediaAssets = await tx.mediaAssets.findMany({
+      where: { deliverable_item_id: deliverableItemId },
+      orderBy: { version_number: 'asc' },
+    });
+
+    this.logger.log(
+      `Found ${mediaAssets.length} media asset versions for DeliverableItem ${deliverableItemId}.`,
+    );
+
+    return mediaAssets;
+  }
+
+  async getLatestAssetHistoryForDeliverableItem(
+    deliverableItemId: string,
+    tx: Prisma.TransactionClient | PrismaService = this.prisma,
+  ) {
+    this.logger.debug(
+      `Finding latest media asset version for DeliverableItem ${deliverableItemId}`,
+    );
+
+    const latestMediaAsset = await this.findLatestMediaAsset(
+      deliverableItemId,
+      tx,
+    );
+
+    if (!latestMediaAsset) {
+      this.logger.warn(
+        `No media asset found for DeliverableItem ${deliverableItemId}.`,
+      );
+
+      throw new NotFoundException({
+        code: 'MEDIA_ASSET_NOT_FOUND',
+        message: 'No media asset found for this deliverable item.',
+      });
+    }
+
+    this.logger.log(
+      `Latest media asset (v${latestMediaAsset.version_number}) found for DeliverableItem ${deliverableItemId}.`,
+    );
+
+    return latestMediaAsset;
   }
 
   // utils
