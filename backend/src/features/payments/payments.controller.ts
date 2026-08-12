@@ -7,8 +7,6 @@ import {
   UseInterceptors,
   UploadedFile,
   Patch,
-  ConflictException,
-  HttpStatus,
 } from '@nestjs/common';
 import { PaymentsService } from './payments.service';
 import { CampaignsService } from '../campaigns/campaigns.service';
@@ -16,11 +14,6 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { UploadService } from 'src/shared/upload/upload.service';
 import { plainToInstance } from 'class-transformer';
 import { PaymentsEntity } from './entities/payments.entity';
-import {
-  CampaignStatus,
-  PaymentSchedule,
-  ProposalStatus,
-} from '@prisma/client';
 import { ProposalsService } from '../proposals/proposals.service';
 import {
   ApiCreatePayment,
@@ -81,40 +74,8 @@ export class PaymentsController {
   @Patch('/validate/:publicId')
   async validatePayment(@Param('publicId') publicId: string) {
     const paymentId = await this.paymentsService.resolvePublicId(publicId);
-    const paymentRecord =
-      await this.paymentsService.findOnePaymentRecord(paymentId);
-
-    const campaign = await this.campaignsService.findOneCampaign(
-      paymentRecord.campaign_id,
-    );
-
-    const proposal = await this.proposalsService.findProposalByCampaignId(
-      paymentRecord.campaign_id,
-    );
-
-    if (proposal.proposal_status !== ProposalStatus.ACCEPTED) {
-      throw new ConflictException({
-        status: HttpStatus.CONFLICT,
-        code: 'CAMPAIGN_PROPOSAL_NOT_ACCEPTED',
-        message: 'Campaign proposal must be accepted before validating payment',
-      });
-    }
-
     const validatedPayment =
       await this.paymentsService.validatePayment(paymentId);
-
-    const paidAmount =
-      campaign.payment_schedule === PaymentSchedule.DUE_FINAL_DELIVERY
-        ? campaign.pricing.toNumber()
-        : campaign.paid_amount.mul(2).toNumber();
-
-    await this.campaignsService.updateCampaignStatus(campaign.campaign_id, {
-      campaignStatus: CampaignStatus.COMPLETED,
-    });
-
-    await this.campaignsService.updatePaidAmount(campaign.campaign_id, {
-      paidAmount: paidAmount,
-    });
 
     return plainToInstance(PaymentsEntity, validatedPayment);
   }

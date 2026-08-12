@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   Logger,
   NotFoundException,
@@ -7,8 +8,14 @@ import {
 import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { CampaignsService } from '../campaigns/campaigns.service';
 import { CreatePaymentDTO } from './dto/create-payment.dto';
-import { CampaignStatus } from '@prisma/client';
+import {
+  CampaignStatus,
+  PaymentSchedule,
+  Prisma,
+  ProposalStatus,
+} from '@prisma/client';
 import { nanoid } from 'nanoid';
+import { ProposalsService } from '../proposals/proposals.service';
 
 @Injectable()
 export class PaymentsService {
@@ -16,6 +23,7 @@ export class PaymentsService {
   constructor(
     private prisma: PrismaService,
     private campaignsService: CampaignsService,
+    private proposalsService: ProposalsService,
   ) {}
 
   async createPayment(dto: CreatePaymentDTO) {
@@ -80,10 +88,13 @@ export class PaymentsService {
     return recordedPayment.payment_id;
   }
 
-  async findOnePaymentRecord(paymentId: string) {
+  async findOnePaymentRecord(
+    paymentId: string,
+    tx: Prisma.TransactionClient | PrismaService = this.prisma,
+  ) {
     this.logger.debug(`Finding payment with UID ${paymentId}.`);
 
-    const payment = await this.prisma.payments.findFirst({
+    const payment = await tx.payments.findFirst({
       where: {
         payment_id: paymentId,
       },
@@ -126,17 +137,65 @@ export class PaymentsService {
   async validatePayment(paymentId: string) {
     this.logger.debug(`Validating payment ${paymentId}`);
 
-    const paymentRecord = await this.findOnePaymentRecord(paymentId);
+    const result = await this.prisma.$transaction(async (tx) => {
+      const paymentRecord = await this.findOnePaymentRecord(paymentId, tx);
 
-    const validatedPayment = this.prisma.payments.update({
-      where: { payment_id: paymentRecord.payment_id },
-      data: {
-        is_payment_verified: true,
-      },
+      const campaign = await this.campaignsService.findOneCampaign(
+        paymentRecord.campaign_id,
+        tx,
+      );
+
+      const proposal = await this.proposalsService.findProposalByCampaignId(
+        campaign.campaign_id,
+        false,
+        tx,
+      );
+
+      if (proposal.proposal_status !== ProposalStatus.ACCEPTED) {
+        this.logger.log(
+          `Cannot validate payment for proposal that is not accepted.`,
+        );
+
+        throw new ConflictException({
+          code: 'CAMPAIGN_PROPOSAL_NOT_ACCEPTED',
+          message:
+            'Campaign proposal must be accepted before validating payment',
+        });
+      }
+
+      const validatedPayment = tx.payments.update({
+        where: { payment_id: paymentRecord.payment_id },
+        data: {
+          is_payment_verified: true,
+        },
+      });
+
+      const paidAmount =
+        campaign.payment_schedule === PaymentSchedule.DUE_FINAL_DELIVERY
+          ? campaign.pricing.toNumber()
+          : campaign.paid_amount.mul(2).toNumber();
+
+      await this.campaignsService.updateCampaignStatus(
+        campaign.campaign_id,
+        {
+          campaignStatus: CampaignStatus.COMPLETED,
+        },
+        tx,
+      );
+
+      await this.campaignsService.updatePaidAmount(
+        campaign.campaign_id,
+        {
+          paidAmount: paidAmount,
+        },
+        tx,
+      );
+
+      return validatedPayment;
     });
 
     this.logger.log(`Successfully validated payment ${paymentId}.`);
 
-    return validatedPayment;
+    return result;
   }
 }
