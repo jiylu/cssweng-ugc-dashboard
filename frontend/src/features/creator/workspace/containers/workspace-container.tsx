@@ -10,6 +10,7 @@ import { DeliverablesSidebar } from "@/src/features/creator/workspace/components
 import { FeedbackPanel } from "@/src/features/creator/workspace/components/feedback-panel"
 import { HistoryOverlay } from "@/src/features/creator/workspace/components/history-overlay"
 import { VideoSubmission } from "@/src/features/creator/workspace/components/video-submission"
+import { ContractSigningPanel } from "@/src/features/creator/workspace/components/contract-signing-panel"
 import { useWorkspace } from "@/src/features/creator/workspace/hooks/useWorkspace"
 import { useCampaignSetup } from "@/src/features/creator/workspace/hooks/useCampaignSetup"
 
@@ -63,6 +64,12 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
               activeDeliverable={activeDeliverable}
               onChange={setActiveDeliverable}
             />
+            {activeStep === 0 && (
+              <ContractSigningPanel 
+                contract={campaignSetup?.contract} 
+                onSigned={() => setActiveStep(1)} 
+              />
+            )}
             {activeStep === 1 && (
               <WrittenAssetsPanel
                 version={2}
