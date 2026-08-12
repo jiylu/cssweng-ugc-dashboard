@@ -84,7 +84,7 @@ export function ContractTermsContainer({ contractTerms, currency, campaignDates,
         <Button
           variant="outline"
           onClick={onBack}
-          className="flex items-center gap-2"
+          className="flex items-center gap-2 p-5"
         >
           <ArrowLeft size={16} /> Back
         </Button>
@@ -93,7 +93,7 @@ export function ContractTermsContainer({ contractTerms, currency, campaignDates,
             onClick={() => {
               if (contractTerms.validateForm(campaignDates)) onNext()
             }}
-            className="bg-[#6b1fa8] hover:bg-[#5a1a8f] text-white flex items-center gap-2"
+            className="bg-[#6b1fa8] hover:bg-[#5a1a8f] text-white flex items-center gap-2 p-5"
           >
             Add-Ons <ArrowRight size={16} />
           </Button>

@@ -17,7 +17,7 @@ interface CreativeDirectionProps {
 const REVISION_OPTIONS = [
   { label: "1 Revision", value: 1 },
   { label: "2 Revisions", value: 2 },
-  { label: "3+ Custom", value: 3 },
+  { label: "Custom", value: 3 },
 ]
 
 export function CreativeDirection({ revisionRounds, setRevisionRounds, revisionDays, setRevisionDays, feedbackDays, setFeedbackDays, errors }: CreativeDirectionProps) {
@@ -30,22 +30,49 @@ export function CreativeDirection({ revisionRounds, setRevisionRounds, revisionD
       <div className="flex flex-col gap-3">
         <p className="text-sm text-muted-foreground">How many revisions would you like to include in the campaign?</p>
         <div className="grid grid-cols-3 gap-3">
-          {REVISION_OPTIONS.map((option) => (
-            <button
-              key={option.value}
-              type="button"
-              onClick={() => setRevisionRounds(option.value)}
-              className={cn(
-                "py-3 px-4 rounded-[3px] text-sm font-medium border transition-colors",
-                revisionRounds === option.value
-                  ? "bg-[#6b1fa8] text-white border-[#6b1fa8]"
-                  : "bg-white text-foreground border-border hover:border-[#6b1fa8]"
-              )}
-            >
-              {option.label}
-            </button>
-          ))}
+          {REVISION_OPTIONS.map((option) => {
+            const isActive = option.value === 3 ? revisionRounds >= 3 : revisionRounds === option.value;
+            
+            return (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() => setRevisionRounds(option.value)}
+                className={cn(
+                  "py-3 px-4 rounded-[3px] text-sm font-medium border transition-colors",
+                  isActive
+                    ? "bg-[#6b1fa8] text-white border-[#6b1fa8]"
+                    : "bg-white text-foreground border-border hover:border-[#6b1fa8] hover:text-[#6b1fa8]"
+                )}
+              >
+                {option.label}
+              </button>
+            )
+          })}
         </div>
+
+        {/* Custom Revision Count Slider */}
+        {revisionRounds >= 3 && (
+          <div className="flex flex-col gap-3 mt-2 animate-in fade-in slide-in-from-top-2">
+            <p className="text-sm text-muted-foreground">
+              Select the number of revisions:
+            </p>
+            <Slider
+              min={3}
+              max={6}
+              step={1}
+              value={[revisionRounds]}
+              onValueChange={(val) => setRevisionRounds(val[0])}
+              className="w-full"
+            />
+            <div className="flex justify-between text-xs text-muted-foreground">
+              <span>3 Revisions</span>
+              <span className="text-[#6b1fa8] font-semibold text-[13px]">{revisionRounds} Revisions</span>
+              <span>6 Revisions</span>
+            </div>
+          </div>
+        )}
+
         {errors.revisionRounds && <p className="text-xs text-[#ff6467]">{errors.revisionRounds}</p>}
       </div>
 
@@ -64,7 +91,7 @@ export function CreativeDirection({ revisionRounds, setRevisionRounds, revisionD
         />
         <div className="flex justify-between text-xs text-muted-foreground">
           <span>1 Day</span>
-          <span className="text-[#6b1fa8] font-medium">{revisionDays} {revisionDays === 1 ? "Day" : "Days"}</span>
+          <span className="text-[#6b1fa8] font-semibold text-[13px]">{revisionDays} {revisionDays === 1 ? "Day" : "Days"}</span>
           <span>14 Days</span>
         </div>
         {errors.revisionDays && <p className="text-xs text-[#ff6467]">{errors.revisionDays}</p>}
@@ -85,7 +112,7 @@ export function CreativeDirection({ revisionRounds, setRevisionRounds, revisionD
         />
         <div className="flex justify-between text-xs text-muted-foreground">
           <span>1 Day</span>
-          <span className="text-[#6b1fa8] font-medium">{feedbackDays} {feedbackDays === 1 ? "Day" : "Days"}</span>
+          <span className="text-[#6b1fa8] font-semibold text-[13px]">{feedbackDays} {feedbackDays === 1 ? "Day" : "Days"}</span>
           <span>14 Days</span>
         </div>
         {errors.feedbackDays && <p className="text-xs text-[#ff6467]">{errors.feedbackDays}</p>}

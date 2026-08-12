@@ -49,10 +49,10 @@ export function Exclusivity({
         </div>
       </div>
 
-      <Separator />
 
       {hasExclusivity && (
         <div className="flex flex-col gap-4">
+          <Separator />
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-1">
               <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">CATEGORY</label>
