@@ -5,11 +5,13 @@ import { ContractSignaturesService } from '../contract-signatures.service';
 import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { ContractsService } from '../contracts.service';
 import { UserRoles } from '@prisma/client';
+import { CampaignsService } from 'src/features/campaigns/campaigns.service';
 
 describe('ContractSignaturesService', () => {
   let service: ContractSignaturesService;
 
   const mockPrismaService = {
+    $transaction: jest.fn(),
     contractSignatures: {
       create: jest.fn(),
       findMany: jest.fn(),
@@ -18,9 +20,18 @@ describe('ContractSignaturesService', () => {
 
   const mockContractsService = {
     findContractByUID: jest.fn(),
+    resolvePublicId: jest.fn(),
+    signContract: jest.fn(),
+  };
+
+  const mockCampaignsService = {
+    findOneCampaign: jest.fn(),
   };
 
   beforeEach(async () => {
+    mockPrismaService.$transaction.mockImplementation((callback) =>
+      callback(mockPrismaService),
+    );
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ContractSignaturesService,
@@ -31,6 +42,10 @@ describe('ContractSignaturesService', () => {
         {
           provide: ContractsService,
           useValue: mockContractsService,
+        },
+        {
+          provide: CampaignsService,
+          useValue: mockCampaignsService,
         },
       ],
     }).compile();
@@ -78,6 +93,7 @@ describe('ContractSignaturesService', () => {
       expect(result).toEqual(mockStoredSignature);
       expect(mockContractsService.findContractByUID).toHaveBeenCalledWith(
         'contract-123',
+        mockPrismaService,
       );
       expect(mockPrismaService.contractSignatures.create).toHaveBeenCalledWith({
         data: {
@@ -121,6 +137,7 @@ describe('ContractSignaturesService', () => {
       expect(result).toEqual(mockSignatures);
       expect(mockContractsService.findContractByUID).toHaveBeenCalledWith(
         'contract-123',
+        mockPrismaService,
       );
       expect(
         mockPrismaService.contractSignatures.findMany,
