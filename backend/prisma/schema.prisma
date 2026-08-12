@@ -61,22 +61,23 @@ model Clients {
 }
 
 model Campaigns {
-  campaign_id       String           @id @default(uuid())
-  public_id         String           @unique @db.VarChar(10)
-  ugc_creator_id    String
-  client_id         String?
-  project_name      String
-  description       String
-  currency          CampaignCurrency
-  tax               Decimal
-  pricing           Decimal
-  platforms         Json
-  start_date        DateTime
-  end_date          DateTime
-  created_at        DateTime         @default(now())
-  campaign_status   CampaignStatus   @default(ACTIVE)
-  paid_amount       Decimal          @default(0.0)
-  payment_schedule  PaymentSchedule
+  campaign_id               String           @id @default(uuid())
+  public_id                 String           @unique @db.VarChar(10)
+  ugc_creator_id            String
+  client_id                 String?
+  project_name              String
+  description               String
+  currency                  CampaignCurrency
+  tax                       Decimal
+  pricing                   Decimal
+  platforms                 Json
+  start_date                DateTime
+  end_date                  DateTime
+  created_at                DateTime         @default(now())
+  campaign_status           CampaignStatus   @default(ACTIVE)
+  paid_amount               Decimal          @default(0.0)
+  payment_schedule          PaymentSchedule
+  all_deliverables_approved Boolean  @default(false)
 
   creator      User           @relation("CreatorCampaigns", fields: [ugc_creator_id], references: [user_id])
   client       User?          @relation("ClientCampaigns", fields: [client_id], references: [user_id])
