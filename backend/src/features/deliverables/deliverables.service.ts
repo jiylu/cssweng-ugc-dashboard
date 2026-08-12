@@ -1,7 +1,9 @@
 import {
   BadRequestException,
   ConflictException,
+  forwardRef,
   HttpStatus,
+  Inject,
   Injectable,
   Logger,
   NotFoundException,
@@ -9,11 +11,12 @@ import {
 import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { CampaignsService } from '../campaigns/campaigns.service';
 import { CreateDeliverableDTO } from './dto/create-deliverable.dto';
-import { Prisma, ProposalStatus } from '@prisma/client';
+import { DeliverableStatus, Prisma, ProposalStatus } from '@prisma/client';
 import { UpdateDeliverableDTO } from './dto/update-deliverable.dto';
 import { nanoid } from 'nanoid';
 import { CampaignDates } from './types/types';
 import { ProposalsService } from '../proposals/proposals.service';
+import { DeliverableItemsService } from './deliverable-items.service';
 
 @Injectable()
 export class DeliverablesService {
@@ -21,6 +24,8 @@ export class DeliverablesService {
     private prisma: PrismaService,
     private campaignService: CampaignsService,
     private proposalService: ProposalsService,
+    @Inject(forwardRef(() => DeliverableItemsService))
+    private deliverableItemsService: DeliverableItemsService,
   ) {}
 
   private readonly logger = new Logger(DeliverablesService.name);
@@ -53,6 +58,10 @@ export class DeliverablesService {
         pricing: new Prisma.Decimal(dto.pricing),
       },
     });
+
+    await this.deliverableItemsService.createManyDeliverableItems(
+      deliverable.deliverable_id,
+    );
 
     this.logger.log(
       `Deliverable ${deliverable.deliverable_id} created for campaign ${deliverable.campaign_id}`,
@@ -299,6 +308,7 @@ export class DeliverablesService {
       where: { deliverable_id: deliverable.deliverable_id },
       data: {
         is_deleted: true,
+        deliverable_status: DeliverableStatus.DELETED,
       },
     });
 

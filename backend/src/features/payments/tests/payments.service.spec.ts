@@ -5,7 +5,11 @@ import { PaymentsService } from '../payments.service';
 import { CampaignsService } from 'src/features/campaigns/campaigns.service';
 import { ProposalsService } from 'src/features/proposals/proposals.service';
 import { CreatePaymentDTO } from '../dto/create-payment.dto';
-import { CampaignStatus, PaymentSchedule, ProposalStatus } from '@prisma/client';
+import {
+  CampaignStatus,
+  PaymentSchedule,
+  ProposalStatus,
+} from '@prisma/client';
 
 jest.mock('nanoid', () => ({ nanoid: jest.fn(() => 'mock-pb-id') }));
 
