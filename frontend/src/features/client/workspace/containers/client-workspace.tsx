@@ -204,7 +204,11 @@ export default function ClientWorkspace({ campaignId }: { campaignId: string }) 
 
   return (
     <main className="flex h-screen w-full overflow-hidden bg-[#f2f0ea]">
-      <ClientSidebar isSigningOut={isSigningOut} onSignOut={handleSignOut} />
+      <ClientSidebar
+        isSigningOut={isSigningOut}
+        onSignOut={handleSignOut}
+        showBackToCampaigns
+      />
       <section className="flex-1 overflow-y-auto px-8 py-8">
         <header className="flex items-center justify-between border-b border-[#d8d4cb] pb-3">
           <h1 className="text-[52px] font-normal leading-none text-[#141518]">Workspace</h1>

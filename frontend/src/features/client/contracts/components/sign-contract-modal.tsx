@@ -25,8 +25,6 @@ export default function SignContractModal({ contractPublicId }: SignContractModa
   const signingMutation = useMutation({
     mutationFn: () =>
       signContract(contractPublicId, {
-        firstName: firstName.trim(),
-        lastName: lastName.trim(),
         signatureDataUrl,
         initialsDataUrl,
         signerRole: "CLIENT",

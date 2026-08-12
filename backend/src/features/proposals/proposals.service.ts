@@ -294,6 +294,7 @@ export class ProposalsService {
     );
     return updated;
   }
+
   async reviseProposal(publicId: string, dto: UpdateProposalHistoryCommentDTO) {
     return this.prisma.$transaction(async (tx) => {
       const proposalId = await this.resolvePublicId(publicId, tx);

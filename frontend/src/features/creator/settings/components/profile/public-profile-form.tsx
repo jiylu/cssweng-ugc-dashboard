@@ -12,12 +12,11 @@ import type { ProfileSettings } from "../../containers/settings"
 
 interface PublicProfileProps {
   data: ProfileSettings;
-  onChange: (field: keyof ProfileSettings, value: any) => void;
   onRemovePicture: () => void;
   onUploadPicture: (file: File) => void;
 }
 
-export function PublicProfileSection({ data, onChange, onRemovePicture, onUploadPicture }: PublicProfileProps) {
+export function PublicProfileSection({ data, onRemovePicture, onUploadPicture }: PublicProfileProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -32,6 +31,9 @@ export function PublicProfileSection({ data, onChange, onRemovePicture, onUpload
       <h2 className="text-2xl text-[#141518] font-normal border-b border-gray-200 pb-4 mb-8">
         Public Creator Profile
       </h2>
+      <p className="mb-6 text-sm text-gray-500">
+        Public profile publishing is not available yet. These fields are read-only.
+      </p>
 
       <input 
         type="file" 
@@ -39,6 +41,7 @@ export function PublicProfileSection({ data, onChange, onRemovePicture, onUpload
         className="hidden" 
         ref={fileInputRef} 
         onChange={handleFileSelect} 
+        disabled
       />
 
       <div className="flex flex-col md:flex-row gap-10 mb-8 items-start">
@@ -54,7 +57,7 @@ export function PublicProfileSection({ data, onChange, onRemovePicture, onUpload
 
           {/* profile picture */}
           <DropdownMenu>
-            <DropdownMenuTrigger className="text-[#6b1fa8] hover:text-[#5a1a8f] text-[15px] font-normal transition-colors focus:outline-none">
+            <DropdownMenuTrigger disabled className="text-gray-400 text-[15px] font-normal focus:outline-none">
               Edit profile picture
             </DropdownMenuTrigger>
             <DropdownMenuContent align="center" className="w-48">
@@ -83,7 +86,7 @@ export function PublicProfileSection({ data, onChange, onRemovePicture, onUpload
             <Input 
               placeholder="Enter display name" 
               value={data.displayName} 
-              onChange={(e) => onChange("displayName", e.target.value)} 
+              disabled
               className="placeholder:text-gray-400"
             />
           </div>
@@ -92,7 +95,7 @@ export function PublicProfileSection({ data, onChange, onRemovePicture, onUpload
             <Input 
               placeholder="Enter primary name" 
               value={data.primaryHandle} 
-              onChange={(e) => onChange("primaryHandle", e.target.value)} 
+              disabled
               className="placeholder:text-gray-400"
             />
           </div>
@@ -107,7 +110,7 @@ export function PublicProfileSection({ data, onChange, onRemovePicture, onUpload
             placeholder="Enter your bio" 
             className="min-h-[160px] resize-none pb-8 italic placeholder:text-gray-400"
             value={data.bio}
-            onChange={(e) => onChange("bio", e.target.value)}
+            disabled
             maxLength={100}
           />
           <span className="absolute bottom-3 right-3 text-[15px] text-gray-500 font-light">

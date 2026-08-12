@@ -56,4 +56,7 @@ export class CampaignsEntity {
 
   @Expose()
   payment_schedule: PaymentSchedule;
+
+  @Expose()
+  all_deliverables_approved: boolean;
 }

@@ -28,6 +28,7 @@ export function NotificationsTab() {
                 </div>
 
                 <Switch 
+                    disabled
                     checked={proposalUpdates1} 
                     onCheckedChange={setProposalUpdates1} 
                     className="data-[state=checked]:bg-[#6b1fa8]"
@@ -46,6 +47,7 @@ export function NotificationsTab() {
                 </div>
 
                 <Switch 
+                    disabled
                     checked={proposalUpdates2} 
                     onCheckedChange={setProposalUpdates2} 
                     className="data-[state=checked]:bg-[#6b1fa8]"
@@ -64,6 +66,7 @@ export function NotificationsTab() {
                 </div>
 
                 <Switch 
+                    disabled
                     checked={campaignMilestones} 
                     onCheckedChange={setCampaignMilestones} 
                     className="data-[state=checked]:bg-[#6b1fa8]"
@@ -82,6 +85,7 @@ export function NotificationsTab() {
                 </div>
 
                 <Switch 
+                    disabled
                     checked={overdueAlerts} 
                     onCheckedChange={setOverdueAlerts} 
                     className="data-[state=checked]:bg-[#6b1fa8]"
