@@ -2,11 +2,15 @@ import { Campaign } from "@/src/features/creator/campaigns/types/campaign.types"
 import { Deliverable } from "@/src/features/creator/workspace/types/workspace.types"
 import { API_BASE_URL } from "@/src/config/api"
 
+export interface CampaignContract {
+  public_id: string;
+}
+
 export interface CampaignSetupResponse {
   campaign: Campaign
   deliverables: Deliverable[]
   proposal: unknown
-  contract: unknown
+  contract: CampaignContract
   addOns: unknown[] | null
   giftedProducts: unknown[] | null
 }
