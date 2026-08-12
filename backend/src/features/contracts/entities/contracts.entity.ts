@@ -25,7 +25,10 @@ export class ContractsEntity {
   client_signed: boolean;
 
   @Expose()
-  signed_at: string;
+  effective_date: string | null;
+
+  @Expose()
+  signed_contract_url: string | null;
 
   @Expose()
   @Type(() => RevisionPolicyDTO)

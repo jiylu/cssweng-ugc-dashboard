@@ -5,11 +5,13 @@ import { ContractSignaturesService } from '../contract-signatures.service';
 import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { ContractsService } from '../contracts.service';
 import { UserRoles } from '@prisma/client';
+import { CampaignsService } from 'src/features/campaigns/campaigns.service';
 
 describe('ContractSignaturesService', () => {
   let service: ContractSignaturesService;
 
   const mockPrismaService = {
+    $transaction: jest.fn(),
     contractSignatures: {
       create: jest.fn(),
       findMany: jest.fn(),
@@ -18,9 +20,18 @@ describe('ContractSignaturesService', () => {
 
   const mockContractsService = {
     findContractByUID: jest.fn(),
+    resolvePublicId: jest.fn(),
+    signContract: jest.fn(),
+  };
+
+  const mockCampaignsService = {
+    findOneCampaign: jest.fn(),
   };
 
   beforeEach(async () => {
+    mockPrismaService.$transaction.mockImplementation((callback) =>
+      callback(mockPrismaService),
+    );
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ContractSignaturesService,
@@ -31,6 +42,10 @@ describe('ContractSignaturesService', () => {
         {
           provide: ContractsService,
           useValue: mockContractsService,
+        },
+        {
+          provide: CampaignsService,
+          useValue: mockCampaignsService,
         },
       ],
     }).compile();
@@ -69,12 +84,17 @@ describe('ContractSignaturesService', () => {
       };
 
       mockContractsService.findContractByUID.mockResolvedValue(mockContract);
-      mockPrismaService.contractSignatures.create.mockResolvedValue(mockStoredSignature);
+      mockPrismaService.contractSignatures.create.mockResolvedValue(
+        mockStoredSignature,
+      );
 
       const result = await service.storeSignature(dto);
 
       expect(result).toEqual(mockStoredSignature);
-      expect(mockContractsService.findContractByUID).toHaveBeenCalledWith('contract-123');
+      expect(mockContractsService.findContractByUID).toHaveBeenCalledWith(
+        'contract-123',
+        mockPrismaService,
+      );
       expect(mockPrismaService.contractSignatures.create).toHaveBeenCalledWith({
         data: {
           contract_id: 'contract-123',
@@ -108,13 +128,20 @@ describe('ContractSignaturesService', () => {
       ];
 
       mockContractsService.findContractByUID.mockResolvedValue(mockContract);
-      mockPrismaService.contractSignatures.findMany.mockResolvedValue(mockSignatures);
+      mockPrismaService.contractSignatures.findMany.mockResolvedValue(
+        mockSignatures,
+      );
 
       const result = await service.getSignatures(contractId);
 
       expect(result).toEqual(mockSignatures);
-      expect(mockContractsService.findContractByUID).toHaveBeenCalledWith('contract-123');
-      expect(mockPrismaService.contractSignatures.findMany).toHaveBeenCalledWith({
+      expect(mockContractsService.findContractByUID).toHaveBeenCalledWith(
+        'contract-123',
+        mockPrismaService,
+      );
+      expect(
+        mockPrismaService.contractSignatures.findMany,
+      ).toHaveBeenCalledWith({
         where: {
           contract_id: 'contract-123',
         },

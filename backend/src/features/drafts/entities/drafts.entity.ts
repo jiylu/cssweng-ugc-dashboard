@@ -29,6 +29,9 @@ export class DraftsEntity {
   @Expose()
   gifted_products_content: Prisma.JsonValue | null;
 
+  @Expose()
+  updated_at: Date;
+
   @Exclude()
   is_deleted: boolean;
 }

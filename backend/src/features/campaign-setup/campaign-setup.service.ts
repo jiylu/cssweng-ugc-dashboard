@@ -2,12 +2,15 @@ import { Injectable, Logger } from '@nestjs/common';
 import { CampaignsService } from '../campaigns/campaigns.service';
 import { DeliverablesService } from '../deliverables/deliverables.service';
 import { ProposalsService } from '../proposals/proposals.service';
+import { ProposalHistoryService } from '../proposals/proposal-history.service';
 import { CreateCampaignRequestDto } from './dto/create-campaign-request-dto';
 import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { ContractsService } from '../contracts/contracts.service';
 import { AddOnsService } from '../add-ons/add-ons.service';
 import { GiftedProductsService } from '../gifted-products/gifted-products.service';
 import { UpdateCampaignSetupDto } from './dto/update-campaign-setup.dto';
+import { PAYMENT_SCHEDULE } from '../contracts/dto/payment-terms.dto';
+import { PaymentSchedule } from '@prisma/client';
 
 @Injectable()
 export class CampaignSetupService {
@@ -16,6 +19,7 @@ export class CampaignSetupService {
     private campaignService: CampaignsService,
     private deliverableService: DeliverablesService,
     private proposalService: ProposalsService,
+    private proposalHistoryService: ProposalHistoryService,
     private contractService: ContractsService,
     private addOnService: AddOnsService,
     private giftedProductsService: GiftedProductsService,
@@ -36,8 +40,18 @@ export class CampaignSetupService {
 
       const totalPrice = initialPrice + initialPrice * (dto.campaign.tax / 100);
 
+      const paymentSchedule =
+        dto.contract.payment_terms.payment_schedule ===
+        PAYMENT_SCHEDULE.DUE_FINAL_DELIVERY
+          ? PaymentSchedule.DUE_FINAL_DELIVERY
+          : PaymentSchedule.DEPOSIT_50_FINAL_50;
+
       const campaign = await this.campaignService.createCampaign(
-        { ...dto.campaign, pricing: totalPrice },
+        {
+          ...dto.campaign,
+          pricing: totalPrice,
+          paymentSchedule: paymentSchedule,
+        },
         tx,
       );
 
@@ -91,6 +105,16 @@ export class CampaignSetupService {
       };
     });
 
+    await this.proposalHistoryService.createProposalHistory({
+      proposalId: result.proposal.proposal_id,
+      campaignContent: result.campaign,
+      proposalContent: result.proposal,
+      deliverableContent: result.deliverables,
+      contractContent: result.contract,
+      addOnsContent: result.addOns ?? [],
+      giftedProductsContent: result.giftedProducts ?? [],
+    });
+
     return result;
   }
 
@@ -103,6 +127,7 @@ export class CampaignSetupService {
         await Promise.all([
           this.proposalService.findProposalByCampaignId(
             campaign.campaign_id,
+            false,
             tx,
           ),
           this.contractService.findContractByCampaignId(
@@ -141,7 +166,7 @@ export class CampaignSetupService {
   async updateCampaignSetup(campaignId: string, dto: UpdateCampaignSetupDto) {
     this.logger.debug(`Updating campaign setup for campaign ${campaignId}`);
 
-    return this.prisma.$transaction(async (tx) => {
+    const result = await this.prisma.$transaction(async (tx) => {
       await this.campaignService.findOneCampaign(campaignId, tx);
 
       const campaign = dto.campaign
@@ -257,5 +282,20 @@ export class CampaignSetupService {
         },
       };
     });
+
+    // Fetch the full current state after the update and snapshot it as a new proposal history version
+    const fullDetails = await this.getFullCampaignDetails(campaignId);
+
+    await this.proposalHistoryService.createProposalHistory({
+      proposalId: fullDetails.proposal.proposal_id,
+      campaignContent: fullDetails.campaign,
+      proposalContent: fullDetails.proposal,
+      deliverableContent: fullDetails.deliverables,
+      contractContent: fullDetails.contract,
+      addOnsContent: fullDetails.addOns ?? [],
+      giftedProductsContent: fullDetails.giftedProducts ?? [],
+    });
+
+    return result;
   }
 }

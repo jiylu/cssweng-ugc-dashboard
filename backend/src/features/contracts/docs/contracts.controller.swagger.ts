@@ -1,5 +1,11 @@
 import { applyDecorators } from '@nestjs/common';
-import { ApiBody, ApiConsumes, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiBody,
+  ApiConsumes,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+} from '@nestjs/swagger';
 import { UpdateContractDTO } from '../dto/update-contract.dto';
 import { SignContractDTO } from '../dto/sign-contract.dto';
 
@@ -106,16 +112,17 @@ export function ApiSignContract() {
     }),
     ApiResponse({
       status: 200,
-      description:
-        'Contract signed successfully.',
+      description: 'Contract signed successfully.',
     }),
     ApiResponse({
       status: 400,
-      description: 'Bad request. The provided public ID or query parameters are invalid.',
+      description:
+        'Bad request. The provided public ID or query parameters are invalid.',
     }),
     ApiResponse({
       status: 403,
-      description: 'Forbidden. The client must sign the contract before the creator.',
+      description:
+        'Forbidden. The client must sign the contract before the creator.',
     }),
     ApiResponse({
       status: 404,
@@ -169,7 +176,8 @@ export function ApiGetContractSignatures() {
   return applyDecorators(
     ApiOperation({
       summary: 'Get signatures for a contract',
-      description: 'Retrieves all signatures (both client and creator, if available) for a given contract identified by its public ID.',
+      description:
+        'Retrieves all signatures (both client and creator, if available) for a given contract identified by its public ID.',
     }),
     ApiParam({
       name: 'publicId',

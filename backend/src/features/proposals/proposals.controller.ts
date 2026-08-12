@@ -1,24 +1,29 @@
 import { Body, Controller, Get, Logger, Param, Patch } from '@nestjs/common';
 import { ProposalsService } from './proposals.service';
-import { UpdateProposalStatusDTO } from './dto/update-proposal-status.dto';
-import { UpdateProposalCommentDTO } from './dto/update-proposal-comment.dto';
 import {
   ApiFindProposal,
   ApiFindProposalByCampaign,
-  ApiUpdateProposalComments,
-  ApiUpdateProposalStatus,
+  ApiRejectProposal,
+  ApiAcceptProposal,
+  ApiFindAllProposalHistory,
+  ApiReviseProposal,
+  ApiCancelProposal,
+  ApiFindProposalsForUser,
 } from './docs/proposals.controller.swagger';
 import { NotificationsService } from '../notifications/notifications.service';
 import { CampaignsService } from '../campaigns/campaigns.service';
-import { ProposalStatus } from '@prisma/client';
 import { plainToInstance } from 'class-transformer';
 import { ProposalsEntity } from './entities/proposals.entity';
+import { ProposalHistoryService } from './proposal-history.service';
+import { UpdateProposalHistoryCommentDTO } from './dto/update-proposal-history-comment.dto';
+import { ProposalHistoryEntity } from './entities/proposal-history.entity';
 
 @Controller('proposals')
 export class ProposalsController {
   private logger = new Logger(ProposalsController.name);
   constructor(
     private readonly proposalsService: ProposalsService,
+    private readonly proposalHistoryService: ProposalHistoryService,
     private readonly notificationsService: NotificationsService,
     private readonly campaignsService: CampaignsService,
   ) {}
@@ -32,6 +37,14 @@ export class ProposalsController {
     return plainToInstance(ProposalsEntity, proposal);
   }
 
+  @ApiFindProposalsForUser()
+  @Get('user/:userId')
+  async findProposalsForUser(@Param('userId') userId: string) {
+    const proposals = await this.proposalsService.findProposalsForUser(userId);
+
+    return plainToInstance(ProposalsEntity, proposals);
+  }
+
   @ApiFindProposalByCampaign()
   @Get('/campaign/:publicId')
   async findOneByCampaign(@Param('publicId') publicId: string) {
@@ -43,28 +56,40 @@ export class ProposalsController {
     return plainToInstance(ProposalsEntity, proposal);
   }
 
-  @ApiUpdateProposalComments()
-  @Patch('comments/:publicId')
-  async updateComments(
+  @ApiReviseProposal()
+  @Patch('revise/:publicId')
+  async revise(
     @Param('publicId') publicId: string,
-    @Body() dto: UpdateProposalCommentDTO,
+    @Body() dto: UpdateProposalHistoryCommentDTO,
   ) {
-    const proposalId = await this.proposalsService.resolvePublicId(publicId);
-
-    const updatedProposal = await this.proposalsService.updateProposalComments(
-      proposalId,
-      dto,
-    );
+    const { campaign, updatedHistory } =
+      await this.proposalsService.reviseProposal(publicId, dto);
 
     try {
-      const campaign = await this.campaignsService.findOneCampaign(
-        updatedProposal.campaign_id,
-      );
-
       await this.notificationsService.createNotification({
         userId: campaign.ugc_creator_id,
         title: 'Your Proposal Has New comments',
-        message: `Comment for your proposal: ${updatedProposal.client_comments}`,
+        message: `Comment for your proposal: ${updatedHistory.client_comments}`,
+      });
+    } catch (err) {
+      this.logger.warn(`Failed to send notification`, err);
+    }
+
+    return plainToInstance(ProposalHistoryEntity, updatedHistory);
+  }
+
+  @ApiRejectProposal()
+  @Patch('/reject/:publicId')
+  async reject(@Param('publicId') publicId: string) {
+    const { updatedProposal, campaign } =
+      await this.proposalsService.rejectProposal(publicId);
+
+    try {
+      await this.notificationsService.createNotification({
+        userId: campaign.ugc_creator_id,
+        title: `Your Proposal Has Been Rejected.`,
+        message:
+          'Unfortunately, your proposal has been rejected by the client.',
       });
     } catch (err) {
       this.logger.warn(`Failed to send notification`, err);
@@ -73,44 +98,42 @@ export class ProposalsController {
     return plainToInstance(ProposalsEntity, updatedProposal);
   }
 
-  @ApiUpdateProposalStatus()
-  @Patch('/status/:publicId')
-  async updateStatus(
-    @Param('publicId') publicId: string,
-    @Body() dto: UpdateProposalStatusDTO,
-  ) {
-    const notifiableStatuses = [
-      ProposalStatus.ACCEPTED,
-      ProposalStatus.REJECTED,
-    ] as ProposalStatus[];
-    const proposalId = await this.proposalsService.resolvePublicId(publicId);
+  @ApiAcceptProposal()
+  @Patch('/accept/:publicId')
+  async accept(@Param('publicId') publicId: string) {
+    const { updatedProposal, campaign } =
+      await this.proposalsService.acceptProposal(publicId);
 
-    const updatedProposal = await this.proposalsService.updateProposalStatus(
-      proposalId,
-      dto,
-    );
-
-    if (notifiableStatuses.includes(updatedProposal.proposal_status)) {
-      try {
-        const campaign = await this.campaignsService.findOneCampaign(
-          updatedProposal.campaign_id,
-        );
-
-        const notificationMessage =
-          updatedProposal.proposal_status === ProposalStatus.ACCEPTED
-            ? 'Your proposal has been accepted! You may now start with the campaign.'
-            : 'Unfortunately, your proposal has been rejected by the client.';
-
-        await this.notificationsService.createNotification({
-          userId: campaign.ugc_creator_id,
-          title: `Your Proposal Has Been ${updatedProposal.proposal_status}`,
-          message: notificationMessage,
-        });
-      } catch (err) {
-        this.logger.warn(`Failed to send notification`, err);
-      }
+    try {
+      await this.notificationsService.createNotification({
+        userId: campaign.ugc_creator_id,
+        title: `Your Proposal Has Been Accepted.`,
+        message:
+          'Your proposal has been accepted! Please wait for the contract to be signed by the client.',
+      });
+    } catch (err) {
+      this.logger.warn(`Failed to send notification`, err);
     }
 
     return plainToInstance(ProposalsEntity, updatedProposal);
+  }
+
+  @ApiCancelProposal()
+  @Patch('/cancel/:publicId')
+  async cancel(@Param('publicId') publicId: string) {
+    const updatedProposal =
+      await this.proposalsService.cancelProposal(publicId);
+
+    return plainToInstance(ProposalsEntity, updatedProposal);
+  }
+
+  @ApiFindAllProposalHistory()
+  @Get('/history/:publicId')
+  async findAllHistory(@Param('publicId') publicId: string) {
+    const proposalId = await this.proposalsService.resolvePublicId(publicId);
+    const histories =
+      await this.proposalHistoryService.findAllHistoryForProposal(proposalId);
+
+    return plainToInstance(ProposalHistoryEntity, histories);
   }
 }

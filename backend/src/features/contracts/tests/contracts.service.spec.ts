@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { ContractsService } from '../contracts.service';
-import { NotFoundException } from '@nestjs/common';
+import { ConflictException, NotFoundException } from '@nestjs/common';
 import { CampaignsService } from 'src/features/campaigns/campaigns.service';
 import { CreateContractDTO } from '../dto/create-contract.dto';
 import { PAYMENT_SCHEDULE } from '../dto/payment-terms.dto';
@@ -425,8 +425,8 @@ describe('ContractsService', () => {
       mockPrisma.contracts.findFirst.mockResolvedValue(unsignedContract);
       mockPrisma.contracts.update.mockResolvedValue(signedContract);
 
-      const res = await service.signContract('abc1234567', 'CLIENT' as any);
-      
+      const res = await service.signContract('abc1234567', 'CLIENT');
+
       expect(res).toEqual(signedContract);
       expect(mockPrisma.contracts.findFirst).toHaveBeenCalledWith({
         where: { contract_id: 'abc1234567' },
@@ -443,6 +443,51 @@ describe('ContractsService', () => {
       await expect(
         service.signContract('nonexistent', 'CLIENT' as any),
       ).rejects.toBeInstanceOf(NotFoundException);
+      expect(mockPrisma.contracts.update).not.toHaveBeenCalled();
+    });
+
+    it('should allow the creator to sign after the client has signed', async () => {
+      const clientSignedContract = {
+        contract_id: 'contract-1',
+        public_id: 'abc1234567',
+        campaign_id: 'camp-1',
+        creator_signed: false,
+        client_signed: true,
+        signed_at: null,
+      };
+
+      const fullySignedContract = {
+        ...clientSignedContract,
+        creator_signed: true,
+      };
+
+      mockPrisma.contracts.findFirst.mockResolvedValue(clientSignedContract);
+      mockPrisma.contracts.update.mockResolvedValue(fullySignedContract);
+
+      const res = await service.signContract('abc1234567', 'CREATOR');
+
+      expect(res).toEqual(fullySignedContract);
+      expect(mockPrisma.contracts.update).toHaveBeenCalledWith({
+        where: { contract_id: 'contract-1' },
+        data: { creator_signed: true },
+      });
+    });
+
+    it('should throw ConflictException when the client signs twice', async () => {
+      const clientSignedContract = {
+        contract_id: 'contract-1',
+        public_id: 'abc1234567',
+        campaign_id: 'camp-1',
+        creator_signed: false,
+        client_signed: true,
+        signed_at: null,
+      };
+
+      mockPrisma.contracts.findFirst.mockResolvedValue(clientSignedContract);
+
+      await expect(
+        service.signContract('abc1234567', 'CLIENT' as any),
+      ).rejects.toBeInstanceOf(ConflictException);
       expect(mockPrisma.contracts.update).not.toHaveBeenCalled();
     });
   });

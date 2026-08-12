@@ -27,6 +27,7 @@ export default function SignContractModal({ contractPublicId }: SignContractModa
       signContract(contractPublicId, {
         signatureDataUrl,
         initialsDataUrl,
+        signerRole: "CLIENT",
       }),
     onSuccess: () => {
       toast.success("Contract signed successfully.");

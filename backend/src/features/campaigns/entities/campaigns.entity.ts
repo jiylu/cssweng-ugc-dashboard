@@ -1,9 +1,13 @@
-import { CampaignCurrency, CampaignStatus } from '@prisma/client';
+import {
+  CampaignCurrency,
+  CampaignStatus,
+  PaymentSchedule,
+} from '@prisma/client';
 import { Exclude, Expose, Type } from 'class-transformer';
 
 export class CampaignsEntity {
   @Exclude()
-  contract_id: string;
+  campaign_id: string;
 
   @Expose()
   public_id: string;
@@ -45,4 +49,11 @@ export class CampaignsEntity {
 
   @Expose()
   campaign_status: CampaignStatus;
+
+  @Expose()
+  @Type(() => Number)
+  paid_amount: number;
+
+  @Expose()
+  payment_schedule: PaymentSchedule;
 }

@@ -12,7 +12,6 @@ import { CreateContractDTO } from './dto/create-contract.dto';
 import { Prisma, UserRoles } from '@prisma/client';
 import { nanoid } from 'nanoid';
 import { UpdateContractDTO } from './dto/update-contract.dto';
-import { SignContractDTO } from './dto/sign-contract.dto';
 
 @Injectable()
 export class ContractsService {
@@ -170,9 +169,13 @@ export class ContractsService {
     return contract;
   }
 
-  async signContract(contractId: string, signerRole: UserRoles) {
+  async signContract(
+    contractId: string,
+    signerRole: UserRoles,
+    tx: Prisma.TransactionClient | PrismaService = this.prisma,
+  ) {
     this.logger.debug(`${signerRole} Signing contract ${contractId}`);
-    const contract = await this.findContractByUID(contractId);
+    const contract = await this.findContractByUID(contractId, tx);
 
     this.handleContractConflicts(
       contractId,
@@ -181,7 +184,7 @@ export class ContractsService {
       signerRole,
     );
 
-    const updatedContract = await this.prisma.contracts.update({
+    const updatedContract = await tx.contracts.update({
       where: { contract_id: contract.contract_id },
       data:
         signerRole === UserRoles.CLIENT
@@ -219,7 +222,7 @@ export class ContractsService {
       });
     }
 
-    if (clientSigned) {
+    if (clientSigned && signerRole === UserRoles.CLIENT) {
       this.logger.warn(
         `Contract ${contractId} is already signed by the client.`,
       );
