@@ -7,7 +7,7 @@ interface SubmittedProposalsTableProps {
   proposals: SubmittedProposal[]
   onView: (id: string) => void
   onSendReminder: (id: string) => void
-  onCancel: (id: string) => void
+  onCancel: (proposal: SubmittedProposal) => void
 }
 
 const STATUS_LABELS: Record<ProposalStatus, string> = {
@@ -15,6 +15,7 @@ const STATUS_LABELS: Record<ProposalStatus, string> = {
   ACTIVE: "Active",
   REJECTED: "Rejected",
   COMPLETED: "Completed",
+  CANCELLED: "Cancelled",
 }
 
 const STATUS_STYLES: Record<ProposalStatus, string> = {
@@ -22,6 +23,7 @@ const STATUS_STYLES: Record<ProposalStatus, string> = {
   ACTIVE: "text-[#6b1fa8]",
   REJECTED: "text-[#ff6467]",
   COMPLETED: "text-[#2d7a3a]",
+  CANCELLED: "text-[#ff6467]",
 }
 
 export function SubmittedProposalsTable({ proposals, onView, onSendReminder, onCancel }: SubmittedProposalsTableProps) {
@@ -52,7 +54,7 @@ export function SubmittedProposalsTable({ proposals, onView, onSendReminder, onC
                 </TableHeader>
                 <TableBody>
                     {proposals.map((proposal) => {
-                        const isClosed = proposal.status === "COMPLETED" || proposal.status === "REJECTED"
+                        const isClosed = proposal.status === "COMPLETED" || proposal.status === "REJECTED" || proposal.status === "CANCELLED"
 
                         return (
                             <TableRow key={proposal.id} className="hover:bg-transparent bg-white">
@@ -106,7 +108,7 @@ export function SubmittedProposalsTable({ proposals, onView, onSendReminder, onC
                                         <button
                                             type="button"
                                             aria-label="Cancel proposal"
-                                            onClick={() => onCancel(proposal.id)}
+                                            onClick={() => onCancel(proposal)}
                                             className="text-foreground hover:text-[#ff6467]"
                                         >
                                             <X size={16} />
