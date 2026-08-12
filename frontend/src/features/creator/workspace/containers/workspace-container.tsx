@@ -42,7 +42,7 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
             <h1 className="text-4xl font-normal text-foreground">Workspace</h1>
           </div>
           <Separator />
-          <div className="flex items-start justify-between">
+          <div className="flex items-start justify-between bg-white px-8 py-7">
             <WorkspaceHeader
                 campaignName={campaign?.project_name ?? "Campaign Name"}
                 campaignOverview={campaign?.description ?? "Campaign Overview"}
