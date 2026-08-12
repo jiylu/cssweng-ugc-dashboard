@@ -1,6 +1,13 @@
 import { Controller, Get, Param } from '@nestjs/common';
 import { WrittenAssetsService } from './written-assets.service';
 import { DeliverableItemsService } from '../deliverables/deliverable-items.service';
+import { plainToInstance } from 'class-transformer';
+import { WrittenAssetsEntity } from './entities/written-assets.entity';
+import {
+  ApiFindWrittenAsset,
+  ApiGetLatestWrittenAssetForDeliverableItem,
+  ApiGetWrittenAssetHistoryForDeliverableItem,
+} from './docs/written-assets.controller.swagger';
 
 @Controller('written-assets')
 export class WrittenAssetsController {
@@ -9,13 +16,18 @@ export class WrittenAssetsController {
     private readonly deliverableItemsService: DeliverableItemsService,
   ) {}
 
+  @ApiFindWrittenAsset()
   @Get(':publicId')
   async findOne(@Param('publicId') publicId: string) {
     const writtenAssetId =
       await this.writtenAssetsService.resolvePublicId(publicId);
-    return this.writtenAssetsService.findOneWrittenAsset(writtenAssetId);
+    const writtenAsset =
+      await this.writtenAssetsService.findOneWrittenAsset(writtenAssetId);
+
+    return plainToInstance(WrittenAssetsEntity, writtenAsset);
   }
 
+  @ApiGetWrittenAssetHistoryForDeliverableItem()
   @Get('history/:deliverableItemPublicId')
   async getWrittenAssetHistoryForDeliverableItem(
     @Param('deliverableItemPublicId') deliverableItemPublicId: string,
@@ -24,11 +36,15 @@ export class WrittenAssetsController {
       await this.deliverableItemsService.resolvePublicId(
         deliverableItemPublicId,
       );
-    return this.writtenAssetsService.getWrittenAssetHistoryForDeliverableItem(
-      deliverableItemId,
-    );
+    const history =
+      await this.writtenAssetsService.getWrittenAssetHistoryForDeliverableItem(
+        deliverableItemId,
+      );
+
+    return plainToInstance(WrittenAssetsEntity, history);
   }
 
+  @ApiGetLatestWrittenAssetForDeliverableItem()
   @Get('latest/:deliverableItemPublicId')
   async getLatestAssetHistoryForDeliverableItem(
     @Param('deliverableItemPublicId') deliverableItemPublicId: string,
@@ -37,8 +53,11 @@ export class WrittenAssetsController {
       await this.deliverableItemsService.resolvePublicId(
         deliverableItemPublicId,
       );
-    return this.writtenAssetsService.getLatestAssetHistoryForDeliverableItem(
-      deliverableItemId,
-    );
+    const latest =
+      await this.writtenAssetsService.getLatestAssetHistoryForDeliverableItem(
+        deliverableItemId,
+      );
+
+    return plainToInstance(WrittenAssetsEntity, latest);
   }
 }

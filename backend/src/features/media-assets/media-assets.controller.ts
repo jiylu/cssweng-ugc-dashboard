@@ -1,6 +1,13 @@
 import { Controller, Get, Param } from '@nestjs/common';
 import { MediaAssetsService } from './media-assets.service';
 import { DeliverableItemsService } from '../deliverables/deliverable-items.service';
+import { plainToInstance } from 'class-transformer';
+import { MediaAssetsEntity } from './entities/media-assets.entity';
+import {
+  ApiFindMediaAsset,
+  ApiGetLatestMediaAssetForDeliverableItem,
+  ApiGetMediaAssetHistoryForDeliverableItem,
+} from './docs/media-assets.controller.swagger';
 
 @Controller('media-assets')
 export class MediaAssetsController {
@@ -9,13 +16,18 @@ export class MediaAssetsController {
     private readonly deliverableItemsService: DeliverableItemsService,
   ) {}
 
+  @ApiFindMediaAsset()
   @Get(':publicId')
   async findOne(@Param('publicId') publicId: string) {
     const mediaAssetId =
       await this.mediaAssetsService.resolvePublicId(publicId);
-    return this.mediaAssetsService.findOneMediaAsset(mediaAssetId);
+    const mediaAsset =
+      await this.mediaAssetsService.findOneMediaAsset(mediaAssetId);
+
+    return plainToInstance(MediaAssetsEntity, mediaAsset);
   }
 
+  @ApiGetMediaAssetHistoryForDeliverableItem()
   @Get('history/:deliverableItemPublicId')
   async getMediaAssetHistoryForDeliverableItem(
     @Param('deliverableItemPublicId') deliverableItemPublicId: string,
@@ -24,11 +36,15 @@ export class MediaAssetsController {
       await this.deliverableItemsService.resolvePublicId(
         deliverableItemPublicId,
       );
-    return this.mediaAssetsService.getMediaAssetHistoryForDeliverableItem(
-      deliverableItemId,
-    );
+    const history =
+      await this.mediaAssetsService.getMediaAssetHistoryForDeliverableItem(
+        deliverableItemId,
+      );
+
+    return plainToInstance(MediaAssetsEntity, history);
   }
 
+  @ApiGetLatestMediaAssetForDeliverableItem()
   @Get('latest/:deliverableItemPublicId')
   async getLatestAssetHistoryForDeliverableItem(
     @Param('deliverableItemPublicId') deliverableItemPublicId: string,
@@ -37,8 +53,11 @@ export class MediaAssetsController {
       await this.deliverableItemsService.resolvePublicId(
         deliverableItemPublicId,
       );
-    return this.mediaAssetsService.getLatestAssetHistoryForDeliverableItem(
-      deliverableItemId,
-    );
+    const latest =
+      await this.mediaAssetsService.getLatestAssetHistoryForDeliverableItem(
+        deliverableItemId,
+      );
+
+    return plainToInstance(MediaAssetsEntity, latest);
   }
 }

@@ -15,6 +15,14 @@ import { UploadService } from 'src/shared/upload/upload.service';
 import { SubmitWrittenAssetDTO } from '../written-assets/dto/submit-written-asset.dto';
 import { UpdateWrittenAssetCommentDTO } from '../written-assets/dto/update-written-asset-comment.dto';
 import { UpdateMediaAssetCommentDTO } from '../media-assets/dto/update-media-asset-comment.dto';
+import {
+  ApiApproveMediaAsset,
+  ApiApproveWrittenAsset,
+  ApiReviseMediaAsset,
+  ApiReviseWrittenAsset,
+  ApiSubmitMediaAsset,
+  ApiSubmitWrittenAsset,
+} from './docs/deliverable-submissions.controller.swagger';
 
 @Controller('deliverable-submissions')
 export class DeliverableSubmissionsController {
@@ -25,11 +33,13 @@ export class DeliverableSubmissionsController {
     private readonly uploadService: UploadService,
   ) {}
 
+  @ApiSubmitWrittenAsset()
   @Post('written-assets')
   async submitWrittenAsset(@Body() dto: SubmitWrittenAssetDTO) {
     return this.deliverableSubmissionsService.submitWrittenAsset(dto);
   }
 
+  @ApiSubmitMediaAsset()
   @Post('media-assets')
   @UseInterceptors(FileInterceptor('file'))
   async submitMediaAsset(
@@ -45,6 +55,7 @@ export class DeliverableSubmissionsController {
     });
   }
 
+  @ApiApproveWrittenAsset()
   @Patch('written-assets/:publicId/approve')
   async approveWrittenAsset(@Param('publicId') publicId: string) {
     const writtenAssetId =
@@ -54,6 +65,7 @@ export class DeliverableSubmissionsController {
     );
   }
 
+  @ApiReviseWrittenAsset()
   @Patch('written-assets/:publicId/revise')
   async reviseWrittenAsset(
     @Param('publicId') publicId: string,
@@ -67,6 +79,7 @@ export class DeliverableSubmissionsController {
     );
   }
 
+  @ApiReviseMediaAsset()
   @Patch('media-assets/:publicId/revise')
   async reviseMediaAsset(
     @Param('publicId') publicId: string,
@@ -80,6 +93,7 @@ export class DeliverableSubmissionsController {
     );
   }
 
+  @ApiApproveMediaAsset()
   @Patch('media-assets/:publicId/approve')
   async approveMediaAsset(@Param('publicId') publicId: string) {
     const mediaAssetId =
