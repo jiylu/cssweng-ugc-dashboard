@@ -31,7 +31,7 @@ export function DeliverableCard({ deliverable, isActive, onClick, activeStep, on
         <div className="flex flex-col gap-1">
           <span
             className={cn(
-              "text-sm font-semibold",
+              "text-xs font-semibold",
               isActive ? "text-white" : "text-foreground"
             )}
           >
