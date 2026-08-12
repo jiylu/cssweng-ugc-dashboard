@@ -19,9 +19,9 @@ import { OtpModule } from '../otp/otp.module';
 })
 export class UsersModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(AuthSessionMiddleware).forRoutes({
-      path: 'users/me',
-      method: RequestMethod.GET,
-    });
+    consumer.apply(AuthSessionMiddleware).forRoutes(
+      { path: 'users/me', method: RequestMethod.GET },
+      { path: 'users/me', method: RequestMethod.PATCH },
+    );
   }
 }

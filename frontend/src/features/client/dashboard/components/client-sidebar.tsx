@@ -45,12 +45,14 @@ export default function ClientSidebar({
           </Link>
         </Button>
         <Button
-          type="button"
+          asChild
           variant="ghost"
           className="h-12 justify-start gap-4 px-0 text-lg font-normal text-[#7b7771] hover:bg-transparent"
         >
-          <Settings className="size-6" />
-          Settings
+          <Link href="/settings">
+            <Settings className="size-6" />
+            Settings
+          </Link>
         </Button>
       </nav>
 

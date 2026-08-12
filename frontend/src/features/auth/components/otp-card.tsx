@@ -40,7 +40,7 @@ export default function OtpCard({ registerForm }: { registerForm: ReturnType<typ
         </Button>
         <div className="mt-4 flex gap-4 text-sm text-[#666]">
           <button type="button" onClick={() => registerForm.resendOtp()} disabled={registerForm.isSubmitting} className="hover:underline">Resend code</button>
-          <button type="button" onClick={() => registerForm.setStep("details")} disabled={registerForm.isSubmitting} className="hover:underline">Change email</button>
+          <button type="button" onClick={registerForm.returnToDetails} disabled={registerForm.isSubmitting} className="hover:underline">Change email</button>
         </div>
       </form>
     </section>
