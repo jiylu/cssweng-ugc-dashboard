@@ -6,6 +6,7 @@ import { CreateProposalDTO } from '../dto/create-proposal.dto';
 import { NotFoundException, ConflictException } from '@nestjs/common';
 import { CampaignsService } from 'src/features/campaigns/campaigns.service';
 import { UserService } from 'src/features/users/users.service';
+import { ProposalHistoryService } from '../proposal-history.service';
 
 jest.mock('nanoid', () => ({
   nanoid: jest.fn(() => 'mock_public_id_1234567890'),
@@ -15,6 +16,7 @@ describe('ProposalsService', () => {
   let service: ProposalsService;
 
   const mockPrisma = {
+    $transaction: jest.fn(),
     proposals: {
       findFirst: jest.fn(),
       create: jest.fn(),
@@ -31,6 +33,12 @@ describe('ProposalsService', () => {
   const mockUserService = {
     findActiveUserByEmail: jest.fn(),
     getActiveUserById: jest.fn(),
+  };
+
+  const mockProposalHistoryService = {
+    findLatestVersion: jest.fn(),
+    updateClientComments: jest.fn(),
+    updateProposalActions: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -51,6 +59,10 @@ describe('ProposalsService', () => {
         {
           provide: UserService,
           useValue: mockUserService,
+        },
+        {
+          provide: ProposalHistoryService,
+          useValue: mockProposalHistoryService,
         },
       ],
     }).compile();
