@@ -10,7 +10,7 @@ import { WrittenAssetsPanel } from "@/src/features/creator/workspace/components/
 import { DeliverablesSidebar } from "@/src/features/creator/workspace/components/deliverables-sidebar"
 import { FeedbackPanel } from "@/src/features/creator/workspace/components/deliverables-submission/feedback-panel"
 import { HistoryOverlay } from "@/src/features/creator/workspace/components/deliverables-submission/history-overlay"
-import { VideoSubmission } from "@/src/features/creator/workspace/components/deliverables-submission/video-submission"
+import { VideoSubmissionContainer } from "@/src/features/creator/workspace/containers/video-submission-container"
 import { DeliverableApprovedCard } from "@/src/features/creator/workspace/components/deliverables-submission/deliverable-approved-card"
 import { ContractSigningPanel } from "@/src/features/creator/workspace/components/contract-signing/contract-signing-panel"
 import { useWorkspace } from "@/src/features/creator/workspace/hooks/useWorkspace"
@@ -86,7 +86,7 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
               />
             )}
             {activeStep === 1 && activeDeliverableStep === 1 && (
-              <VideoSubmission 
+              <VideoSubmissionContainer 
                 version={2}
                 onHistory={() => setHistoryOpen(true)}
                 onSubmit={() => console.log("Submit video")}
