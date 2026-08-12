@@ -1,0 +1,141 @@
+import { ConflictException, Injectable, Logger } from '@nestjs/common';
+import { PrismaService } from 'src/shared/prisma/prisma.service';
+import { CampaignsService } from '../campaigns/campaigns.service';
+import { ProposalsService } from '../proposals/proposals.service';
+import { DeliverablesService } from '../deliverables/deliverables.service';
+import { DeliverableItemsService } from '../deliverables/deliverable-items.service';
+import {
+  AssetActions,
+  Campaigns,
+  DeliverableItems,
+  Deliverables,
+  MediaAssets,
+  Prisma,
+  Proposals,
+} from '@prisma/client';
+import { nanoid } from 'nanoid';
+import { SubmitMediaAssetDTO } from './dto/submit-media-asset.dto';
+
+@Injectable()
+export class MediaAssetsService {
+  private readonly logger = new Logger(MediaAssetsService.name);
+  constructor(
+    private prisma: PrismaService,
+    private campaignsService: CampaignsService,
+    private proposalsService: ProposalsService,
+    private deliverablesService: DeliverablesService,
+    private deliverableItemsService: DeliverableItemsService,
+  ) {}
+
+  async submitMediaAsset(dto: SubmitMediaAssetDTO) {
+    this.logger.debug(`Submitting MediaAsset for ${dto.deliverableItemId}`);
+
+    const result = this.prisma.$transaction(async (tx) => {
+      const deliverableItem =
+        await this.deliverableItemsService.findOneDeliverableItem(
+          dto.deliverableItemId,
+          tx,
+        );
+
+      this.assertWrittenAssetsApproved(deliverableItem);
+      await this.assertNoPendingMediaAsset(deliverableItem.deliverable_item_id);
+
+      const existingCount = await tx.mediaAssets.count({
+        where: { deliverable_item_id: deliverableItem.deliverable_item_id },
+      });
+
+      const versionNumber = existingCount + 1;
+      const publicId = nanoid(10);
+
+      const mediaAsset = await tx.mediaAssets.create({
+        data: {
+          deliverable_item_id: deliverableItem.deliverable_item_id,
+          public_id: publicId,
+          version_number: versionNumber,
+          is_video: dto.is_video,
+          content_url: dto.content_url,
+        },
+      });
+
+      this.logger.log(
+        `Created MediaAsset ${mediaAsset.media_asset_id} (v${versionNumber}) for DeliverableItem ${mediaAsset.deliverable_item_id}`,
+      );
+
+      return mediaAsset;
+    });
+
+    return result;
+  }
+
+  // utils
+  async extractDeliverableCampaignProposal(
+    deliverableID: string,
+    tx: Prisma.TransactionClient | PrismaService = this.prisma,
+  ): Promise<[Deliverables, Campaigns, Proposals]> {
+    const deliverable = await this.deliverablesService.findOneDeliverableByUID(
+      deliverableID,
+      tx,
+    );
+
+    const campaign = await this.campaignsService.findOneCampaign(
+      deliverable.campaign_id,
+      tx,
+    );
+
+    const proposal = await this.proposalsService.findProposalByCampaignId(
+      campaign.campaign_id,
+      false,
+      tx,
+    );
+
+    return [deliverable, campaign, proposal];
+  }
+
+  assertWrittenAssetsApproved(deliverableItem: DeliverableItems) {
+    if (!deliverableItem.written_asset_approved) {
+      this.logger.warn(
+        `Cannot submit media asset for DeliverableItem ${deliverableItem.deliverable_item_id} since written asset is not approved.`,
+      );
+
+      throw new ConflictException({
+        code: 'WRITTEN_ASSET_NOT_APPROVED',
+        message:
+          'Cannot submit media asset when the written asset is not approved.',
+      });
+    }
+  }
+
+  async findLatestMediaAsset(
+    deliverableItemId: string,
+    tx: Prisma.TransactionClient | PrismaService = this.prisma,
+  ): Promise<MediaAssets | null> {
+    return tx.mediaAssets.findFirst({
+      where: { deliverable_item_id: deliverableItemId },
+      orderBy: { version_number: 'desc' },
+    });
+  }
+
+  async assertNoPendingMediaAsset(
+    deliverableItemId: string,
+    tx: Prisma.TransactionClient | PrismaService = this.prisma,
+  ) {
+    const latestMediaAsset = await this.findLatestMediaAsset(
+      deliverableItemId,
+      tx,
+    );
+
+    if (
+      latestMediaAsset &&
+      latestMediaAsset.media_asset_action === AssetActions.PENDING
+    ) {
+      this.logger.warn(
+        `Cannot submit media asset for DeliverableItem ${deliverableItemId} since a previous version is still awaiting review.`,
+      );
+
+      throw new ConflictException({
+        code: 'PENDING_MEDIA_ASSET_EXISTS',
+        message: 'A media asset version is still awaiting review.',
+      });
+    }
+  }
+}

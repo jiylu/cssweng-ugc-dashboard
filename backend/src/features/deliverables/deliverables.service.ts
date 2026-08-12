@@ -11,7 +11,12 @@ import {
 import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { CampaignsService } from '../campaigns/campaigns.service';
 import { CreateDeliverableDTO } from './dto/create-deliverable.dto';
-import { DeliverableItemStatus, DeliverableStatus, Prisma, ProposalStatus } from '@prisma/client';
+import {
+  DeliverableItemStatus,
+  DeliverableStatus,
+  Prisma,
+  ProposalStatus,
+} from '@prisma/client';
 import { UpdateDeliverableDTO } from './dto/update-deliverable.dto';
 import { nanoid } from 'nanoid';
 import { CampaignDates } from './types/types';

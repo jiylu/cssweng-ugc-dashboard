@@ -190,9 +190,9 @@ model MediaAssets {
   version_number           Int
   is_video                 Boolean
   content_url              String
-  client_comments          String
+  client_comments          String                       @default("")
   media_asset_action       AssetActions                 @default(PENDING)
-  created_at               DateTime
+  created_at               DateTime                     @default(now())
   updated_at               DateTime?
 }
 
@@ -201,10 +201,10 @@ model WrittenAssets {
   deliverable_item_id      String
   public_id                String                      @unique @db.VarChar(10)
   version_number           Int
-  content_url              String
-  client_comments          String
+  content                  String
+  client_comments          String                      @default("")
   written_asset_action     AssetActions                @default(PENDING)
-  created_at               DateTime
+  created_at               DateTime                    @default(now())
   updated_at               DateTime?
 }
 

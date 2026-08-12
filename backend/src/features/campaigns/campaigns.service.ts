@@ -11,10 +11,10 @@ import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { CreateCampaignDTO } from './dto/create-campaign.dto';
 import {
   CampaignStatus,
-  DeliverableStatus,
   PaymentSchedule,
   Prisma,
   UserRoles,
+  DeliverableStatus,
 } from '@prisma/client';
 import { CampaignQueryDTO } from './dto/campaign-query-dto';
 import { UpdateCampaignStatusDto } from './dto/update-campaign-status-dto';

@@ -10,6 +10,6 @@ import { DeliverableItemsService } from './deliverable-items.service';
   imports: [PrismaModule, CampaignsModule, ProposalsModule],
   providers: [DeliverablesService, DeliverableItemsService],
   controllers: [DeliverablesController],
-  exports: [DeliverablesService],
+  exports: [DeliverablesService, DeliverableItemsService],
 })
 export class DeliverablesModule {}
