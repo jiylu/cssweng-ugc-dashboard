@@ -10,7 +10,6 @@ import { CreateProposalDTO } from './dto/create-proposal.dto';
 import { CampaignsService } from '../campaigns/campaigns.service';
 import { Prisma, ProposalStatus, User } from '@prisma/client';
 import { UserService } from '../users/users.service';
-import { UpdateProposalCommentDTO } from './dto/update-proposal-comment.dto';
 import { UpdateProposalStatusDTO } from './dto/update-proposal-status.dto';
 import { nanoid } from 'nanoid';
 
@@ -127,6 +126,32 @@ export class ProposalsService {
     return activeProposal;
   }
 
+  async findProposalsForUser(userId: string) {
+    this.logger.debug(`Finding proposals for user ${userId}`);
+
+    const user = await this.userService.getActiveUserById(userId);
+
+    const activeCampaigns =
+      await this.campaignService.findAllActiveCampaignsNoQuery(user.user_id);
+
+    if (activeCampaigns.length === 0) {
+      this.logger.log(`No active proposals for user ${userId}.`);
+      return [];
+    }
+
+    const proposals = await Promise.all(
+      activeCampaigns.map((campaign) =>
+        this.findProposalByCampaignId(campaign.campaign_id, true),
+      ),
+    );
+
+    this.logger.log(
+      `Found ${proposals.length} proposals for user ${user.user_id}`,
+    );
+
+    return proposals;
+  }
+
   async resolvePublicId(publicId: string) {
     this.logger.debug(`Finding proposal with publicId ${publicId}`);
 
@@ -182,6 +207,7 @@ export class ProposalsService {
 
   async findProposalByCampaignId(
     campaignId: string,
+    isPending: boolean = false,
     tx: Prisma.TransactionClient | PrismaService = this.prisma,
   ) {
     this.logger.debug(`Finding proposal for campaign ${campaignId}`);
@@ -189,6 +215,7 @@ export class ProposalsService {
     const proposal = await tx.proposals.findFirst({
       where: {
         campaign_id: campaignId,
+        ...(isPending && { proposal_status: ProposalStatus.PENDING }),
       },
     });
 
@@ -207,27 +234,28 @@ export class ProposalsService {
     return proposal;
   }
 
-  async updateProposalComments(
-    proposalId: string,
-    dto: UpdateProposalCommentDTO,
-  ) {
-    this.logger.debug(`Updating comments for proposal ${proposalId}`);
-
-    await this.findActiveProposal(proposalId);
-
-    const updated = await this.prisma.proposals.update({
-      where: { proposal_id: proposalId },
-      data: { client_comments: dto.comment },
-    });
-
-    this.logger.log(`Comments updated for proposal ${proposalId}`);
-    return updated;
-  }
-
   async updateProposalStatus(proposalId: string, dto: UpdateProposalStatusDTO) {
     this.logger.debug(`Updating status for proposal ${proposalId}`);
 
-    await this.findActiveProposal(proposalId);
+    const proposal = await this.findActiveProposal(proposalId);
+
+    const terminalStatuses = [
+      ProposalStatus.REJECTED,
+      ProposalStatus.ACCEPTED,
+      ProposalStatus.CANCELLED,
+    ] as ProposalStatus[];
+
+    if (terminalStatuses.includes(proposal.proposal_status)) {
+      this.logger.warn(
+        `Cannot update status for ${proposal.proposal_id} from ${proposal.proposal_status} to ${dto.proposalStatus} because current status is terminal.`,
+      );
+
+      throw new ConflictException({
+        status: HttpStatus.CONFLICT,
+        code: 'CAMPAIGN_STATUS_UPDATE_ERROR',
+        message: 'Campaign Status Update Error',
+      });
+    }
 
     const updated = await this.prisma.proposals.update({
       where: { proposal_id: proposalId },

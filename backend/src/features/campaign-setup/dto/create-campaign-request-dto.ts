@@ -10,6 +10,7 @@ import { CreateProposalDTO } from 'src/features/proposals/dto/create-proposal.dt
 
 class CampaignSetupDto extends OmitType(CreateCampaignDTO, [
   'pricing',
+  'paymentSchedule',
 ] as const) {}
 class DeliverableSetupDto extends OmitType(CreateDeliverableDTO, [
   'campaignId',

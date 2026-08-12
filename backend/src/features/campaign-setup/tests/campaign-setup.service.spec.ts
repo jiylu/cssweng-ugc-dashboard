@@ -6,8 +6,9 @@ import { CampaignSetupService } from '../campaign-setup.service';
 import { CampaignsService } from 'src/features/campaigns/campaigns.service';
 import { DeliverablesService } from 'src/features/deliverables/deliverables.service';
 import { ProposalsService } from 'src/features/proposals/proposals.service';
+import { ProposalHistoryService } from 'src/features/proposals/proposal-history.service';
 import { CreateCampaignRequestDto } from '../dto/create-campaign-request-dto';
-import { DeliverableType } from '@prisma/client';
+import { DeliverableType, PaymentSchedule } from '@prisma/client';
 import { EmailService } from 'src/features/email/email.service';
 import { ActivityLogService } from 'src/features/activity-log/activity-log.service';
 import { ContractsService } from 'src/features/contracts/contracts.service';
@@ -34,15 +35,22 @@ describe('CampaignSetupService', () => {
     createManyDeliverables: jest.fn(),
     updateDeliverableDetails: jest.fn(),
     deleteDeliverable: jest.fn(),
+    findDeliverablesForCampaign: jest.fn(),
   };
 
   const mockProposalService = {
     createProposal: jest.fn(),
+    findProposalByCampaignId: jest.fn(),
+  };
+
+  const mockProposalHistoryService = {
+    createProposalHistory: jest.fn().mockResolvedValue({}),
   };
 
   const mockContractService = {
     createContract: jest.fn(),
     updateContractDetails: jest.fn(),
+    findContractByCampaignId: jest.fn(),
   };
 
   const mockAddOnService = {
@@ -50,6 +58,7 @@ describe('CampaignSetupService', () => {
     createManyAddOns: jest.fn(),
     updateAddOnDetails: jest.fn(),
     deleteAddOn: jest.fn(),
+    findAddOnsForCampaign: jest.fn(),
   };
 
   const mockGiftedProductsService = {
@@ -57,6 +66,7 @@ describe('CampaignSetupService', () => {
     createManyGiftedProducts: jest.fn(),
     updateGiftedProductDetails: jest.fn(),
     deleteGiftedProduct: jest.fn(),
+    findGiftedProductsForCampaign: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -74,6 +84,10 @@ describe('CampaignSetupService', () => {
           useValue: mockDeliverableService,
         } as any,
         { provide: ProposalsService, useValue: mockProposalService } as any,
+        {
+          provide: ProposalHistoryService,
+          useValue: mockProposalHistoryService,
+        } as any,
         {
           provide: EmailService,
           useValue: {
@@ -219,7 +233,11 @@ describe('CampaignSetupService', () => {
       expect(mockPrisma.$transaction).toHaveBeenCalled();
 
       expect(mockCampaignService.createCampaign).toHaveBeenCalledWith(
-        { ...dto.campaign, pricing: totalPrice },
+        {
+          ...dto.campaign,
+          pricing: totalPrice,
+          paymentSchedule: PaymentSchedule.DEPOSIT_50_FINAL_50,
+        },
         {},
       );
 
@@ -429,6 +447,18 @@ describe('CampaignSetupService', () => {
       mockAddOnService.createManyAddOns.mockResolvedValue(createdAddOns);
       mockAddOnService.updateAddOnDetails.mockResolvedValue(updatedAddOns[0]);
       mockAddOnService.deleteAddOn.mockResolvedValue(deletedAddOns[0]);
+
+      mockProposalService.findProposalByCampaignId.mockResolvedValue({
+        proposal_id: 'prop-1',
+      });
+      mockContractService.findContractByCampaignId.mockResolvedValue(
+        updatedContract,
+      );
+      mockDeliverableService.findDeliverablesForCampaign.mockResolvedValue([]);
+      mockAddOnService.findAddOnsForCampaign.mockResolvedValue([]);
+      mockGiftedProductsService.findGiftedProductsForCampaign.mockResolvedValue(
+        [],
+      );
 
       const res = await service.updateCampaignSetup(campaignId, dto);
 

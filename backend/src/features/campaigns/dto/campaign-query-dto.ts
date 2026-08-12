@@ -4,16 +4,20 @@ import {
   IsInt,
   Min,
   IsBoolean,
-  IsNotEmpty,
 } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CampaignQueryDTO {
   @ApiProperty({ example: '550e8400-e29b-41d4-a716-446655440000' })
-  @IsNotEmpty({ message: 'Creator ID is required.' })
+  @IsOptional()
   @IsString({ message: 'Creator ID must be a string.' })
-  creatorId!: string;
+  creatorId?: string;
+
+  @ApiProperty({ example: '550e8400-e29b-41d4-a716-446655440000' })
+  @IsOptional()
+  @IsString({ message: 'Client ID must be a string.' })
+  clientId?: string;
 
   @ApiProperty({ example: '2' })
   @IsOptional()

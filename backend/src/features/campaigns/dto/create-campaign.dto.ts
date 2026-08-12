@@ -1,11 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { CampaignCurrency } from '@prisma/client';
+import { CampaignCurrency, PaymentSchedule } from '@prisma/client';
 import { Type } from 'class-transformer';
 import {
-  IsArray,
   IsDateString,
   IsEnum,
-  IsJSON,
   IsNotEmpty,
   IsNumber,
   IsObject,
@@ -70,4 +68,7 @@ export class CreateCampaignDTO {
     { message: 'End date must be a valid ISO 8601 date string.' },
   )
   endDate!: string;
+
+  @IsEnum(PaymentSchedule)
+  paymentSchedule!: PaymentSchedule;
 }

@@ -9,13 +9,19 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { CreateCampaignDTO } from './dto/create-campaign.dto';
-import { CampaignStatus, Prisma, UserRoles } from '@prisma/client';
+import {
+  CampaignStatus,
+  PaymentSchedule,
+  Prisma,
+  UserRoles,
+} from '@prisma/client';
 import { CampaignQueryDTO } from './dto/campaign-query-dto';
 import { UpdateCampaignStatusDto } from './dto/update-campaign-status-dto';
 import { UpdateCampaignClientDTO } from './dto/update-campaign-client.dto';
 import { UpdateCampaignDetailsDTO } from './dto/update-campaign-details.dto';
 import { UserService } from '../users/users.service';
 import { nanoid } from 'nanoid';
+import { UpdatePaidAmountDTO } from './dto/update-paid-amount.dto';
 
 @Injectable()
 export class CampaignsService {
@@ -53,6 +59,10 @@ export class CampaignsService {
         platforms: dto.platforms,
         start_date: startDate,
         end_date: endDate,
+        payment_schedule: dto.paymentSchedule,
+        ...(dto.paymentSchedule === PaymentSchedule.DEPOSIT_50_FINAL_50 && {
+          paid_amount: new Prisma.Decimal(dto.pricing).div(2),
+        }),
       },
     });
 
@@ -168,14 +178,25 @@ export class CampaignsService {
     const skip = (page - 1) * limit;
 
     this.logger.debug(
-      `Finding campaigns. creatorId=${query.creatorId}, activeOnly=${query.activeOnly}, page=${page}, limit=${limit}`,
+      `Finding campaigns. creatorId=${query.creatorId}, clientId=${query.clientId}, activeOnly=${query.activeOnly}, page=${page}, limit=${limit}`,
     );
 
-    await this.userService.getActiveUserById(query.creatorId);
+    const userId = query.creatorId ?? query.clientId;
+
+    if (!userId) {
+      throw new BadRequestException({
+        status: HttpStatus.BAD_REQUEST,
+        code: 'CAMPAIGN_USER_REQUIRED',
+        message: 'Either creatorId or clientId must be provided.',
+      });
+    }
+
+    await this.userService.getActiveUserById(userId);
 
     const campaigns = await this.prisma.campaigns.findMany({
       where: {
         ...(query.creatorId && { ugc_creator_id: query.creatorId }),
+        ...(query.clientId && { client_id: query.clientId }),
         ...(query.activeOnly && {
           campaign_status: CampaignStatus.ACTIVE,
         }),
@@ -185,8 +206,28 @@ export class CampaignsService {
       orderBy: { created_at: 'desc' },
     });
 
+    this.logger.log(`Found ${campaigns.length} campaigns for user ${userId}`);
+
+    return campaigns;
+  }
+
+  async findAllActiveCampaignsNoQuery(userId: string) {
+    this.logger.debug(`Finding campaigns. creatorId=${userId}`);
+
+    const user = await this.userService.getActiveUserById(userId);
+
+    const campaigns = await this.prisma.campaigns.findMany({
+      where: {
+        ...(user.role === UserRoles.CREATOR
+          ? { ugc_creator_id: user.user_id }
+          : { client_id: user.user_id }),
+        campaign_status: CampaignStatus.ACTIVE,
+      },
+      orderBy: { created_at: 'desc' },
+    });
+
     this.logger.log(
-      `Found ${campaigns.length} campaigns for creator ${query.creatorId}`,
+      `Found ${campaigns.length} campaigns for user ${user.user_id}`,
     );
 
     return campaigns;
@@ -195,23 +236,7 @@ export class CampaignsService {
   async updateCampaignStatus(campaignId: string, dto: UpdateCampaignStatusDto) {
     this.logger.debug(`Updating campaign status for ${campaignId}`);
 
-    const campaign = await this.findOneCampaign(campaignId);
-    const terminalStatuses = [
-      CampaignStatus.REJECTED,
-      CampaignStatus.COMPLETED,
-    ] as CampaignStatus[];
-
-    if (terminalStatuses.includes(campaign.campaign_status)) {
-      this.logger.warn(
-        `Cannot update status for ${campaign.campaign_id} from ${campaign.campaign_status} to ${dto.campaignStatus} because current status is terminal.`,
-      );
-
-      throw new ConflictException({
-        status: HttpStatus.CONFLICT,
-        code: 'CAMPAIGN_STATUS_UPDATE_ERROR',
-        message: 'Campaign Status Update Error',
-      });
-    }
+    const campaign = await this.assertCampaignUpdatable(campaignId);
 
     const updatedCampaign = await this.prisma.campaigns.update({
       where: { campaign_id: campaignId },
@@ -225,6 +250,29 @@ export class CampaignsService {
     );
 
     return updatedCampaign;
+  }
+
+  async assertCampaignUpdatable(campaignId: string) {
+    const campaign = await this.findOneCampaign(campaignId);
+    const terminalStatuses = [
+      CampaignStatus.REJECTED,
+      CampaignStatus.COMPLETED,
+      CampaignStatus.CANCELLED,
+    ] as CampaignStatus[];
+
+    if (terminalStatuses.includes(campaign.campaign_status)) {
+      this.logger.warn(
+        `Cannot update campaign ${campaign.campaign_id} because current status ${campaign.campaign_status} is terminal.`,
+      );
+
+      throw new ConflictException({
+        status: HttpStatus.CONFLICT,
+        code: 'CAMPAIGN_STATUS_UPDATE_ERROR',
+        message: 'Campaign Status Update Error',
+      });
+    }
+
+    return campaign;
   }
 
   private async assertExistingCampaignAndNoClient(campaignId: string) {
@@ -294,6 +342,27 @@ export class CampaignsService {
 
     this.logger.log(
       `Updated client id for campaign ${campaignId} to client id ${dto.clientId}.`,
+    );
+
+    return updatedCampaign;
+  }
+
+  async updatePaidAmount(campaignId: string, dto: UpdatePaidAmountDTO) {
+    this.logger.debug(
+      `Updating paid amount for campaign ${campaignId} to ${dto.paidAmount}`,
+    );
+
+    const campaign = await this.findOneCampaign(campaignId);
+
+    const updatedCampaign = await this.prisma.campaigns.update({
+      where: { campaign_id: campaign.campaign_id },
+      data: {
+        paid_amount: dto.paidAmount,
+      },
+    });
+
+    this.logger.log(
+      `Updated ${campaign.campaign_id} paid amount to ${updatedCampaign.paid_amount.toString()}`,
     );
 
     return updatedCampaign;

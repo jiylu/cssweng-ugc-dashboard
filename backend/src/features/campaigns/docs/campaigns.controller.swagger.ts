@@ -6,7 +6,6 @@ import {
   ApiQuery,
   ApiResponse,
 } from '@nestjs/swagger';
-import { UpdateCampaignStatusDto } from '../dto/update-campaign-status-dto';
 import { UpdateCampaignClientDTO } from '../dto/update-campaign-client.dto';
 
 export function ApiFindOneCampaign() {
@@ -39,13 +38,20 @@ export function ApiFindAllCampaigns() {
     ApiOperation({
       summary: 'Retrieves all campaigns with optional filtering and pagination',
       description:
-        'Retrieves campaigns with optional query filters. Refer to CampaignQueryDTO for available query parameters (creatorId, page, limit, activeOnly). The response is an array of campaigns; refer to CreateCampaignDTO for campaign object shape.',
+        'Retrieves campaigns with optional query filters. Either creatorId or clientId must be provided. Refer to CampaignQueryDTO for available query parameters (creatorId, clientId, page, limit, activeOnly). The response is an array of campaigns; refer to CreateCampaignDTO for campaign object shape.',
     }),
     ApiQuery({
       name: 'creatorId',
-      required: true,
+      required: false,
       type: String,
       description: 'Filter campaigns by UGC creator ID',
+      example: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+    }),
+    ApiQuery({
+      name: 'clientId',
+      required: false,
+      type: String,
+      description: 'Filter campaigns by client ID',
       example: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
     }),
     ApiQuery({
@@ -80,36 +86,6 @@ export function ApiFindAllCampaigns() {
     ApiResponse({
       status: 404,
       description: 'User not found (USER_NOT_FOUND)',
-    }),
-  );
-}
-
-export function ApiUpdateCampaignStatus() {
-  return applyDecorators(
-    ApiOperation({
-      summary: 'Updates the status of a campaign',
-      description:
-        "Updates a campaign's status. Request body must follow UpdateCampaignStatusDto (field: campaignStatus). " +
-        'Allowed values for campaignStatus: `ACTIVE`, `REJECTED`, `COMPLETED`. ' +
-        '`REJECTED` and `COMPLETED` are terminal statuses — once set, the campaign status cannot be changed further. ' +
-        'Returns the updated campaign.',
-    }),
-    ApiParam({
-      name: 'publicId',
-      type: String,
-      description: 'Public ID of the campaign to update',
-      example: 'x21E9dlf0F',
-    }),
-    ApiBody({ type: UpdateCampaignStatusDto }),
-    ApiResponse({
-      status: 200,
-      description: 'Campaign status updated successfully',
-    }),
-    ApiResponse({ status: 404, description: 'Campaign not found' }),
-    ApiResponse({
-      status: 409,
-      description:
-        'Campaign status is terminal (REJECTED or COMPLETED) and cannot be updated further',
     }),
   );
 }

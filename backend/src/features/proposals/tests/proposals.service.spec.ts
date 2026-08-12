@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { ProposalsService } from '../proposals.service';
-import { ProposalStatus } from '@prisma/client';
+import { ProposalStatus, UserRoles } from '@prisma/client';
 import { CreateProposalDTO } from '../dto/create-proposal.dto';
 import { NotFoundException, ConflictException } from '@nestjs/common';
 import { CampaignsService } from 'src/features/campaigns/campaigns.service';
@@ -25,10 +25,12 @@ describe('ProposalsService', () => {
   const mockCampaignService = {
     findOneCampaign: jest.fn(),
     findOneActiveCampaignByClientId: jest.fn(),
+    findAllActiveCampaignsNoQuery: jest.fn(),
   };
 
   const mockUserService = {
     findActiveUserByEmail: jest.fn(),
+    getActiveUserById: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -280,47 +282,6 @@ describe('ProposalsService', () => {
     });
   });
 
-  describe('updateProposalComments', () => {
-    it('should update comments when proposal is active', async () => {
-      const proposalId = 'prop-update-1';
-      const mockActive = {
-        proposal_id: proposalId,
-        public_id: 'pub_update_1',
-        campaign_id: 'camp1',
-        client_email: 'client@test.com',
-        proposal_status: ProposalStatus.PENDING,
-      };
-
-      const dto = { comment: 'New comment' };
-
-      jest
-        .spyOn(service, 'findActiveProposal')
-        .mockResolvedValue(mockActive as any);
-      mockPrisma.proposals.update.mockResolvedValue({
-        ...mockActive,
-        client_comments: dto.comment,
-      });
-
-      const res = await service.updateProposalComments(proposalId, dto);
-      expect(res).toEqual({ ...mockActive, client_comments: dto.comment });
-
-      expect(mockPrisma.proposals.update).toHaveBeenCalledWith({
-        where: { proposal_id: proposalId },
-        data: { client_comments: dto.comment },
-      });
-    });
-
-    it('should throw NotFoundException when proposal is not active', async () => {
-      const proposalId = 'prop-missing';
-      jest
-        .spyOn(service, 'findActiveProposal')
-        .mockRejectedValue(new NotFoundException());
-      await expect(
-        service.updateProposalComments(proposalId, { comment: 'x' }),
-      ).rejects.toBeInstanceOf(NotFoundException);
-    });
-  });
-
   describe('updateProposalStatus', () => {
     it('should update proposal status successfully from PENDING to ACCEPTED', async () => {
       const proposalId = 'prop-update-status-1';
@@ -366,7 +327,7 @@ describe('ProposalsService', () => {
       ).rejects.toBeInstanceOf(NotFoundException);
     });
 
-    it('should update when findActiveProposal returns ACCEPTED (legacy behavior)', async () => {
+    it('should throw ConflictException when findActiveProposal returns ACCEPTED (terminal status)', async () => {
       const proposalId = 'prop-accepted';
       const mockAccepted = {
         proposal_id: proposalId,
@@ -381,23 +342,14 @@ describe('ProposalsService', () => {
       jest
         .spyOn(service, 'findActiveProposal')
         .mockResolvedValue(mockAccepted as any);
-      mockPrisma.proposals.update.mockResolvedValue({
-        ...mockAccepted,
-        proposal_status: dto.proposalStatus,
-      });
 
-      const res = await service.updateProposalStatus(proposalId, dto);
-      expect(res).toEqual({
-        ...mockAccepted,
-        proposal_status: dto.proposalStatus,
-      });
-      expect(mockPrisma.proposals.update).toHaveBeenCalledWith({
-        where: { proposal_id: proposalId },
-        data: { proposal_status: dto.proposalStatus },
-      });
+      await expect(
+        service.updateProposalStatus(proposalId, dto),
+      ).rejects.toBeInstanceOf(ConflictException);
+      expect(mockPrisma.proposals.update).not.toHaveBeenCalled();
     });
 
-    it('should update when findActiveProposal returns REJECTED (legacy behavior)', async () => {
+    it('should throw ConflictException when findActiveProposal returns REJECTED (terminal status)', async () => {
       const proposalId = 'prop-rejected';
       const mockRejected = {
         proposal_id: proposalId,
@@ -412,20 +364,11 @@ describe('ProposalsService', () => {
       jest
         .spyOn(service, 'findActiveProposal')
         .mockResolvedValue(mockRejected as any);
-      mockPrisma.proposals.update.mockResolvedValue({
-        ...mockRejected,
-        proposal_status: dto.proposalStatus,
-      });
 
-      const res = await service.updateProposalStatus(proposalId, dto);
-      expect(res).toEqual({
-        ...mockRejected,
-        proposal_status: dto.proposalStatus,
-      });
-      expect(mockPrisma.proposals.update).toHaveBeenCalledWith({
-        where: { proposal_id: proposalId },
-        data: { proposal_status: dto.proposalStatus },
-      });
+      await expect(
+        service.updateProposalStatus(proposalId, dto),
+      ).rejects.toBeInstanceOf(ConflictException);
+      expect(mockPrisma.proposals.update).not.toHaveBeenCalled();
     });
   });
 
@@ -471,6 +414,101 @@ describe('ProposalsService', () => {
 
       expect(typeof res).toBe('string');
       expect(res).toBe('prop_select_check');
+    });
+  });
+
+  describe('findProposalsForUser', () => {
+    const mockUser = {
+      user_id: 'user-1',
+      email: 'user@test.com',
+      first_name: 'Jane',
+      last_name: 'Doe',
+      role: UserRoles.CREATOR,
+    };
+
+    it('should return pending proposals for the active campaigns of the user', async () => {
+      const campaigns = [{ campaign_id: 'camp-1' }, { campaign_id: 'camp-2' }];
+      const proposals = [
+        {
+          proposal_id: 'prop-1',
+          campaign_id: 'camp-1',
+          proposal_status: ProposalStatus.PENDING,
+        },
+        {
+          proposal_id: 'prop-2',
+          campaign_id: 'camp-2',
+          proposal_status: ProposalStatus.PENDING,
+        },
+      ];
+
+      mockUserService.getActiveUserById.mockResolvedValue(mockUser as any);
+      mockCampaignService.findAllActiveCampaignsNoQuery.mockResolvedValue(
+        campaigns,
+      );
+      jest
+        .spyOn(service, 'findProposalByCampaignId')
+        .mockImplementation((campaignId: string) =>
+          Promise.resolve(
+            proposals.find((p) => p.campaign_id === campaignId) as any,
+          ),
+        );
+
+      const res = await service.findProposalsForUser('user-1');
+
+      expect(res).toEqual(proposals);
+      expect(mockUserService.getActiveUserById).toHaveBeenCalledWith('user-1');
+      expect(
+        mockCampaignService.findAllActiveCampaignsNoQuery,
+      ).toHaveBeenCalledWith('user-1');
+      expect(service.findProposalByCampaignId).toHaveBeenNthCalledWith(
+        1,
+        'camp-1',
+        true,
+      );
+      expect(service.findProposalByCampaignId).toHaveBeenNthCalledWith(
+        2,
+        'camp-2',
+        true,
+      );
+    });
+
+    it('should return an empty array when the user has no active campaigns', async () => {
+      mockUserService.getActiveUserById.mockResolvedValue(mockUser as any);
+      mockCampaignService.findAllActiveCampaignsNoQuery.mockResolvedValue([]);
+
+      const res = await service.findProposalsForUser('user-1');
+
+      expect(res).toEqual([]);
+      expect(
+        mockCampaignService.findAllActiveCampaignsNoQuery,
+      ).toHaveBeenCalledWith('user-1');
+    });
+
+    it('should throw NotFoundException when the user is not found', async () => {
+      mockUserService.getActiveUserById.mockRejectedValue(
+        new NotFoundException(),
+      );
+
+      await expect(
+        service.findProposalsForUser('missing-user'),
+      ).rejects.toBeInstanceOf(NotFoundException);
+      expect(
+        mockCampaignService.findAllActiveCampaignsNoQuery,
+      ).not.toHaveBeenCalled();
+    });
+
+    it('should propagate NotFoundException when a campaign has no pending proposal', async () => {
+      mockUserService.getActiveUserById.mockResolvedValue(mockUser as any);
+      mockCampaignService.findAllActiveCampaignsNoQuery.mockResolvedValue([
+        { campaign_id: 'camp-1' },
+      ]);
+      jest
+        .spyOn(service, 'findProposalByCampaignId')
+        .mockRejectedValue(new NotFoundException());
+
+      await expect(
+        service.findProposalsForUser('user-1'),
+      ).rejects.toBeInstanceOf(NotFoundException);
     });
   });
 });
