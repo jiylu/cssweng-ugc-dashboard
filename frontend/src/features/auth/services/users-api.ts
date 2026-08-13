@@ -1,4 +1,8 @@
 import { API_BASE_URL } from "@/src/config/api";
+import {
+  authUserSchema,
+  type AuthUser,
+} from "@/src/features/auth/schemas/auth-user.schema";
 
 export type CreateUserPayload = {
   email: string;
@@ -75,16 +79,13 @@ export type LoginUserPayload = {
 };
 
 export type LoginUserResponse = {
-  user: {
-    user_id: string;
-    email: string;
-    first_name: string;
-    last_name: string;
-    role: "CLIENT" | "CREATOR";
-  };
+  user: AuthUser;
 };
 
-export type CreatedUser = LoginUserResponse["user"];
+export type CreatedUser = Pick<
+  AuthUser,
+  "user_id" | "email" | "first_name" | "last_name" | "role"
+>;
 
 type ApiErrorBody = {
   message?: string | string[];
@@ -125,7 +126,7 @@ export async function createUser(
   if (!response.ok) {
     throw new Error(await parseApiError(response, "Unable to create account."));
   }
-  return response.json();
+  return response.json() as Promise<CreatedUser>;
 }
 
 export async function assignClientToCampaign(
@@ -167,5 +168,12 @@ export async function loginUser(
     throw new Error(await parseApiError(response, "Unable to login."));
   }
 
-  return response.json();
+  const body = (await response.json()) as { user?: unknown };
+  const user = authUserSchema.safeParse(body.user);
+
+  if (!user.success) {
+    throw new Error("Unable to validate logged-in user.");
+  }
+
+  return { user: user.data };
 }

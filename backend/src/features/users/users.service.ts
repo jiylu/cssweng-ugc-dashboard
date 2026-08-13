@@ -19,6 +19,8 @@ import { UpdateOwnProfileDTO } from './dto/update-own-profile.dto';
 
 @Injectable()
 export class UserService {
+  static readonly DEFAULT_PROFILE_PICTURE_URL =
+    'https://www.clipartmax.com/png/full/449-4492509_lefroy-ice-breakers-minor-hockey-tournament-sorry-no-image-available.png';
   constructor(
     private prisma: PrismaService,
     private supabase: SupabaseService,
@@ -307,14 +309,53 @@ export class UserService {
   }
 
   async updateOwnProfile(userId: string, dto: UpdateOwnProfileDTO) {
-    await this.getActiveUserById(userId);
+    const currentUser = await this.getActiveUserById(userId);
+    const email = dto.email.trim().toLowerCase();
+
+    if (email !== currentUser.email) {
+      const existingUser = await this.findActiveUserByEmail(email);
+      if (existingUser && existingUser.user_id !== userId) {
+        throw new ConflictException({
+          code: 'EMAIL_ALREADY_EXISTS',
+          message: 'Email already exists',
+        });
+      }
+
+      const { error } =
+        await this.supabase.adminClient.auth.admin.updateUserById(userId, {
+          email,
+          email_confirm: true,
+        });
+      if (error) {
+        throw new BadRequestException({
+          code: 'AUTH_EMAIL_UPDATE_FAILED',
+          message: error.message,
+        });
+      }
+    }
 
     return this.prisma.user.update({
       where: { user_id: userId },
       data: {
+        email,
         first_name: dto.firstName.trim(),
         last_name: dto.lastName.trim(),
+        middle_name: dto.middleName.trim(),
+        display_name: dto.displayName.trim(),
+        primary_handle: dto.primaryHandle.trim(),
+        bio: dto.bio.trim(),
+        phone_number: dto.phoneNumber,
+        timezone: dto.timezone,
       },
+    });
+  }
+
+  async updateProfilePicture(userId: string, profilePictureUrl: string) {
+    await this.getActiveUserById(userId);
+
+    return this.prisma.user.update({
+      where: { user_id: userId },
+      data: { profile_picture_url: profilePictureUrl },
     });
   }
 

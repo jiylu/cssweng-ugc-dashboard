@@ -22,4 +22,7 @@ export class ProposalsEntity {
 
   @Expose()
   proposal_status: ProposalStatus;
+
+  @Expose()
+  client_comments?: string;
 }

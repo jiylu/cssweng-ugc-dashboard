@@ -10,9 +10,10 @@ import { UserController } from './users.controller';
 import { SupabaseModule } from 'src/shared/supabase/supabase.module';
 import { AuthSessionMiddleware } from './middleware/auth-session.middleware';
 import { OtpModule } from '../otp/otp.module';
+import { SupabaseStorageModule } from 'src/shared/supabase-storage/supabase-storage.module';
 
 @Module({
-  imports: [PrismaModule, SupabaseModule, OtpModule],
+  imports: [PrismaModule, SupabaseModule, SupabaseStorageModule, OtpModule],
   providers: [UserService, AuthSessionMiddleware],
   controllers: [UserController],
   exports: [UserService],
@@ -24,6 +25,8 @@ export class UsersModule implements NestModule {
       .forRoutes(
         { path: 'users/me', method: RequestMethod.GET },
         { path: 'users/me', method: RequestMethod.PATCH },
+        { path: 'users/me/profile-picture', method: RequestMethod.POST },
+        { path: 'users/me/profile-picture', method: RequestMethod.DELETE },
       );
   }
 }
