@@ -51,17 +51,18 @@ export default function SignContractModal({ contractPublicId }: SignContractModa
           Accept and Sign Contract
         </Button>
       </DialogTrigger>
-      <DialogContent className="min-w-xl max-w-3xl bg-[#f2f0ea]">
+      <DialogContent className="max-h-[90vh] min-w-xl max-w-3xl overflow-y-auto bg-[#f2f0ea]">
         <DialogHeader>
           <DialogTitle
-            className="text-[#6b1fa8] text-xl font-normal"
+            className="text-xl font-normal text-[#6b1fa8]"
           >
             Adopt Your Signature
           </DialogTitle>
+        </DialogHeader>
 
-          <Card
-            className="rounded-none p-3.5"
-          >
+        <Card
+          className="flex flex-col gap-4 rounded-none p-4"
+        >
             <span className="text-[#78746e] font-light">Confirm your name, initials, and signature</span>
             <div className="flex gap-6">
               <Field className="flex flex-col gap-1.5">
@@ -131,7 +132,6 @@ export default function SignContractModal({ contractPublicId }: SignContractModa
             </div>
             
           </Card>
-        </DialogHeader>
       </DialogContent>
     </Dialog>
   )
