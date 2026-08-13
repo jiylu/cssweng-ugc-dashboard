@@ -7,7 +7,12 @@ import {
   Post,
   Req,
   Res,
+  Delete,
+  UploadedFile,
+  UseInterceptors,
+  BadRequestException,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import type { Response } from 'express';
 import { UserService } from './users.service';
 import { LoginUserDTO } from './dto/login-user.dto';
@@ -19,10 +24,14 @@ import type { AuthenticatedRequest } from './types/authenticated-request.types';
 import { CreateUserTransactionDTO } from './dto/create-user-transaction.dto';
 import { ApiCreateUser } from './docs/users.controller.swagger';
 import { UpdateOwnProfileDTO } from './dto/update-own-profile.dto';
+import { SupabaseStorageService } from 'src/shared/supabase-storage/supabase-storage.service';
 
 @Controller('users')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly storageService: SupabaseStorageService,
+  ) {}
   // TODO: Safeguard
   @ApiCreateUser()
   @Post()
@@ -64,6 +73,39 @@ export class UserController {
   @Patch('me')
   updateMe(@Req() req: AuthenticatedRequest, @Body() dto: UpdateOwnProfileDTO) {
     return this.userService.updateOwnProfile(req.authUser.user_id, dto);
+  }
+
+  @Post('me/profile-picture')
+  @UseInterceptors(
+    FileInterceptor('file', { limits: { fileSize: 5 * 1024 * 1024 } }),
+  )
+  async uploadProfilePicture(
+    @Req() req: AuthenticatedRequest,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    if (!file?.mimetype.startsWith('image/')) {
+      throw new BadRequestException({
+        code: 'IMAGE_REQUIRED',
+        message: 'Upload a valid image file.',
+      });
+    }
+
+    const upload = await this.storageService.upload(
+      file,
+      `profile-pictures/${req.authUser.user_id}`,
+    );
+    return this.userService.updateProfilePicture(
+      req.authUser.user_id,
+      upload.publicUrl,
+    );
+  }
+
+  @Delete('me/profile-picture')
+  removeProfilePicture(@Req() req: AuthenticatedRequest) {
+    return this.userService.updateProfilePicture(
+      req.authUser.user_id,
+      UserService.DEFAULT_PROFILE_PICTURE_URL,
+    );
   }
 
   @Post('logout')

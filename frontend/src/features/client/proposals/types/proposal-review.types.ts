@@ -29,7 +29,7 @@ export interface ProposalRecord {
   public_id: string;
   campaign_id: string;
   client_email: string;
-  client_comments: string;
+  client_comments?: string;
   proposal_status: "PENDING" | "FOR_REVISION" | "REJECTED" | "ACCEPTED";
 }
 

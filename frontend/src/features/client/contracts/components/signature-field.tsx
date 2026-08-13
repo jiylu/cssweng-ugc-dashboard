@@ -114,7 +114,7 @@ export default function SignatureField({
                 const signature = sigRef.current
                 if (!signature || signature.isEmpty()) return
 
-                onChange?.(getTrimmedCanvas(signature.getCanvas()).toDataURL("image/png"))
+                onChange?.(signature.getCanvas().toDataURL("image/png"))
               }}
             />
           )}

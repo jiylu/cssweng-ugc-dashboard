@@ -85,7 +85,7 @@ export default function ClientProposalReview() {
 
   const data = proposalQuery.data;
   const currency = data.campaign.currency;
-  const displayedFeedback = feedback ?? data.proposal.client_comments;
+  const displayedFeedback = feedback ?? data.proposal.client_comments ?? "";
 
   const handleReviseProposal = async () => {
     const comment = displayedFeedback.trim();

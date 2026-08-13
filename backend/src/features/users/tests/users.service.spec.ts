@@ -35,6 +35,13 @@ describe('UserService', () => {
         signInWithPassword: jest.fn(),
       },
     },
+    adminClient: {
+      auth: {
+        admin: {
+          updateUserById: jest.fn(),
+        },
+      },
+    },
   };
 
   const mockOtp = {
@@ -390,12 +397,32 @@ describe('UserService', () => {
       service.updateOwnProfile('abc123', {
         firstName: ' Jane ',
         lastName: ' Smith ',
+        middleName: ' Q ',
+        displayName: ' Jane Smith ',
+        primaryHandle: 'jane.smith',
+        bio: ' Creator bio ',
+        email: 'john@test.com',
+        phoneNumber: '639123456789',
+        timezone: 'Asia/Manila',
       }),
     ).resolves.toEqual(updatedUser);
     expect(mockPrisma.user.update).toHaveBeenCalledWith({
       where: { user_id: 'abc123' },
-      data: { first_name: 'Jane', last_name: 'Smith' },
+      data: {
+        email: 'john@test.com',
+        first_name: 'Jane',
+        last_name: 'Smith',
+        middle_name: 'Q',
+        display_name: 'Jane Smith',
+        primary_handle: 'jane.smith',
+        bio: 'Creator bio',
+        phone_number: '639123456789',
+        timezone: 'Asia/Manila',
+      },
     });
+    expect(
+      mockSupabase.adminClient.auth.admin.updateUserById,
+    ).not.toHaveBeenCalled();
   });
 
   it('should deactivate a user', async () => {

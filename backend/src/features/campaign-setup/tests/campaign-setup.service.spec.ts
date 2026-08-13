@@ -41,10 +41,13 @@ describe('CampaignSetupService', () => {
   const mockProposalService = {
     createProposal: jest.fn(),
     findProposalByCampaignId: jest.fn(),
+    resolvePublicId: jest.fn(),
+    findActiveProposal: jest.fn(),
   };
 
   const mockProposalHistoryService = {
     createProposalHistory: jest.fn().mockResolvedValue({}),
+    findLatestVersion: jest.fn(),
   };
 
   const mockContractService = {
@@ -118,6 +121,50 @@ describe('CampaignSetupService', () => {
 
   afterEach(() => {
     jest.resetAllMocks();
+  });
+
+  describe('getFullCampaignDetailsByProposalPublicId', () => {
+    it('returns the latest proposal history comment for client review', async () => {
+      const proposal = {
+        proposal_id: 'proposal-1',
+        campaign_id: 'campaign-1',
+        public_id: 'public-1',
+      };
+      const details = {
+        campaign: { campaign_id: 'campaign-1' },
+        proposal,
+        deliverables: [],
+        contract: {},
+        addOns: [],
+        giftedProducts: [],
+      };
+
+      mockProposalService.resolvePublicId.mockResolvedValue('proposal-1');
+      mockProposalService.findActiveProposal.mockResolvedValue(proposal);
+      mockProposalHistoryService.findLatestVersion.mockResolvedValue({
+        client_comments: 'Please revise the delivery schedule.',
+      });
+      jest
+        .spyOn(service, 'getFullCampaignDetails')
+        .mockResolvedValue(
+          details as unknown as Awaited<
+            ReturnType<CampaignSetupService['getFullCampaignDetails']>
+          >,
+        );
+
+      await expect(
+        service.getFullCampaignDetailsByProposalPublicId('public-1'),
+      ).resolves.toEqual({
+        ...details,
+        proposal: {
+          ...proposal,
+          client_comments: 'Please revise the delivery schedule.',
+        },
+      });
+      expect(mockProposalHistoryService.findLatestVersion).toHaveBeenCalledWith(
+        'proposal-1',
+      );
+    });
   });
 
   describe('createFullCampaignService', () => {
