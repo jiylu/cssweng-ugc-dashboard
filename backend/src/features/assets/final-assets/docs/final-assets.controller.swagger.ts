@@ -11,10 +11,10 @@ export function ApiFindFinalAssetsForCampaign() {
         'Refer to the FinalAssetsEntity for the final asset shape.',
     }),
     ApiParam({
-      name: 'campaignId',
+      name: 'campaignPublicId',
       type: String,
-      description: 'Campaign ID',
-      example: '550e8400-e29b-41d4-a716-446655440000',
+      description: 'Public ID of the campaign',
+      example: '9eGSafYL98',
     }),
     ApiResponse({
       status: 200,
