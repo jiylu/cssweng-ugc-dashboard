@@ -23,11 +23,11 @@ export function PriceSummarySection({ baseCreatorFee, currency = "PHP", taxRate 
       <div className="flex flex-col gap-3">
         <div className="flex justify-between text-sm text-foreground">
           <span>Base Creator Fee</span>
-          <span>{formatPHP(baseCreatorFee)}</span>
+          <span className="font-semibold">{formatPHP(baseCreatorFee)}</span>
         </div>
         <div className="flex justify-between text-sm text-foreground">
           <span>Tax ({taxRate}%)</span>
-          <span>{formatPHP(tax)}</span>
+          <span className="font-semibold">{formatPHP(tax)}</span>
         </div>
 
         <div className="border border-[#6b1fa8] rounded-[3px] p-4 flex flex-col items-center gap-1 mt-2">

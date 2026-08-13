@@ -22,24 +22,24 @@ export function SummaryFooter({ onEdit, onSaveDraft, onSubmit, isPending, isSavi
                 <Button
                     variant="outline"
                     onClick={onEdit}
-                    className="flex items-center gap-2"
+                    className="flex items-center gap-2 p-5"
                 >
-                    <Pencil size={16} /> Edit
+                    <Pencil size={16} className="-mt-1" /> Edit
                 </Button>
                 <Button
                     variant="outline"
                     onClick={onSaveDraft}
                     disabled={isSavingDraft || isPending}
-                    className="flex items-center gap-2"
+                    className="flex items-center gap-2 p-5"
                 >
-                    <Save size={16} /> {isSavingDraft ? "Saving..." : "Save Draft"}
+                    <Save size={16} className="-mt-1" /> {isSavingDraft ? "Saving..." : "Save Draft"}
                 </Button>
                 <Button
                     onClick={() => setModalOpen(true)}
                     disabled={isPending}
-                    className="bg-[#6b1fa8] hover:bg-[#5a1a8f] text-white flex items-center gap-2"
+                    className="bg-[#6b1fa8] hover:bg-[#5a1a8f] text-white flex items-center gap-2  p-5"
                 >
-                    {isPending ? "Submitting..." : "Review Contract Terms"} <ArrowRight size={16} />
+                    {isPending ? "Submitting..." : "Review Contract Terms"} <ArrowRight size={16} className="-mt-1" />
                 </Button>
             </div>
 

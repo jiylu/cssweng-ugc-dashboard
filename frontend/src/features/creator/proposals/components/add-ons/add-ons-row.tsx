@@ -33,7 +33,12 @@ export function AddOnRow({ item, index, errors, currency, onToggle, onRemove, on
                     value={item.title}
                     disabled={item.isPermanent}
                     onChange={(e) => onTitleChange?.(e.target.value)}
-                    className="w-full h-[40px] bg-white border border-border rounded-[3px] text-sm text-foreground shadow-none placeholder:italic disabled:bg-white"
+                    // Dynamic text color: foreground if checked, muted-foreground if unchecked
+                    className={`w-full h-[40px] border border-border rounded-[3px] text-sm shadow-none placeholder:italic ${
+                        item.isPermanent 
+                            ? `!bg-gray-100 !opacity-100 [-webkit-text-fill-color:currentColor] ${item.isEnabled ? '!text-foreground' : '!text-muted-foreground'}` 
+                            : 'bg-white text-foreground'
+                    }`}
                 />
                 {e('title') && <p className="text-xs mt-1 text-[#ff6467]">{e('title')}</p>}
             </div>
@@ -52,7 +57,11 @@ export function AddOnRow({ item, index, errors, currency, onToggle, onRemove, on
                         target.style.height = target.scrollHeight + 'px';
                     }}
                     onChange={(e) => onDescChange?.(e.target.value)}
-                    className="w-full min-h-[40px] bg-white border border-border rounded-[3px] text-sm text-foreground placeholder:text-muted-foreground placeholder:italic resize-none break-words overflow-hidden"
+                    className={`w-full min-h-[40px] border border-border rounded-[3px] text-sm placeholder:italic resize-none break-words overflow-hidden ${
+                        isDisabled
+                            ? '!bg-gray-100 !text-muted-foreground !opacity-100 [-webkit-text-fill-color:currentColor]'
+                            : 'bg-white text-foreground placeholder:text-muted-foreground'
+                    }`}
                 />
                 {e('desc') && <p className="text-xs mt-1 text-[#ff6467]">{e('desc')}</p>}
             </div>
@@ -62,8 +71,12 @@ export function AddOnRow({ item, index, errors, currency, onToggle, onRemove, on
             
                 {/* Fee */}
                 <div className="flex flex-col w-full">
-                    <InputGroup className="h-[40px] border border-border flex items-center pr-2 bg-white rounded-[3px]">
-                        <InputGroupAddon className="text-sm pl-2 pr-1">{currency}</InputGroupAddon>
+                    <InputGroup className={`h-[40px] border border-border flex items-center pr-2 rounded-[3px] transition-colors ${isDisabled ? '!bg-gray-100 !opacity-100' : 'bg-white'}`}>
+                        
+                        <InputGroupAddon className={`text-sm pl-2 pr-1 ${isDisabled ? '!bg-gray-100 !text-muted-foreground !opacity-100' : 'bg-white'}`}>
+                            {currency}
+                        </InputGroupAddon>
+                        
                         <InputGroupInput
                             name="fee"
                             placeholder="Set a price"
@@ -73,17 +86,21 @@ export function AddOnRow({ item, index, errors, currency, onToggle, onRemove, on
                                 const val = parseFloat(e.target.value.replace(/[^0-9.]/g, '')) || 0
                                 onFeeChange?.(val)
                             }}
-                            className="border-0 p-0 h-auto text-sm shadow-none focus-visible:ring-0 focus:outline-none pr-2"
+                            className={`border-0 p-0 h-auto text-sm shadow-none focus-visible:ring-0 focus:outline-none pr-2 ${
+                                isDisabled 
+                                    ? '!bg-gray-100 !text-muted-foreground !opacity-100 [-webkit-text-fill-color:currentColor]' 
+                                    : 'bg-white text-foreground'
+                            }`}
                         />
                         <div className="flex flex-col shrink-0">
                             <ChevronUp 
                                 size={12}
-                                className="cursor-pointer text-muted-foreground hover:text-[#6b1fa8]"
-                                onClick={() => onAdjustPrice?.(100)} />
+                                className={`cursor-pointer text-muted-foreground hover:text-[#6b1fa8] ${isDisabled ? 'opacity-50 pointer-events-none' : ''}`}
+                                onClick={() => !isDisabled && onAdjustPrice?.(100)} />
                             <ChevronDown 
                                 size={12}
-                                className="cursor-pointer text-muted-foreground hover:text-[#6b1fa8]"
-                                onClick={() => onAdjustPrice?.(-100)} />
+                                className={`cursor-pointer text-muted-foreground hover:text-[#6b1fa8] ${isDisabled ? 'opacity-50 pointer-events-none' : ''}`}
+                                onClick={() => !isDisabled && onAdjustPrice?.(-100)} />
                         </div>
                     </InputGroup>
                     {e('fee') && <p className="text-xs mt-1 text-[#ff6467]">{e('fee')}</p>}
