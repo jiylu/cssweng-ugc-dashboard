@@ -25,6 +25,8 @@ import { CreateUserTransactionDTO } from './dto/create-user-transaction.dto';
 import { ApiCreateUser } from './docs/users.controller.swagger';
 import { UpdateOwnProfileDTO } from './dto/update-own-profile.dto';
 import { SupabaseStorageService } from 'src/shared/supabase-storage/supabase-storage.service';
+import { ForgotPasswordDTO } from './dto/forgot-password.dto';
+import { ResetPasswordDTO } from './dto/reset-password.dto';
 
 @Controller('users')
 export class UserController {
@@ -63,6 +65,16 @@ export class UserController {
     return {
       user: data.user,
     };
+  }
+
+  @Post('forgot-password')
+  forgotPassword(@Body() dto: ForgotPasswordDTO) {
+    return this.userService.requestPasswordReset(dto);
+  }
+
+  @Post('reset-password')
+  resetPassword(@Body() dto: ResetPasswordDTO) {
+    return this.userService.resetPassword(dto);
   }
 
   @Get('me')

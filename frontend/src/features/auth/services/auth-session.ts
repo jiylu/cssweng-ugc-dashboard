@@ -99,3 +99,33 @@ export async function removeProfilePicture(): Promise<AuthUser> {
 
   return parseUpdatedUser(response);
 }
+
+export async function requestPasswordReset(email: string) {
+  const response = await fetch(`${API_BASE_URL}/users/forgot-password`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email }),
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      await parseApiError(response, "Unable to request a reset link."),
+    );
+  }
+
+  return response.json() as Promise<{ message: string }>;
+}
+
+export async function resetPassword(accessToken: string, password: string) {
+  const response = await fetch(`${API_BASE_URL}/users/reset-password`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ accessToken, password }),
+  });
+
+  if (!response.ok) {
+    throw new Error(await parseApiError(response, "Unable to reset password."));
+  }
+
+  return response.json() as Promise<{ message: string }>;
+}
