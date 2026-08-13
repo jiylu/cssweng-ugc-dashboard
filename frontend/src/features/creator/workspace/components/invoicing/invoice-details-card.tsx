@@ -17,6 +17,7 @@ interface InvoiceDetailsCardProps {
 
 export function InvoiceDetailsCard({ campaignId }: InvoiceDetailsCardProps) {
   const [payment, setPayment] = useState<Payment | null>(null)
+  const [checked, setChecked] = useState(false)
   const [isLoadingInvoice, setIsLoadingInvoice] = useState(false)
   const [isSending, setIsSending] = useState(false)
 
@@ -25,10 +26,11 @@ export function InvoiceDetailsCard({ campaignId }: InvoiceDetailsCardProps) {
     try {
       const result = await getPaymentForCampaign(campaignId)
       setPayment(result)
+      setChecked(true)
       if (result) {
         toast.success("Invoice loaded.")
       } else {
-        toast.info("No invoice has been issued for this campaign yet.")
+        toast.info("No client payment yet.")
       }
     } catch (error) {
       toast.error(
@@ -47,7 +49,7 @@ export function InvoiceDetailsCard({ campaignId }: InvoiceDetailsCardProps) {
         current = await getPaymentForCampaign(campaignId)
       }
       if (!current) {
-        toast.error("No invoice record found for this campaign.")
+        toast.error("No client payment yet to send.")
         return
       }
       const validated = await validatePayment(current.public_id)
@@ -78,6 +80,12 @@ export function InvoiceDetailsCard({ campaignId }: InvoiceDetailsCardProps) {
           invoice to the client. Be sure to review the invoice carefully
           before submitting it.
         </p>
+
+        {checked && !payment && (
+          <p className="text-xs text-muted-foreground">
+            No client payment yet.
+          </p>
+        )}
 
         {payment && (
           <div className="flex flex-col gap-1 w-full max-w-64 rounded-[3px] border border-border px-3 py-2 text-xs text-muted-foreground">

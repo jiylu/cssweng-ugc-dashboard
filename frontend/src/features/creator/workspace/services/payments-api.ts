@@ -19,7 +19,8 @@ export async function getPaymentForCampaign(
   if (!response.ok) {
     throw new Error(await parseApiError(response, "Unable to fetch invoice."))
   }
-  return response.json()
+  const text = await response.text()
+  return text ? JSON.parse(text) : null
 }
 
 export async function validatePayment(paymentPublicId: string): Promise<Payment> {
@@ -27,7 +28,6 @@ export async function validatePayment(paymentPublicId: string): Promise<Payment>
     `${API_BASE_URL}/payments/validate/${encodeURIComponent(paymentPublicId)}`,
     { method: "PATCH", credentials: "include" },
   )
-  console.log(response)
   if (!response.ok) {
     throw new Error(await parseApiError(response, "Unable to send invoice."))
   }
