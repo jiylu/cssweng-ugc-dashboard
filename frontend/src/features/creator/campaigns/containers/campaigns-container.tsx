@@ -17,7 +17,7 @@ export default function Campaigns() {
   const [page, setPage] = useState(1)
   const [activeTab, setActiveTab] = useState("ALL")
   const { data, isLoading, isError } = useCampaigns(user?.user_id ?? "", page)
-  const { approvedCampaigns, isLoading: proposalsLoading } = useApprovedCampaigns(data)
+  const { approvedCampaigns, proposalClients, isLoading: proposalsLoading } = useApprovedCampaigns(data)
   const filteredCampaigns = approvedCampaigns.filter(
     (campaign) => activeTab === "ALL" || campaign.campaign_status === activeTab,
   )
@@ -63,7 +63,7 @@ export default function Campaigns() {
 
               {/* Campaign List */}
               {/* TODO: Make total dynamic */}
-              <CampaignList campaigns={filteredCampaigns} page={page} onPageChange={setPage} />
+              <CampaignList campaigns={filteredCampaigns} clientNames={proposalClients} page={page} onPageChange={setPage} />
             </div>
         </section>
     </main>

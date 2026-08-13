@@ -13,16 +13,17 @@ const statusStyles: Record<string, string> = {
 
 interface CampaignCardProps {
   campaign: Campaign
+  clientName?: string
   onOpenWorkspace: (id: string) => void
 }
 
-export function CampaignCard({ campaign, onOpenWorkspace }: CampaignCardProps) {
+export function CampaignCard({ campaign, clientName, onOpenWorkspace }: CampaignCardProps) {
   return (
     <Card className="flex flex-row items-center justify-between px-6 py-4 h-20">
-      {/* Name & Company */}
+      {/* Name & Client */}
       <div className="w-48 shrink-0">
         <p className="font-normal text-foreground break-words min-w-0">{campaign.project_name}</p>
-        <p className="text-sm text-muted-foreground">{campaign.currency}</p>
+        <p className="text-sm text-muted-foreground">{clientName ?? campaign.currency}</p>
       </div>
 
       {/* Divider */}

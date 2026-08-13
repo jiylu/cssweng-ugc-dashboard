@@ -19,6 +19,17 @@ export function useApprovedCampaigns(campaigns: Campaign[] | undefined) {
     (campaign, index) =>
       proposalResults[index]?.data?.proposal_status === ACCEPTED_PROPOSAL_STATUS,
   )
+  const proposalClients = (campaigns ?? []).reduce<Record<string, string>>(
+    (acc, campaign, index) => {
+      const client = proposalResults[index]?.data
+      if (client) {
+        acc[campaign.public_id] =
+          `${client.client_first_name} ${client.client_last_name}`.trim()
+      }
+      return acc
+    },
+    {},
+  )
 
-  return { approvedCampaigns, isLoading }
+  return { approvedCampaigns, proposalClients, isLoading }
 }

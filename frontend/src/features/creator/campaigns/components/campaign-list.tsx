@@ -13,12 +13,13 @@ import {
 
 interface CampaignListProps {
   campaigns: Campaign[]
+  clientNames?: Record<string, string>
   page: number
   onPageChange: (page: number) => void
 }
 
 
-export function CampaignList({ campaigns, page, onPageChange }: CampaignListProps) {
+export function CampaignList({ campaigns, clientNames, page, onPageChange }: CampaignListProps) {
   const router = useRouter()
   const limit = CAMPAIGNS_PAGE_SIZE
   
@@ -28,6 +29,7 @@ export function CampaignList({ campaigns, page, onPageChange }: CampaignListProp
         <CampaignCard
           key={campaign.public_id}
           campaign={campaign}
+          clientName={clientNames?.[campaign.public_id]}
           onOpenWorkspace={(id) => router.push(`/workspace/${id}`)}
         />
       ))}
