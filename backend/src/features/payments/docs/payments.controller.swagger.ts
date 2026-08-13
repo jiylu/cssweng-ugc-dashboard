@@ -104,6 +104,42 @@ export function ApiFindPaymentForCampaign() {
     ApiResponse({
       status: 200,
       description: 'Latest payment for the campaign retrieved successfully.',
+      schema: {
+        type: 'object',
+        nullable: true,
+        properties: {
+          public_id: {
+            type: 'string',
+            description: 'Public-facing identifier of the payment',
+            example: 'mQlnVSBb0t',
+          },
+          proof_payment_url: {
+            type: 'string',
+            description: 'URL of the uploaded proof-of-payment file',
+            example:
+              'https://storage.supabase.co/payments/proof-of-payment.png',
+          },
+          is_payment_verified: {
+            type: 'boolean',
+            description: 'Whether the payment has been validated',
+            example: false,
+          },
+          created_at: {
+            type: 'string',
+            format: 'date-time',
+            description: 'Timestamp the payment record was created',
+            example: '2026-08-13T10:00:00.000Z',
+          },
+          verified_at: {
+            type: 'string',
+            format: 'date-time',
+            nullable: true,
+            description:
+              'Timestamp the payment was validated, or null if not yet verified',
+            example: null,
+          },
+        },
+      },
     }),
     ApiResponse({
       status: 404,

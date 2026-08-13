@@ -291,7 +291,7 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
             )}
 
             {activeStep === 2 && (
-              <InvoiceDetailsCard />
+              <InvoiceDetailsCard campaignId={campaignId} />
             )}
 
             {activeStep === 3 && (
