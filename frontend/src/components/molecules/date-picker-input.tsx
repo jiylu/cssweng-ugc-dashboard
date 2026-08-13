@@ -11,10 +11,25 @@ interface DatePickerInputProps {
   onChange: (iso: string) => void
   placeholder?: string
   minDate?: Date
+  maxDate?: Date
 }
 
-export function DatePickerInput({ value, onChange, placeholder = "mm/dd/yyyy", minDate }: DatePickerInputProps) {
-  const { selectedDate, open, setOpen, month, setMonth, inputText, setInputText, handleTextChange } = useDatePickerInput(value, onChange, minDate)
+export function DatePickerInput({ value, onChange, placeholder = "mm/dd/yyyy", minDate, maxDate }: DatePickerInputProps) {
+  const { selectedDate, open, setOpen, month, setMonth, inputText, setInputText, handleTextChange } = useDatePickerInput(value, onChange, minDate, maxDate)
+  const isBeforeMinimum = (date: Date) => {
+    if (!minDate) return false
+
+    const selectedDay = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate())
+    const minimumDay = Date.UTC(minDate.getFullYear(), minDate.getMonth(), minDate.getDate())
+    return selectedDay < minimumDay
+  }
+  const isAfterMaximum = (date: Date) => {
+    if (!maxDate) return false
+
+    const selectedDay = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate())
+    const maximumDay = Date.UTC(maxDate.getFullYear(), maxDate.getMonth(), maxDate.getDate())
+    return selectedDay > maximumDay
+  }
 
   return (
     <InputGroup className="border-muted">
@@ -43,15 +58,19 @@ export function DatePickerInput({ value, onChange, placeholder = "mm/dd/yyyy", m
               selected={selectedDate}
               month={month}
               onMonthChange={setMonth}
-              disabled={minDate ? { before: minDate } : undefined}
+              disabled={[
+                ...(minDate ? [{ before: minDate }] : []),
+                ...(maxDate ? [{ after: maxDate }] : []),
+              ]}
               onSelect={(date: Date | undefined) => {
+              if (date && (isBeforeMinimum(date) || isAfterMaximum(date))) return
+
               if (date) {
                 console.log("raw date from calendar:", date.toString())
                 console.log("date parts:", date.getFullYear(), date.getMonth(), date.getDate())
                 const utc = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()))
                 console.log("formatDate result:", formatDate(utc))
                 onChange(utc.toISOString())
-                setInputText(formatDate(utc))
               } else {
                 onChange("")
                 setInputText("")

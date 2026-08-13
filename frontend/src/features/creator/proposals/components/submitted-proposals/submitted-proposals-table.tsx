@@ -89,7 +89,8 @@ export function SubmittedProposalsTable({ proposals, onView, onSendReminder, onC
                                     <div className="flex items-center justify-end gap-3">
                                     <button
                                         type="button"
-                                        aria-label="View proposal"
+                                        aria-label="Preview"
+                                        title="Preview"
                                         onClick={() => onView(proposal.id)}
                                         className="text-foreground hover:text-[#6b1fa8]"
                                     >
@@ -99,7 +100,8 @@ export function SubmittedProposalsTable({ proposals, onView, onSendReminder, onC
                                         <>
                                         <button
                                             type="button"
-                                            aria-label="Send reminder"
+                                            aria-label="Update/follow-up client"
+                                            title="Update/follow-up client"
                                             onClick={() => onSendReminder(proposal.id)}
                                             className="text-foreground hover:text-[#6b1fa8]"
                                         >
@@ -107,7 +109,8 @@ export function SubmittedProposalsTable({ proposals, onView, onSendReminder, onC
                                         </button>
                                         <button
                                             type="button"
-                                            aria-label="Cancel proposal"
+                                            aria-label="Cancel"
+                                            title="Cancel"
                                             onClick={() => onCancel(proposal)}
                                             className="text-foreground hover:text-[#ff6467]"
                                         >

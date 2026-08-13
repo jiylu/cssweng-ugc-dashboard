@@ -1,7 +1,7 @@
 import * as React from "react"
 import { isValidDate, formatDate } from "@/src/utils/date"
 
-export function useDatePickerInput(value: string, onChange: (iso: string) => void, minDate?: Date) {
+export function useDatePickerInput(value: string, onChange: (iso: string) => void, minDate?: Date, maxDate?: Date) {
   const selectedDate = React.useMemo(() => {
     if (!value) return undefined
     console.log("value received:", value)
@@ -48,8 +48,12 @@ function handleTextChange(e: React.ChangeEvent<HTMLInputElement>) {
       ? Date.UTC(minDate.getFullYear(), minDate.getMonth(), minDate.getDate())
       : undefined
     const isOnOrAfterMinimum = minimumUtc === undefined || utc.getTime() >= minimumUtc
+    const maximumUtc = maxDate
+      ? Date.UTC(maxDate.getFullYear(), maxDate.getMonth(), maxDate.getDate())
+      : undefined
+    const isOnOrBeforeMaximum = maximumUtc === undefined || utc.getTime() <= maximumUtc
 
-    if (isValidDate(utc) && isExact && isOnOrAfterMinimum) {
+    if (isValidDate(utc) && isExact && isOnOrAfterMinimum && isOnOrBeforeMaximum) {
       setMonth(utc)
       onChange(utc.toISOString())
     } else {

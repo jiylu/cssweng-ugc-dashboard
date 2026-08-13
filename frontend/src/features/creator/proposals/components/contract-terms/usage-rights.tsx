@@ -81,14 +81,21 @@ export function UsageRights({
             <InputGroup className="border border-border p-1 rounded-[3px] bg-white w-full">
               <InputGroupInput
                 type="number"
+                min={1}
+                max={120}
                 value={contentRetention}
-                onChange={(e) => setContentRetention(Math.max(1, Number(e.target.value)))}
+                onChange={(e) => setContentRetention(Math.min(120, Math.max(1, Number(e.target.value))))}
                 className="border-0 p-0 h-auto text-sm shadow-none focus-visible:ring-0 px-2 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               />
               <InputGroupAddon align="inline-end">MONTHS</InputGroupAddon>
               <InputGroupAddon align="inline-end">
                 <div className="flex flex-col shrink-0 px-1.5">
-                  <ChevronUp size={12} className="cursor-pointer text-muted-foreground hover:text-foreground" onClick={() => setContentRetention(contentRetention + 1)} />
+                  <ChevronUp
+                    size={12}
+                    aria-disabled={contentRetention >= 120}
+                    className={contentRetention >= 120 ? "cursor-not-allowed text-muted-foreground opacity-40" : "cursor-pointer text-muted-foreground hover:text-foreground"}
+                    onClick={() => setContentRetention(Math.min(120, contentRetention + 1))}
+                  />
                   <ChevronDown size={12} className="cursor-pointer text-muted-foreground hover:text-foreground" onClick={() => setContentRetention(Math.max(1, contentRetention - 1))} />
                 </div>
               </InputGroupAddon>

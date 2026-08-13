@@ -27,6 +27,8 @@ export function CampaignDeliverablesContainer({ form, onNext }: CampaignDelivera
 
         <DeliverablesForm
             deliverables={form.deliverables}
+            campaignStartDate={form.startDate}
+            campaignEndDate={form.endDate}
             currency={form.currency}
             errors={form.errors}
             platformOptions={form.platforms.map((entry) => entry.platform)}

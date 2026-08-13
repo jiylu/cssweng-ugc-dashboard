@@ -11,6 +11,8 @@ import { ContentTypeSelect } from "@/src/features/creator/proposals/components/d
 interface DeliverableRowProps {
   item: Deliverable
   index: number
+  campaignStartDate: string
+  campaignEndDate: string
   deliverablesCount: number
   currency: string
   errors: Record<string, string>
@@ -20,8 +22,19 @@ interface DeliverableRowProps {
   onRemove: () => void
 }
 
-export function DeliverableRow({ item, index, deliverablesCount, currency, errors, canRemove, platformOptions, onUpdate, onRemove }: DeliverableRowProps) {
+function parseCalendarDate(value: string): Date | undefined {
+  const [year, month, day] = value.split("T")[0].split("-").map(Number)
+  if (!year || !month || !day) return undefined
+  return new Date(year, month - 1, day)
+}
+
+export function DeliverableRow({ item, index, campaignStartDate, campaignEndDate, deliverablesCount, currency, errors, canRemove, platformOptions, onUpdate, onRemove }: DeliverableRowProps) {
   const e = (field: string) => errors[`deliverables.${index}.${field}`]
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const campaignStart = parseCalendarDate(campaignStartDate)
+  const minimumDate = campaignStart && campaignStart > today ? campaignStart : today
+  const maximumDate = parseCalendarDate(campaignEndDate)
 
   return (
     <div className="flex flex-row items-center gap-4 w-full">
@@ -114,6 +127,8 @@ export function DeliverableRow({ item, index, deliverablesCount, currency, error
             <DatePickerInput
               value={item.draftDeadline}
               onChange={(iso) => onUpdate('draftDeadline', iso)}
+              minDate={minimumDate}
+              maxDate={maximumDate}
             />
             <p className="text-xs mt-1 text-[#ff6467] min-h-[16px]">{e('draftDeadline') ?? ""}</p>
           </div>
@@ -123,6 +138,8 @@ export function DeliverableRow({ item, index, deliverablesCount, currency, error
             <DatePickerInput
               value={item.postDate ?? ""}
               onChange={(iso) => onUpdate('postDate', iso)}
+              minDate={minimumDate}
+              maxDate={maximumDate}
             />
             <p className="text-xs mt-1 text-[#ff6467] min-h-[16px]">{e('postDate') ?? ""}</p>
           </div>
