@@ -18,6 +18,8 @@ interface VideoSubmissionProps {
   onSubmit: () => void
   onNext?: () => void
   isSubmitting?: boolean
+  accept?: string
+  multiple?: boolean
 }
 
 export function VideoSubmission({
@@ -31,6 +33,8 @@ export function VideoSubmission({
   onSubmit,
   onNext,
   isSubmitting,
+  accept,
+  multiple,
 }: VideoSubmissionProps) {
   const action = mediaAsset?.media_asset_action
   const isAwaitingReview = action === "PENDING"
@@ -80,7 +84,7 @@ export function VideoSubmission({
       ) : (
         <>
           {/* Dropzone */}
-          <FileDropzone onFileDrop={onFileDrop} />
+          <FileDropzone onFileDrop={onFileDrop} accept={accept} multiple={multiple} />
 
           {/* File List */}
           <div className="flex flex-col gap-2">

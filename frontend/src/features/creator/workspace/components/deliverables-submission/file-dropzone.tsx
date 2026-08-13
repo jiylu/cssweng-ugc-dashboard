@@ -3,9 +3,11 @@ import { useRef } from "react"
 
 interface FileDropzoneProps {
   onFileDrop: (files: FileList) => void
+  accept?: string
+  multiple?: boolean
 }
 
-export function FileDropzone({ onFileDrop }: FileDropzoneProps) {
+export function FileDropzone({ onFileDrop, accept, multiple = true }: FileDropzoneProps) {
   const inputRef = useRef<HTMLInputElement>(null)
   
   function handleDragOver(e: React.DragEvent) {
@@ -36,8 +38,8 @@ export function FileDropzone({ onFileDrop }: FileDropzoneProps) {
       <input
         ref={inputRef}
         type="file"
-        multiple
-        accept=".mp4,.mov,.jpg,.png"
+        multiple={multiple}
+        accept={accept}
         className="hidden"
         onChange={handleInputChange}
       />

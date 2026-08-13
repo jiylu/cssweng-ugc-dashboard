@@ -7,7 +7,9 @@ import { VideoSubmission } from "@/src/features/creator/workspace/components/del
 import type { MediaAsset } from "@/src/features/client/workspace/services/deliverable-submissions-api"
 import type { UploadedFile } from "../types/file-upload.types"
 
-const ALLOWED_EXTENSIONS = [".mp4", ".mov", ".jpg", ".png"]
+const ALL_EXTENSIONS = [".mp4", ".mov", ".jpg", ".png"]
+const VIDEO_EXTENSIONS = [".mp4", ".mov"]
+const SINGLE_VIDEO_TYPES = new Set(["video", "short", "reel"])
 
 interface VideoSubmissionContainerProps {
   version: number
@@ -15,6 +17,7 @@ interface VideoSubmissionContainerProps {
   onHistory: () => void
   deliverableItemPublicId?: string
   mediaAsset?: MediaAsset | null
+  contentType?: string
   onSubmit?: (files: UploadedFile[]) => void
   onNext?: () => void
 }
@@ -25,6 +28,7 @@ export function VideoSubmissionContainer({
   onHistory,
   deliverableItemPublicId,
   mediaAsset,
+  contentType,
   onSubmit,
   onNext,
 }: VideoSubmissionContainerProps) {
@@ -32,26 +36,47 @@ export function VideoSubmissionContainer({
   const { mutateAsync: submitMediaAsset, isPending: isSubmitting } =
     useSubmitMediaAsset()
 
+  const normalizedContentType = (contentType ?? "").trim().toLowerCase()
+  const isSingleVideo = SINGLE_VIDEO_TYPES.has(normalizedContentType)
+  const allowedExtensions = isSingleVideo ? VIDEO_EXTENSIONS : ALL_EXTENSIONS
+  const maxFiles = isSingleVideo ? 1 : Number.POSITIVE_INFINITY
+
   useEffect(() => {
     onDirtyChange(files.length > 0)
     return () => onDirtyChange(false)
   }, [files.length, onDirtyChange])
 
+  const formatExtensions = (extensions: string[]) =>
+    extensions.length <= 1
+      ? extensions.join("")
+      : `${extensions.slice(0, -1).join(", ")} and ${extensions[extensions.length - 1]}`
+
   const handleFileDrop = (fileList: FileList | File[]) => {
-    const files = Array.from(fileList)
+    const dropped = Array.from(fileList)
     const allowed = (file: File) =>
-      ALLOWED_EXTENSIONS.some((ext) => file.name.toLowerCase().endsWith(ext))
-    const rejected = files.filter((file) => !allowed(file))
+      allowedExtensions.some((ext) => file.name.toLowerCase().endsWith(ext))
+    const rejected = dropped.filter((file) => !allowed(file))
 
     if (rejected.length > 0) {
       toast.error(
-        `Only .mp4, .mov, .jpg and .png files are allowed. Skipped: ${rejected
+        `Only ${formatExtensions(allowedExtensions)} files are allowed. Skipped: ${rejected
           .map((f) => f.name)
           .join(", ")}`,
       )
     }
 
-    const accepted = files.filter(allowed)
+    let accepted = dropped.filter(allowed)
+    const remainingSlots = Math.max(0, maxFiles - files.length)
+    if (accepted.length > remainingSlots) {
+      const overflow = accepted.slice(remainingSlots)
+      accepted = accepted.slice(0, remainingSlots)
+      toast.error(
+        `Only ${maxFiles} file${maxFiles === 1 ? "" : "s"} can be uploaded for ${normalizedContentType}. Skipped: ${overflow
+          .map((f) => f.name)
+          .join(", ")}`,
+      )
+    }
+
     if (accepted.length > 0) addFiles(accepted)
   }
 
@@ -102,6 +127,8 @@ export function VideoSubmissionContainer({
       onSubmit={handleSubmit}
       onNext={onNext}
       isSubmitting={isSubmitting}
+      accept={allowedExtensions.join(",")}
+      multiple={!isSingleVideo}
     />
   )
 }

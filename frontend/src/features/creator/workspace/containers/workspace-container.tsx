@@ -77,6 +77,13 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
       ? `${deliverables[activeDeliverable]?.deliverable_content} ${selectedDeliverableItem.deliverable_index}`
       : deliverables[activeDeliverable]?.deliverable_content ?? "Deliverable"
 
+  const activeContentType =
+    selectedDeliverable?.deliverable_content
+      ?.split(/\s+/)
+      .slice(1)
+      .join(" ")
+      .trim() ?? ""
+
   const handleDeliverableChange = (index: number) => {
     setActiveDeliverable(index)
     setActiveDeliverableItem(0)
@@ -263,6 +270,7 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
                     onNext={() => setActiveDeliverableStep(2)}
                     deliverableItemPublicId={selectedDeliverableItem?.public_id}
                     mediaAsset={latestMediaAsset}
+                    contentType={activeContentType}
                   />
                 )}
 
