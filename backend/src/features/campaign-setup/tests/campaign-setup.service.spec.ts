@@ -15,6 +15,7 @@ import { ContractsService } from 'src/features/contracts/contracts.service';
 import { AddOnsService } from 'src/features/add-ons/add-ons.service';
 import { GiftedProductsService } from 'src/features/gifted-products/gifted-products.service';
 import { UpdateCampaignSetupDto } from '../dto/update-campaign-setup.dto';
+import { UserService } from 'src/features/users/users.service';
 import { PAYMENT_SCHEDULE } from 'src/features/contracts/dto/payment-terms.dto';
 
 describe('CampaignSetupService', () => {
@@ -112,6 +113,10 @@ describe('CampaignSetupService', () => {
         {
           provide: GiftedProductsService,
           useValue: mockGiftedProductsService,
+        },
+        {
+          provide: UserService,
+          useValue: { findActiveUserByEmail: jest.fn().mockResolvedValue(null) },
         },
       ],
     }).compile();

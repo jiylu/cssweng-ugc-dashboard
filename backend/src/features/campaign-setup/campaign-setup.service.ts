@@ -9,6 +9,7 @@ import { ContractsService } from '../contracts/contracts.service';
 import { AddOnsService } from '../add-ons/add-ons.service';
 import { GiftedProductsService } from '../gifted-products/gifted-products.service';
 import { UpdateCampaignSetupDto } from './dto/update-campaign-setup.dto';
+import { UserService } from '../users/users.service';
 import { PAYMENT_SCHEDULE } from '../contracts/dto/payment-terms.dto';
 import { PaymentSchedule } from '@prisma/client';
 
@@ -23,6 +24,7 @@ export class CampaignSetupService {
     private contractService: ContractsService,
     private addOnService: AddOnsService,
     private giftedProductsService: GiftedProductsService,
+    private userService: UserService,
   ) {}
 
   private readonly logger = new Logger(CampaignSetupService.name);
@@ -31,6 +33,14 @@ export class CampaignSetupService {
     this.logger.debug(
       `Creating create campaign transaction for campaign ${dto.campaign.projectName} for user ${dto.campaign.ugcId}`,
     );
+
+    let clientId: string | undefined = undefined;
+    const clientUser = await this.userService.findActiveUserByEmail(
+      dto.proposal.clientEmail,
+    );
+    if (clientUser) {
+      clientId = clientUser.user_id;
+    }
 
     const result = await this.prisma.$transaction(async (tx) => {
       const deliverablesTotal = dto.deliverables.reduce(
@@ -71,6 +81,7 @@ export class CampaignSetupService {
           ...dto.campaign,
           pricing: totalPrice,
           paymentSchedule: paymentSchedule,
+          clientId: clientId,
         },
         tx,
       );
