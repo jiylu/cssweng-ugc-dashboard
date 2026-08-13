@@ -5,9 +5,16 @@ import { PaymentsController } from './payments.controller';
 import { CampaignsModule } from '../campaigns/campaigns.module';
 import { UploadModule } from 'src/shared/upload/upload.module';
 import { ProposalsModule } from '../proposals/proposals.module';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
-  imports: [PrismaModule, CampaignsModule, UploadModule, ProposalsModule],
+  imports: [
+    PrismaModule,
+    CampaignsModule,
+    UploadModule,
+    ProposalsModule,
+    NotificationsModule,
+  ],
   providers: [PaymentsService],
   controllers: [PaymentsController],
 })
