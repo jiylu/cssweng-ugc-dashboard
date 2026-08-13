@@ -47,7 +47,7 @@ export async function submitWrittenAsset(
       credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        deliverableItemId: deliverableItemPublicId,
+        deliverableItemPublicId,
         content,
       }),
     },
