@@ -1,19 +1,34 @@
+import { useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/src/components/atoms/card"
 import { Separator } from "@/components/ui/separator"
 import { useWrittenAssetsPanel } from "@/src/features/creator/workspace/hooks/useWrittenAssetsPanel"
-import RichTextEditor from "@/components/ui/rich-text-editor";
-import { Textarea } from "@/components/ui/textarea"
+import RichTextEditor from "@/components/ui/rich-text-editor"
+import type { WrittenAsset } from "@/src/features/client/workspace/services/deliverable-submissions-api"
 
 interface WrittenAssetsPanelProps {
   version: number
   onSaveDraft: () => void
   onSubmit: (content: string) => void
   onHistory: () => void
+  writtenAsset?: WrittenAsset | null
+  isSubmitting?: boolean
 }
 
-export function WrittenAssetsPanel({ version, onSaveDraft, onSubmit, onHistory }: WrittenAssetsPanelProps) {
+export function WrittenAssetsPanel({ version, onSaveDraft, onSubmit, onHistory, writtenAsset, isSubmitting }: WrittenAssetsPanelProps) {
   const { content, errors, updateContent, validateAndSave } = useWrittenAssetsPanel()
+
+  useEffect(() => {
+    if (writtenAsset) {
+      updateContent(writtenAsset.content)
+    }
+  }, [writtenAsset?.public_id])
+
+  const action = writtenAsset?.written_asset_action
+  const isAwaitingReview = action === "PENDING"
+  const isApproved = action === "APPROVE"
+  const isRevisionRequested = action === "REVISE"
+  const isLocked = isAwaitingReview || isApproved
 
   return (
     <Card className="flex-1 border border-[#6b1fa8] p-5 flex flex-col gap-4 min-w-0">
@@ -27,18 +42,37 @@ export function WrittenAssetsPanel({ version, onSaveDraft, onSubmit, onHistory }
 
       <Separator />
 
+      {isApproved && (
+        <p className="text-xs text-[#2d7a3a] bg-[#e7f4ea] border border-[#2d7a3a]/30 rounded px-3 py-2">
+          Approved. You can now move on to Media Assets.
+        </p>
+      )}
+      {isAwaitingReview && (
+        <p className="text-xs text-[#b45309] bg-[#fef3c7] border border-[#b45309]/30 rounded px-3 py-2">
+          Submitted and awaiting client approval.
+        </p>
+      )}
+      {isRevisionRequested && (
+        <p className="text-xs text-[#b45309] bg-[#fef3c7] border border-[#b45309]/30 rounded px-3 py-2">
+          {writtenAsset?.client_comments
+            ? `Revision requested: ${writtenAsset.client_comments}`
+            : "Revision requested. Please revise and resubmit."}
+        </p>
+      )}
+
       <RichTextEditor content={content} onChange={updateContent} />
 
       <p className="text-xs mt-1 text-[#ff6467] min-h-[16px]">{errors.content ?? ""}</p>
 
-      {/* <Textarea
-        placeholder="Type here..."
-        className="flex-1 min-h-[300px] resize-none border border-[#6b1fa8] rounded-[3px] bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none focus-visible:ring-0 p-4"
-      /> */}
-
       <div className="flex justify-end gap-2">
         <Button variant="outline" onClick={onSaveDraft}>Save Draft</Button>
-        <Button onClick={() => validateAndSave(onSubmit)} className="bg-[#6b1fa8] hover:bg-[#5a1a8f] text-white">Submit</Button>
+        <Button
+          onClick={() => validateAndSave(onSubmit)}
+          disabled={isLocked || isSubmitting}
+          className="bg-[#6b1fa8] hover:bg-[#5a1a8f] text-white"
+        >
+          {isSubmitting ? "Submitting..." : "Submit"}
+        </Button>
       </div>
     </Card>
   )

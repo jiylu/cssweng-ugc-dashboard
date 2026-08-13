@@ -1,5 +1,6 @@
 "use client"
 import { useState } from "react";
+import { toast } from "sonner"
 import CreatorSidebar from "@/src/components/organisms/creator-sidebar"
 import { Separator } from "@/components/ui/separator"
 import { useAuth } from "@/src/features/auth/hooks/useAuth"
@@ -15,6 +16,9 @@ import { DeliverableApprovedCard } from "@/src/features/creator/workspace/compon
 import { ContractSigningPanel } from "@/src/features/creator/workspace/components/contract-signing/contract-signing-panel"
 import { useWorkspace } from "@/src/features/creator/workspace/hooks/useWorkspace"
 import { useCampaignSetup } from "@/src/features/creator/workspace/hooks/useCampaignSetup"
+import { useDeliverableItems } from "@/src/features/creator/workspace/hooks/useDeliverableItems"
+import { useLatestWrittenAsset } from "@/src/features/creator/workspace/hooks/useLatestAsset"
+import { useSubmitWrittenAsset } from "@/src/features/creator/workspace/hooks/useSubmitWrittenAsset"
 
 interface WorkspaceProps {
   campaignId: string
@@ -27,6 +31,41 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
   const { data: campaignSetup, isLoading: campaignLoading } = useCampaignSetup(campaignId)
   const campaign = campaignSetup?.campaign
   const deliverables = campaignSetup?.deliverables ?? []
+
+  const selectedDeliverable = deliverables[activeDeliverable]
+  const { data: deliverableItems } = useDeliverableItems(selectedDeliverable?.public_id)
+  const firstDeliverableItem = deliverableItems?.[0]
+  const { data: latestWrittenAsset } = useLatestWrittenAsset(firstDeliverableItem?.public_id)
+  const { mutate: submitWrittenAsset, isPending: isSubmittingWrittenAsset } = useSubmitWrittenAsset()
+
+  const handleDeliverableChange = (index: number) => {
+    setActiveDeliverable(index)
+    setActiveDeliverableStep(0)
+  }
+
+  const handleDeliverableStepChange = (step: number) => {
+    if (step >= 1 && !firstDeliverableItem?.written_asset_approved) {
+      toast.info("Written assets must be approved before moving to Media Assets.")
+      return
+    }
+    if (step >= 2 && firstDeliverableItem?.deliverable_item_status !== "APPROVED") {
+      toast.info("This deliverable is not yet approved.")
+      return
+    }
+    setActiveDeliverableStep(step)
+  }
+
+  const handleSubmitWrittenAsset = (content: string) => {
+    if (!firstDeliverableItem) return
+    submitWrittenAsset(
+      { deliverableItemId: firstDeliverableItem.public_id, content },
+      {
+        onSuccess: () => toast.success("Written assets submitted for approval."),
+        onError: (error) =>
+          toast.error(error instanceof Error ? error.message : "Unable to submit written assets."),
+      },
+    )
+  }
 
   if (loading || campaignLoading) return <LogoLoader label="Loading workspace" />;
 
@@ -66,9 +105,9 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
               <DeliverablesSidebar
                 deliverables={deliverables}
                 activeDeliverable={activeDeliverable}
-                onChange={setActiveDeliverable}
+                onChange={handleDeliverableChange}
                 activeStep={activeDeliverableStep}
-                onStepChange={setActiveDeliverableStep}
+                onStepChange={handleDeliverableStepChange}
               />
             )}
             {activeStep === 0 && (
@@ -81,10 +120,12 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
               <>
                 {activeDeliverableStep === 0 && (
                   <WrittenAssetsPanel
-                    version={2}
+                    version={latestWrittenAsset?.version_number ?? 1}
                     onHistory={() => setHistoryOpen(true)}
                     onSaveDraft={() => console.log("Save draft")}
-                    onSubmit={(content) => console.log("Submit", content)}
+                    onSubmit={handleSubmitWrittenAsset}
+                    writtenAsset={latestWrittenAsset}
+                    isSubmitting={isSubmittingWrittenAsset}
                   />
                 )}
 
@@ -105,7 +146,7 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
                 )}
 
                 {activeDeliverableStep < 2 && (
-                  <FeedbackPanel />
+                  <FeedbackPanel writtenAsset={latestWrittenAsset} />
                 )}
               </>
             )}
