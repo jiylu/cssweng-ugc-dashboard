@@ -18,6 +18,9 @@ export default function Campaigns() {
   const [activeTab, setActiveTab] = useState("ALL")
   const { data, isLoading, isError } = useCampaigns(user?.user_id ?? "", page)
   const { approvedCampaigns, isLoading: proposalsLoading } = useApprovedCampaigns(data)
+  const filteredCampaigns = approvedCampaigns.filter(
+    (campaign) => activeTab === "ALL" || campaign.campaign_status === activeTab,
+  )
   const router = useRouter();
 
   if (loading || isLoading || proposalsLoading) return <LogoLoader label="Loading campaigns" />;
@@ -46,7 +49,13 @@ export default function Campaigns() {
 
               {/* Tabs + Create Button */}
               <div className="flex items-center justify-between">
-                <CampaignTabs active={activeTab} onChange={setActiveTab} />
+                <CampaignTabs
+                  active={activeTab}
+                  onChange={(tab) => {
+                    setActiveTab(tab)
+                    setPage(1)
+                  }}
+                />
                 <Button onClick={() => router.push('/proposals/create-campaign')} className="px-5 py-2 cursor-pointer">
                   + Create Proposal
                 </Button>
@@ -54,7 +63,7 @@ export default function Campaigns() {
 
               {/* Campaign List */}
               {/* TODO: Make total dynamic */}
-              <CampaignList campaigns={approvedCampaigns} page={page} onPageChange={setPage} />
+              <CampaignList campaigns={filteredCampaigns} page={page} onPageChange={setPage} />
             </div>
         </section>
     </main>

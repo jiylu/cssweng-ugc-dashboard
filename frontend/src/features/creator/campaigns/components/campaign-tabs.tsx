@@ -9,7 +9,6 @@ interface CampaignTabsProps {
 
 export function CampaignTabs({ active, onChange }: CampaignTabsProps) {
   return (
-    // TODO: Make tabs(filters) work
     <Tabs value={active} onValueChange={onChange}>
       <TabsList className="bg-transparent p-0 gap-6 h-auto">
         {tabs.map((tab) => (

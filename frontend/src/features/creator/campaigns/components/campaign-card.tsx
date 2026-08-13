@@ -5,10 +5,10 @@ import { Campaign } from "../types/campaign.types"
 import { formatDate } from "@/src/utils/date"
 
 const statusStyles: Record<string, string> = {
-  COMPLETE: "bg-[#2d7a3a] text-white border-0",
   ACTIVE: "bg-[#F2F0EA] text-foreground border border-[#2d7a3a]",
-  PENDING: "bg-[#F2F0EA] text-foreground border border-border",
-  "FOR REVISIONS": "bg-transparent text-foreground border border-border",
+  COMPLETED: "bg-[#2d7a3a] text-white border-0",
+  REJECTED: "bg-transparent text-foreground border border-border",
+  CANCELLED: "bg-transparent text-foreground border border-border",
 }
 
 interface CampaignCardProps {
