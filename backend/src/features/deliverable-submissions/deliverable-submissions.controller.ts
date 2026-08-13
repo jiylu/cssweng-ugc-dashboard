@@ -23,11 +23,13 @@ import {
   ApiSubmitMediaAsset,
   ApiSubmitWrittenAsset,
 } from './docs/deliverable-submissions.controller.swagger';
+import { DeliverableItemsService } from '../deliverable-items/deliverable-items.service';
 
 @Controller('deliverable-submissions')
 export class DeliverableSubmissionsController {
   constructor(
     private readonly deliverableSubmissionsService: DeliverableSubmissionsService,
+    private readonly deliverableItemsService: DeliverableItemsService,
     private readonly writtenAssetsService: WrittenAssetsService,
     private readonly mediaAssetsService: MediaAssetsService,
     private readonly uploadService: UploadService,
@@ -36,17 +38,30 @@ export class DeliverableSubmissionsController {
   @ApiSubmitWrittenAsset()
   @Post('written-assets')
   async submitWrittenAsset(@Body() dto: SubmitWrittenAssetDTO) {
-    return this.deliverableSubmissionsService.submitWrittenAsset(dto);
+    const deliverableItemId =
+      await this.deliverableItemsService.resolvePublicId(
+        dto.deliverableItemPublicId,
+      );
+
+    return this.deliverableSubmissionsService.submitWrittenAsset(
+      deliverableItemId,
+      dto.content,
+    );
   }
 
   @ApiSubmitMediaAsset()
   @Post('media-assets')
   @UseInterceptors(FileInterceptor('file'))
   async submitMediaAsset(
-    @Body('deliverableItemId') deliverableItemId: string,
+    @Body('deliverableItemPublicId') deliverableItemPublicId: string,
     @UploadedFile() file: Express.Multer.File,
   ) {
     const uploadResult = await this.uploadService.upload(file);
+
+    const deliverableItemId =
+      await this.deliverableItemsService.resolvePublicId(
+        deliverableItemPublicId,
+      );
 
     return this.deliverableSubmissionsService.submitMediaAsset({
       deliverableItemId,

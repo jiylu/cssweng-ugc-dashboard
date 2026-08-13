@@ -31,8 +31,11 @@ export class DeliverableSubmissionsService {
     private readonly campaignsService: CampaignsService,
   ) {}
 
-  async submitWrittenAsset(dto: SubmitWrittenAssetDTO) {
-    return await this.writtenAssetsService.submitWrittenAsset(dto);
+  async submitWrittenAsset(deliverableItemId: string, content: string) {
+    return await this.writtenAssetsService.submitWrittenAsset(
+      deliverableItemId,
+      content,
+    );
   }
 
   async submitMediaAsset(dto: SubmitMediaAssetDTO) {
