@@ -1,11 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UserService } from '../users.service';
 import { PrismaService } from 'src/shared/prisma/prisma.service';
-import {
-  BadRequestException,
-  ConflictException,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, ConflictException, NotFoundException, } from '@nestjs/common';
 import { CreateUserTransactionDTO } from '../dto/create-user-transaction.dto';
 import { UserRoles } from '@prisma/client';
 import { UpdateUserDTO } from '../dto/update-user.dto';

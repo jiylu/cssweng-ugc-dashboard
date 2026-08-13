@@ -40,6 +40,34 @@ export async function validateRegistrationOtp(payload: OtpPayload & { otp: strin
   return response.json() as Promise<{ verificationToken: string }>;
 }
 
+type GuestOtpPayload = { email: string; proposalPublicId: string };
+
+export async function requestGuestProposalOtp(payload: GuestOtpPayload) {
+  const response = await fetch(`${API_BASE_URL}/otps/guest`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok) {
+    throw new Error(await parseApiError(response, "Unable to send guest verification code."));
+  }
+  return response.json();
+}
+
+export async function validateGuestProposalOtp(
+  payload: GuestOtpPayload & { otp: string },
+) {
+  const response = await fetch(`${API_BASE_URL}/otps/guest/validate`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok) {
+    throw new Error(await parseApiError(response, "Unable to verify guest access."));
+  }
+  return response.json();
+}
+
 export type LoginUserPayload = {
   email: string;
   password: string;
