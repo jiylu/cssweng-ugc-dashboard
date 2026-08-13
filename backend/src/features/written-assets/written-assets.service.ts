@@ -8,7 +8,7 @@ import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { CampaignsService } from '../campaigns/campaigns.service';
 import { ProposalsService } from '../proposals/proposals.service';
 import { DeliverablesService } from '../deliverables/deliverables.service';
-import { DeliverableItemsService } from '../deliverables/deliverable-items.service';
+import { DeliverableItemsService } from '../deliverable-items/deliverable-items.service';
 import {
   AssetActions,
   Campaigns,

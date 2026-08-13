@@ -5,6 +5,7 @@ import { MediaAssetsModule } from '../media-assets/media-assets.module';
 import { DeliverableSubmissionsService } from './deliverable-submissions.service';
 import { DeliverableSubmissionsController } from './deliverable-submissions.controller';
 import { DeliverablesModule } from '../deliverables/deliverables.module';
+import { DeliverableItemsModule } from '../deliverable-items/deliverable-items.module';
 import { CampaignsModule } from '../campaigns/campaigns.module';
 import { UploadModule } from 'src/shared/upload/upload.module';
 
@@ -14,6 +15,7 @@ import { UploadModule } from 'src/shared/upload/upload.module';
     WrittenAssetsModule,
     MediaAssetsModule,
     DeliverablesModule,
+    DeliverableItemsModule,
     CampaignsModule,
     UploadModule,
   ],
