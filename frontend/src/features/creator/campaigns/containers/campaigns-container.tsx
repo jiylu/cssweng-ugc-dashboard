@@ -9,6 +9,7 @@ import { CampaignTabs } from "@/src/features/creator/campaigns/components/campai
 import { CampaignList } from "@/src/features/creator/campaigns/components/campaign-list"
 import { Button } from "@/components/ui/button"
 import { useCampaigns } from "@/src/features/creator/campaigns/hooks/useCampaign"
+import { useApprovedCampaigns } from "@/src/features/creator/campaigns/hooks/useApprovedCampaigns"
 import LogoLoader from "@/src/components/molecules/logo-loader";
 
 export default function Campaigns() {
@@ -16,9 +17,10 @@ export default function Campaigns() {
   const [page, setPage] = useState(1)
   const [activeTab, setActiveTab] = useState("ALL")
   const { data, isLoading, isError } = useCampaigns(user?.user_id ?? "", page)
+  const { approvedCampaigns, isLoading: proposalsLoading } = useApprovedCampaigns(data)
   const router = useRouter();
 
-  if (loading || isLoading) return <LogoLoader label="Loading campaigns" />;
+  if (loading || isLoading || proposalsLoading) return <LogoLoader label="Loading campaigns" />;
 
   if (isError) return <p>Something went wrong.</p>;
   if (!user) return null;
@@ -52,7 +54,7 @@ export default function Campaigns() {
 
               {/* Campaign List */}
               {/* TODO: Make total dynamic */}
-              <CampaignList campaigns={data ?? []} page={page} onPageChange={setPage} />
+              <CampaignList campaigns={approvedCampaigns} page={page} onPageChange={setPage} />
             </div>
         </section>
     </main>
