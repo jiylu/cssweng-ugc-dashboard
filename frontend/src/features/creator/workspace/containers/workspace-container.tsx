@@ -49,6 +49,12 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
   >(null)
   const { data: campaignSetup, isLoading: campaignLoading } = useCampaignSetup(campaignId)
   const campaign = campaignSetup?.campaign
+  const clientName = [
+    campaignSetup?.proposal?.client_first_name,
+    campaignSetup?.proposal?.client_last_name,
+  ]
+    .filter(Boolean)
+    .join(" ") || "Client"
   const deliverables = campaignSetup?.deliverables ?? []
   const router = useRouter();
   const selectedDeliverable = deliverables[activeDeliverable]
@@ -321,6 +327,7 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
                     writtenAsset={latestWrittenAsset}
                     mediaAsset={latestMediaAsset}
                     type={activeDeliverableStep === 0 ? "written" : "media"}
+                    clientName={clientName}
                   />
                 )}
               </>

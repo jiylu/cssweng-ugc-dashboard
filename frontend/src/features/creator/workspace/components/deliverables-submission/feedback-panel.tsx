@@ -10,11 +10,24 @@ interface FeedbackPanelProps {
   writtenAsset?: WrittenAsset | null
   mediaAsset?: MediaAsset | null
   type: "written" | "media"
+  clientName: string
 }
 
-export function FeedbackPanel({ writtenAsset, mediaAsset, type }: FeedbackPanelProps) {
+export function FeedbackPanel({
+  writtenAsset,
+  mediaAsset,
+  type,
+  clientName,
+}: FeedbackPanelProps) {
   const asset = type === "written" ? writtenAsset : mediaAsset
   const comment = asset?.client_comments?.trim()
+  const clientInitials = clientName
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((name) => name[0])
+    .join("")
+    .toUpperCase()
   const isApproved =
     type === "written"
       ? writtenAsset?.written_asset_action === "APPROVE"
@@ -30,9 +43,11 @@ export function FeedbackPanel({ writtenAsset, mediaAsset, type }: FeedbackPanelP
             <>
               <div className="flex items-center gap-2">
                 <Avatar className="w-8 h-8">
-                  <AvatarFallback className="text-xs bg-muted">CB</AvatarFallback>
+                  <AvatarFallback className="text-xs bg-muted">
+                    {clientInitials || "CL"}
+                  </AvatarFallback>
                 </Avatar>
-                <span className="text-sm font-medium text-foreground">Client</span>
+                <span className="text-sm font-medium text-foreground">{clientName}</span>
               </div>
               <p className="text-sm text-muted-foreground">{comment}</p>
             </>

@@ -6,10 +6,15 @@ export interface CampaignContract {
   public_id: string;
 }
 
+export interface CampaignSetupProposal {
+  client_first_name: string;
+  client_last_name: string;
+}
+
 export interface CampaignSetupResponse {
   campaign: Campaign
   deliverables: Deliverable[]
-  proposal: unknown
+  proposal: CampaignSetupProposal | null
   contract: CampaignContract
   addOns: unknown[] | null
   giftedProducts: unknown[] | null
