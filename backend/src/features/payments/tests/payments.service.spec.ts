@@ -76,6 +76,10 @@ describe('PaymentsService', () => {
       const mockCampaign = {
         campaign_id: 'camp-1',
         campaign_status: CampaignStatus.ACTIVE,
+        all_deliverables_approved: true,
+        ugc_creator_id: 'creator-1',
+        client_id: 'client-1',
+        project_name: 'E2E Draft Campaign',
       };
 
       const mockPayment = {
@@ -90,7 +94,11 @@ describe('PaymentsService', () => {
       mockPrisma.payments.create.mockResolvedValue(mockPayment);
 
       const res = await service.createPayment(dto);
-      expect(res).toEqual(mockPayment);
+      expect(res).toEqual({
+        recordedPayment: mockPayment,
+        creator_id: 'creator-1',
+        project_name: 'E2E Draft Campaign',
+      });
       expect(mockPrisma.payments.create).toHaveBeenCalledWith({
         data: {
           public_id: 'mock-pb-id',
@@ -246,6 +254,8 @@ describe('PaymentsService', () => {
       mockPrisma.payments.update.mockResolvedValue(validated);
       mockCampaignService.findOneCampaign.mockResolvedValue({
         campaign_id: 'camp-1',
+        client_id: 'client-1',
+        project_name: 'Test Campaign',
         payment_schedule: PaymentSchedule.DUE_FINAL_DELIVERY,
         pricing: { toNumber: () => 5000 },
       });
@@ -257,7 +267,11 @@ describe('PaymentsService', () => {
       mockCampaignService.updatePaidAmount.mockResolvedValue({});
 
       const res = await service.validatePayment('payment-1');
-      expect(res).toEqual(validated);
+      expect(res).toEqual({
+        validatedPayment: validated,
+        client_id: 'client-1',
+        project_name: 'Test Campaign',
+      });
       expect(mockPrisma.payments.update).toHaveBeenCalledWith({
         where: { payment_id: 'payment-1' },
         data: {

@@ -27,6 +27,7 @@ import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { UploadService } from 'src/shared/upload/upload.service';
 import { ContractSignaturesService } from './contract-signatures.service';
 import { ContractSignaturesEntity } from './entities/contract-signatures.entity';
+import { UserRoles } from '@prisma/client';
 @Controller('contracts')
 export class ContractsController {
   constructor(
@@ -110,11 +111,21 @@ export class ContractsController {
         initialsURL: initialsData.url,
       });
 
-    await this.notificationsService.createNotification({
-      userId: campaign.ugc_creator_id,
-      title: `Contract Signed For:  ${campaign.project_name}`,
-      message: `Your client has signed the contract for ${campaign.project_name}, you may now sign the contract.`,
-    });
+    if (dto.signerRole === UserRoles.CREATOR) {
+      if (campaign.client_id) {
+        await this.notificationsService.createNotification({
+          userId: campaign.client_id,
+          title: `Contract Signed For:  ${campaign.project_name}`,
+          message: `The creator has signed the contract for ${campaign.project_name}. The contract is now fully signed.`,
+        });
+      }
+    } else {
+      await this.notificationsService.createNotification({
+        userId: campaign.ugc_creator_id,
+        title: `Contract Signed For:  ${campaign.project_name}`,
+        message: `Your client has signed the contract for ${campaign.project_name}, you may now sign the contract.`,
+      });
+    }
 
     return plainToInstance(ContractsEntity, contract);
   }

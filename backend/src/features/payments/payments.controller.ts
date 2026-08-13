@@ -21,6 +21,7 @@ import {
   ApiFindPaymentForCampaign,
   ApiValidatePayment,
 } from './docs/payments.controller.swagger';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Controller('payments')
 export class PaymentsController {
@@ -29,6 +30,7 @@ export class PaymentsController {
     private readonly campaignsService: CampaignsService,
     private readonly uploadService: UploadService,
     private readonly proposalsService: ProposalsService,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   @ApiCreatePayment()
@@ -42,12 +44,18 @@ export class PaymentsController {
       await this.campaignsService.resolveCampaignPublicId(campaignPublic);
 
     const uploadResult = await this.uploadService.upload(file);
-    const paymentRecord = await this.paymentsService.createPayment({
+    const result = await this.paymentsService.createPayment({
       campaignId: campaignId,
       proofPaymentUrl: uploadResult.url,
     });
 
-    return plainToInstance(PaymentsEntity, paymentRecord);
+    await this.notificationsService.createNotification({
+      userId: result.creator_id,
+      title: 'Payment Proof has been Submitted',
+      message: `The client has submitted proof of payment for "${result.project_name}". Please review and validate the payment.`,
+    });
+
+    return plainToInstance(PaymentsEntity, result.recordedPayment);
   }
 
   @ApiFindPaymentByPublicId()
@@ -74,9 +82,16 @@ export class PaymentsController {
   @Patch('/validate/:publicId')
   async validatePayment(@Param('publicId') publicId: string) {
     const paymentId = await this.paymentsService.resolvePublicId(publicId);
-    const validatedPayment =
-      await this.paymentsService.validatePayment(paymentId);
+    const result = await this.paymentsService.validatePayment(paymentId);
 
-    return plainToInstance(PaymentsEntity, validatedPayment);
+    if (result.client_id) {
+      await this.notificationsService.createNotification({
+        userId: result.client_id,
+        title: 'Payment has been Validated',
+        message: `Your payment for "${result.project_name}" has been validated.`,
+      });
+    }
+
+    return plainToInstance(PaymentsEntity, result.validatedPayment);
   }
 }

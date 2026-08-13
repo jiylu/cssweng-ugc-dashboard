@@ -10,6 +10,7 @@ import { ActivityLogModule } from '../activity-log/activity-log.module';
 import { ContractsModule } from '../contracts/contracts.module';
 import { AddOnsModule } from '../add-ons/add-ons.module';
 import { GiftedProductsModule } from '../gifted-products/gifted-products.module';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { GiftedProductsModule } from '../gifted-products/gifted-products.module'
     ContractsModule,
     AddOnsModule,
     GiftedProductsModule,
+    NotificationsModule,
   ],
   providers: [CampaignSetupService],
   controllers: [CampaignSetupController],

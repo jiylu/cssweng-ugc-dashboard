@@ -34,39 +34,34 @@ export function GiftedProductRow({ item, index, currency, errors, onUpdate, onRe
     }
 
     return (
-    <div className="bg-[#F2F0EA] border border-border rounded-[3px] p-5 min-w-0 flex gap-4 relative">
-        <button
-            type="button"
-            onClick={onRemove}
-            className="absolute top-1 right-1 text-muted-foreground hover:text-destructive transition-colors"
-        >
-            <Trash2 size={16} />
-        </button>
+    <div className="flex flex-row items-center gap-4 w-full">
+        
+        <div className="bg-[#F2F0EA] border border-border rounded-[3px] p-5 flex-1 flex gap-4 min-w-0">
+            
+            {/* Left side */}
+            <div className="flex-1 flex flex-col gap-4 min-w-0">
+                <div className="flex items-end gap-4">
+                    {/* Product Name */}
+                    <div className="flex flex-col gap-1 flex-1">
+                        <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">PRODUCT NAME</label>
+                        <Input
+                            value={item.productName}
+                            onChange={(e) => onUpdate('productName', e.target.value)}
+                            placeholder="Enter product name"
+                            className="border-border rounded-[3px] text-sm bg-white shadow-none"
+                        />
+                        <p className="text-xs mt-1 text-[#ff6467] min-h-[16px]">{e('productName') ?? ""}</p>
+                    </div>
 
-        {/* Left side */}
-        <div className="flex-1 flex flex-col gap-4 min-w-0">
-            <div className="flex items-end gap-4">
-                {/* Product Name */}
-                <div className="flex flex-col gap-1 flex-1">
-                    <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">PRODUCT NAME</label>
-                    <Input
-                        value={item.productName}
-                        onChange={(e) => onUpdate('productName', e.target.value)}
-                        placeholder="Enter product name"
-                        className="border-border rounded-[3px] text-sm bg-white"
-                    />
-                    <p className="text-xs mt-1 text-[#ff6467] min-h-[16px]">{e('productName') ?? ""}</p>
-                </div>
-
-                {/* Value */}
-                <div className="flex flex-col gap-1 w-48 shrink-0">
-                    <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">VALUE</label>
-                    <div className="flex items-center gap-1">
-                        <InputGroup className="border border-border rounded-[3px] bg-white">
+                    {/* Value */}
+                    <div className="flex flex-col gap-1 w-48 shrink-0">
+                        <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">VALUE</label>
+                        <InputGroup className="border border-border rounded-[3px] bg-white flex items-center pr-2">
+                            <InputGroupAddon className="pl-3 pr-1 text-sm text-muted-foreground">{currency}</InputGroupAddon>
                             <InputGroupInput
                                 placeholder="Set a price"
                                 value={item.value}
-                                className="border-0 p-0 h-auto text-sm shadow-none focus-visible:ring-0 px-2"
+                                className="border-0 p-0 h-[38px] text-sm shadow-none focus-visible:ring-0 px-2 flex-1"
                                 onChange={(e) => {
                                 const val = e.target.value.replace(/[^0-9.]/g, '')
                                 const parts = val.split('.')
@@ -74,83 +69,94 @@ export function GiftedProductRow({ item, index, currency, errors, onUpdate, onRe
                                 onUpdate('value', parts.slice(0, 2).join('.'))
                                 }}
                             />
-                            <InputGroupAddon>{currency}</InputGroupAddon>
+                            <div className="flex flex-col shrink-0">
+                                <ChevronUp size={12} className="cursor-pointer text-muted-foreground hover:text-[#6b1fa8]" 
+                                    onClick={() => onUpdate('value', adjustPriceValue(item.value, 1000))} 
+                                />
+                                <ChevronDown size={12} className="cursor-pointer text-muted-foreground hover:text-[#6b1fa8]" 
+                                    onClick={() => onUpdate('value', adjustPriceValue(item.value, -1000))} 
+                                />
+                            </div>
                         </InputGroup>
-                        <div className="flex flex-col shrink-0">
-                            <ChevronUp size={12} className="cursor-pointer text-muted-foreground hover:text-[#6b1fa8]" 
-                                onClick={() => onUpdate('value', adjustPriceValue(item.value, 1000))} 
-                            />
-                            <ChevronDown size={12} className="cursor-pointer text-muted-foreground hover:text-[#6b1fa8]" 
-                                onClick={() => onUpdate('value', adjustPriceValue(item.value, -1000))} 
-                            />
-                        </div>
+                        <p className="text-xs mt-1 text-[#ff6467] min-h-[16px]">{e('value') ?? ""}</p>
                     </div>
-                    <p className="text-xs mt-1 text-[#ff6467] min-h-[16px]">{e('value') ?? ""}</p>
                 </div>
-            </div>
 
-            {/* Ownership Terms */}
-            <div className="flex flex-col gap-1 min-w-0">
-                <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">OWNERSHIP TERMS</label>
-                <Textarea
-                value={item.ownershipTerms}
-                onChange={(e) => onUpdate('ownershipTerms', e.target.value)}
-                placeholder="Enter ownership terms"
-                className="w-full min-w-0 break-words min-h-[160px] bg-white resize-none border border-border rounded-[3px] text-sm text-foreground placeholder:text-muted-foreground placeholder:italic"
-                />
-                {e('ownershipTerms') && <p className="text-xs mt-1 text-[#ff6467]">{e('ownershipTerms')}</p>}
-            </div>
+                {/* Ownership Terms */}
+                <div className="flex flex-col gap-1 min-w-0">
+                    <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">OWNERSHIP TERMS</label>
+                    <Textarea
+                    value={item.ownershipTerms}
+                    onChange={(e) => onUpdate('ownershipTerms', e.target.value)}
+                    placeholder="Enter ownership terms"
+                    className="w-full min-w-0 break-words min-h-[160px] bg-white resize-none border border-border rounded-[3px] text-sm text-foreground placeholder:text-muted-foreground placeholder:italic shadow-none"
+                    />
+                    {e('ownershipTerms') && <p className="text-xs mt-1 text-[#ff6467]">{e('ownershipTerms')}</p>}
+                </div>
             </div>
 
             {/* Right side - Delivery Details */}
-            <div className="w-56 shrink-0 bg-white border border-border rounded-[3px] p-4 flex flex-col gap-3">
-            <p className="text-sm font-medium text-[#6b1fa8] uppercase tracking-[0.03em]">Delivery Details</p>
+            <div className="w-[300px] shrink-0 bg-white border border-border rounded-[3px] p-4 flex flex-col gap-3">
+                <p className="text-[15px] font-medium text-muted-foreground uppercase tracking-[0.03em]">Delivery Details</p>
 
-            {/* Shipping Address */}
-            <div className="flex flex-col gap-1">
-            <label className="text-xs text-muted-foreground">Shipping Address</label>
+                {/* Shipping Address */}
+                <div className="flex flex-col gap-1">
+                    <label className="text-sm text-muted-foreground">Shipping Address</label>
+                    <button
+                        type="button"
+                        onClick={() => setAddressModalOpen(true)}
+                        className="flex items-start gap-2 text-left"
+                    >
+                        <MapPin size={14} className="text-[#6b1fa8] shrink-0 mt-0.5" />
+                        <div>
+                        <p className="text-sm text-[#6b1fa8] underline">
+                            {item.shippingAddress?.addressLine1 ? "Edit Address" : "Set Shipping Address"}
+                        </p>
+                        <p className="text-sm text-muted-foreground">{formatAddress(item.shippingAddress)}</p>
+                        </div>
+                    </button>
+                    {e('shippingAddress') && <p className="text-xs text-[#ff6467]">{e('shippingAddress')}</p>}
+                </div>
+            
+                {/* Delivery Instructions */}
+                <div className="flex flex-col gap-1 flex-1">
+                    <label className="text-sm text-muted-foreground">Delivery Instructions</label>
+                    <Textarea
+                    value={item.deliveryInstructions}
+                    onChange={(e) => onUpdate('deliveryInstructions', e.target.value)}
+                    placeholder="Indicate any delivery instructions"
+                    className="h-full min-h-[120px] resize-none border border-border rounded-[3px] text-sm bg-transparent placeholder:text-muted-foreground placeholder:italic shadow-none"
+                    />
+                    {e('deliveryInstructions') && <p className="text-xs mt-1 text-[#ff6467]">{e('deliveryInstructions')}</p>}
+                </div>
+            </div>
+        </div>
+
+        {/* Delete button (Matching DeliverableRow structure perfectly) */}
+        <div className="!flex flex-wrap items-start gap-0">
             <button
                 type="button"
-                onClick={() => setAddressModalOpen(true)}
-                className="flex items-start gap-2 text-left"
+                onClick={onRemove}
+                aria-label={`Delete gifted product ${index + 1}`}
+                className="px-0 text-muted-foreground hover:text-destructive transition-colors"
             >
-                <MapPin size={14} className="text-[#6b1fa8] shrink-0 mt-0.5" />
-                <div>
-                <p className="text-xs text-[#6b1fa8] underline">
-                    {item.shippingAddress?.addressLine1 ? "Edit Address" : "Set Shipping Address"}
-                </p>
-                <p className="text-xs text-muted-foreground">{formatAddress(item.shippingAddress)}</p>
-                </div>
+                <Trash2 size={18} />
             </button>
-            {e('shippingAddress') && <p className="text-xs mt-1 text-[#ff6467]">{e('shippingAddress')}</p>}
-            </div>
-        
-            {/* Delivery Instructions */}
-            <div className="flex flex-col gap-1">
-                <label className="text-sm text-muted-foreground">Delivery Instructions</label>
-                <Textarea
-                value={item.deliveryInstructions}
-                onChange={(e) => onUpdate('deliveryInstructions', e.target.value)}
-                placeholder="Indicate any delivery instructions"
-                className="min-h-[120px] resize-none border border-border rounded-[3px] text-sm bg-transparent placeholder:text-muted-foreground placeholder:italic"
-                />
-                {e('deliveryInstructions') && <p className="text-xs mt-1 text-[#ff6467]">{e('deliveryInstructions')}</p>}
-            </div>
-
-            {/* Shipping Address Popup */}
-            <ShippingAddressPopup
-                open={addressModalOpen}
-                onClose={() => setAddressModalOpen(false)}
-                form={shippingAddress.form}
-                errors={shippingAddress.errors}
-                onFieldChange={shippingAddress.update}
-                onSave={() => {
-                    const saved = shippingAddress.validateAndSave((addr) => onUpdate('shippingAddress', addr))
-                    if (saved) setAddressModalOpen(false)
-                }}
-                currency={currency}
-            />
         </div>
+
+        {/* Shipping Address Popup */}
+        <ShippingAddressPopup
+            open={addressModalOpen}
+            onClose={() => setAddressModalOpen(false)}
+            form={shippingAddress.form}
+            errors={shippingAddress.errors}
+            onFieldChange={shippingAddress.update}
+            onSave={() => {
+                const saved = shippingAddress.validateAndSave((addr) => onUpdate('shippingAddress', addr))
+                if (saved) setAddressModalOpen(false)
+            }}
+            currency={currency}
+        />
     </div>
     )
 }

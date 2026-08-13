@@ -50,17 +50,17 @@ export function ApiSubmitMediaAsset() {
         'Uploads a media file and creates a new version of the media asset for the given deliverable item. ' +
         'Requires the written asset of the deliverable item to be approved first. ' +
         'The file is uploaded to storage and the returned URL is persisted. ' +
-        'Accepts multipart/form-data with the `file` field and the `deliverableItemId` form field.',
+        'Accepts multipart/form-data with the `file` field and the `deliverableItemPublicId` form field.',
     }),
     ApiConsumes('multipart/form-data'),
     ApiBody({
       schema: {
         type: 'object',
         properties: {
-          deliverableItemId: {
+          deliverableItemPublicId: {
             type: 'string',
-            description: 'Internal UUID of the deliverable item',
-            example: '1a51d7fa-e6b3-494f-8d4e-3e24d870dbf3',
+            description: 'Public ID of the deliverable item',
+            example: 'a3SFgGh1_',
           },
           file: {
             type: 'string',
@@ -68,7 +68,7 @@ export function ApiSubmitMediaAsset() {
             description: 'Image or video file',
           },
         },
-        required: ['deliverableItemId', 'file'],
+        required: ['deliverableItemPublicId', 'file'],
       },
     }),
     ApiResponse({

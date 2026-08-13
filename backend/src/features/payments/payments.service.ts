@@ -44,6 +44,17 @@ export class PaymentsService {
       });
     }
 
+    if (!campaign.all_deliverables_approved) {
+      this.logger.warn(
+        `Attempted to pay campaign where all deliverables are not approved.`,
+      );
+
+      throw new BadRequestException({
+        code: 'ALL_DELIVERABLES_NOT_APPROVED',
+        message: `Cannot record payment, all campaign deliverables are not approved.`,
+      });
+    }
+
     const publicId = nanoid(10);
     const recordedPayment = await this.prisma.payments.create({
       data: {
@@ -57,7 +68,11 @@ export class PaymentsService {
       `Stored payment ${recordedPayment.payment_id} for ${campaign.campaign_id}.`,
     );
 
-    return recordedPayment;
+    return {
+      recordedPayment,
+      creator_id: campaign.ugc_creator_id,
+      project_name: campaign.project_name,
+    };
   }
 
   async resolvePublicId(publicId: string) {
@@ -163,7 +178,7 @@ export class PaymentsService {
         });
       }
 
-      const validatedPayment = tx.payments.update({
+      const validatedPayment = await tx.payments.update({
         where: { payment_id: paymentRecord.payment_id },
         data: {
           is_payment_verified: true,
@@ -192,7 +207,11 @@ export class PaymentsService {
         tx,
       );
 
-      return validatedPayment;
+      return {
+        validatedPayment,
+        client_id: campaign.client_id,
+        project_name: campaign.project_name,
+      };
     });
 
     this.logger.log(`Successfully validated payment ${paymentId}.`);

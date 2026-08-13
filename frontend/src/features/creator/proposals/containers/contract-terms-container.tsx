@@ -1,5 +1,5 @@
 "use client"
-import { ArrowLeft, ArrowRight } from "lucide-react"
+import { ArrowLeft, ArrowRight, Save } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { CreativeDirection } from "@/src/features/creator/proposals/components/contract-terms/creative-direction"
 import { UsageRights } from "@/src/features/creator/proposals/components/contract-terms/usage-rights"
@@ -84,16 +84,22 @@ export function ContractTermsContainer({ contractTerms, currency, campaignDates,
         <Button
           variant="outline"
           onClick={onBack}
-          className="flex items-center gap-2"
+          className="flex items-center gap-2 p-5"
         >
           <ArrowLeft size={16} /> Back
         </Button>
         <div className="flex gap-3">
           <Button
+                variant="outline"
+                className="flex items-center gap-2 p-5"
+            >
+                <Save size={16} className="-mt-1" /> Save Draft
+            </Button>
+          <Button
             onClick={() => {
               if (contractTerms.validateForm(campaignDates)) onNext()
             }}
-            className="bg-[#6b1fa8] hover:bg-[#5a1a8f] text-white flex items-center gap-2"
+            className="bg-[#6b1fa8] hover:bg-[#5a1a8f] text-white flex items-center gap-2 p-5"
           >
             Add-Ons <ArrowRight size={16} />
           </Button>

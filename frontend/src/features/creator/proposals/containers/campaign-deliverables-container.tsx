@@ -1,5 +1,5 @@
 "use client"
-import { ArrowRight } from "lucide-react"
+import { ArrowRight, Save } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import CampaignDetailsSection from "@/src/features/creator/proposals/components/campaign-details/campaign-details-form";
 import ClientDetailsForm from "@/src/features/creator/proposals/components/client-details/client-details-form";
@@ -36,6 +36,12 @@ export function CampaignDeliverablesContainer({ form, onNext }: CampaignDelivera
         />
 
         <div className="flex justify-end gap-3 mt-6 pb-8">
+            <Button
+                variant="outline"
+                className="flex items-center gap-2 p-5"
+            >
+                <Save size={16} className="-mt-1" /> Save Draft
+            </Button>
             <Button
                 onClick={() => {
                     const isValid = form.validateForm()
