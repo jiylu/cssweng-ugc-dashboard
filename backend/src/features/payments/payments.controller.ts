@@ -82,9 +82,16 @@ export class PaymentsController {
   @Patch('/validate/:publicId')
   async validatePayment(@Param('publicId') publicId: string) {
     const paymentId = await this.paymentsService.resolvePublicId(publicId);
-    const validatedPayment =
-      await this.paymentsService.validatePayment(paymentId);
+    const result = await this.paymentsService.validatePayment(paymentId);
 
-    return plainToInstance(PaymentsEntity, validatedPayment);
+    if (result.client_id) {
+      await this.notificationsService.createNotification({
+        userId: result.client_id,
+        title: 'Payment has been Validated',
+        message: `Your payment for "${result.project_name}" has been validated.`,
+      });
+    }
+
+    return plainToInstance(PaymentsEntity, result.validatedPayment);
   }
 }
