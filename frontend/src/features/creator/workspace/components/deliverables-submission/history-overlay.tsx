@@ -2,21 +2,28 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useWrittenAssetHistory } from "../../hooks/useWrittenAssetHistory"
+import { useMediaAssetHistory } from "../../hooks/useMediaAssetHistory"
 import { WrittenAssetPreview } from "./written-asset-preview"
-import type { WrittenAsset } from "@/src/features/client/workspace/services/deliverable-submissions-api"
+import { FileUploadItem } from "./file-upload-item"
+import { filenameFromUrl } from "./media-file-utils"
+import type {
+  MediaAsset,
+  WrittenAsset,
+} from "@/src/features/client/workspace/services/deliverable-submissions-api"
 
 interface HistoryOverlayProps {
   open: boolean
   onClose: () => void
   deliverableItemPublicId?: string
+  type?: "written" | "media"
 }
 
 function formatDate(value: string) {
   return new Date(value).toLocaleString()
 }
 
-function statusLabel(asset: WrittenAsset) {
-  switch (asset.written_asset_action) {
+function statusLabel(action: "PENDING" | "REVISE" | "APPROVE") {
+  switch (action) {
     case "APPROVE":
       return "Approved"
     case "REVISE":
@@ -26,17 +33,26 @@ function statusLabel(asset: WrittenAsset) {
   }
 }
 
-function statusBadgeClass(asset: WrittenAsset) {
-  if (asset.written_asset_action === "APPROVE") {
+function statusBadgeClass(action: "PENDING" | "REVISE" | "APPROVE") {
+  if (action === "APPROVE") {
     return "text-[#2d7a3a] bg-[#e7f4ea] border border-[#2d7a3a]/30"
   }
   return "text-[#b45309] bg-[#fef3c7] border border-[#b45309]/30"
 }
 
-export function HistoryOverlay({ open, onClose, deliverableItemPublicId }: HistoryOverlayProps) {
-  const { data: history, isLoading } = useWrittenAssetHistory(
-    open ? deliverableItemPublicId : undefined,
-  )
+export function HistoryOverlay({
+  open,
+  onClose,
+  deliverableItemPublicId,
+  type = "written",
+}: HistoryOverlayProps) {
+  const { data: writtenHistory, isLoading: writtenLoading } =
+    useWrittenAssetHistory(type === "written" && open ? deliverableItemPublicId : undefined)
+  const { data: mediaHistory, isLoading: mediaLoading } =
+    useMediaAssetHistory(type === "media" && open ? deliverableItemPublicId : undefined)
+
+  const isLoading = type === "written" ? writtenLoading : mediaLoading
+  const history = type === "written" ? writtenHistory : mediaHistory
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -54,37 +70,74 @@ export function HistoryOverlay({ open, onClose, deliverableItemPublicId }: Histo
                 {isLoading ? (
                     <p className="text-sm text-muted-foreground">Loading versions…</p>
                 ) : history && history.length > 0 ? (
-                    history.map((asset) => (
-                        <div
-                            key={asset.public_id}
-                            className="flex flex-col gap-2 rounded-md border border-[#d8d4cb] bg-white p-4"
-                        >
-                            <div className="flex items-center justify-between gap-4">
-                                <div className="flex items-center gap-3">
-                                    <h3 className="text-lg font-medium text-foreground">
-                                        Version {asset.version_number}
-                                    </h3>
-                                    <span className="text-sm text-muted-foreground">
-                                        {formatDate(asset.created_at)}
-                                    </span>
-                                </div>
-                                <span className={`text-xs rounded px-2 py-0.5 whitespace-nowrap ${statusBadgeClass(asset)}`}>
-                                    {statusLabel(asset)}
-                                </span>
-                            </div>
-                            {asset.client_comments?.trim() && (
-                                <p className="text-xs text-muted-foreground">
-                                    Client feedback: {asset.client_comments}
-                                </p>
-                            )}
-                            <WrittenAssetPreview content={asset.content} />
-                        </div>
-                    ))
+                    history.map((asset) =>
+                        type === "written" ? (
+                            <WrittenHistoryRow key={asset.public_id} asset={asset as WrittenAsset} />
+                        ) : (
+                            <MediaHistoryRow key={asset.public_id} asset={asset as MediaAsset} />
+                        ),
+                    )
                 ) : (
                     <p className="text-sm text-muted-foreground">No versions yet.</p>
                 )}
             </div>
         </DialogContent>
     </Dialog>
+  )
+}
+
+function WrittenHistoryRow({ asset }: { asset: WrittenAsset }) {
+  return (
+    <div className="flex flex-col gap-2 rounded-md border border-[#d8d4cb] bg-white p-4">
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <h3 className="text-lg font-medium text-foreground">
+            Version {asset.version_number}
+          </h3>
+          <span className="text-sm text-muted-foreground">
+            {formatDate(asset.created_at)}
+          </span>
+        </div>
+        <span className={`text-xs rounded px-2 py-0.5 whitespace-nowrap ${statusBadgeClass(asset.written_asset_action)}`}>
+          {statusLabel(asset.written_asset_action)}
+        </span>
+      </div>
+      {asset.client_comments?.trim() && (
+        <p className="text-xs text-muted-foreground">
+          Client feedback: {asset.client_comments}
+        </p>
+      )}
+      <WrittenAssetPreview content={asset.content} />
+    </div>
+  )
+}
+
+function MediaHistoryRow({ asset }: { asset: MediaAsset }) {
+  return (
+    <div className="flex flex-col gap-2 rounded-md border border-[#d8d4cb] bg-white p-4">
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <h3 className="text-lg font-medium text-foreground">
+            Version {asset.version_number}
+          </h3>
+          <span className="text-sm text-muted-foreground">
+            {formatDate(asset.created_at)}
+          </span>
+        </div>
+        <span className={`text-xs rounded px-2 py-0.5 whitespace-nowrap ${statusBadgeClass(asset.media_asset_action)}`}>
+          {statusLabel(asset.media_asset_action)}
+        </span>
+      </div>
+      {asset.client_comments?.trim() && (
+        <p className="text-xs text-muted-foreground">
+          Client feedback: {asset.client_comments}
+        </p>
+      )}
+      <FileUploadItem
+        filename={filenameFromUrl(asset.content_url)}
+        status="done"
+        onPreview={() => window.open(asset.content_url, "_blank")}
+      />
+    </div>
   )
 }

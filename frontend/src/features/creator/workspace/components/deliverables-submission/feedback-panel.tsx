@@ -1,14 +1,24 @@
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Card } from "@/src/components/atoms/card"
 import { Separator } from "@/components/ui/separator"
-import type { WrittenAsset } from "@/src/features/client/workspace/services/deliverable-submissions-api"
+import type {
+  MediaAsset,
+  WrittenAsset,
+} from "@/src/features/client/workspace/services/deliverable-submissions-api"
 
 interface FeedbackPanelProps {
   writtenAsset?: WrittenAsset | null
+  mediaAsset?: MediaAsset | null
+  type: "written" | "media"
 }
 
-export function FeedbackPanel({ writtenAsset }: FeedbackPanelProps) {
-  const comment = writtenAsset?.client_comments?.trim()
+export function FeedbackPanel({ writtenAsset, mediaAsset, type }: FeedbackPanelProps) {
+  const asset = type === "written" ? writtenAsset : mediaAsset
+  const comment = asset?.client_comments?.trim()
+  const isApproved =
+    type === "written"
+      ? writtenAsset?.written_asset_action === "APPROVE"
+      : mediaAsset?.media_asset_action === "APPROVE"
 
   return (
     <div className="w-64 shrink-0 flex flex-col gap-4">
@@ -28,8 +38,10 @@ export function FeedbackPanel({ writtenAsset }: FeedbackPanelProps) {
             </>
           ) : (
             <p className="text-sm text-muted-foreground">
-              {writtenAsset?.written_asset_action === "APPROVE"
-                ? "Written assets approved."
+              {isApproved
+                ? type === "written"
+                  ? "Written assets approved."
+                  : "Media asset approved."
                 : "No feedback yet."}
             </p>
           )}

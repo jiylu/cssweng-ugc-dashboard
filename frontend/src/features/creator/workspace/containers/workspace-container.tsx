@@ -17,6 +17,7 @@ import { ContractSigningPanel } from "@/src/features/creator/workspace/component
 import { useWorkspace } from "@/src/features/creator/workspace/hooks/useWorkspace"
 import { useCampaignSetup } from "@/src/features/creator/workspace/hooks/useCampaignSetup"
 import { useDeliverableItems } from "@/src/features/creator/workspace/hooks/useDeliverableItems"
+import { useAllDeliverableItems } from "@/src/features/creator/workspace/hooks/useAllDeliverableItems"
 import { useLatestWrittenAsset, useLatestMediaAsset } from "@/src/features/creator/workspace/hooks/useLatestAsset"
 import { useSubmitWrittenAsset } from "@/src/features/creator/workspace/hooks/useSubmitWrittenAsset"
 
@@ -28,6 +29,7 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
   const { user, loading } = useAuth()
   const { activeStep, setActiveStep, activeDeliverable, setActiveDeliverable, historyOpen, setHistoryOpen } = useWorkspace()
   const [activeDeliverableStep, setActiveDeliverableStep] = useState(0)
+  const [historyType, setHistoryType] = useState<"written" | "media">("written")
   const { data: campaignSetup, isLoading: campaignLoading } = useCampaignSetup(campaignId)
   const campaign = campaignSetup?.campaign
   const deliverables = campaignSetup?.deliverables ?? []
@@ -38,6 +40,15 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
     isLoading: itemsLoading,
     error: itemsError,
   } = useDeliverableItems(selectedDeliverable?.public_id)
+  const activeDeliverables = deliverables.filter((deliverable) => !deliverable.is_deleted)
+  const deliverableItemsQueries = useAllDeliverableItems(activeDeliverables)
+  const allDeliverablesApproved =
+    activeDeliverables.length > 0 &&
+    deliverableItemsQueries.every((result) => {
+      const items = result.data ?? []
+      return items.length > 0 && items.every((item) => item.deliverable_item_status === "APPROVED")
+    })
+  const approvalLoading = deliverableItemsQueries.some((result) => result.isLoading)
   const firstDeliverableItem = deliverableItems?.[0]
   const { data: latestWrittenAsset } = useLatestWrittenAsset(firstDeliverableItem?.public_id)
   const { data: latestMediaAsset } = useLatestMediaAsset(firstDeliverableItem?.public_id)
@@ -58,6 +69,22 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
       return
     }
     setActiveDeliverableStep(step)
+  }
+
+  const handleStepChange = (step: number) => {
+    if (step < 2) {
+      setActiveStep(step)
+      return
+    }
+    if (itemsLoading || approvalLoading) {
+      toast.info("Deliverable approvals are still loading. Please try again.")
+      return
+    }
+    if (!allDeliverablesApproved) {
+      toast.info("All deliverables must be approved before proceeding to invoicing.")
+      return
+    }
+    setActiveStep(step)
   }
 
   const handleSubmitWrittenAsset = (content: string) => {
@@ -96,7 +123,7 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
             />
             <CampaignProgress 
               activeStep={activeStep} 
-              onStepChange={setActiveStep}
+              onStepChange={handleStepChange}
             />
           </div>
 
@@ -107,6 +134,7 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
               open={historyOpen}
               onClose={() => setHistoryOpen(false)}
               deliverableItemPublicId={firstDeliverableItem?.public_id}
+              type={historyType}
             />
             {activeStep === 1 && (
               <DeliverablesSidebar
@@ -128,7 +156,10 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
                 {activeDeliverableStep === 0 && (
                   <WrittenAssetsPanel
                     version={latestWrittenAsset?.version_number ?? 1}
-                    onHistory={() => setHistoryOpen(true)}
+                    onHistory={() => {
+                      setHistoryType("written")
+                      setHistoryOpen(true)
+                    }}
                     onSaveDraft={() => console.log("Save draft")}
                     onSubmit={handleSubmitWrittenAsset}
                     onNext={() => setActiveDeliverableStep(1)}
@@ -142,7 +173,10 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
                 {activeDeliverableStep === 1 && (
                   <VideoSubmissionContainer
                     version={latestMediaAsset?.version_number ?? 1}
-                    onHistory={() => setHistoryOpen(true)}
+                    onHistory={() => {
+                      setHistoryType("media")
+                      setHistoryOpen(true)
+                    }}
                     onNext={() => setActiveDeliverableStep(2)}
                     deliverableItemPublicId={firstDeliverableItem?.public_id}
                     mediaAsset={latestMediaAsset}
@@ -158,7 +192,11 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
                 )}
 
                 {activeDeliverableStep < 2 && (
-                  <FeedbackPanel writtenAsset={latestWrittenAsset} />
+                  <FeedbackPanel
+                    writtenAsset={latestWrittenAsset}
+                    mediaAsset={latestMediaAsset}
+                    type={activeDeliverableStep === 0 ? "written" : "media"}
+                  />
                 )}
               </>
             )}

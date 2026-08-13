@@ -5,16 +5,7 @@ import { FileDropzone } from "./file-dropzone"
 import { FileUploadItem } from "./file-upload-item"
 import { UploadedFile } from "@/src/features/creator/workspace/types/file-upload.types"
 import type { MediaAsset } from "@/src/features/client/workspace/services/deliverable-submissions-api"
-
-function filenameFromUrl(url?: string): string {
-  if (!url) return "Media Asset"
-  try {
-    const segment = url.split("/").pop() ?? ""
-    return decodeURIComponent(segment) || "Media Asset"
-  } catch {
-    return "Media Asset"
-  }
-}
+import { filenameFromUrl } from "./media-file-utils"
 
 interface VideoSubmissionProps {
   version: number
@@ -64,7 +55,7 @@ export function VideoSubmission({
 
       {isApproved && (
         <p className="text-xs text-[#2d7a3a] bg-[#e7f4ea] border border-[#2d7a3a]/30 rounded px-3 py-2">
-          Approved. You can now move on to the next deliverable.
+          Approved. This deliverable is now completed.
         </p>
       )}
       {isAwaitingReview && (

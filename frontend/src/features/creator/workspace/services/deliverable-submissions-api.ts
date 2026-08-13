@@ -69,6 +69,22 @@ export async function getLatestMediaAsset(
   return response.json()
 }
 
+export async function getMediaAssetHistory(
+  deliverableItemPublicId: string,
+): Promise<MediaAsset[]> {
+  const response = await fetch(
+    `${API_BASE_URL}/media-assets/history/${deliverableItemPublicId}`,
+    { credentials: "include" },
+  )
+  if (response.status === 404) return []
+  if (!response.ok) {
+    throw new Error(
+      await parseApiError(response, "Unable to fetch media asset history."),
+    )
+  }
+  return response.json()
+}
+
 export async function submitWrittenAsset(
   deliverableItemPublicId: string,
   content: string,
