@@ -4,11 +4,13 @@ import type { ProposalAddOn } from "../types/proposal-review.types";
 interface OptionalAddOnsCardProps {
   addOns: ProposalAddOn[];
   onToggle?: (addOn: ProposalAddOn) => void;
+  readOnly?: boolean;
 }
 
 export default function OptionalAddOnsCard({
   addOns,
   onToggle,
+  readOnly = false,
 }: OptionalAddOnsCardProps) {
   return (
     <section className="overflow-hidden rounded border border-[#a9a59e] bg-white">
@@ -36,6 +38,7 @@ export default function OptionalAddOnsCard({
               aria-label={`${addOn.selected ? "Remove" : "Select"} ${addOn.name}`}
               aria-pressed={addOn.selected}
               onClick={() => onToggle?.(addOn)}
+              disabled={readOnly}
             >
               {addOn.selected && <Check className="size-4 stroke-[3]" />}
             </button>

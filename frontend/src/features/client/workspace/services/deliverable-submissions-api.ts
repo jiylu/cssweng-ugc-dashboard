@@ -38,7 +38,7 @@ export async function getDeliverableItems(
   deliverablePublicId: string,
 ): Promise<DeliverableItem[]> {
   const response = await fetch(
-    `${API_BASE_URL}/deliverables/deliverable-items/${deliverablePublicId}`,
+    `${API_BASE_URL}/deliverable-items/deliverable/${deliverablePublicId}`,
     { credentials: "include" },
   );
   if (!response.ok) {
