@@ -8,6 +8,8 @@ import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { EmailService } from '../email/email.service';
 import { CreateOtpDto } from './dto/create-otp.dto';
 import { ValidateOtpDto } from './dto/validate-otp.dto';
+import { CreateGuestOtpDto, ValidateGuestOtpDto } from './dto/guest-otp.dto';
+import { UserRoles } from '@prisma/client';
 
 const OTP_LIFETIME_MS = 10 * 60 * 1000;
 const VERIFICATION_LIFETIME_MS = 15 * 60 * 1000;
@@ -46,6 +48,42 @@ export class OtpService {
 
     await this.emailService.sendRegistrationOtpEmail(email, otp);
     return { message: 'Verification code sent' };
+  }
+
+  async createGuest(dto: CreateGuestOtpDto) {
+    await this.assertProposalGuestEmail(dto.proposalPublicId, dto.email);
+    return this.create({ email: dto.email, role: UserRoles.CLIENT });
+  }
+
+  async validateGuest(dto: ValidateGuestOtpDto) {
+    await this.assertProposalGuestEmail(dto.proposalPublicId, dto.email);
+    await this.validate({
+      email: dto.email,
+      role: UserRoles.CLIENT,
+      otp: dto.otp,
+    });
+    return { message: 'Guest access verified' };
+  }
+
+  private async assertProposalGuestEmail(
+    proposalPublicId: string,
+    emailValue: string,
+  ) {
+    const email = emailValue.trim().toLowerCase();
+    const proposal = await this.prisma.proposals.findFirst({
+      where: {
+        public_id: proposalPublicId,
+        client_email: { equals: email, mode: 'insensitive' },
+      },
+      select: { proposal_id: true },
+    });
+
+    if (!proposal) {
+      throw new UnauthorizedException({
+        code: 'INVALID_GUEST_INVITATION',
+        message: 'This email is not invited to view the proposal.',
+      });
+    }
   }
 
   async validate(dto: ValidateOtpDto) {

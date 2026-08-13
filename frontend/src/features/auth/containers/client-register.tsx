@@ -9,10 +9,18 @@ import { useClientOnboarding } from "../hooks/useClientOnboarding";
 import { useRegister } from "../hooks/useRegister";
 import { clientRegisterParamsSchema } from "../schemas/client-register-params.schema";
 import OtpCard from "../components/otp-card";
-import { assignClientToCampaign } from "../services/users-api";
+import {
+  assignClientToCampaign,
+  requestGuestProposalOtp,
+  validateGuestProposalOtp,
+} from "../services/users-api";
+import GuestOtpCard from "../components/guest-otp-card";
 
 export default function ClientRegister() {
-  const [step, setStep] = useState<"account" | "onboarding" | "otp">("account");
+  const [step, setStep] = useState<"account" | "onboarding" | "otp" | "guestOtp">("account");
+  const [guestOtp, setGuestOtp] = useState("");
+  const [guestError, setGuestError] = useState("");
+  const [isGuestSubmitting, setIsGuestSubmitting] = useState(false);
   const createdClientId = useRef<string | null>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -63,6 +71,48 @@ export default function ClientRegister() {
     deferRegistrationUntilClientDetails: true,
     deferOtpUntilAfterDetails: true,
   });
+  const guestProposalId = params.proposalId;
+  const canContinueAsGuest = Boolean(guestProposalId && params.email);
+
+  const sendGuestOtp = async () => {
+    if (!params.email || !guestProposalId) return;
+    setGuestError("");
+    setIsGuestSubmitting(true);
+    try {
+      await requestGuestProposalOtp({
+        email: params.email,
+        proposalPublicId: guestProposalId,
+      });
+      setStep("guestOtp");
+    } catch (error) {
+      setGuestError(error instanceof Error ? error.message : "Unable to send verification code.");
+    } finally {
+      setIsGuestSubmitting(false);
+    }
+  };
+
+  const verifyGuestOtp = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!params.email || !guestProposalId || !/^\d{8}$/.test(guestOtp)) return;
+    setGuestError("");
+    setIsGuestSubmitting(true);
+    try {
+      await validateGuestProposalOtp({
+        email: params.email,
+        proposalPublicId: guestProposalId,
+        otp: guestOtp,
+      });
+      window.sessionStorage.setItem(
+        `guestProposalAccess:${guestProposalId}`,
+        params.email.toLowerCase(),
+      );
+      router.push(`/proposals/${guestProposalId}?guest=1`);
+    } catch (error) {
+      setGuestError(error instanceof Error ? error.message : "Unable to verify code.");
+    } finally {
+      setIsGuestSubmitting(false);
+    }
+  };
   const onboardingForm = useClientOnboarding({
     initialEmail: params.email,
     proposalId: params.proposalId,
@@ -91,14 +141,35 @@ export default function ClientRegister() {
           <h1 className="text-center text-[38px] leading-none text-[#6b1fa8] max-md:text-3xl">
             {step === "account"
               ? "Client Registration"
-              : step === "onboarding"
-                ? "Onboarding"
-                : "Verify It’s You"}
+                : step === "onboarding"
+                  ? "Onboarding"
+                  : step === "guestOtp"
+                    ? "Guest Verification"
+                    : "Verify It’s You"}
           </h1>
 
           <div className="mt-5 w-full">
             {step === "account" ? (
-              <ClientRegisterCard registerForm={registerForm} />
+              <ClientRegisterCard
+                registerForm={registerForm}
+                canContinueAsGuest={canContinueAsGuest}
+                onContinueAsGuest={() => void sendGuestOtp()}
+              />
+            ) : step === "guestOtp" && params.email ? (
+              <GuestOtpCard
+                email={params.email}
+                error={guestError}
+                isSubmitting={isGuestSubmitting}
+                otp={guestOtp}
+                onBack={() => {
+                  setGuestOtp("");
+                  setGuestError("");
+                  setStep("account");
+                }}
+                onOtpChange={setGuestOtp}
+                onResend={() => void sendGuestOtp()}
+                onSubmit={verifyGuestOtp}
+              />
             ) : step === "otp" ? (
               <OtpCard registerForm={registerForm} />
             ) : (
