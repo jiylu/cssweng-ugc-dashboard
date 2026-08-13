@@ -1,4 +1,5 @@
 "use client"
+import { useEffect } from "react"
 import { toast } from "sonner"
 import { useFileUploads } from "@/src/features/creator/workspace/hooks/useFileUpload"
 import { useSubmitMediaAsset } from "@/src/features/creator/workspace/hooks/useSubmitMediaAsset"
@@ -8,6 +9,7 @@ import type { UploadedFile } from "../types/file-upload.types"
 
 interface VideoSubmissionContainerProps {
   version: number
+  onDirtyChange: (dirty: boolean) => void
   onHistory: () => void
   deliverableItemPublicId?: string
   mediaAsset?: MediaAsset | null
@@ -17,15 +19,21 @@ interface VideoSubmissionContainerProps {
 
 export function VideoSubmissionContainer({
   version,
+  onDirtyChange,
   onHistory,
   deliverableItemPublicId,
   mediaAsset,
   onSubmit,
   onNext,
 }: VideoSubmissionContainerProps) {
-  const { files, addFiles, removeFile } = useFileUploads()
+  const { files, addFiles, removeFile, clearFiles } = useFileUploads()
   const { mutateAsync: submitMediaAsset, isPending: isSubmitting } =
     useSubmitMediaAsset()
+
+  useEffect(() => {
+    onDirtyChange(files.length > 0)
+    return () => onDirtyChange(false)
+  }, [files.length, onDirtyChange])
 
   const handlePreview = (id: string) => {
     const target = files.find((f) => f.id === id)
@@ -53,6 +61,7 @@ export function VideoSubmissionContainer({
           file: file.file,
         })
       }
+      clearFiles()
       toast.success("Media asset submitted for approval.")
     } catch (error) {
       toast.error(

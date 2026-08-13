@@ -9,6 +9,7 @@ import type { WrittenAsset } from "@/src/features/client/workspace/services/deli
 
 interface WrittenAssetsPanelProps {
   version: number
+  onDirtyChange: (dirty: boolean) => void
   onSaveDraft: () => void
   onSubmit: (content: string) => void
   onNext: () => void
@@ -21,6 +22,7 @@ interface WrittenAssetsPanelProps {
 
 export function WrittenAssetsPanel({
   version,
+  onDirtyChange,
   onSaveDraft,
   onSubmit,
   onNext,
@@ -32,9 +34,16 @@ export function WrittenAssetsPanel({
 }: WrittenAssetsPanelProps) {
   const { content, errors, updateContent, validateAndSave } = useWrittenAssetsPanel()
 
+  const submittedContent = writtenAsset?.content ?? ""
+
   useEffect(() => {
-    updateContent(writtenAsset?.content ?? "")
+    updateContent(submittedContent)
   }, [writtenAsset?.public_id])
+
+  useEffect(() => {
+    onDirtyChange(content !== "" && content !== submittedContent)
+    return () => onDirtyChange(false)
+  }, [content, submittedContent, onDirtyChange])
 
   const action = writtenAsset?.written_asset_action
   const isAwaitingReview = action === "PENDING"

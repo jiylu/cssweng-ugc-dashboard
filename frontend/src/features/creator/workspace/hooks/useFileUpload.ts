@@ -82,5 +82,14 @@ export function useFileUploads() {
     }
   }, [])
 
-  return { files, addFiles, removeFile }
+  const clearFiles = useCallback(() => {
+    setFiles((prev) => {
+      prev.forEach((f) => URL.revokeObjectURL(f.previewUrl))
+      return []
+    })
+    intervalsRef.current.forEach((interval) => clearInterval(interval))
+    intervalsRef.current.clear()
+  }, [])
+
+  return { files, addFiles, removeFile, clearFiles }
 }

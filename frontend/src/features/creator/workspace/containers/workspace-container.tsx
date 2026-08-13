@@ -1,5 +1,5 @@
 "use client"
-import { useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { toast } from "sonner"
 import CreatorSidebar from "@/src/components/organisms/creator-sidebar"
 import { Separator } from "@/components/ui/separator"
@@ -13,6 +13,7 @@ import { FeedbackPanel } from "@/src/features/creator/workspace/components/deliv
 import { HistoryOverlay } from "@/src/features/creator/workspace/components/deliverables-submission/history-overlay"
 import { VideoSubmissionContainer } from "@/src/features/creator/workspace/containers/video-submission-container"
 import { DeliverableApprovedCard } from "@/src/features/creator/workspace/components/deliverables-submission/deliverable-approved-card"
+import { UnsavedChangesDialog } from "@/src/features/creator/workspace/components/deliverables-submission/unsaved-changes-dialog"
 import { ContractSigningPanel } from "@/src/features/creator/workspace/components/contract-signing/contract-signing-panel"
 import { useWorkspace } from "@/src/features/creator/workspace/hooks/useWorkspace"
 import { useCampaignSetup } from "@/src/features/creator/workspace/hooks/useCampaignSetup"
@@ -31,6 +32,13 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
   const [activeDeliverableStep, setActiveDeliverableStep] = useState(0)
   const [activeDeliverableItem, setActiveDeliverableItem] = useState(0)
   const [historyType, setHistoryType] = useState<"written" | "media">("written")
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const pendingNavigationRef = useRef<
+    | { type: "deliverable"; index: number }
+    | { type: "item"; index: number }
+    | null
+  >(null)
   const { data: campaignSetup, isLoading: campaignLoading } = useCampaignSetup(campaignId)
   const campaign = campaignSetup?.campaign
   const deliverables = campaignSetup?.deliverables ?? []
@@ -75,6 +83,46 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
   const handleDeliverableItemChange = (itemIndex: number) => {
     setActiveDeliverableItem(itemIndex)
     setActiveDeliverableStep(0)
+  }
+
+  const handleDirtyChange = useCallback((dirty: boolean) => {
+    setHasUnsavedChanges(dirty)
+  }, [])
+
+  const runNavigation = (navigation: {
+    type: "deliverable" | "item"
+    index: number
+  }) => {
+    setHasUnsavedChanges(false)
+    if (navigation.type === "deliverable") {
+      handleDeliverableChange(navigation.index)
+    } else {
+      handleDeliverableItemChange(navigation.index)
+    }
+  }
+
+  const requestNavigation = (navigation: {
+    type: "deliverable" | "item"
+    index: number
+  }) => {
+    if (hasUnsavedChanges) {
+      pendingNavigationRef.current = navigation
+      setConfirmOpen(true)
+      return
+    }
+    runNavigation(navigation)
+  }
+
+  const confirmDiscardAndContinue = () => {
+    const navigation = pendingNavigationRef.current
+    pendingNavigationRef.current = null
+    setConfirmOpen(false)
+    if (navigation) runNavigation(navigation)
+  }
+
+  const cancelNavigation = () => {
+    pendingNavigationRef.current = null
+    setConfirmOpen(false)
   }
 
   const handleDeliverableStepChange = (step: number) => {
@@ -154,6 +202,11 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
               deliverableItemPublicId={selectedDeliverableItem?.public_id}
               type={historyType}
             />
+            <UnsavedChangesDialog
+              open={confirmOpen}
+              onConfirm={confirmDiscardAndContinue}
+              onCancel={cancelNavigation}
+            />
             {activeStep === 1 && (
               <DeliverablesSidebar
                 deliverables={deliverables}
@@ -163,8 +216,8 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
                 activeDeliverable={activeDeliverable}
                 activeDeliverableItem={activeDeliverableItem}
                 activeDeliverableStep={activeDeliverableStep}
-                onChange={handleDeliverableChange}
-                onDeliverableItemChange={handleDeliverableItemChange}
+                onChange={(index) => requestNavigation({ type: "deliverable", index })}
+                onDeliverableItemChange={(itemIndex) => requestNavigation({ type: "item", index: itemIndex })}
                 onStepChange={handleDeliverableStepChange}
               />
             )}
@@ -180,6 +233,7 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
                   <WrittenAssetsPanel
                     key={selectedDeliverableItem?.public_id}
                     version={latestWrittenAsset?.version_number ?? 1}
+                    onDirtyChange={handleDirtyChange}
                     onHistory={() => {
                       setHistoryType("written")
                       setHistoryOpen(true)
@@ -198,6 +252,7 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
                   <VideoSubmissionContainer
                     key={selectedDeliverableItem?.public_id}
                     version={latestMediaAsset?.version_number ?? 1}
+                    onDirtyChange={handleDirtyChange}
                     onHistory={() => {
                       setHistoryType("media")
                       setHistoryOpen(true)
