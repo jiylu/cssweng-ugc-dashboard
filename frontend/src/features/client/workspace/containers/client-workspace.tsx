@@ -144,6 +144,21 @@ function MediaPreview({
 
 // ── Written Asset Panel (Wired) ────────────────────────────────────────────────
 
+const RICH_TEXT_TAGS = new Set([
+  "p", "br", "strong", "b", "em", "i", "u", "s", "ul", "ol", "li",
+  "h1", "h2", "h3", "h4", "blockquote",
+]);
+
+function sanitizeRichText(content: string) {
+  return content
+    .replace(/<(script|style|iframe|object|embed)[^>]*>[\s\S]*?<\/\1>/gi, "")
+    .replace(/<\/?([a-z0-9]+)(?:\s[^>]*)?>/gi, (tag, name: string) => {
+      const normalizedName = name.toLowerCase();
+      if (!RICH_TEXT_TAGS.has(normalizedName)) return "";
+      return tag.startsWith("</") ? `</${normalizedName}>` : `<${normalizedName}>`;
+    });
+}
+
 function WrittenAssetPanel({
   asset,
   isLoading,
@@ -174,9 +189,10 @@ function WrittenAssetPanel({
         </div>
       ) : asset ? (
         <div className="pt-5">
-          <div className="min-h-[200px] rounded border border-[#d8d4cb] p-5 text-sm leading-6 text-[#44403b] whitespace-pre-wrap">
-            {asset.content}
-          </div>
+          <div
+            className="prose prose-sm min-h-[200px] max-w-none rounded border border-[#d8d4cb] p-5 leading-6 text-[#44403b]"
+            dangerouslySetInnerHTML={{ __html: sanitizeRichText(asset.content) }}
+          />
           {asset.client_comments && (
             <div className="mt-4 rounded border border-amber-200 bg-amber-50 p-3">
               <p className="text-xs font-medium text-amber-800">
@@ -723,9 +739,14 @@ export default function ClientWorkspace({
                 {activeSubmissionStep === 0 ? "Written Assets" : "Media Assets"}
               </h3>
               {activeSubmissionStep === 0 ? (
-                <div className="mt-5 min-h-[320px] rounded border p-5 text-sm whitespace-pre-wrap">
-                  {latestWrittenAsset?.content ?? "No submission yet."}
-                </div>
+                <div
+                  className="prose prose-sm mt-5 min-h-[320px] max-w-none rounded border p-5"
+                  dangerouslySetInnerHTML={{
+                    __html: latestWrittenAsset?.content
+                      ? sanitizeRichText(latestWrittenAsset.content)
+                      : "No submission yet.",
+                  }}
+                />
               ) : (
                 <div className="mt-5">
                   {latestMediaAsset?.content_url ? (

@@ -4,6 +4,9 @@ import { API_BASE_URL } from "@/src/config/api"
 
 export interface CampaignContract {
   public_id: string;
+  creator_signed: boolean;
+  client_signed: boolean;
+  effective_date: string | null;
 }
 
 export interface CampaignSetupProposal {

@@ -1,7 +1,7 @@
 "use client"
 import { useState } from "react"
 import { toast } from "sonner"
-import { Receipt, Eye, ArrowRight, ExternalLink } from "lucide-react"
+import { Receipt, Eye, ArrowRight, CircleCheck, ExternalLink } from "lucide-react"
 import { Card } from "@/src/components/atoms/card"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
@@ -62,6 +62,42 @@ export function InvoiceDetailsCard({ campaignId }: InvoiceDetailsCardProps) {
     } finally {
       setIsSending(false)
     }
+  }
+
+  if (payment?.is_payment_verified) {
+    return (
+      <Card className="flex flex-col gap-4 overflow-hidden p-0">
+        <h2 className="px-5 pt-4 pb-3 text-xl text-foreground">
+          Invoice Completed
+        </h2>
+        <Separator />
+        <div className="flex flex-col items-center gap-4 px-8 pb-6 text-center">
+          <CircleCheck className="text-[#2d7a3a]" size={44} strokeWidth={1.5} />
+          <div className="flex flex-col gap-1">
+            <p className="text-base font-medium text-foreground">
+              Payment verified successfully
+            </p>
+            <p className="text-sm text-muted-foreground">
+              The invoice has been completed and the campaign payment is confirmed.
+            </p>
+          </div>
+          <div className="flex w-full max-w-64 flex-col gap-1 rounded-[3px] border border-[#2d7a3a]/30 bg-[#e7f4ea] px-3 py-2 text-left text-xs text-[#2d7a3a]">
+            <span>Invoice ID: {payment.public_id}</span>
+            {payment.verified_at && (
+              <span>
+                Verified: {new Date(payment.verified_at).toLocaleDateString()}
+              </span>
+            )}
+          </div>
+          <Button asChild type="button" variant="outline" className="w-full max-w-64 rounded-[3px] border-[#6b1fa8] text-[#6b1fa8] hover:bg-[#6b1fa8]/5 hover:text-[#6b1fa8]">
+            <a href={payment.proof_payment_url} target="_blank" rel="noreferrer">
+              View Proof of Payment
+              <ExternalLink size={16} />
+            </a>
+          </Button>
+        </div>
+      </Card>
+    )
   }
 
   return (

@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { CircleCheck } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -12,14 +13,15 @@ import { CampaignContract } from "@/src/features/creator/workspace/services/getC
 
 interface ContractSigningPanelProps {
   contract?: CampaignContract;
-  onSigned?: () => void;
+  onNext?: () => void;
 }
 
-export function ContractSigningPanel({ contract, onSigned }: ContractSigningPanelProps) {
+export function ContractSigningPanel({ contract, onNext }: ContractSigningPanelProps) {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [signatureDataUrl, setSignatureDataUrl] = useState("");
   const [initialsDataUrl, setInitialsDataUrl] = useState("");
+  const [hasSigned, setHasSigned] = useState(false);
 
   const signingMutation = useMutation({
     mutationFn: () => {
@@ -33,8 +35,8 @@ export function ContractSigningPanel({ contract, onSigned }: ContractSigningPane
       });
     },
     onSuccess: () => {
+      setHasSigned(true);
       toast.success("Contract signed successfully.");
-      onSigned?.();
     },
     onError: (error) =>
       toast.error(error instanceof Error ? error.message : "Unable to sign contract."),
@@ -46,6 +48,32 @@ export function ContractSigningPanel({ contract, onSigned }: ContractSigningPane
     Boolean(signatureDataUrl) &&
     Boolean(initialsDataUrl) &&
     !signingMutation.isPending;
+  const isContractSigned = hasSigned || Boolean(contract?.creator_signed);
+
+  if (isContractSigned) {
+    return (
+      <section className="flex h-full w-full max-w-4xl flex-col items-center justify-center gap-5 rounded border border-[#d8d4cb] bg-white p-8 text-center">
+        <CircleCheck className="text-[#2d7a3a]" size={52} strokeWidth={1.5} />
+        <div className="flex flex-col gap-2">
+          <h2 className="text-2xl font-normal text-foreground">
+            Contract Signing Complete
+          </h2>
+          <p className="max-w-lg text-sm text-[#78746e]">
+            Your signature has been recorded and the contract is ready for the
+            next campaign step.
+          </p>
+        </div>
+        {contract?.effective_date && (
+          <p className="text-xs text-muted-foreground">
+            Signed on {new Date(contract.effective_date).toLocaleDateString()}
+          </p>
+        )}
+        <Button type="button" className="mt-1 min-w-48" onClick={onNext}>
+          Next: Deliverables Submission
+        </Button>
+      </section>
+    );
+  }
 
   return (
     <section className="flex flex-col gap-6 w-full h-full max-w-4xl bg-white rounded border border-[#d8d4cb] p-8">

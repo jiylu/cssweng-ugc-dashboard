@@ -276,7 +276,7 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
             {activeStep === 0 && (
               <ContractSigningPanel 
                 contract={campaignSetup?.contract} 
-                onSigned={() => setActiveStep(1)} 
+                onNext={() => setActiveStep(1)}
               />
             )}
             {activeStep === 1 && (
@@ -319,6 +319,7 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
                 {activeDeliverableStep === 2 && (
                   <DeliverableApprovedCard
                     deliverableName={activeDeliverableName}
+                    onNext={() => handleStepChange(2)}
                   />
                 )}
 
