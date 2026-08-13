@@ -38,7 +38,7 @@ export function PaymentSummaryCard({ baseFee, addOnsTotal, taxRate, tax, total, 
 
                 <Separator />
 
-                <div className="flex justify-between text-sm font-bold text-[#6b1fa8]">
+                <div className="flex justify-between text-[16px] font-bold text-[#6b1fa8]">
                     <span className="uppercase tracking-wide">Total Due</span>
                     <span>{fmt(total)}</span>
                 </div>

@@ -56,7 +56,7 @@ export default function CreatorDashboard() {
         <div className="max-w-7xl mx-auto">
 
           {/* HEADER */}
-          <div className="mt-3 mb-3 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+          <div className="mt-2 mb-3 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
             <div>
               <h1 className="text-xl sm:text-3xl lg:text-[56px] font-bold leading-tight text-[#141518]">
                 Welcome back, {user?.first_name ?? "User"}
@@ -87,7 +87,7 @@ export default function CreatorDashboard() {
 
           {/* TODOS */}
           <h2 className="text-xl sm:text-2xl font-bold mb-2">Urgent / To Do</h2>
-          <div className="flex flex-row gap-2 flex-start mb-10">
+          <div className="flex flex-row gap-4 flex-start mb-10">
             <CreatorTodoCard
               campaignName="Summer Glow 2026"
               message="Campaign due in 3 days."

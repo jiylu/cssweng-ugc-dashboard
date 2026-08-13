@@ -4,6 +4,7 @@ import { DatePickerInput } from "@/src/components/molecules/date-picker-input";
 import { PlatformsCheckbox } from "@/src/features/creator/proposals/components/campaign-details/platforms-checkbox";
 import { PlatformEntry } from "@/src/features/creator/proposals/types/campaign-setup.types"
 import { CurrencySelect } from "@/src/features/creator/proposals/components/campaign-details/currency-select"
+import { Separator } from "@/components/ui/separator"
 
 export interface CampaignDetailsFormProps {
   form: {
@@ -27,6 +28,7 @@ export default function CampaignDetailsSection({ form }: CampaignDetailsFormProp
   return (
     <div className="bg-white border border-border rounded p-5.5 flex flex-col gap-6 transition-[border-color,box-shadow] duration-300">
       <h2 className="text-[26px] font-normal text-foreground">Campaign Details</h2>
+      <Separator className="-mt-4 mb-2"/>
 
       <p className="text-[16px] text-muted-foreground leading-relaxed -mt-4">
         Provide the core information, timeline, and an overview of this collaboration.
@@ -95,15 +97,20 @@ export default function CampaignDetailsSection({ form }: CampaignDetailsFormProp
       {/* Campaign Description */}
       <div className="flex flex-col gap-0">
         <label className="text-sm text-muted-foreground uppercase tracking-[0.03em] mt-0">CAMPAIGN DESCRIPTION</label>
-        <Textarea
-          value={form.campaignDescription}
-          onChange={(e) => form.setCampaignDescription(e.target.value)}
-          className="w-full min-h-[100px] border border-muted bg-transparent p-3 text-sm placeholder:text-muted-foreground outline-none transition-colors focus:border-ring focus:text-foreground resize-none"
-          placeholder="Enter description"
-        />
-        {form.errors.campaignDescription && (
-          <p className="text-xs mt-1 text-[#ff6467]">{form.errors.campaignDescription}</p>
-        )}
+          <div className="relative"> 
+            <Textarea
+              value={form.campaignDescription}
+              onChange={(e) => form.setCampaignDescription(e.target.value)}
+              className="w-full min-h-[100px] border border-muted bg-transparent p-3 text-sm placeholder:text-muted-foreground outline-none transition-colors focus:border-ring focus:text-foreground resize-none"
+              placeholder="Enter campaign description"
+            />
+            <span className="absolute bottom-3 right-3 text-[13px] text-gray-400">
+              {form.campaignDescription?.length || 0}
+            </span>
+          </div>  
+            {form.errors.campaignDescription && (
+              <p className="text-xs mt-1 text-[#ff6467]">{form.errors.campaignDescription}</p>
+            )}
       </div>
     </div>
   )
