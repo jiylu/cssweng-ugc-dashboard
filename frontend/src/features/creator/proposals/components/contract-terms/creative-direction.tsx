@@ -53,13 +53,13 @@ export function CreativeDirection({ revisionRounds, setRevisionRounds, revisionD
 
         {/* Custom Revision Count Slider */}
         {revisionRounds >= 3 && (
-          <div className="flex flex-col gap-3 mt-2 animate-in fade-in slide-in-from-top-2">
+          <div className="flex flex-col gap-3 mt-2">
             <p className="text-sm text-muted-foreground">
               Select the number of revisions:
             </p>
             <Slider
               min={3}
-              max={6}
+              max={10}
               step={1}
               value={[revisionRounds]}
               onValueChange={(val) => setRevisionRounds(val[0])}
@@ -68,7 +68,7 @@ export function CreativeDirection({ revisionRounds, setRevisionRounds, revisionD
             <div className="flex justify-between text-xs text-muted-foreground">
               <span>3 Revisions</span>
               <span className="text-[#6b1fa8] font-semibold text-[13px]">{revisionRounds} Revisions</span>
-              <span>6 Revisions</span>
+              <span>10 Revisions</span>
             </div>
           </div>
         )}
