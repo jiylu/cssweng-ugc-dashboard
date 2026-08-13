@@ -51,7 +51,7 @@ export default function SignContractModal({ contractPublicId }: SignContractModa
           Accept and Sign Contract
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-h-[90vh] min-w-xl max-w-3xl overflow-y-auto bg-[#f2f0ea]">
+      <DialogContent className="max-h-[90vh] min-w-3xl max-w-5xl overflow-y-auto bg-[#f2f0ea]">
         <DialogHeader>
           <DialogTitle
             className="text-xl font-normal text-[#6b1fa8]"
@@ -65,23 +65,23 @@ export default function SignContractModal({ contractPublicId }: SignContractModa
         >
             <span className="text-[#78746e] font-light">Confirm your name, initials, and signature</span>
             <div className="flex gap-6">
-              <Field className="flex flex-col gap-1.5">
+              <Field className="flex flex-1 flex-col gap-1.5">
                 <FieldLabel htmlFor="firstname-input">First Name</FieldLabel>
                 <Input
                   id="firstname-input"
                   placeholder="Enter First Name"
-                  className="w-64 border-[#78746e]"
+                  className="w-full border-[#78746e]"
                   value={firstName}
                   onChange={(event) => setFirstName(event.target.value)}
                 />
               </Field>
           
-              <Field className="flex flex-col gap-1.5">
+              <Field className="flex flex-1 flex-col gap-1.5">
                 <FieldLabel htmlFor="lastname-input">Last Name</FieldLabel>
                 <Input
                   id="lastname-input"
                   placeholder="Enter Last Name"
-                  className="w-64 border-[#78746e]"
+                  className="w-full border-[#78746e]"
                   value={lastName}
                   onChange={(event) => setLastName(event.target.value)}
                 />
@@ -90,18 +90,18 @@ export default function SignContractModal({ contractPublicId }: SignContractModa
 
             </div>
 
-            <div className="flex gap-8 rounded-lg border border-input/40 p-4">
+            <div className="flex gap-8 rounded-lg border border-input/40 p-6">
               <SignatureField
                 label="Signed by:"
                 id={contractPublicId}
-                className="w-64"
-                height={50}
+                className="flex-1"
+                height={120}
                 onChange={setSignatureDataUrl}
               />
               <SignatureField
                 label="Initials"
-                height={50}
-                className="w-24"
+                height={120}
+                className="w-48"
                 onChange={setInitialsDataUrl}
               />
             </div>
