@@ -1,11 +1,13 @@
 import { useAuth } from "@/src/features/auth/hooks/useAuth";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import ContractActionPanel from "../components/contract-action-panel";
 import ContractReviewHeader from "../components/contract-review-header";
 
 export default function ClientContractReview() {
   const params = useParams<{ proposalId: string }>();
+  const searchParams = useSearchParams();
   const { user } = useAuth();
+  const proposalPublicId = searchParams.get("proposal") ?? undefined;
 
   if (!user) {
     return;
@@ -38,6 +40,7 @@ export default function ClientContractReview() {
         <aside className="pt-0">
           <ContractActionPanel
             contractPublicId={params.proposalId}
+            proposalPublicId={proposalPublicId}
           />
         </aside>
       </div>
