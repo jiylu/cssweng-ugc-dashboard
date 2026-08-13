@@ -56,8 +56,8 @@ model Clients {
   company_email             String
   billable_person           String
   contact_person            String
-  company_contact_no        Int
-  contact_person_contact_no Int
+  company_contact_no        String
+  contact_person_contact_no String
 }
 
 model Campaigns {

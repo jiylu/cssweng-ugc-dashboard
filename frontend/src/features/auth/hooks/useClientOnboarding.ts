@@ -38,7 +38,13 @@ export function useClientOnboarding({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm((prev) => ({ ...prev, [e.target.id]: e.target.value }));
+    const { id } = e.target;
+    const value =
+      id === "companyPhoneNumber" || id === "contactNumber"
+        ? e.target.value.replace(/\D/g, "")
+        : e.target.value;
+
+    setForm((prev) => ({ ...prev, [id]: value }));
   };
 
   const updateEmailFromAccount = (email: string) => {

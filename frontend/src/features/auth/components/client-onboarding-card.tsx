@@ -14,6 +14,7 @@ function Field({
   label,
   onChange,
   placeholder,
+  numericOnly = false,
   type = "text",
   value,
 }: {
@@ -22,6 +23,7 @@ function Field({
   label: string;
   onChange: React.ChangeEventHandler<HTMLInputElement>;
   placeholder: string;
+  numericOnly?: boolean;
   type?: React.HTMLInputTypeAttribute;
   value: string;
 }) {
@@ -31,6 +33,8 @@ function Field({
       <input
         id={id}
         type={type}
+        inputMode={numericOnly ? "numeric" : undefined}
+        pattern={numericOnly ? "[0-9]*" : undefined}
         className={inputClassName}
         placeholder={placeholder}
         value={value}
@@ -88,6 +92,7 @@ export default function ClientOnboardingCard({
             <Field
               id="companyPhoneNumber"
               type="tel"
+              numericOnly
               label="Company Phone Number"
               placeholder="Enter company phone number"
               value={form.companyPhoneNumber}
@@ -115,6 +120,7 @@ export default function ClientOnboardingCard({
             <Field
               id="contactNumber"
               type="tel"
+              numericOnly
               label="Contact Number"
               placeholder="Enter mobile number of contact person"
               value={form.contactNumber}
