@@ -1,6 +1,6 @@
 import { Controller, Get, Param } from '@nestjs/common';
 import { MediaAssetsService } from './media-assets.service';
-import { DeliverableItemsService } from '../deliverables/deliverable-items.service';
+import { DeliverableItemsService } from '../deliverable-items/deliverable-items.service';
 import { plainToInstance } from 'class-transformer';
 import { MediaAssetsEntity } from './entities/media-assets.entity';
 import {

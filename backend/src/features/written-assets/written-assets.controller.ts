@@ -1,6 +1,6 @@
 import { Controller, Get, Param } from '@nestjs/common';
 import { WrittenAssetsService } from './written-assets.service';
-import { DeliverableItemsService } from '../deliverables/deliverable-items.service';
+import { DeliverableItemsService } from '../deliverable-items/deliverable-items.service';
 import { plainToInstance } from 'class-transformer';
 import { WrittenAssetsEntity } from './entities/written-assets.entity';
 import {

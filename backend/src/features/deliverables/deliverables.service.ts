@@ -21,7 +21,7 @@ import { UpdateDeliverableDTO } from './dto/update-deliverable.dto';
 import { nanoid } from 'nanoid';
 import { CampaignDates } from './types/types';
 import { ProposalsService } from '../proposals/proposals.service';
-import { DeliverableItemsService } from './deliverable-items.service';
+import { DeliverableItemsService } from '../deliverable-items/deliverable-items.service';
 
 @Injectable()
 export class DeliverablesService {

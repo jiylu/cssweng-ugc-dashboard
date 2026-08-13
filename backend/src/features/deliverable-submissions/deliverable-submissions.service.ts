@@ -13,7 +13,7 @@ import {
   Deliverables,
   Prisma,
 } from '@prisma/client';
-import { DeliverableItemsService } from '../deliverables/deliverable-items.service';
+import { DeliverableItemsService } from '../deliverable-items/deliverable-items.service';
 import { DeliverablesService } from '../deliverables/deliverables.service';
 import { CampaignsService } from '../campaigns/campaigns.service';
 import { PrismaService } from 'src/shared/prisma/prisma.service';
