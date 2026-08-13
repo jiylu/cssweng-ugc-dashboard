@@ -106,12 +106,20 @@ export class FinalAssetsService {
         },
       });
 
-      const groupedByDeliverable: Record<string, typeof finalAssets> = {};
+      const groupedByDeliverable: Record<
+        string,
+        { deliverablePublicId: string; finalAssets: typeof finalAssets }
+      > = {};
 
-      deliverables.forEach((deliverable) => {
-        groupedByDeliverable[deliverable.public_id] = finalAssets.filter(
-          (asset) => asset.deliverable_id === deliverable.deliverable_id,
-        );
+      deliverables.forEach((deliverable, index) => {
+        const label = `deliverable_${index + 1}`;
+
+        groupedByDeliverable[label] = {
+          deliverablePublicId: deliverable.public_id,
+          finalAssets: finalAssets.filter(
+            (asset) => asset.deliverable_id === deliverable.deliverable_id,
+          ),
+        };
       });
 
       this.logger.log(

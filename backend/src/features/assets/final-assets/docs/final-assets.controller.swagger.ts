@@ -23,17 +23,30 @@ export function ApiFindFinalAssetsForCampaign() {
       schema: {
         type: 'object',
         additionalProperties: {
-          type: 'array',
-          items: { type: 'object' },
+          type: 'object',
+          properties: {
+            deliverablePublicId: { type: 'string' },
+            finalAssets: {
+              type: 'array',
+              items: { type: 'object' },
+            },
+          },
         },
         example: {
-          a3SFgGh1_: [
-            {
-              public_id: '9eGSafYL98',
-              file_url: ['https://storage.example.com/assets/video.mp4'],
-              created_at: '2026-08-13T00:00:00.000Z',
-            },
-          ],
+          deliverable_1: {
+            deliverablePublicId: 'HKXGW-zYMZ',
+            finalAssets: [
+              {
+                public_id: '9eGSafYL98',
+                file_url: 'https://storage.example.com/assets/video.mp4',
+                created_at: '2026-08-13T00:00:00.000Z',
+              },
+            ],
+          },
+          deliverable_2: {
+            deliverablePublicId: 'a3SFgGh1_',
+            finalAssets: [],
+          },
         },
       },
     }),
