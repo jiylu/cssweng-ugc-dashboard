@@ -29,6 +29,7 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
   const { user, loading } = useAuth()
   const { activeStep, setActiveStep, activeDeliverable, setActiveDeliverable, historyOpen, setHistoryOpen } = useWorkspace()
   const [activeDeliverableStep, setActiveDeliverableStep] = useState(0)
+  const [activeDeliverableItem, setActiveDeliverableItem] = useState(0)
   const [historyType, setHistoryType] = useState<"written" | "media">("written")
   const { data: campaignSetup, isLoading: campaignLoading } = useCampaignSetup(campaignId)
   const campaign = campaignSetup?.campaign
@@ -49,22 +50,39 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
       return items.length > 0 && items.every((item) => item.deliverable_item_status === "APPROVED")
     })
   const approvalLoading = deliverableItemsQueries.some((result) => result.isLoading)
-  const firstDeliverableItem = deliverableItems?.[0]
-  const { data: latestWrittenAsset } = useLatestWrittenAsset(firstDeliverableItem?.public_id)
-  const { data: latestMediaAsset } = useLatestMediaAsset(firstDeliverableItem?.public_id)
+  const itemsByDeliverableId = new Map(
+    activeDeliverables.map((deliverable, index) => [
+      deliverable.public_id,
+      deliverableItemsQueries[index]?.data ?? [],
+    ]),
+  )
+  const selectedDeliverableItem = deliverableItems?.[activeDeliverableItem]
+  const { data: latestWrittenAsset } = useLatestWrittenAsset(selectedDeliverableItem?.public_id)
+  const { data: latestMediaAsset } = useLatestMediaAsset(selectedDeliverableItem?.public_id)
   const { mutate: submitWrittenAsset, isPending: isSubmittingWrittenAsset } = useSubmitWrittenAsset()
+
+  const activeDeliverableName =
+    selectedDeliverableItem && (deliverableItems?.length ?? 0) > 1
+      ? `${deliverables[activeDeliverable]?.deliverable_content} ${selectedDeliverableItem.deliverable_index}`
+      : deliverables[activeDeliverable]?.deliverable_content ?? "Deliverable"
 
   const handleDeliverableChange = (index: number) => {
     setActiveDeliverable(index)
+    setActiveDeliverableItem(0)
+    setActiveDeliverableStep(0)
+  }
+
+  const handleDeliverableItemChange = (itemIndex: number) => {
+    setActiveDeliverableItem(itemIndex)
     setActiveDeliverableStep(0)
   }
 
   const handleDeliverableStepChange = (step: number) => {
-    if (step >= 1 && !firstDeliverableItem?.written_asset_approved) {
+    if (step >= 1 && !selectedDeliverableItem?.written_asset_approved) {
       toast.info("Written assets must be approved before moving to Media Assets.")
       return
     }
-    if (step >= 2 && firstDeliverableItem?.deliverable_item_status !== "APPROVED") {
+    if (step >= 2 && selectedDeliverableItem?.deliverable_item_status !== "APPROVED") {
       toast.info("This deliverable is not yet approved.")
       return
     }
@@ -88,12 +106,12 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
   }
 
   const handleSubmitWrittenAsset = (content: string) => {
-    if (!firstDeliverableItem) {
+    if (!selectedDeliverableItem) {
       toast.error("Deliverable items are still loading. Please try again.")
       return
     }
     submitWrittenAsset(
-      { deliverableItemId: firstDeliverableItem.public_id, content },
+      { deliverableItemId: selectedDeliverableItem.public_id, content },
       {
         onSuccess: () => toast.success("Written assets submitted for approval."),
         onError: (error) =>
@@ -133,15 +151,20 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
             <HistoryOverlay
               open={historyOpen}
               onClose={() => setHistoryOpen(false)}
-              deliverableItemPublicId={firstDeliverableItem?.public_id}
+              deliverableItemPublicId={selectedDeliverableItem?.public_id}
               type={historyType}
             />
             {activeStep === 1 && (
               <DeliverablesSidebar
                 deliverables={deliverables}
+                itemsByDeliverable={deliverables.map(
+                  (deliverable) => itemsByDeliverableId.get(deliverable.public_id) ?? [],
+                )}
                 activeDeliverable={activeDeliverable}
+                activeDeliverableItem={activeDeliverableItem}
+                activeDeliverableStep={activeDeliverableStep}
                 onChange={handleDeliverableChange}
-                activeStep={activeDeliverableStep}
+                onDeliverableItemChange={handleDeliverableItemChange}
                 onStepChange={handleDeliverableStepChange}
               />
             )}
@@ -178,16 +201,14 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
                       setHistoryOpen(true)
                     }}
                     onNext={() => setActiveDeliverableStep(2)}
-                    deliverableItemPublicId={firstDeliverableItem?.public_id}
+                    deliverableItemPublicId={selectedDeliverableItem?.public_id}
                     mediaAsset={latestMediaAsset}
                   />
                 )}
 
                 {activeDeliverableStep === 2 && (
                   <DeliverableApprovedCard
-                    deliverableName={
-                      deliverables[activeDeliverable]?.deliverable_content ?? "Deliverable"
-                    }
+                    deliverableName={activeDeliverableName}
                   />
                 )}
 
