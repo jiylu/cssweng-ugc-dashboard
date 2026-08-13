@@ -20,9 +20,11 @@ export function FileUploadItem({ filename, status, progress, onPreview, onRemove
             Preview
           </Button>
           <CheckCircle size={16} className="text-[#2d7a3a]" />
-          <button onClick={onRemove} className="text-muted-foreground hover:text-foreground transition-colors">
-            <X size={14} />
-          </button>
+          {onRemove && (
+            <button onClick={onRemove} className="text-muted-foreground hover:text-foreground transition-colors">
+              <X size={14} />
+            </button>
+          )}
         </div>
       )}
 

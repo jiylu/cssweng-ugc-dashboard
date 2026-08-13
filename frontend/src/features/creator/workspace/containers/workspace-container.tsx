@@ -17,7 +17,7 @@ import { ContractSigningPanel } from "@/src/features/creator/workspace/component
 import { useWorkspace } from "@/src/features/creator/workspace/hooks/useWorkspace"
 import { useCampaignSetup } from "@/src/features/creator/workspace/hooks/useCampaignSetup"
 import { useDeliverableItems } from "@/src/features/creator/workspace/hooks/useDeliverableItems"
-import { useLatestWrittenAsset } from "@/src/features/creator/workspace/hooks/useLatestAsset"
+import { useLatestWrittenAsset, useLatestMediaAsset } from "@/src/features/creator/workspace/hooks/useLatestAsset"
 import { useSubmitWrittenAsset } from "@/src/features/creator/workspace/hooks/useSubmitWrittenAsset"
 
 interface WorkspaceProps {
@@ -40,6 +40,7 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
   } = useDeliverableItems(selectedDeliverable?.public_id)
   const firstDeliverableItem = deliverableItems?.[0]
   const { data: latestWrittenAsset } = useLatestWrittenAsset(firstDeliverableItem?.public_id)
+  const { data: latestMediaAsset } = useLatestMediaAsset(firstDeliverableItem?.public_id)
   const { mutate: submitWrittenAsset, isPending: isSubmittingWrittenAsset } = useSubmitWrittenAsset()
 
   const handleDeliverableChange = (index: number) => {
@@ -140,9 +141,11 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
 
                 {activeDeliverableStep === 1 && (
                   <VideoSubmissionContainer
-                    version={2}
+                    version={latestMediaAsset?.version_number ?? 1}
                     onHistory={() => setHistoryOpen(true)}
-                    onSubmit={() => console.log("Submit video")}
+                    onNext={() => setActiveDeliverableStep(2)}
+                    deliverableItemPublicId={firstDeliverableItem?.public_id}
+                    mediaAsset={latestMediaAsset}
                   />
                 )}
 

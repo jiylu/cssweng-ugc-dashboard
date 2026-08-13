@@ -2,6 +2,7 @@ import { API_BASE_URL } from "@/src/config/api"
 import { parseApiError } from "@/src/features/auth/services/users-api"
 import type {
   DeliverableItem,
+  MediaAsset,
   WrittenAsset,
 } from "@/src/features/client/workspace/services/deliverable-submissions-api"
 
@@ -52,6 +53,22 @@ export async function getWrittenAssetHistory(
   return response.json()
 }
 
+export async function getLatestMediaAsset(
+  deliverableItemPublicId: string,
+): Promise<MediaAsset | null> {
+  const response = await fetch(
+    `${API_BASE_URL}/media-assets/latest/${deliverableItemPublicId}`,
+    { credentials: "include" },
+  )
+  if (response.status === 404) return null
+  if (!response.ok) {
+    throw new Error(
+      await parseApiError(response, "Unable to fetch media asset."),
+    )
+  }
+  return response.json()
+}
+
 export async function submitWrittenAsset(
   deliverableItemPublicId: string,
   content: string,
@@ -71,6 +88,30 @@ export async function submitWrittenAsset(
   if (!response.ok) {
     throw new Error(
       await parseApiError(response, "Unable to submit written assets."),
+    )
+  }
+  return response.json()
+}
+
+export async function submitMediaAsset(
+  deliverableItemPublicId: string,
+  file: File,
+): Promise<MediaAsset> {
+  const formData = new FormData()
+  formData.append("deliverableItemPublicId", deliverableItemPublicId)
+  formData.append("file", file)
+
+  const response = await fetch(
+    `${API_BASE_URL}/deliverable-submissions/media-assets`,
+    {
+      method: "POST",
+      credentials: "include",
+      body: formData,
+    },
+  )
+  if (!response.ok) {
+    throw new Error(
+      await parseApiError(response, "Unable to submit media asset."),
     )
   }
   return response.json()
