@@ -169,13 +169,13 @@ export class CampaignSetupService {
     const result = await this.prisma.$transaction(async (tx) => {
       await this.campaignService.findOneCampaign(campaignId, tx);
 
-      const campaign = dto.campaign
-        ? await this.campaignService.updateCampaignDetails(
-            campaignId,
-            dto.campaign,
-            tx,
-          )
-        : null;
+      if (dto.campaign) {
+        await this.campaignService.updateCampaignDetails(
+          campaignId,
+          dto.campaign,
+          tx,
+        );
+      }
 
       const contract = dto.contract
         ? await this.contractService.updateContractDetails(
@@ -262,8 +262,38 @@ export class CampaignSetupService {
         ) ?? [],
       );
 
+      const currentCampaign = await this.campaignService.findOneCampaign(
+        campaignId,
+        tx,
+      );
+
+      const [campaignDeliverables, campaignAddOns] = await Promise.all([
+        this.deliverableService.findDeliverablesForCampaign(campaignId, tx),
+        this.addOnService.findAddOnsForCampaign(campaignId, tx),
+      ]);
+
+      const deliverablesTotal = campaignDeliverables.reduce(
+        (sum, deliverable) => sum + deliverable.pricing.toNumber(),
+        0,
+      );
+
+      const optedInAddOnsTotal = (campaignAddOns ?? [])
+        .filter((addOn) => addOn.opt_in)
+        .reduce((sum, addOn) => sum + addOn.fee.toNumber(), 0);
+
+      const subtotal = deliverablesTotal + optedInAddOnsTotal;
+      const totalPrice =
+        subtotal + subtotal * (Number(currentCampaign.tax) / 100);
+
+      const recomputedCampaign =
+        await this.campaignService.updateCampaignDetails(
+          campaignId,
+          { pricing: totalPrice },
+          tx,
+        );
+
       return {
-        campaign,
+        campaign: recomputedCampaign,
         contract,
         deliverables: {
           created: createdDeliverables,

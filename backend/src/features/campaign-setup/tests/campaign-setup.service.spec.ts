@@ -419,6 +419,7 @@ describe('CampaignSetupService', () => {
 
       mockCampaignService.findOneCampaign.mockResolvedValue({
         campaign_id: campaignId,
+        tax: 10,
       });
       mockCampaignService.updateCampaignDetails.mockResolvedValue(
         updatedCampaign,
@@ -454,8 +455,14 @@ describe('CampaignSetupService', () => {
       mockContractService.findContractByCampaignId.mockResolvedValue(
         updatedContract,
       );
-      mockDeliverableService.findDeliverablesForCampaign.mockResolvedValue([]);
-      mockAddOnService.findAddOnsForCampaign.mockResolvedValue([]);
+      mockDeliverableService.findDeliverablesForCampaign.mockResolvedValue([
+        { pricing: { toNumber: () => 500 } },
+        { pricing: { toNumber: () => 550 } },
+      ]);
+      mockAddOnService.findAddOnsForCampaign.mockResolvedValue([
+        { fee: { toNumber: () => 100 }, opt_in: false },
+        { fee: { toNumber: () => 200 }, opt_in: true },
+      ]);
       mockGiftedProductsService.findGiftedProductsForCampaign.mockResolvedValue(
         [],
       );
@@ -488,6 +495,11 @@ describe('CampaignSetupService', () => {
       expect(mockCampaignService.updateCampaignDetails).toHaveBeenCalledWith(
         campaignId,
         dto.campaign,
+        tx,
+      );
+      expect(mockCampaignService.updateCampaignDetails).toHaveBeenCalledWith(
+        campaignId,
+        { pricing: 1375 },
         tx,
       );
       expect(mockContractService.updateContractDetails).toHaveBeenCalledWith(
