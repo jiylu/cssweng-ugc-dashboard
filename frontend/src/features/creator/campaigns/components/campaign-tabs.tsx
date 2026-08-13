@@ -16,8 +16,7 @@ export function CampaignTabs({ active, onChange }: CampaignTabsProps) {
           <TabsTrigger
             key={tab}
             value={tab}
-            className="bg-transparent px-0 py-1 text-sm text-muted-foreground rounded-none border-transparent data-[state=active]:text-[#6b1fa8]"
-          >
+            className="px-0 py-1 text-sm text-muted-foreground rounded-none border-transparent !bg-transparent !shadow-none focus-visible:!ring-0 data-[state=active]:text-[#6b1fa8] data-[state=active]:!bg-transparent data-[state=active]:!shadow-none"          >
             {tab}
           </TabsTrigger>
         ))}

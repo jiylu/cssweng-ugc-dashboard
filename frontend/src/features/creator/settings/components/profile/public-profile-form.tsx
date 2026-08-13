@@ -82,21 +82,21 @@ export function PublicProfileSection({ data, onRemovePicture, onUploadPicture }:
         {/* name and handle */}
         <div className="flex-1 flex flex-col gap-6 w-full">
           <div className="space-y-2">
-            <label className="text-[15px] font-normal uppercase text-[#141518]">Display Name</label>
+            <label className="text-[15px] font-normal uppercase text-muted-foreground">Display Name</label>
             <Input 
               placeholder="Enter display name" 
               value={data.displayName} 
               disabled
-              className="placeholder:text-gray-400"
+              className="placeholder:text-gray-400 border-muted"
             />
           </div>
           <div className="space-y-2">
-            <label className="text-[15px] font-normal uppercase text-[#141518]">Primary Handle</label>
+            <label className="text-[15px] font-normal uppercase text-muted-foreground">Primary Handle</label>
             <Input 
               placeholder="Enter primary name" 
               value={data.primaryHandle} 
               disabled
-              className="placeholder:text-gray-400"
+              className="placeholder:text-gray-400 border-muted"
             />
           </div>
         </div>
@@ -104,11 +104,11 @@ export function PublicProfileSection({ data, onRemovePicture, onUploadPicture }:
 
       {/* bio */}
       <div className="space-y-2">
-        <label className="text-[15px] font-normal uppercase text-[#141518]">Bio</label>
+        <label className="text-[15px] font-normal uppercase text-muted-foreground">Bio</label>
         <div className="relative">
           <Textarea 
             placeholder="Enter your bio" 
-            className="min-h-[160px] resize-none pb-8 italic placeholder:text-gray-400"
+            className="min-h-[160px] resize-none pb-8 italic placeholder:text-gray-400 border-muted"
             value={data.bio}
             disabled
             maxLength={100}

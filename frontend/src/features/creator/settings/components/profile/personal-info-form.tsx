@@ -32,34 +32,34 @@ export function PersonalInfoSection({ data, onChange }: PersonalInfoProps) {
                     <Separator className="mb-6 -mt-2" />
                     <div className="grid grid-cols-3 gap-6 mb-4">
                         <div className="space-y-2">
-                            <label className="text-sm font-medium uppercase text-[#141518]">First Name</label>
-                            <Input value={data.firstName} onChange={(e) => onChange("firstName", e.target.value)} placeholder="Enter first name" />
+                            <label className="text-sm font-medium uppercase text-muted-foreground">First Name</label>
+                            <Input value={data.firstName} className="border-muted" onChange={(e) => onChange("firstName", e.target.value)} placeholder="Enter first name" />
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-sm font-medium uppercase text-[#141518]">Last Name</label>
-                            <Input value={data.lastName} onChange={(e) => onChange("lastName", e.target.value)} placeholder="Enter last name" />
+                            <label className="text-sm font-medium uppercase text-muted-foreground">Last Name</label>
+                            <Input value={data.lastName} className="border-muted" onChange={(e) => onChange("lastName", e.target.value)} placeholder="Enter last name" />
                         </div>
                         
                         <div className="space-y-2">
-                            <label className="text-sm font-medium uppercase text-[#141518]">Middle Name</label>
-                            <Input value={data.middleName} placeholder="Not yet supported" disabled />
+                            <label className="text-sm font-medium uppercase text-muted-foreground">Middle Name</label>
+                            <Input value={data.middleName} className="border-muted" placeholder="Not yet supported" disabled />
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-sm font-medium uppercase text-[#141518]">Account Email</label>
-                            <Input value={data.accountEmail} placeholder="Account email" type="email" disabled />
+                            <label className="text-sm font-medium uppercase text-muted-foreground">Account Email</label>
+                            <Input value={data.accountEmail} className="border-muted" placeholder="Account email" type="email" disabled />
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-sm font-medium uppercase text-[#141518]">Phone Number</label>
-                            <Input value={data.phoneNumber} placeholder="Not yet supported" disabled />
+                            <label className="text-sm font-medium uppercase text-muted-foreground">Phone Number</label>
+                            <Input value={data.phoneNumber} className="border-muted" placeholder="Not yet supported" disabled />
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-sm font-medium uppercase text-[#141518]">Location / Timezone</label>
-                            <Select value={data.location} disabled>
-                                <SelectTrigger className="w-full">
+                            <label className="text-sm font-medium uppercase text-muted-foreground">Location / Timezone</label>
+                            <Select value={data.location} disabled >
+                                <SelectTrigger className="w-full border-muted">
                                     <SelectValue placeholder="Select location and timezone" />
                                 </SelectTrigger>
                                 <SelectContent className="p-1">

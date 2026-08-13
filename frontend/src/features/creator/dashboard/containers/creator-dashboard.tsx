@@ -58,7 +58,7 @@ export default function CreatorDashboard() {
           {/* HEADER */}
           <div className="mt-2 mb-3 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
             <div>
-              <h1 className="text-xl sm:text-3xl lg:text-[56px] font-bold leading-tight text-[#141518]">
+              <h1 className="text-lg sm:text-3xl lg:text-[56px] font-bold leading-tight text-[#141518]">
                 Welcome back, {user?.first_name ?? "User"}
               </h1>
             </div>
