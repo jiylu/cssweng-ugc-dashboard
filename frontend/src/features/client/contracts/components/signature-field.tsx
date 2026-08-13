@@ -76,7 +76,7 @@ export default function SignatureField({
                 const signature = sigRef.current
                 if (!signature || signature.isEmpty()) return
 
-                onChange?.(signature.getTrimmedCanvas().toDataURL("image/png"))
+                onChange?.(signature.getCanvas().toDataURL("image/png"))
               }}
             />
           )}
