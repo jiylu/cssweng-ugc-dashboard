@@ -10,7 +10,7 @@ import {
 import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { DeliverableItemStatus, Prisma } from '@prisma/client';
 import { nanoid } from 'nanoid';
-import { DeliverablesService } from './deliverables.service';
+import { DeliverablesService } from '../deliverables/deliverables.service';
 
 @Injectable()
 export class DeliverableItemsService {

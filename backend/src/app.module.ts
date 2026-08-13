@@ -21,6 +21,7 @@ import { PaymentsModule } from './features/payments/payments.module';
 import { DeliverableSubmissionsModule } from './features/deliverable-submissions/deliverable-submissions.module';
 import { WrittenAssetsModule } from './features/written-assets/written-assets.module';
 import { MediaAssetsModule } from './features/media-assets/media-assets.module';
+import { DeliverableItemsModule } from './features/deliverable-items/deliverable-items.module';
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { MediaAssetsModule } from './features/media-assets/media-assets.module';
     DeliverableSubmissionsModule,
     WrittenAssetsModule,
     MediaAssetsModule,
+    DeliverableItemsModule,
   ],
   controllers: [],
   providers: [],

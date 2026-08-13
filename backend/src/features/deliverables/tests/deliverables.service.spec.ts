@@ -7,7 +7,7 @@ import { NotFoundException } from '@nestjs/common';
 import { CampaignsService } from 'src/features/campaigns/campaigns.service';
 import { ProposalsService } from 'src/features/proposals/proposals.service';
 import { UpdateDeliverableDTO } from '../dto/update-deliverable.dto';
-import { DeliverableItemsService } from '../deliverable-items.service';
+import { DeliverableItemsService } from '../../deliverable-items/deliverable-items.service';
 import { CampaignDates } from '../types/types';
 import { ProposalStatus } from '@prisma/client';
 
