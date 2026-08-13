@@ -7,6 +7,8 @@ import { VideoSubmission } from "@/src/features/creator/workspace/components/del
 import type { MediaAsset } from "@/src/features/client/workspace/services/deliverable-submissions-api"
 import type { UploadedFile } from "../types/file-upload.types"
 
+const ALLOWED_EXTENSIONS = [".mp4", ".mov", ".jpg", ".png"]
+
 interface VideoSubmissionContainerProps {
   version: number
   onDirtyChange: (dirty: boolean) => void
@@ -34,6 +36,24 @@ export function VideoSubmissionContainer({
     onDirtyChange(files.length > 0)
     return () => onDirtyChange(false)
   }, [files.length, onDirtyChange])
+
+  const handleFileDrop = (fileList: FileList | File[]) => {
+    const files = Array.from(fileList)
+    const allowed = (file: File) =>
+      ALLOWED_EXTENSIONS.some((ext) => file.name.toLowerCase().endsWith(ext))
+    const rejected = files.filter((file) => !allowed(file))
+
+    if (rejected.length > 0) {
+      toast.error(
+        `Only .mp4, .mov, .jpg and .png files are allowed. Skipped: ${rejected
+          .map((f) => f.name)
+          .join(", ")}`,
+      )
+    }
+
+    const accepted = files.filter(allowed)
+    if (accepted.length > 0) addFiles(accepted)
+  }
 
   const handlePreview = (id: string) => {
     const target = files.find((f) => f.id === id)
@@ -76,7 +96,7 @@ export function VideoSubmissionContainer({
       files={files}
       mediaAsset={mediaAsset}
       onHistory={onHistory}
-      onFileDrop={addFiles}
+      onFileDrop={handleFileDrop}
       onRemoveFile={removeFile}
       onPreviewFile={handlePreview}
       onSubmit={handleSubmit}

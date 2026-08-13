@@ -37,6 +37,7 @@ export function FileDropzone({ onFileDrop }: FileDropzoneProps) {
         ref={inputRef}
         type="file"
         multiple
+        accept=".mp4,.mov,.jpg,.png"
         className="hidden"
         onChange={handleInputChange}
       />

@@ -1,5 +1,6 @@
 "use client"
 import { useCallback, useRef, useState } from "react";
+import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import CreatorSidebar from "@/src/components/organisms/creator-sidebar"
 import { Separator } from "@/components/ui/separator"
@@ -15,6 +16,8 @@ import { VideoSubmissionContainer } from "@/src/features/creator/workspace/conta
 import { DeliverableApprovedCard } from "@/src/features/creator/workspace/components/deliverables-submission/deliverable-approved-card"
 import { UnsavedChangesDialog } from "@/src/features/creator/workspace/components/deliverables-submission/unsaved-changes-dialog"
 import { ContractSigningPanel } from "@/src/features/creator/workspace/components/contract-signing/contract-signing-panel"
+import { InvoiceDetailsCard } from "@/src/features/creator/workspace/components/invoicing/invoice-details-card"
+import { CampaignCompletedCard } from "@/src/features/creator/workspace/components/completion/campaign-completed-card"
 import { useWorkspace } from "@/src/features/creator/workspace/hooks/useWorkspace"
 import { useCampaignSetup } from "@/src/features/creator/workspace/hooks/useCampaignSetup"
 import { useDeliverableItems } from "@/src/features/creator/workspace/hooks/useDeliverableItems"
@@ -42,7 +45,7 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
   const { data: campaignSetup, isLoading: campaignLoading } = useCampaignSetup(campaignId)
   const campaign = campaignSetup?.campaign
   const deliverables = campaignSetup?.deliverables ?? []
-
+  const router = useRouter();
   const selectedDeliverable = deliverables[activeDeliverable]
   const {
     data: deliverableItems,
@@ -277,6 +280,17 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
                   />
                 )}
               </>
+            )}
+
+            {activeStep === 2 && (
+              <InvoiceDetailsCard />
+            )}
+
+            {activeStep === 3 && (
+              <CampaignCompletedCard 
+                onDownloadAssets={() => console.log("Downloaded assets.")}
+                onBackToDashboard={() => router.push('/creator-dashboard')}
+              />
             )}
           </div>
         </div>

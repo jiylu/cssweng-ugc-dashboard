@@ -52,7 +52,7 @@ export function useFileUploads() {
   }, [])
 
   const addFiles = useCallback(
-    (fileList: FileList) => {
+    (fileList: FileList | File[]) => {
       const newFiles: UploadedFile[] = Array.from(fileList).map((file) => ({
         id: crypto.randomUUID(),
         file,
