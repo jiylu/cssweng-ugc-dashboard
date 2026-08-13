@@ -1,4 +1,11 @@
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Button from "@/src/components/atoms/button";
@@ -36,7 +43,9 @@ export default function LoginCard({ loginForm }: LoginCardProps) {
                   type="text"
                   placeholder="email@example.com"
                   value={loginForm.form.email}
-                  onChange={e => loginForm.updateField("email", e.target.value)}
+                  onChange={(e) =>
+                    loginForm.updateField("email", e.target.value)
+                  }
                   disabled={loginForm.isSubmitting}
                 />
                 {loginForm.errors.email && (
@@ -58,7 +67,9 @@ export default function LoginCard({ loginForm }: LoginCardProps) {
                     type={loginForm.showPassword ? "text" : "password"}
                     placeholder=".........."
                     value={loginForm.form.password}
-                    onChange={e => loginForm.updateField("password", e.target.value)}
+                    onChange={(e) =>
+                      loginForm.updateField("password", e.target.value)
+                    }
                     disabled={loginForm.isSubmitting}
                     className="pr-10"
                   />
@@ -67,18 +78,21 @@ export default function LoginCard({ loginForm }: LoginCardProps) {
                     variant="ghost"
                     //size="icon"
                     className="absolute right-0 top-0 h-full px-3 py-2 text-muted-foreground hover:text-foreground hover:bg-transparent"
-                    onClick={() => loginForm.setShowPassword(prev => !prev)}
+                    onClick={() => loginForm.setShowPassword((prev) => !prev)}
                     disabled={loginForm.isSubmitting}
-                    aria-label={loginForm.showPassword ? "Hide password" : "Show password"}
+                    aria-label={
+                      loginForm.showPassword ? "Hide password" : "Show password"
+                    }
                   >
-                    {loginForm.showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    {loginForm.showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
                   </Button>
                 </div>
                 {loginForm.errors.password && (
-                  <p
-                    role="alert"
-                    className="text-[#ff6467]"
-                  >
+                  <p role="alert" className="text-[#ff6467]">
                     {loginForm.errors.password}
                   </p>
                 )}
@@ -91,14 +105,18 @@ export default function LoginCard({ loginForm }: LoginCardProps) {
                     checked={loginForm.rememberMe}
                     onChange={(e) => loginForm.setRememberMe(e.target.checked)}
                     disabled={loginForm.isSubmitting}
-                    className="size-4 cursor-pointer accent-[#8811FF]"/>
+                    className="size-4 cursor-pointer accent-[#8811FF]"
+                  />
                   <span className="-mb-[2px]">Remember me for 30 days</span>
                 </label>
 
-                <a href="#"
-                  className="ml-auto inline-block text-sm underline-offset-4 hover:underline italic">
+                <button
+                  type="button"
+                  onClick={() => router.push("/forgot-password")}
+                  className="ml-auto inline-block cursor-pointer text-sm italic underline-offset-4 hover:underline"
+                >
                   Forgot password?
-                </a>
+                </button>
               </div>
 
               <div aria-live="polite" className="min-h-6">
@@ -113,7 +131,6 @@ export default function LoginCard({ loginForm }: LoginCardProps) {
                     {loginForm.submitSuccess}
                   </p>
                 )}
-
               </div>
             </div>
 
@@ -123,14 +140,16 @@ export default function LoginCard({ loginForm }: LoginCardProps) {
                 className="cursor-pointer w-full mt-3"
                 disabled={loginForm.isSubmitting}
               >
-                {loginForm.isSubmitting && <Loader2 className="size-4 animate-spin" />}
+                {loginForm.isSubmitting && (
+                  <Loader2 className="size-4 animate-spin" />
+                )}
                 {loginForm.isSubmitting ? "Logging in..." : "Login"}
               </Button>
               <Button
                 type="button"
                 variant="outline"
                 className="cursor-pointer w-full"
-                onClick={() => router.push('/creator-register')}
+                onClick={() => router.push("/creator-register")}
                 disabled={loginForm.isSubmitting}
               >
                 Register
@@ -140,6 +159,5 @@ export default function LoginCard({ loginForm }: LoginCardProps) {
         </CardContent>
       </Card>
     </div>
-
-  )
+  );
 }

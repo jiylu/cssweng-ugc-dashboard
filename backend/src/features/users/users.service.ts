@@ -16,6 +16,9 @@ import { OtpService } from '../otp/otp.service';
 import { CreateUserTransactionDTO } from './dto/create-user-transaction.dto';
 import { UserRoles } from '@prisma/client';
 import { UpdateOwnProfileDTO } from './dto/update-own-profile.dto';
+import { ForgotPasswordDTO } from './dto/forgot-password.dto';
+import { ResetPasswordDTO } from './dto/reset-password.dto';
+import { EmailService } from '../email/email.service';
 
 @Injectable()
 export class UserService {
@@ -25,6 +28,7 @@ export class UserService {
     private prisma: PrismaService,
     private supabase: SupabaseService,
     private otpService: OtpService,
+    private emailService: EmailService,
   ) {}
 
   private readonly logger = new Logger(UserService.name);
@@ -200,6 +204,60 @@ export class UserService {
       user,
       session: data.session,
     };
+  }
+
+  async requestPasswordReset(dto: ForgotPasswordDTO) {
+    const redirectTo = `${process.env.FRONTEND_URL ?? 'http://localhost:3000'}/reset-password`;
+    const email = dto.email.trim().toLowerCase();
+    const { data, error } =
+      await this.supabase.adminClient.auth.admin.generateLink({
+        type: 'recovery',
+        email,
+        options: { redirectTo },
+      });
+
+    if (error) {
+      this.logger.warn(`Password recovery request failed: ${error.message}`);
+    } else if (data.properties?.action_link) {
+      await this.emailService.sendPasswordResetEmail(
+        email,
+        data.properties.action_link,
+      );
+    }
+
+    return {
+      message:
+        'If an account exists for that email, a reset link has been sent.',
+    };
+  }
+
+  async resetPassword(dto: ResetPasswordDTO) {
+    const { data, error: tokenError } = await this.supabase.client.auth.getUser(
+      dto.accessToken,
+    );
+
+    if (tokenError || !data.user) {
+      throw new UnauthorizedException({
+        code: 'INVALID_RECOVERY_TOKEN',
+        message: 'This password reset link is invalid or has expired.',
+      });
+    }
+
+    const { error } = await this.supabase.adminClient.auth.admin.updateUserById(
+      data.user.id,
+      {
+        password: dto.password,
+      },
+    );
+
+    if (error) {
+      throw new BadRequestException({
+        code: 'PASSWORD_RESET_FAILED',
+        message: error.message,
+      });
+    }
+
+    return { message: 'Password updated successfully.' };
   }
 
   async findActiveUserByEmail(email: string) {

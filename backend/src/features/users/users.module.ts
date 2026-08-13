@@ -11,9 +11,16 @@ import { SupabaseModule } from 'src/shared/supabase/supabase.module';
 import { AuthSessionMiddleware } from './middleware/auth-session.middleware';
 import { OtpModule } from '../otp/otp.module';
 import { SupabaseStorageModule } from 'src/shared/supabase-storage/supabase-storage.module';
+import { EmailModule } from '../email/email.module';
 
 @Module({
-  imports: [PrismaModule, SupabaseModule, SupabaseStorageModule, OtpModule],
+  imports: [
+    PrismaModule,
+    SupabaseModule,
+    SupabaseStorageModule,
+    OtpModule,
+    EmailModule,
+  ],
   providers: [UserService, AuthSessionMiddleware],
   controllers: [UserController],
   exports: [UserService],

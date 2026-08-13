@@ -43,10 +43,10 @@ export default function GuestOtpCard({
         <p className="mt-2 text-center text-sm text-[#666]">
           Enter the 8-digit code sent to
         </p>
-        <p className="mt-1 text-[#6b1fa8]">{email}</p>
+        <p className="mt-1 max-w-full break-all text-center text-[#6b1fa8]">{email}</p>
 
         <div
-          className="my-10 flex justify-center gap-4 max-sm:gap-1.5"
+          className="my-10 grid w-full max-w-[284px] grid-cols-8 justify-items-center gap-1"
           onPaste={(event) => {
             const pasted = event.clipboardData
               .getData("text")
@@ -77,7 +77,7 @@ export default function GuestOtpCard({
                   inputs.current[index - 1]?.focus();
                 }
               }}
-              className="h-20 w-14 border border-[#9f9f9f] text-center text-3xl focus:border-[#6b1fa8] focus:outline-none max-sm:h-14 max-sm:w-9"
+              className="h-12 w-full min-w-0 max-w-7 border border-[#9f9f9f] text-center text-lg focus:border-[#6b1fa8] focus:outline-none"
             />
           ))}
         </div>

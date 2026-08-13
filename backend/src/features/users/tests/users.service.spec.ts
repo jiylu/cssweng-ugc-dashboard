@@ -12,6 +12,7 @@ import { UpdateUserDTO } from '../dto/update-user.dto';
 import { SupabaseService } from 'src/shared/supabase/supabase.service';
 import { LoginUserDTO } from '../dto/login-user.dto';
 import { OtpService } from '../../otp/otp.service';
+import { EmailService } from '../../email/email.service';
 
 describe('UserService', () => {
   let service: UserService;
@@ -48,6 +49,10 @@ describe('UserService', () => {
     consumeVerification: jest.fn(),
   };
 
+  const mockEmail = {
+    sendPasswordResetEmail: jest.fn(),
+  };
+
   beforeEach(async () => {
     jest.clearAllMocks();
 
@@ -65,6 +70,10 @@ describe('UserService', () => {
         {
           provide: OtpService,
           useValue: mockOtp,
+        },
+        {
+          provide: EmailService,
+          useValue: mockEmail,
         },
       ],
     }).compile();
