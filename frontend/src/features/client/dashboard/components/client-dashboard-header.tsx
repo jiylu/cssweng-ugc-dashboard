@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { Bell } from "lucide-react";
 import type { AuthUser } from "@/src/features/auth/schemas/auth-user.schema";
 
@@ -32,12 +31,13 @@ export default function ClientDashboardHeader({
             </p>
             <p className="text-sm text-[#7b7771]">{user.email}</p>
           </div>
-          <Image
-            src="/default-profile.png"
-            alt=""
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={user.profile_picture_url || "/default-profile.png"}
+            alt={`${user.first_name} ${user.last_name}`.trim() || "Profile"}
             width={46}
             height={46}
-            className="size-[46px] rounded-full"
+            className="size-[46px] rounded-full object-cover"
           />
         </div>
       </div>

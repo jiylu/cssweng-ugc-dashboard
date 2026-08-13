@@ -159,8 +159,18 @@ export class CampaignSetupService {
     const proposalId =
       await this.proposalService.resolvePublicId(proposalPublicId);
     const proposal = await this.proposalService.findActiveProposal(proposalId);
+    const [details, latestHistory] = await Promise.all([
+      this.getFullCampaignDetails(proposal.campaign_id),
+      this.proposalHistoryService.findLatestVersion(proposal.proposal_id),
+    ]);
 
-    return this.getFullCampaignDetails(proposal.campaign_id);
+    return {
+      ...details,
+      proposal: {
+        ...details.proposal,
+        client_comments: latestHistory.client_comments ?? '',
+      },
+    };
   }
 
   async updateCampaignSetup(campaignId: string, dto: UpdateCampaignSetupDto) {

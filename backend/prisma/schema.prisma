@@ -11,7 +11,14 @@ model User {
   email      String    @unique
   createdAt  DateTime  @default(now())
   first_name String
+  middle_name String @default("")
   last_name  String
+  display_name String @default("")
+  primary_handle String @default("")
+  bio String @default("")
+  phone_number String @default("")
+  timezone String @default("Asia/Manila")
+  profile_picture_url String @default("https://www.clipartmax.com/png/full/449-4492509_lefroy-ice-breakers-minor-hockey-tournament-sorry-no-image-available.png")
   role       UserRoles
   is_active  Boolean   @default(true)
 
