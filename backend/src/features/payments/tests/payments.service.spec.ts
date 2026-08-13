@@ -30,6 +30,7 @@ describe('PaymentsService', () => {
     findOneCampaign: jest.fn(),
     updateCampaignStatus: jest.fn(),
     updatePaidAmount: jest.fn(),
+    updatePaidFull: jest.fn(),
   };
 
   const mockProposalsService = {
@@ -265,6 +266,7 @@ describe('PaymentsService', () => {
       });
       mockCampaignService.updateCampaignStatus.mockResolvedValue({});
       mockCampaignService.updatePaidAmount.mockResolvedValue({});
+      mockCampaignService.updatePaidFull.mockResolvedValue({});
 
       const res = await service.validatePayment('payment-1');
       expect(res).toEqual({

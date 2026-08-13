@@ -207,6 +207,8 @@ export class PaymentsService {
         tx,
       );
 
+      await this.campaignsService.updatePaidFull(campaign.campaign_id, tx);
+
       return {
         validatedPayment,
         client_id: campaign.client_id,
