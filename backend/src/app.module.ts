@@ -22,6 +22,8 @@ import { DeliverableSubmissionsModule } from './features/deliverable-submissions
 import { WrittenAssetsModule } from './features/written-assets/written-assets.module';
 import { MediaAssetsModule } from './features/media-assets/media-assets.module';
 import { DeliverableItemsModule } from './features/deliverable-items/deliverable-items.module';
+import { WrittenAssetDraftsModule } from './features/written-asset-drafts/written-asset-drafts.module';
+import { MediaAssetDraftsModule } from './features/media-asset-drafts/media-asset-drafts.module';
 
 @Module({
   imports: [
@@ -48,6 +50,8 @@ import { DeliverableItemsModule } from './features/deliverable-items/deliverable
     WrittenAssetsModule,
     MediaAssetsModule,
     DeliverableItemsModule,
+    WrittenAssetDraftsModule,
+    MediaAssetDraftsModule,
   ],
   controllers: [],
   providers: [],
