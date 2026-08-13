@@ -1,7 +1,7 @@
 import { Controller, Get, Param } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import { FinalAssetsService } from './final-assets.service';
-import { CampaignsService } from 'src/features/campaigns/campaigns.service';
+import { CampaignsService } from 'src/features/campaign/campaigns/campaigns.service';
 import { FinalAssetsEntity } from './entities/final-assets.entity';
 import { ApiFindFinalAssetsForCampaign } from './docs/final-assets.controller.swagger';
 
