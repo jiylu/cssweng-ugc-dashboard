@@ -81,7 +81,14 @@ export function WrittenAssetsPanel({
         </p>
       )}
 
-      <RichTextEditor content={content} onChange={updateContent} />
+      {isLocked ? (
+        <div
+          className="min-h-[156px] text-muted-foreground break-words rounded-md border bg-slate-50 py-2 px-3 [&_p]:my-1 [&_h1]:text-2xl [&_h1]:font-bold [&_h2]:text-xl [&_h2]:font-bold [&_h3]:text-lg [&_h3]:font-bold [&_ul]:list-disc [&_ul]:ml-3 [&_ol]:list-decimal [&_ol]:ml-3 [&_blockquote]:border-l-4 [&_blockquote]:border-muted [&_blockquote]:pl-2 [&_blockquote]:italic [&_code]:bg-muted [&_code]:rounded [&_code]:px-1"
+          dangerouslySetInnerHTML={{ __html: writtenAsset?.content ?? "" }}
+        />
+      ) : (
+        <RichTextEditor content={content} onChange={updateContent} />
+      )}
 
       <p className="text-xs mt-1 text-[#ff6467] min-h-[16px]">{errors.content ?? ""}</p>
 
