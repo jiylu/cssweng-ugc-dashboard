@@ -33,12 +33,32 @@ export class CampaignSetupService {
     );
 
     const result = await this.prisma.$transaction(async (tx) => {
-      const initialPrice = dto.deliverables.reduce(
+      const deliverablesTotal = dto.deliverables.reduce(
         (sum, d) => sum + Number(d.pricing),
         0,
       );
 
-      const totalPrice = initialPrice + initialPrice * (dto.campaign.tax / 100);
+      const addOnsTotal = (dto.addOns ?? []).reduce(
+        (sum, addOn) => sum + Number(addOn.fee),
+        0,
+      );
+
+      const exclusivityTotal = dto.contract.exclusivity
+        ? Number(dto.contract.exclusivity.exclusivity_fee)
+        : 0;
+
+      const giftedProductsTotal = (dto.giftedProducts ?? []).reduce(
+        (sum, product) => sum + Number(product.value),
+        0,
+      );
+
+      const subtotal =
+        deliverablesTotal +
+        addOnsTotal +
+        exclusivityTotal +
+        giftedProductsTotal;
+
+      const totalPrice = subtotal + subtotal * (dto.campaign.tax / 100);
 
       const paymentSchedule =
         dto.contract.payment_terms.payment_schedule ===

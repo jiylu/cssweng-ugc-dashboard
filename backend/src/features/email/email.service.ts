@@ -79,6 +79,52 @@ export class EmailService {
     }
   }
 
+  async sendPasswordResetEmail(email: string, resetUrl: string) {
+    const safeResetUrl = escapeHtml(resetUrl);
+
+    try {
+      await this.transporter.sendMail({
+        from: `Asceoft Notifications <${process.env.ZOHO_USER}>`,
+        to: email,
+        subject: 'Reset your Asceoft password',
+        text: `Reset your Asceoft password using this link: ${resetUrl}. This link expires and can only be used once.`,
+        html: `
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Reset your password</title>
+          </head>
+          <body style="margin:0;padding:0;background:#f6f4fb;">
+            <div style="margin:0;padding:24px;background:#f6f4fb;font-family:Arial,Helvetica,sans-serif;color:#211a2e;">
+              <div style="max-width:520px;margin:0 auto;background:#ffffff;border:1px solid #ebe7f3;border-radius:12px;padding:24px;box-shadow:0 10px 30px rgba(28,18,46,0.08);">
+                <h1 style="margin:0 0 12px;font-size:28px;line-height:1.3;color:#000000;">Reset your password</h1>
+                <p style="margin:0 0 22px;font-size:15px;line-height:1.6;color:#4b415f;">
+                  We received a request to reset your Asceoft password.
+                </p>
+                <a href="${safeResetUrl}" style="display:inline-block;background:#6b1fa8;color:#ffffff;text-decoration:none;padding:13px 20px;border-radius:4px;font-size:15px;font-weight:700;">
+                  Reset password
+                </a>
+                <p style="margin:18px 0 0;font-size:13px;line-height:1.6;color:#6f667a;">
+                  This link expires and can only be used once. If you did not request a password reset, you can safely ignore this email.
+                </p>
+              </div>
+            </div>
+          </body>
+          </html>
+        `,
+      });
+    } catch (error) {
+      this.logger.warn('Failed to send password reset email.', error);
+      throw new BadRequestException({
+        status: HttpStatus.BAD_REQUEST,
+        code: 'UNABLE_TO_SEND_PASSWORD_RESET',
+        message: 'Unable to send password reset email',
+      });
+    }
+  }
+
   async sendProposalReminderEmail(
     clientEmail: string,
     proposalPublicId: string,
