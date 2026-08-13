@@ -95,8 +95,14 @@ describe('FinalAssetsService', () => {
       const result = await service.findFinalAssetsForCampaign(campaignId);
 
       expect(result).toEqual({
-        'pub-del-1': [finalAssets[0]],
-        'pub-del-2': [finalAssets[1]],
+        deliverable_1: {
+          deliverablePublicId: 'pub-del-1',
+          finalAssets: [finalAssets[0]],
+        },
+        deliverable_2: {
+          deliverablePublicId: 'pub-del-2',
+          finalAssets: [finalAssets[1]],
+        },
       });
       expect(mockPrisma.finalAssets.findMany).toHaveBeenCalledWith({
         where: {
@@ -121,8 +127,14 @@ describe('FinalAssetsService', () => {
       const result = await service.findFinalAssetsForCampaign(campaignId);
 
       expect(result).toEqual({
-        'pub-del-1': [],
-        'pub-del-2': [],
+        deliverable_1: {
+          deliverablePublicId: 'pub-del-1',
+          finalAssets: [],
+        },
+        deliverable_2: {
+          deliverablePublicId: 'pub-del-2',
+          finalAssets: [],
+        },
       });
     });
 

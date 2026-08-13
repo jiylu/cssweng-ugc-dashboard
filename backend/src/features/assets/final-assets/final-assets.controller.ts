@@ -1,6 +1,8 @@
 import { Controller, Get, Param } from '@nestjs/common';
+import { plainToInstance } from 'class-transformer';
 import { FinalAssetsService } from './final-assets.service';
 import { CampaignsService } from 'src/features/campaigns/campaigns.service';
+import { FinalAssetsEntity } from './entities/final-assets.entity';
 import { ApiFindFinalAssetsForCampaign } from './docs/final-assets.controller.swagger';
 
 @Controller('final-assets')
@@ -18,6 +20,21 @@ export class FinalAssetsController {
     const campaignId =
       await this.campaignsService.resolveCampaignPublicId(campaignPublicId);
 
-    return this.finalAssetsService.findFinalAssetsForCampaign(campaignId);
+    const result =
+      await this.finalAssetsService.findFinalAssetsForCampaign(campaignId);
+
+    const transformed: Record<
+      string,
+      { deliverablePublicId: string; finalAssets: FinalAssetsEntity[] }
+    > = {};
+
+    for (const [label, entry] of Object.entries(result)) {
+      transformed[label] = {
+        deliverablePublicId: entry.deliverablePublicId,
+        finalAssets: plainToInstance(FinalAssetsEntity, entry.finalAssets),
+      };
+    }
+
+    return transformed;
   }
 }
