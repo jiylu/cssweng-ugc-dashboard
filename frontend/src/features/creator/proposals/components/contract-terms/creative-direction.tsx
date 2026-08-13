@@ -89,10 +89,6 @@ export function CreativeDirection({ revisionRounds, setRevisionRounds, revisionD
           <span>14 Days</span>
         </div>
         {errors.feedbackDays && <p className="text-xs text-[#ff6467]">{errors.feedbackDays}</p>}
-      </div>
-      {errors.revisionRounds && <p className="text-xs mt-1 text-[#ff6467]">{errors.revisionRounds}</p>}
-      {errors.revisionDays && <p className="text-xs mt-1 text-[#ff6467]">{errors.revisionDays}</p>}
-      {errors.feedbackDays && <p className="text-xs mt-1 text-[#ff6467]">{errors.feedbackDays}</p>}
     </Card>
   )
 }
