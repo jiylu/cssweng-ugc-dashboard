@@ -2,11 +2,8 @@ import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import { CreateOtpDto } from './dto/create-otp.dto';
 import { ValidateOtpDto } from './dto/validate-otp.dto';
 import { OtpService } from './otp.service';
-<<<<<<< HEAD
 import { CreateGuestOtpDto, ValidateGuestOtpDto } from './dto/guest-otp.dto';
-=======
 import { ApiCreateOtp, ApiValidateOtp } from './docs/otp.controller.swagger';
->>>>>>> origin/dev
 
 @Controller('otps')
 export class OtpController {
