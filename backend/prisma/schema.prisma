@@ -76,6 +76,7 @@ model Campaigns {
   created_at                DateTime         @default(now())
   campaign_status           CampaignStatus   @default(ACTIVE)
   paid_amount               Decimal          @default(0.0)
+  paid_full                 Boolean          @default(false)
   payment_schedule          PaymentSchedule
   all_deliverables_approved Boolean  @default(false)
 
@@ -171,6 +172,7 @@ model Deliverables {
   deliverable_status  DeliverableStatus  @default(PENDING)
 
   campaign Campaigns @relation(fields: [campaign_id], references: [campaign_id])
+  final_assets FinalAssets[]
 }
 
 model DeliverableItems {
@@ -224,6 +226,16 @@ model MediaAssetsDrafts {
   content_url            String
   created_at             DateTime
   updated_at             DateTime?
+}
+
+model FinalAssets {
+  final_asset_id String   @id @default(uuid())
+  public_id      String   @unique @db.VarChar(10)
+  deliverable_id String
+  file_url       String
+  created_at     DateTime @default(now())
+
+  deliverable Deliverables @relation(fields: [deliverable_id], references: [deliverable_id])
 }
 
 model AddOns {
