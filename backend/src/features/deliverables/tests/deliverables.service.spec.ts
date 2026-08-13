@@ -7,6 +7,7 @@ import { NotFoundException } from '@nestjs/common';
 import { CampaignsService } from 'src/features/campaigns/campaigns.service';
 import { ProposalsService } from 'src/features/proposals/proposals.service';
 import { UpdateDeliverableDTO } from '../dto/update-deliverable.dto';
+import { DeliverableItemsService } from '../../deliverable-items/deliverable-items.service';
 import { CampaignDates } from '../types/types';
 import { ProposalStatus } from '@prisma/client';
 
@@ -33,6 +34,10 @@ describe('DeliverablesService', () => {
     findProposalByCampaignId: jest.fn(),
   };
 
+  const mockDeliverableItemsService = {
+    createManyDeliverableItems: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -48,6 +53,10 @@ describe('DeliverablesService', () => {
         {
           provide: ProposalsService,
           useValue: mockProposalService,
+        } as any,
+        {
+          provide: DeliverableItemsService,
+          useValue: mockDeliverableItemsService,
         } as any,
       ],
     }).compile();

@@ -18,6 +18,10 @@ import { DraftsModule } from './features/drafts/drafts.module';
 import { CloudinaryModule } from './shared/cloudinary/cloudinary.module';
 import { UploadModule } from './shared/upload/upload.module';
 import { PaymentsModule } from './features/payments/payments.module';
+import { DeliverableSubmissionsModule } from './features/deliverable-submissions/deliverable-submissions.module';
+import { WrittenAssetsModule } from './features/written-assets/written-assets.module';
+import { MediaAssetsModule } from './features/media-assets/media-assets.module';
+import { DeliverableItemsModule } from './features/deliverable-items/deliverable-items.module';
 
 @Module({
   imports: [
@@ -40,6 +44,10 @@ import { PaymentsModule } from './features/payments/payments.module';
     CloudinaryModule,
     UploadModule,
     PaymentsModule,
+    DeliverableSubmissionsModule,
+    WrittenAssetsModule,
+    MediaAssetsModule,
+    DeliverableItemsModule,
   ],
   controllers: [],
   providers: [],

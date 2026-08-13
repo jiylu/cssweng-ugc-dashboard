@@ -192,6 +192,13 @@ export class ContractsService {
           : { creator_signed: true },
     });
 
+    if (updatedContract.client_signed && updatedContract.creator_signed) {
+      await tx.contracts.update({
+        where: { contract_id: contract.contract_id },
+        data: { effective_date: new Date() },
+      });
+    }
+
     this.logger.log(`${signerRole} Signed contract ${contractId}`);
     return updatedContract;
   }
