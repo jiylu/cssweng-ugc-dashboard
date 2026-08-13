@@ -216,13 +216,17 @@ $form = @{
 $payment = Request -Method POST -Path '/payments/pay' -Query "campaignPublic=$campaignPublicId" -Form $form | ConvertFrom-Json
 Write-Host "   payment = $($payment.public_id)" -ForegroundColor Green
 
-Write-Host '=== STEP 14: GET /deliverable-items/deliverable/:publicId (list items for deliverable)' -ForegroundColor Yellow
+Write-Host '=== STEP 14: PATCH /payments/validate/:publicId (verify payment)' -ForegroundColor Yellow
+$validatedPayment = Request -Method PATCH -Path "/payments/validate/$($payment.public_id)" | ConvertFrom-Json
+Write-Host "   payment verified=$($validatedPayment.is_payment_verified)" -ForegroundColor Green
+
+Write-Host '=== STEP 15: GET /deliverable-items/deliverable/:publicId (list items for deliverable)' -ForegroundColor Yellow
 $items = @(Request -Method GET -Path "/deliverable-items/deliverable/$deliverablePublicId" | ConvertFrom-Json)
 if ($items.Count -eq 0) { throw 'No deliverable items returned for the deliverable.' }
 $deliverableItemPublicId = $items[0].public_id
 Write-Host "   deliverableItemPublicId=$deliverableItemPublicId" -ForegroundColor Green
 
-Write-Host '=== STEP 15: GET /deliverable-items/item/:publicId (get single deliverable item)' -ForegroundColor Yellow
+Write-Host '=== STEP 16: GET /deliverable-items/item/:publicId (get single deliverable item)' -ForegroundColor Yellow
 $item = Request -Method GET -Path "/deliverable-items/item/$deliverableItemPublicId" | ConvertFrom-Json
 Write-Host "   deliverable item index=$($item.deliverable_index) status=$($item.deliverable_item_status)" -ForegroundColor Green
 
@@ -232,3 +236,4 @@ Write-Host "proposal: $proposalPublicId" -ForegroundColor Green
 Write-Host "contract: $contractPublicId" -ForegroundColor Green
 Write-Host "deliverable: $deliverablePublicId" -ForegroundColor Green
 Write-Host "deliverableItemPublic: $deliverableItemPublicId" -ForegroundColor Green
+Write-Host "payment: $($payment.public_id)" -ForegroundColor Green

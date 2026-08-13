@@ -27,7 +27,7 @@ export default function ClientRegisterCard({
       >
         <div className="grid grid-cols-2 gap-x-10 gap-y-4 max-md:grid-cols-1 max-md:gap-y-4">
           <label className="block space-y-1.5 text-base leading-none text-[#5f5f5f]">
-            First Name
+            First Name<span className="text-[#ff6467] ml-1">*</span>
             <input
               id="fname"
               className="h-10 w-full border border-[#9f9f9f] px-3 text-base text-[#141518] placeholder:text-[#777] placeholder:italic focus:border-[#6b1fa8] focus:outline-none"
@@ -44,7 +44,7 @@ export default function ClientRegisterCard({
           </label>
 
           <label className="block space-y-1.5 text-base leading-none text-[#5f5f5f]">
-            Last Name
+            Last Name<span className="text-[#ff6467] ml-1">*</span>
             <input
               id="lname"
               className="h-10 w-full border border-[#9f9f9f] px-3 text-base text-[#141518] placeholder:text-[#777] placeholder:italic focus:border-[#6b1fa8] focus:outline-none"
@@ -62,7 +62,7 @@ export default function ClientRegisterCard({
         </div>
 
         <label className="block space-y-1.5 text-base leading-none text-[#5f5f5f]">
-          Email
+          Email<span className="text-[#ff6467] ml-1">*</span>
           <input
             id="email"
             type="email"
@@ -81,7 +81,7 @@ export default function ClientRegisterCard({
 
         <div className="grid grid-cols-2 gap-x-10 gap-y-4 max-md:grid-cols-1">
           <label className="block space-y-1.5 text-base leading-none text-[#5f5f5f]">
-            Password
+            Password<span className="text-[#ff6467] ml-1">*</span>
             <span className="relative block">
               <input
                 id="password"
@@ -116,7 +116,7 @@ export default function ClientRegisterCard({
           </label>
 
           <label className="block space-y-1.5 text-base leading-none text-[#5f5f5f]">
-            Confirm Password
+            Confirm Password<span className="text-[#ff6467] ml-1">*</span>
             <span className="relative block">
               <input
                 id="confirmPassword"

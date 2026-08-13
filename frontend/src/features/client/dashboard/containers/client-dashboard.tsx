@@ -12,33 +12,7 @@ import ClientCampaignTabs, {
 import ClientDashboardHeader from "../components/client-dashboard-header";
 import ClientSidebar from "../components/client-sidebar";
 import type { ClientCampaign } from "../types/client-campaign.types";
-
-const clientCampaigns: ClientCampaign[] = [
-  {
-    id: "campaign-1",
-    name: "Campaign 1",
-    creatorName: "Creator Name",
-    startDate: "Jul 12, 2026",
-    deadline: "Jul 28, 2026",
-    status: "COMPLETE",
-  },
-  {
-    id: "campaign-2",
-    name: "Campaign 2",
-    creatorName: "Creator Name",
-    startDate: "Aug 02, 2026",
-    deadline: "Aug 16, 2026",
-    status: "ACTIVE",
-  },
-  {
-    id: "campaign-3",
-    name: "Campaign 3",
-    creatorName: "Creator Name",
-    startDate: "Aug 18, 2026",
-    deadline: "Sep 01, 2026",
-    status: "PENDING",
-  },
-];
+import { useClientCampaigns } from "../hooks/useClientCampaigns";
 
 function isCampaignVisible(campaign: ClientCampaign, tab: ClientCampaignTab) {
   if (tab === "ALL") return true;
@@ -54,19 +28,21 @@ export default function ClientDashboard() {
   const [activeTab, setActiveTab] = useState<ClientCampaignTab>("ALL");
   const [isSigningOut, setIsSigningOut] = useState(false);
 
+  const { data: clientCampaigns = [], isLoading: isLoadingCampaigns } = useClientCampaigns(user?.user_id);
+
   const visibleCampaigns = useMemo(
     () =>
       clientCampaigns.filter((campaign) =>
         isCampaignVisible(campaign, activeTab),
       ),
-    [activeTab],
+    [activeTab, clientCampaigns],
   );
 
   const activeCount = clientCampaigns.filter(
     (campaign) => campaign.status === "ACTIVE",
   ).length;
   const pendingCount = clientCampaigns.filter(
-    (campaign) => campaign.status === "PENDING",
+    (campaign) => campaign.status === "PENDING" || campaign.status === "FOR REVISIONS",
   ).length;
 
   const handleSignOut = async () => {
@@ -85,7 +61,7 @@ export default function ClientDashboard() {
     }
   };
 
-  if (loading) return <LogoLoader label="Loading client dashboard" />;
+  if (loading || isLoadingCampaigns) return <LogoLoader label="Loading client dashboard" />;
 
   if (!user) return null;
 
@@ -123,7 +99,7 @@ export default function ClientDashboard() {
         </div>
 
         <footer className="mt-16 border-t border-[#d8d4cb] pt-3 text-lg text-[#141518]">
-          Showing {visibleCampaigns.length} out of 12 Campaigns
+          Showing {visibleCampaigns.length} out of {clientCampaigns.length} Campaigns
         </footer>
       </section>
     </main>
