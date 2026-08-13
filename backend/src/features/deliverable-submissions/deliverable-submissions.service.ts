@@ -31,14 +31,56 @@ export class DeliverableSubmissionsService {
   ) {}
 
   async submitWrittenAsset(deliverableItemId: string, content: string) {
-    return await this.writtenAssetsService.submitWrittenAsset(
-      deliverableItemId,
-      content,
+    const submittedWrittenAsset =
+      await this.writtenAssetsService.submitWrittenAsset(
+        deliverableItemId,
+        content,
+      );
+
+    const deliverableItem =
+      await this.deliverableItemsService.findOneDeliverableItem(
+        deliverableItemId,
+      );
+
+    const deliverable = await this.deliverablesService.findOneDeliverableByUID(
+      deliverableItem.deliverable_id,
     );
+
+    const campaign = await this.campaignsService.findOneCampaign(
+      deliverable.campaign_id,
+    );
+
+    return {
+      submittedWrittenAsset,
+      client_id: campaign.client_id,
+      deliverable_index: deliverableItem.deliverable_index,
+      deliverable_content: deliverable.deliverable_content,
+    };
   }
 
   async submitMediaAsset(dto: SubmitMediaAssetDTO) {
-    return await this.mediaAssetsService.submitMediaAsset(dto);
+    const submittedMediaAsset =
+      await this.mediaAssetsService.submitMediaAsset(dto);
+
+    const deliverableItem =
+      await this.deliverableItemsService.findOneDeliverableItem(
+        dto.deliverableItemId,
+      );
+
+    const deliverable = await this.deliverablesService.findOneDeliverableByUID(
+      deliverableItem.deliverable_id,
+    );
+
+    const campaign = await this.campaignsService.findOneCampaign(
+      deliverable.campaign_id,
+    );
+
+    return {
+      submittedMediaAsset,
+      client_id: campaign.client_id,
+      deliverable_index: deliverableItem.deliverable_index,
+      deliverable_content: deliverable.deliverable_content,
+    };
   }
 
   async approveWrittenAsset(writtenAssetId: string) {

@@ -178,7 +178,7 @@ export class PaymentsService {
         });
       }
 
-      const validatedPayment = tx.payments.update({
+      const validatedPayment = await tx.payments.update({
         where: { payment_id: paymentRecord.payment_id },
         data: {
           is_payment_verified: true,
@@ -207,7 +207,11 @@ export class PaymentsService {
         tx,
       );
 
-      return validatedPayment;
+      return {
+        validatedPayment,
+        client_id: campaign.client_id,
+        project_name: campaign.project_name,
+      };
     });
 
     this.logger.log(`Successfully validated payment ${paymentId}.`);

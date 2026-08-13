@@ -26,6 +26,7 @@ import { ContractsEntity } from '../contracts/entities/contracts.entity';
 import { AddOnsEntity } from '../add-ons/entities/add-ons.entity';
 import { GiftedProductsEntity } from '../gifted-products/entities/gifted-products.entity';
 import { EmailService } from '../email/email.service';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Controller('campaign-setup')
 export class CampaignSetupController {
@@ -36,6 +37,7 @@ export class CampaignSetupController {
     private readonly activityLogService: ActivityLogService,
     private readonly campaignsService: CampaignsService,
     private readonly emailService: EmailService,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   @ApiCreateFullCampaign()
@@ -88,6 +90,16 @@ export class CampaignSetupController {
       campaignId,
       dto,
     );
+
+    const campaign = await this.campaignsService.findOneCampaign(campaignId);
+
+    if (campaign.client_id) {
+      await this.notificationsService.createNotification({
+        userId: campaign.client_id,
+        title: 'Campaign Setup has been Updated',
+        message: `The creator has updated the campaign setup for "${campaign.project_name}". Please review the updated details.`,
+      });
+    }
 
     return {
       campaign: result.campaign
