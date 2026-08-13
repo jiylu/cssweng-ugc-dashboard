@@ -55,7 +55,7 @@ export function Exclusivity({
           <Separator />
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-1">
-              <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">CATEGORY</label>
+              <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">CATEGORY<span className="text-[#ff6467] ml-1">*</span></label>
               <Input
                 value={exclusivityCategory}
                 onChange={(e) => setExclusivityCategory(e.target.value)}
@@ -65,7 +65,7 @@ export function Exclusivity({
               {errors.exclusivityCategory && <p className="text-xs mt-1 text-[#ff6467]">{errors.exclusivityCategory}</p>}
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">COMPETITOR LIST</label>
+              <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">COMPETITOR LIST<span className="text-[#ff6467] ml-1">*</span></label>
               <Input
                 value={exclusivityCompetitorList}
                 onChange={(e) => setExclusivityCompetitorList(e.target.value)}
@@ -78,17 +78,17 @@ export function Exclusivity({
 
           <div className="grid grid-cols-3 gap-4">
             <div className="flex flex-col gap-1">
-              <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">START DATE</label>
+              <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">START DATE<span className="text-[#ff6467] ml-1">*</span></label>
               <DatePickerInput value={exclusivityStartDate} onChange={setExclusivityStartDate} placeholder="Set exclusivity start date" />
               {errors.exclusivityStartDate && <p className="text-xs mt-1 text-[#ff6467]">{errors.exclusivityStartDate}</p>}
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">END DATE</label>
+              <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">END DATE<span className="text-[#ff6467] ml-1">*</span></label>
               <DatePickerInput value={exclusivityEndDate} onChange={setExclusivityEndDate} placeholder="Set exclusivity end date" />
               {errors.exclusivityEndDate && <p className="text-xs mt-1 text-[#ff6467]">{errors.exclusivityEndDate}</p>}
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">EXCLUSIVITY FEE</label>
+              <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">EXCLUSIVITY FEE<span className="text-[#ff6467] ml-1">*</span></label>
               <div className="flex items-center gap-1">
                 <InputGroup className="border border-border rounded-[3px]">
                   <InputGroupInput

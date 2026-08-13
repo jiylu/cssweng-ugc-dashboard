@@ -32,7 +32,7 @@ export function DeliverableRow({ item, index, deliverablesCount, currency, error
           <div className="flex flex-wrap items-start gap-4 w-full">
             {/* Quantity */}
             <div className="flex flex-col gap-1 w-24 shrink-0">
-              <label className="text-xs text-muted-foreground uppercase tracking-[0.03em]">QUANTITY</label>
+              <label className="text-xs text-muted-foreground uppercase tracking-[0.03em]">QUANTITY<span className="text-[#ff6467] ml-1">*</span></label>
               <div className="flex items-center justify-between border border-border bg-white rounded-[3px] px-2 h-8">
                 <Input
                   type="number"
@@ -58,7 +58,7 @@ export function DeliverableRow({ item, index, deliverablesCount, currency, error
 
             {/* Type */}
             <div className="flex flex-col gap-1 w-40 shrink-0">
-              <label className="text-xs text-muted-foreground uppercase tracking-[0.03em]">TYPE</label>
+              <label className="text-xs text-muted-foreground uppercase tracking-[0.03em]">TYPE<span className="text-[#ff6467] ml-1">*</span></label>
               <Select value={item.deliverableType} onValueChange={(v) => onUpdate('deliverableType', v)}>
                 <SelectTrigger className="text-sm bg-white border-border rounded-[3px]">
                   <SelectValue placeholder="Set type" />
@@ -89,7 +89,7 @@ export function DeliverableRow({ item, index, deliverablesCount, currency, error
 
           {/* Requirements */}
           <div className="flex flex-col gap-1 flex-1 min-h-0">
-            <label className="text-xs text-muted-foreground uppercase tracking-[0.03em]">REQUIREMENTS</label>
+            <label className="text-xs text-muted-foreground uppercase tracking-[0.03em]">REQUIREMENTS<span className="text-[#ff6467] ml-1">*</span></label>
             <div className="relative flex-1 flex flex-col h-full"> 
               <Textarea
               value={item.description}
@@ -110,7 +110,7 @@ export function DeliverableRow({ item, index, deliverablesCount, currency, error
           <p className="text-sm font-medium text-[#6b1fa8] uppercase tracking-[0.03em]">Scheduling & Pricing</p>
 
           <div className="flex flex-col gap-1">
-            <label className="text-xs text-muted-foreground mt-2">DRAFT DUE DATE</label>
+            <label className="text-xs text-muted-foreground mt-2">DRAFT DUE DATE<span className="text-[#ff6467] ml-1">*</span></label>
             <DatePickerInput
               value={item.draftDeadline}
               onChange={(iso) => onUpdate('draftDeadline', iso)}
@@ -119,7 +119,7 @@ export function DeliverableRow({ item, index, deliverablesCount, currency, error
           </div>
 
           <div className="flex flex-col gap-1">
-            <label className="text-xs text-muted-foreground">POST DATE</label>
+            <label className="text-xs text-muted-foreground">POST DATE<span className="text-[#ff6467] ml-1">*</span></label>
             <DatePickerInput
               value={item.postDate ?? ""}
               onChange={(iso) => onUpdate('postDate', iso)}
@@ -128,7 +128,7 @@ export function DeliverableRow({ item, index, deliverablesCount, currency, error
           </div>
 
           <div className="flex flex-col gap-1">
-            <label className="text-xs text-muted-foreground">PRICE</label>
+            <label className="text-xs text-muted-foreground">PRICE<span className="text-[#ff6467] ml-1">*</span></label>
             <div className="flex items-center gap-1 border border-border rounded-[3px] px-2 h-8">
               <InputGroup className="border-0 flex-1 focus-within:!ring-0 focus-within:!border-transparent focus-within:!outline-none">
                 <InputGroupAddon className="bg-transparent border-0 pl-1 pr-1 text-muted-foreground">{currency}</InputGroupAddon>

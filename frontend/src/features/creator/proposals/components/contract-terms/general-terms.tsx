@@ -33,14 +33,14 @@ export function GeneralTerms({
               onChange={(e) => setGoverningLaw(e.target.value)}
               placeholder="Province/State/Country"
               className="w-48 border-border rounded-[3px] text-base inline-flex"
-            />
+            /><span className="text-[#ff6467] ml-1 mr-1">*</span>
             , and disputes will be handled in
             <Input
               value={disputeLocation}
               onChange={(e) => setDisputeLocation(e.target.value)}
               placeholder="Province/State/Country"
               className="w-48 border-border rounded-[3px] text-base inline-flex"
-            />
+            /><span className="text-[#ff6467] ml-1 mr-1">*</span>
           </div>
           <span className="text-base text-foreground">unless the Parties agree otherwise.</span>
           {errors.governingLaw && <p className="text-xs mt-1 text-[#ff6467]">{errors.governingLaw}</p>}
