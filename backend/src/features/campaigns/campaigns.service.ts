@@ -52,6 +52,7 @@ export class CampaignsService {
       data: {
         public_id: publicId,
         ugc_creator_id: dto.ugcId,
+        client_id: dto.clientId,
         project_name: dto.projectName,
         description: dto.description,
         currency: dto.currency,

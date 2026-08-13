@@ -11,6 +11,7 @@ import { ContractsModule } from '../contracts/contracts.module';
 import { AddOnsModule } from '../add-ons/add-ons.module';
 import { GiftedProductsModule } from '../gifted-products/gifted-products.module';
 import { NotificationsModule } from '../notifications/notifications.module';
+import { UsersModule } from '../users/users.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { NotificationsModule } from '../notifications/notifications.module';
     AddOnsModule,
     GiftedProductsModule,
     NotificationsModule,
+    UsersModule,
   ],
   providers: [CampaignSetupService],
   controllers: [CampaignSetupController],

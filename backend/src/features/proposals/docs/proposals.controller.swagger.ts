@@ -170,6 +170,32 @@ export function ApiCancelProposal() {
   );
 }
 
+export function ApiFindActiveProposalByClientEmail() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Find an active proposal by client email',
+      description:
+        'Retrieves the active proposal (PENDING or FOR_REVISION) for a given client email. ' +
+        'Returns null when the client has no active proposal. No request body is required.',
+    }),
+    ApiParam({
+      name: 'clientEmail',
+      type: String,
+      description: 'Email of the client',
+      example: 'client@example.com',
+    }),
+    ApiResponse({
+      status: 200,
+      description:
+        'Active proposal retrieved successfully. Returns null if none exists.',
+    }),
+    ApiResponse({
+      status: 404,
+      description: 'Proposal not found.',
+    }),
+  );
+}
+
 export function ApiFindProposalsForUser() {
   return applyDecorators(
     ApiOperation({
