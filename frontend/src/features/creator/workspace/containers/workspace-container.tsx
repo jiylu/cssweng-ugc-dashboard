@@ -178,6 +178,7 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
               <>
                 {activeDeliverableStep === 0 && (
                   <WrittenAssetsPanel
+                    key={selectedDeliverableItem?.public_id}
                     version={latestWrittenAsset?.version_number ?? 1}
                     onHistory={() => {
                       setHistoryType("written")
@@ -195,6 +196,7 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
 
                 {activeDeliverableStep === 1 && (
                   <VideoSubmissionContainer
+                    key={selectedDeliverableItem?.public_id}
                     version={latestMediaAsset?.version_number ?? 1}
                     onHistory={() => {
                       setHistoryType("media")

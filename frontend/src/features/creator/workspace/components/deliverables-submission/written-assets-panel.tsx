@@ -33,9 +33,7 @@ export function WrittenAssetsPanel({
   const { content, errors, updateContent, validateAndSave } = useWrittenAssetsPanel()
 
   useEffect(() => {
-    if (writtenAsset) {
-      updateContent(writtenAsset.content)
-    }
+    updateContent(writtenAsset?.content ?? "")
   }, [writtenAsset?.public_id])
 
   const action = writtenAsset?.written_asset_action
