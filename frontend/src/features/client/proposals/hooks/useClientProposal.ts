@@ -52,8 +52,6 @@ export function useClientProposal(publicId: string) {
         queryClient.setQueryData(["client-proposal", publicId], context.previous);
       }
     },
-    onSettled: () =>
-      queryClient.invalidateQueries({ queryKey: ["client-proposal", publicId] }),
   });
 
   return { proposalQuery, revisionMutation, declineMutation, addOnMutation };

@@ -6,6 +6,8 @@ import { DeliverableRow } from "@/src/features/creator/proposals/components/deli
 
 export interface DeliverablesFormProps {
   deliverables: Deliverable[]
+  campaignStartDate: string
+  campaignEndDate: string
   currency: string
   errors: Record<string, string>
   platformOptions: string[]
@@ -14,7 +16,7 @@ export interface DeliverablesFormProps {
   updateDeliverable: (id: number, field: keyof Deliverable, value: string) => void
 }
 
-export default function DeliverablesForm({ deliverables, currency, errors, platformOptions, addDeliverable, removeDeliverable, updateDeliverable }: DeliverablesFormProps) {
+export default function DeliverablesForm({ deliverables, campaignStartDate, campaignEndDate, currency, errors, platformOptions, addDeliverable, removeDeliverable, updateDeliverable }: DeliverablesFormProps) {
   const totalPrice = deliverables.reduce((sum, d) => sum + parseFloat(d.pricing.replace(/,/g, '') || '0'), 0)
 
   return (
@@ -27,6 +29,8 @@ export default function DeliverablesForm({ deliverables, currency, errors, platf
             key={item.id}
             item={item}
             index={index}
+            campaignStartDate={campaignStartDate}
+            campaignEndDate={campaignEndDate}
             deliverablesCount={deliverables.length}
             currency={currency}
             errors={errors}

@@ -1,5 +1,6 @@
 import { Card } from "@/src/components/atoms/card"
 import { Separator } from "@/components/ui/separator"
+import { formatCurrency } from "@/src/features/creator/proposals/utils/formatCurrency"
 
 interface PaymentSummaryCardProps {
     baseFee: number
@@ -12,7 +13,7 @@ interface PaymentSummaryCardProps {
 
 export function PaymentSummaryCard({ baseFee, addOnsTotal, taxRate, tax, total, currency }: PaymentSummaryCardProps) {
     function fmt(amount: number) {
-        return `$${amount.toLocaleString("en-US", { minimumFractionDigits: 2 })}`
+        return formatCurrency(amount, currency)
     }
 
     return (
