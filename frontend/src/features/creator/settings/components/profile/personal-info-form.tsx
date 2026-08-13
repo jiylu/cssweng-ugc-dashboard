@@ -17,7 +17,7 @@ import { Separator } from "@/components/ui/separator"
 
 interface PersonalInfoProps {
     data: ProfileSettings;
-    onChange: (field: keyof ProfileSettings, value: any) => void;
+    onChange: <K extends keyof ProfileSettings>(field: K, value: ProfileSettings[K]) => void;
 }
 
 export function PersonalInfoSection({ data, onChange }: PersonalInfoProps) {
@@ -43,22 +43,22 @@ export function PersonalInfoSection({ data, onChange }: PersonalInfoProps) {
                         
                         <div className="space-y-2">
                             <label className="text-sm font-medium uppercase text-[#141518]">Middle Name</label>
-                            <Input value={data.middleName} onChange={(e) => onChange("middleName", e.target.value)} placeholder="Enter middle name" />
+                            <Input value={data.middleName} placeholder="Not yet supported" disabled />
                         </div>
 
                         <div className="space-y-2">
                             <label className="text-sm font-medium uppercase text-[#141518]">Account Email</label>
-                            <Input value={data.accountEmail} onChange={(e) => onChange("accountEmail", e.target.value)} placeholder="Enter email" type="email" />
+                            <Input value={data.accountEmail} placeholder="Account email" type="email" disabled />
                         </div>
 
                         <div className="space-y-2">
                             <label className="text-sm font-medium uppercase text-[#141518]">Phone Number</label>
-                            <Input value={data.phoneNumber} onChange={(e) => onChange("phoneNumber", e.target.value)} placeholder="e.g., 09170000000" />
+                            <Input value={data.phoneNumber} placeholder="Not yet supported" disabled />
                         </div>
 
                         <div className="space-y-2">
                             <label className="text-sm font-medium uppercase text-[#141518]">Location / Timezone</label>
-                            <Select value={data.location} onValueChange={(val) => onChange("location", val)}>
+                            <Select value={data.location} disabled>
                                 <SelectTrigger className="w-full">
                                     <SelectValue placeholder="Select location and timezone" />
                                 </SelectTrigger>

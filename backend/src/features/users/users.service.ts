@@ -15,6 +15,7 @@ import { AuthError, User } from '@supabase/supabase-js';
 import { OtpService } from '../otp/otp.service';
 import { CreateUserTransactionDTO } from './dto/create-user-transaction.dto';
 import { UserRoles } from '@prisma/client';
+import { UpdateOwnProfileDTO } from './dto/update-own-profile.dto';
 
 @Injectable()
 export class UserService {
@@ -30,7 +31,44 @@ export class UserService {
     const userDTO = dto.userDTO;
     this.logger.debug(`Creating new ${userDTO.role} user ${userDTO.email}`);
 
-    const email = await this.validateEmail(userDTO.email);
+    if (userDTO.role === UserRoles.CLIENT && !dto.clientDTO) {
+      throw new BadRequestException({
+        code: 'CLIENT_DETAILS_NOT_FILLED',
+        message: 'Client details not filled up.',
+      });
+    }
+
+    const email = userDTO.email.trim().toLowerCase();
+    const existingUser = await this.findActiveUserByEmail(email);
+
+    if (existingUser) {
+      const canRecoverIncompleteClient =
+        userDTO.role === UserRoles.CLIENT &&
+        existingUser.role === UserRoles.CLIENT &&
+        !(await this.prisma.clients.findUnique({
+          where: { user_id: existingUser.user_id },
+        }));
+
+      if (!canRecoverIncompleteClient) {
+        this.logger.warn(`Email ${email} already exists in the database.`);
+        throw new ConflictException({
+          code: 'EMAIL_ALREADY_EXISTS',
+          message: 'Email already exists',
+        });
+      }
+
+      await this.otpService.consumeVerification(
+        email,
+        userDTO.role,
+        userDTO.verificationToken,
+      );
+      await this.createClient(existingUser.user_id, dto.clientDTO!);
+
+      this.logger.log(
+        `Completed client profile for user ${existingUser.user_id}`,
+      );
+      return existingUser;
+    }
 
     await this.otpService.consumeVerification(
       email,
@@ -62,24 +100,7 @@ export class UserService {
     });
 
     if (userDTO.role === UserRoles.CLIENT) {
-      const clientDTO = dto.clientDTO;
-      if (!clientDTO) {
-        throw new BadRequestException({
-          code: 'CLIENT_DETAILS_NOT_FILLED',
-          message: 'Client details not filled up.',
-        });
-      }
-      await this.prisma.clients.create({
-        data: {
-          user_id: newUser.user_id,
-          company_legal_name: clientDTO.companyLegalName,
-          company_email: clientDTO.companyEmail,
-          billable_person: clientDTO.billablePerson,
-          contact_person: clientDTO.contactPerson,
-          company_contact_no: clientDTO.companyContactNumber,
-          contact_person_contact_no: clientDTO.contactPersonContactNumber,
-        },
-      });
+      await this.createClient(newUser.user_id, dto.clientDTO!);
     }
 
     this.logger.log(
@@ -87,6 +108,23 @@ export class UserService {
     );
 
     return newUser;
+  }
+
+  private createClient(
+    userId: string,
+    clientDTO: NonNullable<CreateUserTransactionDTO['clientDTO']>,
+  ) {
+    return this.prisma.clients.create({
+      data: {
+        user_id: userId,
+        company_legal_name: clientDTO.companyLegalName,
+        company_email: clientDTO.companyEmail,
+        billable_person: clientDTO.billablePerson,
+        contact_person: clientDTO.contactPerson,
+        company_contact_no: clientDTO.companyContactNumber,
+        contact_person_contact_no: clientDTO.contactPersonContactNumber,
+      },
+    });
   }
 
   async validateEmail(email: string) {
@@ -266,6 +304,18 @@ export class UserService {
 
     this.logger.log(`User ${userId} updated successfully`);
     return updated;
+  }
+
+  async updateOwnProfile(userId: string, dto: UpdateOwnProfileDTO) {
+    await this.getActiveUserById(userId);
+
+    return this.prisma.user.update({
+      where: { user_id: userId },
+      data: {
+        first_name: dto.firstName.trim(),
+        last_name: dto.lastName.trim(),
+      },
+    });
   }
 
   async deactivateById(userId: string) {

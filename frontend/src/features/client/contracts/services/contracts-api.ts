@@ -2,11 +2,22 @@ import { API_BASE_URL } from "@/src/config/api";
 import { parseApiError } from "@/src/features/auth/services/users-api";
 
 export interface SignContractPayload {
-  firstName: string;
-  lastName: string;
   signatureDataUrl: string;
   initialsDataUrl: string;
   signerRole: "CLIENT" | "CREATOR";
+}
+
+function dataUrlToPng(dataUrl: string, filename: string): File {
+  const [metadata, encodedData] = dataUrl.split(",");
+  if (!metadata || !encodedData || !metadata.includes("image/png")) {
+    throw new Error("Signature and initials must be PNG images.");
+  }
+
+  const bytes = Uint8Array.from(atob(encodedData), (character) =>
+    character.charCodeAt(0),
+  );
+
+  return new File([bytes], filename, { type: "image/png" });
 }
 
 export async function signContract(

@@ -4,10 +4,14 @@ import type { useRegister } from "../hooks/useRegister";
 
 export interface ClientRegisterCardProps {
   registerForm: ReturnType<typeof useRegister>;
+  onContinueAsGuest: () => void;
+  canContinueAsGuest: boolean;
 }
 
 export default function ClientRegisterCard({
   registerForm,
+  onContinueAsGuest,
+  canContinueAsGuest,
 }: ClientRegisterCardProps) {
   return (
     <section className="mx-auto w-full max-w-[680px] rounded border border-[#d8d4cb] bg-white px-8 py-5 max-md:px-5">
@@ -182,6 +186,29 @@ export default function ClientRegisterCard({
             {registerForm.isSubmitting ? "Creating Account..." : "Create Account"}
             {!registerForm.isSubmitting && <span className="ml-5">--&gt;</span>}
           </Button>
+
+          <div className="flex w-full max-w-[320px] items-center gap-3 py-1 text-sm text-[#777]">
+            <span className="h-px flex-1 bg-[#d8d4cb]" />
+            <span>or</span>
+            <span className="h-px flex-1 bg-[#d8d4cb]" />
+          </div>
+
+          <Button
+            type="button"
+            variant="outline"
+            className="h-11 w-full max-w-[320px] rounded-none border-[#6b1fa8] text-lg font-normal text-[#6b1fa8] hover:bg-[#f7f0fc] hover:text-[#5f1a96]"
+            onClick={onContinueAsGuest}
+            disabled={registerForm.isSubmitting || !canContinueAsGuest}
+          >
+            Continue as Guest
+            <span className="ml-5">--&gt;</span>
+          </Button>
+
+          {!canContinueAsGuest && (
+            <p className="text-center text-sm text-[#777]">
+              Continue as Guest is available from a proposal invitation link.
+            </p>
+          )}
 
           <a href="/login" className="text-base text-[#666] hover:underline">
             Already have an account?

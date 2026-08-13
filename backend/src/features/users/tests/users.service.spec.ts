@@ -1,7 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UserService } from '../users.service';
 import { PrismaService } from 'src/shared/prisma/prisma.service';
-import { ConflictException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateUserTransactionDTO } from '../dto/create-user-transaction.dto';
 import { UserRoles } from '@prisma/client';
 import { UpdateUserDTO } from '../dto/update-user.dto';
@@ -17,6 +21,10 @@ describe('UserService', () => {
       findFirst: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
+    },
+    clients: {
+      create: jest.fn(),
+      findUnique: jest.fn(),
     },
   };
 
@@ -137,6 +145,77 @@ describe('UserService', () => {
     });
 
     await expect(service.createUser(dto)).rejects.toThrow('Invalid data');
+  });
+
+  it('should reject a client without details before consuming OTP or creating an auth user', async () => {
+    const dto: CreateUserTransactionDTO = {
+      userDTO: {
+        email: 'client@test.com',
+        password: 'Password1!',
+        firstName: 'Client',
+        lastName: 'User',
+        role: UserRoles.CLIENT,
+        verificationToken: 'token',
+      },
+    };
+
+    await expect(service.createUser(dto)).rejects.toThrow(BadRequestException);
+    expect(mockOtp.consumeVerification).not.toHaveBeenCalled();
+    expect(mockSupabase.client.auth.signUp).not.toHaveBeenCalled();
+    expect(mockPrisma.user.create).not.toHaveBeenCalled();
+  });
+
+  it('should complete a client profile left incomplete by the old registration flow', async () => {
+    const existingUser = {
+      user_id: 'client-123',
+      email: 'client@test.com',
+      first_name: 'Client',
+      last_name: 'User',
+      role: UserRoles.CLIENT,
+      is_active: true,
+    };
+    const clientDTO = {
+      companyLegalName: 'Client Company',
+      companyEmail: 'billing@client.test',
+      billablePerson: 'Billing Person',
+      contactPerson: 'Contact Person',
+      companyContactNumber: 1234567890,
+      contactPersonContactNumber: 1234567890,
+    };
+    const dto: CreateUserTransactionDTO = {
+      userDTO: {
+        email: 'CLIENT@test.com',
+        password: 'Password1!',
+        firstName: 'Client',
+        lastName: 'User',
+        role: UserRoles.CLIENT,
+        verificationToken: 'token',
+      },
+      clientDTO,
+    };
+
+    mockPrisma.user.findFirst.mockResolvedValue(existingUser);
+    mockPrisma.clients.findUnique.mockResolvedValue(null);
+
+    await expect(service.createUser(dto)).resolves.toEqual(existingUser);
+    expect(mockOtp.consumeVerification).toHaveBeenCalledWith(
+      'client@test.com',
+      UserRoles.CLIENT,
+      'token',
+    );
+    expect(mockPrisma.clients.create).toHaveBeenCalledWith({
+      data: {
+        user_id: existingUser.user_id,
+        company_legal_name: clientDTO.companyLegalName,
+        company_email: clientDTO.companyEmail,
+        billable_person: clientDTO.billablePerson,
+        contact_person: clientDTO.contactPerson,
+        company_contact_no: clientDTO.companyContactNumber,
+        contact_person_contact_no: clientDTO.contactPersonContactNumber,
+      },
+    });
+    expect(mockSupabase.client.auth.signUp).not.toHaveBeenCalled();
+    expect(mockPrisma.user.create).not.toHaveBeenCalled();
   });
 
   it('should throw if there is an existing email', async () => {
@@ -286,6 +365,36 @@ describe('UserService', () => {
         first_name: dto.firstName,
         last_name: dto.lastName,
       },
+    });
+  });
+
+  it('should update the authenticated user profile without changing email', async () => {
+    const existingUser = {
+      user_id: 'abc123',
+      email: 'john@test.com',
+      first_name: 'John',
+      last_name: 'Doe',
+      role: UserRoles.CREATOR,
+      is_active: true,
+    };
+    const updatedUser = {
+      ...existingUser,
+      first_name: 'Jane',
+      last_name: 'Smith',
+    };
+
+    mockPrisma.user.findFirst.mockResolvedValue(existingUser);
+    mockPrisma.user.update.mockResolvedValue(updatedUser);
+
+    await expect(
+      service.updateOwnProfile('abc123', {
+        firstName: ' Jane ',
+        lastName: ' Smith ',
+      }),
+    ).resolves.toEqual(updatedUser);
+    expect(mockPrisma.user.update).toHaveBeenCalledWith({
+      where: { user_id: 'abc123' },
+      data: { first_name: 'Jane', last_name: 'Smith' },
     });
   });
 

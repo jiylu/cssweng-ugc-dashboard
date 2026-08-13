@@ -1,5 +1,5 @@
 "use client"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import Profile from "@/src/components/molecules/profile";
 import { PublicProfileSection } from "../components/profile/public-profile-form"
@@ -10,6 +10,10 @@ import { useAuth } from "@/src/features/auth/hooks/useAuth"
 import { PasswordAndSecurity } from "../components/security/password-and-security"
 import { TwoFactorAuth } from "../components/security/two-factor-auth"
 import { NotificationsTab } from "../components/notifications/notifications-tab"
+import ClientSidebar from "@/src/features/client/dashboard/components/client-sidebar"
+import { logoutUser, updateCurrentUser } from "@/src/features/auth/services/auth-session"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useRouter } from "next/navigation"
 
 // Define the interface right here in the container
 export interface ProfileSettings {
@@ -27,7 +31,10 @@ export interface ProfileSettings {
 
 export function SettingsContainer() {
     const { user, loading } = useAuth();
+    const router = useRouter();
+    const queryClient = useQueryClient();
     const [activeTab, setActiveTab] = useState<"profile" | "security" | "notifications">("profile");
+    const [isSigningOut, setIsSigningOut] = useState(false);
 
     const [formData, setFormData] = useState<ProfileSettings>({
         profilePic: null,
@@ -42,7 +49,44 @@ export function SettingsContainer() {
         location: "manila",
     })
 
-    const handleFieldChange = (field: keyof ProfileSettings, value: any) => {
+    useEffect(() => {
+        if (!user) return;
+        // Auth data arrives asynchronously; seed the editable form once it does.
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setFormData((prev) => ({
+            ...prev,
+            displayName: `${user.first_name} ${user.last_name}`.trim(),
+            firstName: user.first_name,
+            lastName: user.last_name,
+            accountEmail: user.email,
+        }));
+    }, [user]);
+
+    const saveProfile = useMutation({
+        mutationFn: () => updateCurrentUser({
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+        }),
+        onSuccess: (updatedUser) => {
+            queryClient.setQueryData(["auth-user"], updatedUser);
+        },
+    });
+
+    const handleSignOut = async () => {
+        if (isSigningOut) return;
+        setIsSigningOut(true);
+        try {
+            await logoutUser();
+            queryClient.setQueryData(["auth-user"], null);
+            queryClient.removeQueries({ queryKey: ["auth-user"] });
+            router.replace("/login");
+            router.refresh();
+        } finally {
+            setIsSigningOut(false);
+        }
+    };
+
+    const handleFieldChange = <K extends keyof ProfileSettings>(field: K, value: ProfileSettings[K]) => {
         setFormData((prev) => ({ ...prev, [field]: value }))
     }
 
@@ -60,7 +104,14 @@ export function SettingsContainer() {
 
     return (
         <main className="flex flex-row w-full min-h-screen overflow-hidden">
-            <CreatorSidebar />
+            {user.role === "CLIENT" ? (
+                <ClientSidebar
+                    isSigningOut={isSigningOut}
+                    onSignOut={handleSignOut}
+                />
+            ) : (
+                <CreatorSidebar />
+            )}
             <section className="flex-1 overflow-y-auto h-screen scrollbar-gutter-stable px-4 sm:px-6 lg:px-8 py-8">
 
                 <div className="max-w-7xl mx-auto">
@@ -111,12 +162,13 @@ export function SettingsContainer() {
 
                     {activeTab === "profile" && (
                         <div className="flex flex-col gap-6">
-                            <PublicProfileSection 
-                                data={formData} 
-                                onChange={handleFieldChange} 
-                                onRemovePicture={handleRemovePicture}
-                                onUploadPicture={handleUploadPicture}
-                            />
+                            {user.role === "CREATOR" && (
+                                <PublicProfileSection
+                                    data={formData}
+                                    onRemovePicture={handleRemovePicture}
+                                    onUploadPicture={handleUploadPicture}
+                                />
+                            )}
                             <PersonalInfoSection 
                                 data={formData} 
                                 onChange={handleFieldChange} 
@@ -137,11 +189,27 @@ export function SettingsContainer() {
                         </div>
                     )}
 
-                    <div className="flex justify-end mt-8">
-                        <Button className="bg-[#6b1fa8] hover:bg-[#5a1a8f] text-white px-8 py-6 text-base">
-                            Save Changes
-                        </Button>
-                    </div>
+                    {activeTab === "profile" && (
+                        <div className="mt-8 flex flex-col items-end gap-2">
+                            {saveProfile.error instanceof Error && (
+                                <p role="alert" className="text-sm text-red-600">
+                                    {saveProfile.error.message}
+                                </p>
+                            )}
+                            {saveProfile.isSuccess && (
+                                <p role="status" className="text-sm text-green-600">
+                                    Profile updated.
+                                </p>
+                            )}
+                            <Button
+                                onClick={() => saveProfile.mutate()}
+                                disabled={saveProfile.isPending || !formData.firstName.trim() || !formData.lastName.trim()}
+                                className="bg-[#6b1fa8] hover:bg-[#5a1a8f] text-white px-8 py-6 text-base"
+                            >
+                                {saveProfile.isPending ? "Saving..." : "Save Changes"}
+                            </Button>
+                        </div>
+                    )}
                 </div>
             </section>
         </main>

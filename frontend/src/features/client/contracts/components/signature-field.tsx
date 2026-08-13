@@ -69,10 +69,15 @@ export default function SignatureField({
               canvasProps={{
                 width: canvasWidth,
                 height,
-                className: "block w-full cursor-crosshair touch-none bg-white/50",
+                className: "block w-full cursor-crosshair touch-none bg-transparent",
                 "aria-label": label,
               }}
-              onEnd={() => onChange?.(sigRef.current?.toDataURL("image/png") ?? "")}
+              onEnd={() => {
+                const signature = sigRef.current
+                if (!signature || signature.isEmpty()) return
+
+                onChange?.(signature.getTrimmedCanvas().toDataURL("image/png"))
+              }}
             />
           )}
         </div>
