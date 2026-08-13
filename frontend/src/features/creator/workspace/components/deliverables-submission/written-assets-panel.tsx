@@ -4,12 +4,14 @@ import { Card } from "@/src/components/atoms/card"
 import { Separator } from "@/components/ui/separator"
 import { useWrittenAssetsPanel } from "@/src/features/creator/workspace/hooks/useWrittenAssetsPanel"
 import RichTextEditor from "@/components/ui/rich-text-editor"
+import { WrittenAssetPreview } from "./written-asset-preview"
 import type { WrittenAsset } from "@/src/features/client/workspace/services/deliverable-submissions-api"
 
 interface WrittenAssetsPanelProps {
   version: number
   onSaveDraft: () => void
   onSubmit: (content: string) => void
+  onNext: () => void
   onHistory: () => void
   writtenAsset?: WrittenAsset | null
   isSubmitting?: boolean
@@ -21,6 +23,7 @@ export function WrittenAssetsPanel({
   version,
   onSaveDraft,
   onSubmit,
+  onNext,
   onHistory,
   writtenAsset,
   isSubmitting,
@@ -82,10 +85,7 @@ export function WrittenAssetsPanel({
       )}
 
       {isLocked ? (
-        <div
-          className="min-h-[156px] text-muted-foreground break-words rounded-md border bg-slate-50 py-2 px-3 [&_p]:my-1 [&_h1]:text-2xl [&_h1]:font-bold [&_h2]:text-xl [&_h2]:font-bold [&_h3]:text-lg [&_h3]:font-bold [&_ul]:list-disc [&_ul]:ml-3 [&_ol]:list-decimal [&_ol]:ml-3 [&_blockquote]:border-l-4 [&_blockquote]:border-muted [&_blockquote]:pl-2 [&_blockquote]:italic [&_code]:bg-muted [&_code]:rounded [&_code]:px-1"
-          dangerouslySetInnerHTML={{ __html: writtenAsset?.content ?? "" }}
-        />
+        <WrittenAssetPreview content={writtenAsset?.content ?? ""} />
       ) : (
         <RichTextEditor content={content} onChange={updateContent} />
       )}
@@ -94,14 +94,23 @@ export function WrittenAssetsPanel({
 
       <div className="flex justify-end gap-2">
         <Button variant="outline" onClick={onSaveDraft}>Save Draft</Button>
-        <Button
-          onClick={() => validateAndSave(onSubmit)}
-          disabled={isLocked || isSubmitting}
-          title={isAwaitingReview ? "Submitted and awaiting client approval." : isApproved ? "Approved — can't resubmit." : undefined}
-          className="bg-[#6b1fa8] hover:bg-[#5a1a8f] text-white"
-        >
-          {isSubmitting ? "Submitting..." : "Submit"}
-        </Button>
+        {isApproved ? (
+          <Button
+            onClick={onNext}
+            className="bg-[#6b1fa8] hover:bg-[#5a1a8f] text-white"
+          >
+            Next: Media Assets
+          </Button>
+        ) : (
+          <Button
+            onClick={() => validateAndSave(onSubmit)}
+            disabled={isSubmitting}
+            title={isAwaitingReview ? "Submitted and awaiting client approval." : undefined}
+            className="bg-[#6b1fa8] hover:bg-[#5a1a8f] text-white"
+          >
+            {isSubmitting ? "Submitting..." : "Submit"}
+          </Button>
+        )}
       </div>
     </Card>
   )

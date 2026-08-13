@@ -105,8 +105,7 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
             <HistoryOverlay
               open={historyOpen}
               onClose={() => setHistoryOpen(false)}
-              version={2}
-              timestamp="DD/MM/YYYY HH:MM"
+              deliverableItemPublicId={firstDeliverableItem?.public_id}
             />
             {activeStep === 1 && (
               <DeliverablesSidebar
@@ -131,6 +130,7 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
                     onHistory={() => setHistoryOpen(true)}
                     onSaveDraft={() => console.log("Save draft")}
                     onSubmit={handleSubmitWrittenAsset}
+                    onNext={() => setActiveDeliverableStep(1)}
                     writtenAsset={latestWrittenAsset}
                     isSubmitting={isSubmittingWrittenAsset}
                     itemsLoading={itemsLoading}

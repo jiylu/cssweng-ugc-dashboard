@@ -36,6 +36,22 @@ export async function getLatestWrittenAsset(
   return response.json()
 }
 
+export async function getWrittenAssetHistory(
+  deliverableItemPublicId: string,
+): Promise<WrittenAsset[]> {
+  const response = await fetch(
+    `${API_BASE_URL}/written-assets/history/${deliverableItemPublicId}`,
+    { credentials: "include" },
+  )
+  if (response.status === 404) return []
+  if (!response.ok) {
+    throw new Error(
+      await parseApiError(response, "Unable to fetch written asset history."),
+    )
+  }
+  return response.json()
+}
+
 export async function submitWrittenAsset(
   deliverableItemPublicId: string,
   content: string,
