@@ -23,7 +23,6 @@ import {
   WrittenAssets,
 } from '@prisma/client';
 import { nanoid } from 'nanoid';
-import { SubmitWrittenAssetDTO } from './dto/submit-written-asset.dto';
 import { UpdateWrittenAssetActionDTO } from './dto/update-written-asset-action.dto';
 import { UpdateWrittenAssetCommentDTO } from './dto/update-written-asset-comment.dto';
 
@@ -38,13 +37,13 @@ export class WrittenAssetsService {
     private deliverableItemsService: DeliverableItemsService,
   ) {}
 
-  async submitWrittenAsset(dto: SubmitWrittenAssetDTO) {
-    this.logger.debug(`Submitting WrittenAsset for ${dto.deliverableItemId}`);
+  async submitWrittenAsset(deliverableItemId: string, content: string) {
+    this.logger.debug(`Submitting WrittenAsset for ${deliverableItemId}`);
 
     const result = this.prisma.$transaction(async (tx) => {
       const deliverableItem =
         await this.deliverableItemsService.findOneDeliverableItem(
-          dto.deliverableItemId,
+          deliverableItemId,
           tx,
         );
 
@@ -87,7 +86,7 @@ export class WrittenAssetsService {
           deliverable_item_id: deliverableItem.deliverable_item_id,
           public_id: publicId,
           version_number: versionNumber,
-          content: dto.content,
+          content: content,
         },
       });
 

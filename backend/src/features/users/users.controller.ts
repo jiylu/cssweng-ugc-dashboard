@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Param, Patch, Post, Req, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Req,
+  Res,
+} from '@nestjs/common';
 import type { Response } from 'express';
 import { UserService } from './users.service';
 import { LoginUserDTO } from './dto/login-user.dto';
@@ -53,10 +62,7 @@ export class UserController {
   }
 
   @Patch('me')
-  updateMe(
-    @Req() req: AuthenticatedRequest,
-    @Body() dto: UpdateOwnProfileDTO,
-  ) {
+  updateMe(@Req() req: AuthenticatedRequest, @Body() dto: UpdateOwnProfileDTO) {
     return this.userService.updateOwnProfile(req.authUser.user_id, dto);
   }
 

@@ -64,7 +64,9 @@ export class UserService {
       );
       await this.createClient(existingUser.user_id, dto.clientDTO!);
 
-      this.logger.log(`Completed client profile for user ${existingUser.user_id}`);
+      this.logger.log(
+        `Completed client profile for user ${existingUser.user_id}`,
+      );
       return existingUser;
     }
 
