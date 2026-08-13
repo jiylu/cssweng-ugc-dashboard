@@ -22,7 +22,7 @@ export function PaymentInvoicingSection({ paymentSchedule, setPaymentSchedule, p
 
       <div className="grid grid-cols-2 gap-4">
         <div className="flex flex-col gap-1">
-          <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">PAYMENT SCHEDULE</label>
+          <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">PAYMENT SCHEDULE<span className="text-[#ff6467] ml-1">*</span></label>
           <Select value={paymentSchedule} onValueChange={setPaymentSchedule}>
             <SelectTrigger className="bg-white border-border rounded-[3px] text-sm h-[38px] w-full text-left [&>span]:truncate">
               <SelectValue placeholder="Select payment schedule" />
@@ -38,7 +38,7 @@ export function PaymentInvoicingSection({ paymentSchedule, setPaymentSchedule, p
         </div>
 
         <div className="flex flex-col gap-1">
-          <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">PAYMENT METHOD</label>
+          <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">PAYMENT METHOD<span className="text-[#ff6467] ml-1">*</span></label>
           <Select value={paymentMethod} onValueChange={setPaymentMethod}>
             {/* Set standard h-[40px] and w-full */}
             <SelectTrigger className="bg-white border-border rounded-[3px] text-sm h-[40px] w-full text-left">
@@ -55,7 +55,7 @@ export function PaymentInvoicingSection({ paymentSchedule, setPaymentSchedule, p
         </div>
 
         <div className="flex flex-col gap-1">
-          <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">TAX RATE</label>
+          <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">SET TAX RATE<span className="text-[#ff6467] ml-1">*</span></label>
           <InputGroup className="border border-border rounded-[3px] bg-white w-full h-[38px] flex items-center pr-1">
             <InputGroupInput
               type="number"

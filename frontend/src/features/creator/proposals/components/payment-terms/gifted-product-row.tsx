@@ -43,7 +43,7 @@ export function GiftedProductRow({ item, index, currency, errors, onUpdate, onRe
                 <div className="flex items-end gap-4">
                     {/* Product Name */}
                     <div className="flex flex-col gap-1 flex-1">
-                        <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">PRODUCT NAME</label>
+                        <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">PRODUCT NAME<span className="text-[#ff6467] ml-1">*</span></label>
                         <Input
                             value={item.productName}
                             onChange={(e) => onUpdate('productName', e.target.value)}
@@ -55,7 +55,7 @@ export function GiftedProductRow({ item, index, currency, errors, onUpdate, onRe
 
                     {/* Value */}
                     <div className="flex flex-col gap-1 w-48 shrink-0">
-                        <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">VALUE</label>
+                        <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">VALUE<span className="text-[#ff6467] ml-1">*</span></label>
                         <InputGroup className="border border-border rounded-[3px] bg-white flex items-center pr-2">
                             <InputGroupAddon className="pl-3 pr-1 text-sm text-muted-foreground">{currency}</InputGroupAddon>
                             <InputGroupInput
@@ -84,7 +84,7 @@ export function GiftedProductRow({ item, index, currency, errors, onUpdate, onRe
 
                 {/* Ownership Terms */}
                 <div className="flex flex-col gap-1 min-w-0">
-                    <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">OWNERSHIP TERMS</label>
+                    <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">OWNERSHIP TERMS<span className="text-[#ff6467] ml-1">*</span></label>
                     <Textarea
                     value={item.ownershipTerms}
                     onChange={(e) => onUpdate('ownershipTerms', e.target.value)}
@@ -101,7 +101,7 @@ export function GiftedProductRow({ item, index, currency, errors, onUpdate, onRe
 
                 {/* Shipping Address */}
                 <div className="flex flex-col gap-1">
-                    <label className="text-sm text-muted-foreground">Shipping Address</label>
+                    <label className="text-sm text-muted-foreground">Shipping Address<span className="text-[#ff6467] ml-1">*</span></label>
                     <button
                         type="button"
                         onClick={() => setAddressModalOpen(true)}

@@ -37,7 +37,7 @@ export default function CampaignDetailsSection({ form }: CampaignDetailsFormProp
       {/* Campaign Name */}
       <div className="flex flex-col gap-0">
         <label className="text-sm text-muted-foreground uppercase tracking-[0.03em] mt-0">
-          CAMPAIGN NAME
+          CAMPAIGN NAME<span className="text-[#ff6467] ml-1">*</span>
         </label>
         <Input
           value={form.projectName}
@@ -54,7 +54,7 @@ export default function CampaignDetailsSection({ form }: CampaignDetailsFormProp
       {/* Start & End Dates */}
       <div className="grid grid-cols-2 gap-6">
         <div className="flex flex-col gap-0">
-          <label className="text-sm text-muted-foreground uppercase tracking-[0.03em] mt-0">CAMPAIGN START DATE</label>
+          <label className="text-sm text-muted-foreground uppercase tracking-[0.03em] mt-0">CAMPAIGN START DATE<span className="text-[#ff6467] ml-1">*</span></label>
           <DatePickerInput
             value={form.startDate}
             onChange={(iso) => form.setStartDate(iso)}
@@ -65,7 +65,7 @@ export default function CampaignDetailsSection({ form }: CampaignDetailsFormProp
         </div>
 
         <div className="flex flex-col gap-0">
-          <label className="text-sm text-muted-foreground uppercase tracking-[0.03em] mt-0">CAMPAIGN END DATE</label>
+          <label className="text-sm text-muted-foreground uppercase tracking-[0.03em] mt-0">CAMPAIGN END DATE<span className="text-[#ff6467] ml-1">*</span></label>
           <DatePickerInput  
             value={form.endDate}
             onChange={(iso) => form.setEndDate(iso)}
@@ -85,7 +85,7 @@ export default function CampaignDetailsSection({ form }: CampaignDetailsFormProp
 
       {/* Platforms */}
       <div className="flex flex-col gap-2">
-        <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">PLATFORMS</label>
+        <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">PLATFORMS<span className="text-[#ff6467] ml-1">*</span></label>
         <PlatformsCheckbox
           value={form.platforms}
           onChange={form.setPlatforms}
@@ -96,7 +96,7 @@ export default function CampaignDetailsSection({ form }: CampaignDetailsFormProp
 
       {/* Campaign Description */}
       <div className="flex flex-col gap-0">
-        <label className="text-sm text-muted-foreground uppercase tracking-[0.03em] mt-0">CAMPAIGN DESCRIPTION</label>
+        <label className="text-sm text-muted-foreground uppercase tracking-[0.03em] mt-0">CAMPAIGN DESCRIPTION<span className="text-[#ff6467] ml-1">*</span></label>
           <div className="relative"> 
             <Textarea
               value={form.campaignDescription}

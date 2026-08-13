@@ -7,12 +7,16 @@ interface AddressFieldProps {
   error?: string
   helper?: string
   placeholder?: string
+  required?: boolean
 }
 
-export function AddressField({ label, value, onChange, error, helper, placeholder }: AddressFieldProps) {
+export function AddressField({ label, value, onChange, error, helper, placeholder, required }: AddressFieldProps) {
   return (
     <div className="flex flex-col gap-1">
-      <label className="text-sm text-foreground">{label}</label>
+      <label className="text-sm text-foreground">
+        {label}
+        {required && <span className="text-[#ff6467] ml-1">*</span>}
+      </label>
       <Input
         value={value}
         onChange={(e) => onChange(e.target.value)}
