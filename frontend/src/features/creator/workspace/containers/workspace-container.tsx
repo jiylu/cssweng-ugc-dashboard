@@ -24,6 +24,10 @@ import { useDeliverableItems } from "@/src/features/creator/workspace/hooks/useD
 import { useAllDeliverableItems } from "@/src/features/creator/workspace/hooks/useAllDeliverableItems"
 import { useLatestWrittenAsset, useLatestMediaAsset } from "@/src/features/creator/workspace/hooks/useLatestAsset"
 import { useSubmitWrittenAsset } from "@/src/features/creator/workspace/hooks/useSubmitWrittenAsset"
+import {
+  downloadFinalAssetsAsZip,
+  getFinalAssetsForCampaign,
+} from "@/src/features/creator/workspace/services/final-assets-api"
 
 interface WorkspaceProps {
   campaignId: string
@@ -37,6 +41,7 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
   const [historyType, setHistoryType] = useState<"written" | "media">("written")
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
   const [confirmOpen, setConfirmOpen] = useState(false)
+  const [isDownloading, setIsDownloading] = useState(false)
   const pendingNavigationRef = useRef<
     | { type: "deliverable"; index: number }
     | { type: "item"; index: number }
@@ -178,6 +183,37 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
     )
   }
 
+  const handleDownloadAssets = async () => {
+    setIsDownloading(true)
+    try {
+      const result = await getFinalAssetsForCampaign(campaignId)
+      const assets = Object.values(result).flatMap(
+        (entry) => entry.finalAssets,
+      )
+      if (assets.length === 0) {
+        toast.info("No final assets available yet.")
+        return
+      }
+      const downloaded = await downloadFinalAssetsAsZip(
+        assets,
+        `${campaign?.project_name ?? "campaign"}-final-assets.zip`,
+      )
+      if (downloaded === 0) {
+        toast.error("None of the final assets could be downloaded.")
+      } else if (downloaded < assets.length) {
+        toast.success(`Downloaded ${downloaded} of ${assets.length} assets.`)
+      } else {
+        toast.success("Final assets downloaded.")
+      }
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Unable to download final assets.",
+      )
+    } finally {
+      setIsDownloading(false)
+    }
+  }
+
   if (loading || campaignLoading) return <LogoLoader label="Loading workspace" />;
 
   if (!user) return null
@@ -296,7 +332,8 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
 
             {activeStep === 3 && (
               <CampaignCompletedCard 
-                onDownloadAssets={() => console.log("Downloaded assets.")}
+                isDownloading={isDownloading}
+                onDownloadAssets={handleDownloadAssets}
                 onBackToDashboard={() => router.push('/creator-dashboard')}
               />
             )}
