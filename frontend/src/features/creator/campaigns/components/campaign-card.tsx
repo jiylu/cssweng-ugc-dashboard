@@ -21,7 +21,7 @@ export function CampaignCard({ campaign, onOpenWorkspace }: CampaignCardProps) {
     <Card className="flex flex-row items-center justify-between px-6 py-4 h-20">
       {/* Name & Company */}
       <div className="w-48 shrink-0">
-        <p className="font-normal text-foreground">{campaign.project_name}</p>
+        <p className="font-normal text-foreground break-words min-w-0">{campaign.project_name}</p>
         <p className="text-sm text-muted-foreground">{campaign.currency}</p>
       </div>
 

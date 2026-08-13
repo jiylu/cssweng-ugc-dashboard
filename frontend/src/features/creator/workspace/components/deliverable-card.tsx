@@ -102,7 +102,19 @@ export function DeliverableCard({
                       : "bg-muted text-foreground hover:bg-muted/70"
                   )}
                 >
-                  <span className="text-sm font-medium">{itemName}</span>
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="text-sm font-medium truncate">{itemName}</span>
+                    <span
+                      className={cn(
+                        "shrink-0 rounded-[3px] text-[10px] font-medium px-1.5 py-0.5",
+                        isApproved
+                          ? "text-[#2d7a3a] bg-[#e7f4ea]"
+                          : "text-muted-foreground bg-muted-foreground/10"
+                      )}
+                    >
+                      {isApproved ? "Completed" : "Drafting"}
+                    </span>
+                  </div>
                   {isApproved && (
                     <CheckCircle2 size={16} className="shrink-0 text-[#2d7a3a]" />
                   )}

@@ -52,7 +52,7 @@ export function WrittenAssetsPanel({
   const isLocked = isAwaitingReview || isApproved
 
   return (
-    <Card className="flex-1 border border-[#6b1fa8] p-5 flex flex-col gap-4 min-w-0">
+    <Card className="flex-1 border border-[#6b1fa8] p-5 flex flex-col gap-4 min-w-0 h-full">
       <div className="flex items-center justify-between">
         <h2 className="text-xl text-foreground">Written Assets</h2>
         <div className="flex items-center gap-2">
