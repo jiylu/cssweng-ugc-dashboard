@@ -13,9 +13,20 @@ interface WrittenAssetsPanelProps {
   onHistory: () => void
   writtenAsset?: WrittenAsset | null
   isSubmitting?: boolean
+  itemsLoading?: boolean
+  itemsError?: boolean
 }
 
-export function WrittenAssetsPanel({ version, onSaveDraft, onSubmit, onHistory, writtenAsset, isSubmitting }: WrittenAssetsPanelProps) {
+export function WrittenAssetsPanel({
+  version,
+  onSaveDraft,
+  onSubmit,
+  onHistory,
+  writtenAsset,
+  isSubmitting,
+  itemsLoading,
+  itemsError,
+}: WrittenAssetsPanelProps) {
   const { content, errors, updateContent, validateAndSave } = useWrittenAssetsPanel()
 
   useEffect(() => {
@@ -59,6 +70,16 @@ export function WrittenAssetsPanel({ version, onSaveDraft, onSubmit, onHistory, 
             : "Revision requested. Please revise and resubmit."}
         </p>
       )}
+      {itemsLoading && (
+        <p className="text-xs text-muted-foreground bg-muted border border-muted-foreground/20 rounded px-3 py-2">
+          Loading deliverable items…
+        </p>
+      )}
+      {itemsError && (
+        <p className="text-xs text-[#ff6467] bg-[#fdecec] border border-[#ff6467]/30 rounded px-3 py-2">
+          Could not load deliverable items. Please refresh and try again.
+        </p>
+      )}
 
       <RichTextEditor content={content} onChange={updateContent} />
 
@@ -69,6 +90,7 @@ export function WrittenAssetsPanel({ version, onSaveDraft, onSubmit, onHistory, 
         <Button
           onClick={() => validateAndSave(onSubmit)}
           disabled={isLocked || isSubmitting}
+          title={isAwaitingReview ? "Submitted and awaiting client approval." : isApproved ? "Approved — can't resubmit." : undefined}
           className="bg-[#6b1fa8] hover:bg-[#5a1a8f] text-white"
         >
           {isSubmitting ? "Submitting..." : "Submit"}

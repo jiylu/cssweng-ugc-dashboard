@@ -33,7 +33,11 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
   const deliverables = campaignSetup?.deliverables ?? []
 
   const selectedDeliverable = deliverables[activeDeliverable]
-  const { data: deliverableItems } = useDeliverableItems(selectedDeliverable?.public_id)
+  const {
+    data: deliverableItems,
+    isLoading: itemsLoading,
+    error: itemsError,
+  } = useDeliverableItems(selectedDeliverable?.public_id)
   const firstDeliverableItem = deliverableItems?.[0]
   const { data: latestWrittenAsset } = useLatestWrittenAsset(firstDeliverableItem?.public_id)
   const { mutate: submitWrittenAsset, isPending: isSubmittingWrittenAsset } = useSubmitWrittenAsset()
@@ -56,7 +60,10 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
   }
 
   const handleSubmitWrittenAsset = (content: string) => {
-    if (!firstDeliverableItem) return
+    if (!firstDeliverableItem) {
+      toast.error("Deliverable items are still loading. Please try again.")
+      return
+    }
     submitWrittenAsset(
       { deliverableItemId: firstDeliverableItem.public_id, content },
       {
@@ -126,6 +133,8 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
                     onSubmit={handleSubmitWrittenAsset}
                     writtenAsset={latestWrittenAsset}
                     isSubmitting={isSubmittingWrittenAsset}
+                    itemsLoading={itemsLoading}
+                    itemsError={!!itemsError}
                   />
                 )}
 
