@@ -380,6 +380,38 @@ export class CampaignsService {
     return updatedCampaign;
   }
 
+  async updatePaidFull(
+    campaignId: string,
+    tx: Prisma.TransactionClient | PrismaService = this.prisma,
+  ) {
+    this.logger.debug(`Checking if campaign ${campaignId} is fully paid`);
+
+    const campaign = await this.findOneCampaign(campaignId, tx);
+
+    if (!campaign.paid_amount.equals(campaign.pricing)) {
+      this.logger.warn(
+        `Campaign ${campaign.campaign_id} paid amount ${campaign.paid_amount.toString()} does not match pricing ${campaign.pricing.toString()}`,
+      );
+
+      throw new ConflictException({
+        status: HttpStatus.CONFLICT,
+        code: 'PAID_AMOUNT_MISMATCH',
+        message: 'Paid amount does not match pricing',
+      });
+    }
+
+    const updatedCampaign = await tx.campaigns.update({
+      where: { campaign_id: campaign.campaign_id },
+      data: {
+        paid_full: true,
+      },
+    });
+
+    this.logger.log(`Campaign ${campaign.campaign_id} marked as fully paid`);
+
+    return updatedCampaign;
+  }
+
   async updateCampaignDetails(
     campaignId: string,
     dto: UpdateCampaignDetailsDTO,
