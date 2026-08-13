@@ -3,6 +3,7 @@ import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { CreateProposalHistoryDTO } from './dto/create-proposal-history.dto';
 import { UpdateProposalHistoryCommentDTO } from './dto/update-proposal-history-comment.dto';
 import { UpdateProposalHistoryActionDTO } from './dto/update-proposal-history-action.dto';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class ProposalHistoryService {
@@ -10,18 +11,21 @@ export class ProposalHistoryService {
 
   constructor(private prisma: PrismaService) {}
 
-  async createProposalHistory(dto: CreateProposalHistoryDTO) {
+  async createProposalHistory(
+    dto: CreateProposalHistoryDTO,
+    tx: Prisma.TransactionClient | PrismaService = this.prisma,
+  ) {
     this.logger.debug(
       `Creating proposal history for proposal ${dto.proposalId}`,
     );
 
-    const existingCount = await this.prisma.proposalHistory.count({
+    const existingCount = await tx.proposalHistory.count({
       where: { proposal_id: dto.proposalId },
     });
 
     const versionNumber = existingCount + 1;
 
-    const history = await this.prisma.proposalHistory.create({
+    const history = await tx.proposalHistory.create({
       data: {
         proposal_id: dto.proposalId,
         version_number: versionNumber,
@@ -41,10 +45,13 @@ export class ProposalHistoryService {
     return history;
   }
 
-  async findOneHistory(historyId: string) {
+  async findOneHistory(
+    historyId: string,
+    tx: Prisma.TransactionClient | PrismaService = this.prisma,
+  ) {
     this.logger.debug(`Finding proposal history ${historyId}`);
 
-    const history = await this.prisma.proposalHistory.findUnique({
+    const history = await tx.proposalHistory.findUnique({
       where: { history_id: historyId },
     });
 
@@ -63,14 +70,15 @@ export class ProposalHistoryService {
   async updateClientComments(
     historyId: string,
     dto: UpdateProposalHistoryCommentDTO,
+    tx: Prisma.TransactionClient | PrismaService = this.prisma,
   ) {
     this.logger.debug(
       `Updating client comments for proposal history ${historyId}`,
     );
 
-    await this.findOneHistory(historyId);
+    await this.findOneHistory(historyId, tx);
 
-    const updated = await this.prisma.proposalHistory.update({
+    const updated = await tx.proposalHistory.update({
       where: { history_id: historyId },
       data: {
         client_comments: dto.comment,
@@ -87,12 +95,13 @@ export class ProposalHistoryService {
   async updateProposalActions(
     historyId: string,
     dto: UpdateProposalHistoryActionDTO,
+    tx: Prisma.TransactionClient | PrismaService = this.prisma,
   ) {
     this.logger.debug(`Updating action for proposal history ${historyId}`);
 
-    await this.findOneHistory(historyId);
+    await this.findOneHistory(historyId, tx);
 
-    const updated = await this.prisma.proposalHistory.update({
+    const updated = await tx.proposalHistory.update({
       where: { history_id: historyId },
       data: {
         action: dto.action,
@@ -106,12 +115,15 @@ export class ProposalHistoryService {
     return updated;
   }
 
-  async findLatestVersion(proposalId: string) {
+  async findLatestVersion(
+    proposalId: string,
+    tx: Prisma.TransactionClient | PrismaService = this.prisma,
+  ) {
     this.logger.debug(
       `Finding latest proposal history version for proposal ${proposalId}`,
     );
 
-    const latestHistory = await this.prisma.proposalHistory.findFirst({
+    const latestHistory = await tx.proposalHistory.findFirst({
       where: { proposal_id: proposalId },
       orderBy: { version_number: 'desc' },
     });
@@ -131,12 +143,15 @@ export class ProposalHistoryService {
     return latestHistory;
   }
 
-  async findAllHistoryForProposal(proposalId: string) {
+  async findAllHistoryForProposal(
+    proposalId: string,
+    tx: Prisma.TransactionClient | PrismaService = this.prisma,
+  ) {
     this.logger.debug(
       `Finding all proposal history for proposal ${proposalId}`,
     );
 
-    const histories = await this.prisma.proposalHistory.findMany({
+    const histories = await tx.proposalHistory.findMany({
       where: { proposal_id: proposalId },
       orderBy: { version_number: 'asc' },
     });

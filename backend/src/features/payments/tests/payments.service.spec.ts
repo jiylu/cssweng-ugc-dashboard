@@ -3,8 +3,13 @@ import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { PaymentsService } from '../payments.service';
 import { CampaignsService } from 'src/features/campaigns/campaigns.service';
+import { ProposalsService } from 'src/features/proposals/proposals.service';
 import { CreatePaymentDTO } from '../dto/create-payment.dto';
-import { CampaignStatus } from '@prisma/client';
+import {
+  CampaignStatus,
+  PaymentSchedule,
+  ProposalStatus,
+} from '@prisma/client';
 
 jest.mock('nanoid', () => ({ nanoid: jest.fn(() => 'mock-pb-id') }));
 
@@ -18,13 +23,24 @@ describe('PaymentsService', () => {
       findMany: jest.fn(),
       update: jest.fn(),
     },
+    $transaction: jest.fn(),
   };
 
   const mockCampaignService = {
     findOneCampaign: jest.fn(),
+    updateCampaignStatus: jest.fn(),
+    updatePaidAmount: jest.fn(),
+  };
+
+  const mockProposalsService = {
+    findProposalByCampaignId: jest.fn(),
   };
 
   beforeEach(async () => {
+    mockPrisma.$transaction.mockImplementation(async (callback: any) =>
+      callback(mockPrisma),
+    );
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         PaymentsService,
@@ -35,7 +51,11 @@ describe('PaymentsService', () => {
         {
           provide: CampaignsService,
           useValue: mockCampaignService,
-        } as any,
+        },
+        {
+          provide: ProposalsService,
+          useValue: mockProposalsService,
+        },
       ],
     }).compile();
 
@@ -224,13 +244,37 @@ describe('PaymentsService', () => {
 
       mockPrisma.payments.findFirst.mockResolvedValue(existing);
       mockPrisma.payments.update.mockResolvedValue(validated);
+      mockCampaignService.findOneCampaign.mockResolvedValue({
+        campaign_id: 'camp-1',
+        payment_schedule: PaymentSchedule.DUE_FINAL_DELIVERY,
+        pricing: { toNumber: () => 5000 },
+      });
+      mockProposalsService.findProposalByCampaignId.mockResolvedValue({
+        proposal_id: 'proposal-1',
+        proposal_status: ProposalStatus.ACCEPTED,
+      });
+      mockCampaignService.updateCampaignStatus.mockResolvedValue({});
+      mockCampaignService.updatePaidAmount.mockResolvedValue({});
 
       const res = await service.validatePayment('payment-1');
       expect(res).toEqual(validated);
       expect(mockPrisma.payments.update).toHaveBeenCalledWith({
         where: { payment_id: 'payment-1' },
-        data: { is_payment_verified: true },
+        data: {
+          is_payment_verified: true,
+          verified_at: expect.any(Date),
+        },
       });
+      expect(mockCampaignService.updateCampaignStatus).toHaveBeenCalledWith(
+        'camp-1',
+        { campaignStatus: CampaignStatus.COMPLETED },
+        mockPrisma,
+      );
+      expect(mockCampaignService.updatePaidAmount).toHaveBeenCalledWith(
+        'camp-1',
+        { paidAmount: 5000 },
+        mockPrisma,
+      );
     });
 
     it('should throw NotFoundException when payment does not exist', async () => {

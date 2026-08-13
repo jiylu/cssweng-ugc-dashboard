@@ -1,4 +1,4 @@
-import { DeliverableType } from '@prisma/client';
+import { DeliverableStatus, DeliverableType } from '@prisma/client';
 import { Exclude, Expose, Type } from 'class-transformer';
 
 export class DeliverablesEntity {
@@ -33,6 +33,9 @@ export class DeliverablesEntity {
   @Expose()
   @Type(() => Number)
   pricing: number;
+
+  @Expose()
+  deliverable_status: DeliverableStatus;
 
   @Exclude()
   is_deleted: boolean;

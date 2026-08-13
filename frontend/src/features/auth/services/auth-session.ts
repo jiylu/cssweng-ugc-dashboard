@@ -35,3 +35,23 @@ export async function logoutUser() {
     throw new Error(await parseApiError(response, "Unable to logout."));
   }
 }
+
+export async function updateCurrentUser(payload: {
+  firstName: string;
+  lastName: string;
+}): Promise<AuthUser> {
+  const response = await fetch(`${API_BASE_URL}/users/me`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    throw new Error(await parseApiError(response, "Unable to save profile."));
+  }
+
+  const user = authUserSchema.safeParse(await response.json());
+  if (!user.success) throw new Error("Unable to validate updated profile.");
+  return user.data;
+}

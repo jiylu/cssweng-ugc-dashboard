@@ -14,6 +14,7 @@ import {
   PaymentSchedule,
   Prisma,
   UserRoles,
+  DeliverableStatus,
 } from '@prisma/client';
 import { CampaignQueryDTO } from './dto/campaign-query-dto';
 import { UpdateCampaignStatusDto } from './dto/update-campaign-status-dto';
@@ -233,12 +234,16 @@ export class CampaignsService {
     return campaigns;
   }
 
-  async updateCampaignStatus(campaignId: string, dto: UpdateCampaignStatusDto) {
+  async updateCampaignStatus(
+    campaignId: string,
+    dto: UpdateCampaignStatusDto,
+    tx: Prisma.TransactionClient | PrismaService = this.prisma,
+  ) {
     this.logger.debug(`Updating campaign status for ${campaignId}`);
 
-    const campaign = await this.assertCampaignUpdatable(campaignId);
+    const campaign = await this.assertCampaignUpdatable(campaignId, tx);
 
-    const updatedCampaign = await this.prisma.campaigns.update({
+    const updatedCampaign = await tx.campaigns.update({
       where: { campaign_id: campaignId },
       data: {
         campaign_status: dto.campaignStatus,
@@ -252,8 +257,11 @@ export class CampaignsService {
     return updatedCampaign;
   }
 
-  async assertCampaignUpdatable(campaignId: string) {
-    const campaign = await this.findOneCampaign(campaignId);
+  async assertCampaignUpdatable(
+    campaignId: string,
+    tx: Prisma.TransactionClient | PrismaService = this.prisma,
+  ) {
+    const campaign = await this.findOneCampaign(campaignId, tx);
     const terminalStatuses = [
       CampaignStatus.REJECTED,
       CampaignStatus.COMPLETED,
@@ -347,14 +355,18 @@ export class CampaignsService {
     return updatedCampaign;
   }
 
-  async updatePaidAmount(campaignId: string, dto: UpdatePaidAmountDTO) {
+  async updatePaidAmount(
+    campaignId: string,
+    dto: UpdatePaidAmountDTO,
+    tx: Prisma.TransactionClient | PrismaService = this.prisma,
+  ) {
     this.logger.debug(
       `Updating paid amount for campaign ${campaignId} to ${dto.paidAmount}`,
     );
 
-    const campaign = await this.findOneCampaign(campaignId);
+    const campaign = await this.findOneCampaign(campaignId, tx);
 
-    const updatedCampaign = await this.prisma.campaigns.update({
+    const updatedCampaign = await tx.campaigns.update({
       where: { campaign_id: campaign.campaign_id },
       data: {
         paid_amount: dto.paidAmount,
@@ -408,6 +420,44 @@ export class CampaignsService {
     });
 
     this.logger.log(`Campaign details for ${campaignId} updated successfully`);
+
+    return updatedCampaign;
+  }
+
+  async updateAllDeliverablesApproved(
+    campaignId: string,
+    tx: Prisma.TransactionClient | PrismaService = this.prisma,
+  ) {
+    this.logger.debug(
+      `Checking if all deliverables are approved for campaign ${campaignId}`,
+    );
+
+    const campaign = await this.findOneCampaign(campaignId, tx);
+
+    const deliverables = await tx.deliverables.findMany({
+      where: {
+        campaign_id: campaign.campaign_id,
+        is_deleted: false,
+      },
+    });
+
+    const allApproved =
+      deliverables.length > 0 &&
+      deliverables.every(
+        (deliverable) =>
+          deliverable.deliverable_status === DeliverableStatus.APPROVED,
+      );
+
+    const updatedCampaign = await tx.campaigns.update({
+      where: { campaign_id: campaign.campaign_id },
+      data: {
+        all_deliverables_approved: allApproved,
+      },
+    });
+
+    this.logger.log(
+      `Campaign ${campaign.campaign_id} all_deliverables_approved set to ${allApproved}`,
+    );
 
     return updatedCampaign;
   }

@@ -14,8 +14,8 @@ export type CreateClientPayload = {
   companyEmail: string;
   billablePerson: string;
   contactPerson: string;
-  companyContactNumber: string;
-  contactPersonContactNumber: string;
+  companyContactNumber: number;
+  contactPersonContactNumber: number;
 };
 
 export type OtpPayload = Pick<CreateUserPayload, "email" | "role">;
@@ -56,6 +56,8 @@ export type LoginUserResponse = {
   };
 };
 
+export type CreatedUser = LoginUserResponse["user"];
+
 type ApiErrorBody = {
   message?: string | string[];
   code?: string;
@@ -81,7 +83,7 @@ export async function parseApiError(response: Response, fallback: string) {
 export async function createUser(
   userDTO: CreateUserPayload,
   clientDTO?: CreateClientPayload,
-) {
+): Promise<CreatedUser> {
   const payload = { userDTO, clientDTO };
 
   const response = await fetch(`${API_BASE_URL}/users`, {
@@ -95,6 +97,29 @@ export async function createUser(
   if (!response.ok) {
     throw new Error(await parseApiError(response, "Unable to create account."));
   }
+  return response.json();
+}
+
+export async function assignClientToCampaign(
+  campaignPublicId: string,
+  clientId: string,
+) {
+  const response = await fetch(
+    `${API_BASE_URL}/campaigns/client/${encodeURIComponent(campaignPublicId)}`,
+    {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ clientId }),
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      await parseApiError(response, "Unable to assign client to campaign."),
+    );
+  }
+
   return response.json();
 }
 

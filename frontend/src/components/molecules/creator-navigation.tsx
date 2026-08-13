@@ -23,7 +23,7 @@ export default function CreatorNavigation() {
         <Button variant="ghost" onClick={() => router.push('/calendar')} className="justify-start items-center cursor-pointer w-57 h-12.5 text-lg">
           <Calendar />Calendar
         </Button>
-        <Button variant="ghost" className="justify-start items-center cursor-pointer w-57 h-12.5 text-lg">
+        <Button variant="ghost" onClick={() => router.push('/settings')} className="justify-start items-center cursor-pointer w-57 h-12.5 text-lg">
           <Settings />Settings
         </Button>
       </div>

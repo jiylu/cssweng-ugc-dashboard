@@ -19,7 +19,6 @@ model User {
   campaigns_as_client  Campaigns[] @relation("ClientCampaigns")
 
   activity_logs ActivityLog[] @relation("ActivityLogUser")
-  //targeted_activity_logs ActivityLog[] @relation("ActivityLogTargetUser")
 }
 
 model Drafts {
@@ -62,22 +61,23 @@ model Clients {
 }
 
 model Campaigns {
-  campaign_id       String           @id @default(uuid())
-  public_id         String           @unique @db.VarChar(10)
-  ugc_creator_id    String
-  client_id         String?
-  project_name      String
-  description       String
-  currency          CampaignCurrency
-  tax               Decimal
-  pricing           Decimal
-  platforms         Json
-  start_date        DateTime
-  end_date          DateTime
-  created_at        DateTime         @default(now())
-  campaign_status   CampaignStatus   @default(ACTIVE)
-  paid_amount       Decimal          @default(0.0)
-  payment_schedule  PaymentSchedule
+  campaign_id               String           @id @default(uuid())
+  public_id                 String           @unique @db.VarChar(10)
+  ugc_creator_id            String
+  client_id                 String?
+  project_name              String
+  description               String
+  currency                  CampaignCurrency
+  tax                       Decimal
+  pricing                   Decimal
+  platforms                 Json
+  start_date                DateTime
+  end_date                  DateTime
+  created_at                DateTime         @default(now())
+  campaign_status           CampaignStatus   @default(ACTIVE)
+  paid_amount               Decimal          @default(0.0)
+  payment_schedule          PaymentSchedule
+  all_deliverables_approved Boolean  @default(false)
 
   creator      User           @relation("CreatorCampaigns", fields: [ugc_creator_id], references: [user_id])
   client       User?          @relation("ClientCampaigns", fields: [client_id], references: [user_id])
@@ -167,39 +167,44 @@ model Deliverables {
   due_date            DateTime
   post_date           DateTime
   pricing             Decimal
-  is_deleted          Boolean         @default(false)
+  is_deleted          Boolean            @default(false)
+  deliverable_status  DeliverableStatus  @default(PENDING)
 
   campaign Campaigns @relation(fields: [campaign_id], references: [campaign_id])
 }
 
 model DeliverableItems {
-  deliverable_item_id     String @id @default(uuid())
+  deliverable_item_id     String                 @id @default(uuid())
   deliverable_id          String
-  public_id               String @unique @db.VarChar(10)
+  public_id               String                 @unique @db.VarChar(10)
   deliverable_index       Int
+  deliverable_item_status DeliverableItemStatus  @default(PENDING)
+  written_asset_approved  Boolean                @default(false)
+  media_asset_approved    Boolean                @default(false)
 }
 
 model MediaAssets {
-  media_asset_id           String           @id @default(uuid())
+  media_asset_id           String                       @id @default(uuid())
   deliverable_item_id      String
-  public_id                String           @unique @db.VarChar(10)
+  public_id                String                       @unique @db.VarChar(10)
   version_number           Int
   is_video                 Boolean
   content_url              String
-  client_comments          String
-  submission_status        SubmissionStatus
-  created_at               DateTime
+  client_comments          String                       @default("")
+  media_asset_action       AssetActions                 @default(PENDING)
+  created_at               DateTime                     @default(now())
   updated_at               DateTime?
 }
 
 model WrittenAssets {
-  written_asset_id         String @id @default(uuid())
+  written_asset_id         String                      @id @default(uuid())
   deliverable_item_id      String
-  public_id                String @unique @db.VarChar(10)
+  public_id                String                      @unique @db.VarChar(10)
   version_number           Int
   content                  String
-  client_comments          String
-  created_at               DateTime
+  client_comments          String                      @default("")
+  written_asset_action     AssetActions                @default(PENDING)
+  created_at               DateTime                    @default(now())
   updated_at               DateTime?
 }
 
@@ -269,10 +274,7 @@ enum UserRoles {
   CREATOR
 }
 
-enum DeliverableType {
-  COLLABORATION
-  UGC
-}
+// -- CAMPAIGN ENUMS -- //
 
 enum CampaignStatus {
   ACTIVE
@@ -288,6 +290,41 @@ enum CampaignCurrency {
   EUR
   GBP
 }
+
+enum PaymentSchedule {
+  DEPOSIT_50_FINAL_50
+  DUE_FINAL_DELIVERY
+}
+
+// -- DELIVERABLE ENUMS -- //
+
+enum DeliverableType {
+  COLLABORATION
+  UGC
+}
+
+enum DeliverableStatus {
+  PENDING
+  IN_PROGRESS
+  APPROVED
+  DELETED
+}
+
+enum DeliverableItemStatus {
+  PENDING
+  FOR_REVIEW
+  APPROVED
+  DELETED
+}
+
+enum AssetActions {
+  PENDING
+  REVISE
+  APPROVE
+}
+
+
+// -- PROPOSAL ENUMS -- //
 
 enum ProposalStatus {
   PENDING
@@ -305,6 +342,7 @@ enum ProposalActions {
   CANCEL
 }
 
+// -- ACTIVITY LOG ENUMS -- // 
 enum EntityType {
   CAMPAIGN
   SUBMISSION
@@ -315,22 +353,4 @@ enum Action {
   SUBMISSION
   APPROVE
   SIGNED
-}
-
-enum ContractActionStatus {
-  DRAFT
-  REVISION_REQUESTED
-  CLIENT_SIGNED
-  FULLY_SIGNED
-}
-
-enum SubmissionStatus {
-  FOR_REVIEW
-  FOR_REVISION
-  APPROVED
-}
-
-enum PaymentSchedule {
-  DEPOSIT_50_FINAL_50
-  DUE_FINAL_DELIVERY
 }

@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
@@ -90,46 +91,24 @@ export class ContractsController {
   ) {
     const signatureFile = files.signature?.[0];
     const initialsFile = files.initials?.[0];
-    const promises: Promise<{
-      upload_type: string;
-      url: string;
-      type: 'image' | 'video';
-    }>[] = [];
 
-    if (signatureFile) {
-      promises.push(
-        this.uploadService
-          .upload(signatureFile)
-          .then((result) => ({ upload_type: 'signature', ...result })),
+    if (!signatureFile || !initialsFile) {
+      throw new BadRequestException(
+        'Both signature and initials image files are required.',
       );
     }
 
-    if (initialsFile) {
-      promises.push(
-        this.uploadService
-          .upload(initialsFile)
-          .then((result) => ({ upload_type: 'initials', ...result })),
-      );
-    }
+    const [signatureData, initialsData] = await Promise.all([
+      this.uploadService.upload(signatureFile),
+      this.uploadService.upload(initialsFile),
+    ]);
 
-    const [signatureData, initialsData] = await Promise.all(promises);
-
-    const contractId = await this.contractsService.resolvePublicId(publicId);
-    const contract = await this.contractsService.signContract(
-      contractId,
-      dto.signerRole,
-    );
-
-    const campaign = await this.campaignsService.findOneCampaign(
-      contract.campaign_id,
-    );
-
-    await this.contractSignatureService.storeSignature({
-      contractId: contract.contract_id,
-      signerRole: dto.signerRole,
-      signatureURL: signatureData.url,
-      initialsURL: initialsData.url,
-    });
+    const { contract, campaign } =
+      await this.contractSignatureService.signContractWithSignature(publicId, {
+        signerRole: dto.signerRole,
+        signatureURL: signatureData.url,
+        initialsURL: initialsData.url,
+      });
 
     await this.notificationsService.createNotification({
       userId: campaign.ugc_creator_id,
