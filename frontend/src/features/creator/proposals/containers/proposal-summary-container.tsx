@@ -73,18 +73,17 @@ export function ProposalSummaryContainer({ form, contractTerms, addOns, paymentT
 
   return (
     <div className="flex flex-col gap-6">
-      <Separator />
 
-      <div className="mt-5 mb-2">
-        <h1 className="text-[44px] font-normal">Proposal Summary</h1>
-        <p className="text-[18px] text-muted-foreground">
+      <div className="mt-2 mb-2">
+        <h1 className="text-4xl font-normal">Proposal Summary</h1>
+        <p className="text-[18px] text-muted-foreground mt-2">
           Please review the campaign details and contract terms before final submission
         </p>
       </div>
+      <Separator className="-mt-2"/>
 
-      {/* Two column layout */}
       <div className="grid grid-cols-3 gap-6">
-        {/* Left column - 2/3 width */}
+        {/* Left column */}
         <div className="col-span-2 flex flex-col gap-6">
           <CampaignOverviewCard
             campaignName={summary.campaign.campaignName}
@@ -96,7 +95,7 @@ export function ProposalSummaryContainer({ form, contractTerms, addOns, paymentT
           <AddOnsSummaryCard addOns={addOnRows} />
         </div>
 
-        {/* Right column - 1/3 width */}
+        {/* Right column */}
         <div className="col-span-1 flex flex-col gap-6">
           <PaymentSummaryCard
             baseFee={summary.earnings.baseFeeWithoutAddOns}

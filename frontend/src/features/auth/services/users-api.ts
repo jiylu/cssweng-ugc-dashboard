@@ -14,8 +14,8 @@ export type CreateClientPayload = {
   companyEmail: string;
   billablePerson: string;
   contactPerson: string;
-  companyContactNumber: number;
-  contactPersonContactNumber: number;
+  companyContactNumber: string;
+  contactPersonContactNumber: string;
 };
 
 export type OtpPayload = Pick<CreateUserPayload, "email" | "role">;

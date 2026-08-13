@@ -17,7 +17,7 @@ export function ContentTypeSelect({ platform, contentType, platformOptions, onPl
 
   return (
     <div className="flex flex-col gap-1">
-      <label className="text-xs text-muted-foreground uppercase tracking-[0.03em]">CONTENT TYPE</label>
+      <label className="text-xs text-muted-foreground uppercase tracking-[0.03em]">CONTENT TYPE<span className="text-[#ff6467] ml-1">*</span></label>
       <div className="flex items-center gap-1">
         {/* Platform */}
         <div className="flex flex-col gap-1">
@@ -26,7 +26,7 @@ export function ContentTypeSelect({ platform, contentType, platformOptions, onPl
             onContentTypeChange("")
           }} disabled={!hasPlatformOptions}>
             <SelectTrigger className={`text-sm bg-white border-border rounded-[3px] ${!hasPlatformOptions ? "opacity-50" : ""}`}>
-              <SelectValue placeholder={hasPlatformOptions ? "Set Platform" : "Select campaign platform first"} />
+              <SelectValue placeholder={hasPlatformOptions ? "Set platform" : "Select campaign platform first"} />
             </SelectTrigger>
             <SelectContent className="p-1">
               {platformOptions.map((p) => (
@@ -45,7 +45,7 @@ export function ContentTypeSelect({ platform, contentType, platformOptions, onPl
             disabled={!platform}
           >
             <SelectTrigger className={`text-sm bg-white border-border rounded-[3px] ${!platform ? "opacity-50" : ""}`}>
-              <SelectValue placeholder="Set Type" />
+              <SelectValue placeholder="Set type" />
             </SelectTrigger>
             <SelectContent className="p-1">
               {contentTypeOptions.map((type) => (

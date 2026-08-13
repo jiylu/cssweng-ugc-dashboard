@@ -44,12 +44,8 @@ export default function ClientRegister() {
             companyEmail: details.companyEmail,
             billablePerson: details.billablePerson,
             contactPerson: details.contactPerson,
-            companyContactNumber: Number(
-              details.companyPhoneNumber.replace(/\D/g, ""),
-            ),
-            contactPersonContactNumber: Number(
-              details.contactNumber.replace(/\D/g, ""),
-            ),
+            companyContactNumber: details.companyPhoneNumber.trim(),
+            contactPersonContactNumber: details.contactNumber.trim(),
           },
           verificationToken,
         );

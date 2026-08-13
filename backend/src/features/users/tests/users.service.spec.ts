@@ -179,8 +179,8 @@ describe('UserService', () => {
       companyEmail: 'billing@client.test',
       billablePerson: 'Billing Person',
       contactPerson: 'Contact Person',
-      companyContactNumber: 1234567890,
-      contactPersonContactNumber: 1234567890,
+      companyContactNumber: '639429459448',
+      contactPersonContactNumber: '639429459448',
     };
     const dto: CreateUserTransactionDTO = {
       userDTO: {

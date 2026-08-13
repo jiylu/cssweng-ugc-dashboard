@@ -16,7 +16,7 @@ export interface AddOnFormProps {
 
 export default function AddOnsForm({ currency, addOns, onAddCustom, onToggle, onRemove, onAdjustPrice, onUpdateAddOn, errors }: AddOnFormProps) {
     return (
-        <div className="bg-white border border-border rounded-[3px] p-5.5 flex flex-col">
+        <div className="bg-white border border-border rounded-[3px] p-6 overflow-hidden flex flex-col">
             <h2 className="text-[26px] font-normal text-foreground mb-2">Campaign Add-Ons</h2>
 
             {/* Headers */}

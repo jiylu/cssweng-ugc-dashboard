@@ -35,7 +35,7 @@ export function UsageRights({
         <Separator />
 
         <div className="flex flex-col gap-1">
-          <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">INCLUDED ORGANIC USAGE</label>
+          <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">INCLUDED ORGANIC USAGE<span className="text-[#ff6467] ml-1">*</span></label>
           <Textarea
             value={includedOrganicUsage}
             onChange={(e) => setIncludedOrganicUsage(e.target.value)}
@@ -47,7 +47,7 @@ export function UsageRights({
 
         <div className="grid grid-cols-2 gap-4">
           <div className="flex flex-col gap-1">
-            <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">TERRITORY</label>
+            <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">TERRITORY<span className="text-[#ff6467] ml-1">*</span></label>
             <Input
               value={territory}
               onChange={(e) => setTerritory(e.target.value)}
@@ -74,42 +74,42 @@ export function UsageRights({
         <h2 className="text-2xl font-normal text-foreground">Posting Requirements</h2>
         <Separator />
 
-      <div className="flex flex-col gap-1">
-        <div className="flex items-center justify-between">
-          <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">CONTENT RETENTION</label>
-          <span className="text-xs text-muted-foreground">Posts must remain live for the duration</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <InputGroup className="border border-border rounded-[3px] bg-white w-full">
-            <InputGroupInput
-              type="number"
-              value={contentRetention}
-              onChange={(e) => setContentRetention(Math.max(1, Number(e.target.value)))}
-              className="border-0 p-0 h-auto text-sm shadow-none focus-visible:ring-0 px-2 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-            />
-            <InputGroupAddon align="inline-end">MONTHS</InputGroupAddon>
-            <InputGroupAddon align="inline-end">
-              <div className="flex flex-col shrink-0 px-1.5">
-                <ChevronUp size={12} className="cursor-pointer text-muted-foreground hover:text-foreground" onClick={() => setContentRetention(contentRetention + 1)} />
-                <ChevronDown size={12} className="cursor-pointer text-muted-foreground hover:text-foreground" onClick={() => setContentRetention(Math.max(1, contentRetention - 1))} />
-              </div>
-            </InputGroupAddon>
-          </InputGroup>
-        </div>
-        {errors.contentRetention && <p className="text-xs mt-1 text-[#ff6467]">{errors.contentRetention}</p>}
-      </div>
-
+        {/* Content Retention */}
         <div className="flex flex-col gap-1">
-          <div className="flex items-center justify-between">
-            <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">PARTNERSHIP TAGS</label>
-            <span className="text-xs text-muted-foreground">Social media tags to be used in the content</span>
+          <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">CONTENT RETENTION<span className="text-[#ff6467] ml-1">*</span></label>
+          <div className="flex items-center gap-2">
+            <InputGroup className="border border-border p-1 rounded-[3px] bg-white w-full">
+              <InputGroupInput
+                type="number"
+                value={contentRetention}
+                onChange={(e) => setContentRetention(Math.max(1, Number(e.target.value)))}
+                className="border-0 p-0 h-auto text-sm shadow-none focus-visible:ring-0 px-2 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              />
+              <InputGroupAddon align="inline-end">MONTHS</InputGroupAddon>
+              <InputGroupAddon align="inline-end">
+                <div className="flex flex-col shrink-0 px-1.5">
+                  <ChevronUp size={12} className="cursor-pointer text-muted-foreground hover:text-foreground" onClick={() => setContentRetention(contentRetention + 1)} />
+                  <ChevronDown size={12} className="cursor-pointer text-muted-foreground hover:text-foreground" onClick={() => setContentRetention(Math.max(1, contentRetention - 1))} />
+                </div>
+              </InputGroupAddon>
+            </InputGroup>
           </div>
+
+          <span className="text-xs text-muted-foreground mt-1 italic">Posts must remain live for the duration</span>
+          {errors.contentRetention && <p className="text-xs mt-1 text-[#ff6467]">{errors.contentRetention}</p>}
+        </div>
+
+        {/* Tags */}
+        <div className="flex flex-col gap-1">
+          <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">PARTNERSHIP TAGS</label>
           <Input
             value={partnershipTags}
             onChange={(e) => setPartnershipTags(e.target.value)}
             placeholder="e.g., #ad, #partnership, #sponsored"
             className="border-border rounded-[3px] text-sm"
           />
+          
+          <span className="text-xs text-muted-foreground mt-1 italic">Social media tags to be used in the content</span>
           {errors.partnershipTags && <p className="text-xs mt-1 text-[#ff6467]">{errors.partnershipTags}</p>}
         </div>
       </Card>

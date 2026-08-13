@@ -8,6 +8,7 @@ import { DeliverablesModule } from '../deliverables/deliverables.module';
 import { DeliverableItemsModule } from '../deliverable-items/deliverable-items.module';
 import { CampaignsModule } from '../campaigns/campaigns.module';
 import { UploadModule } from 'src/shared/upload/upload.module';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { UploadModule } from 'src/shared/upload/upload.module';
     DeliverableItemsModule,
     CampaignsModule,
     UploadModule,
+    NotificationsModule,
   ],
   providers: [DeliverableSubmissionsService],
   controllers: [DeliverableSubmissionsController],

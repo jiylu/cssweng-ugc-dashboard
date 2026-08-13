@@ -17,33 +17,30 @@ interface DeliverablesCardProps {
 
 export function DeliverablesCard({ deliverables }: DeliverablesCardProps) {
     return (
-        <Card className="flex flex-col gap-4 p-6">
-            <h2 className="text-2xl font-normal text-foreground">Deliverables</h2>
-            <Separator />
-            <Table>
-                <TableHeader>
-                    <TableRow className="hover:bg-transparent">
-                    <TableHead className="text-xs text-muted-foreground uppercase tracking-[0.03em] w-16">QTY</TableHead>
-                    <TableHead className="text-xs text-muted-foreground uppercase tracking-[0.03em]">Deliverable</TableHead>
-                    <TableHead className="text-xs text-muted-foreground uppercase tracking-[0.03em]">Format/Requirements</TableHead>
-                    <TableHead className="text-xs text-muted-foreground uppercase tracking-[0.03em]">Due Date</TableHead>
-                    <TableHead className="text-xs text-muted-foreground uppercase tracking-[0.03em] text-right">Price</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {deliverables.map((d, i) => (
-                    <TableRow key={i} className="hover:bg-transparent">
-                        <TableCell className="text-sm text-foreground">{d.qty}</TableCell>
-                        <TableCell className="text-sm text-foreground">{d.deliverable}</TableCell>
-                        <TableCell className="text-sm text-foreground">{d.format}</TableCell>
-                        <TableCell className="text-sm text-foreground">{d.dueDate || "——————"}</TableCell>
-                        <TableCell className="text-sm text-foreground text-right">
+        <div className="bg-white border border-border rounded-[3px] p-6 overflow-hidden flex flex-col">
+            <h2 className="text-[26px] font-normal text-foreground mb-2">Deliverables</h2>
+
+            <div className="grid grid-cols-12 gap-4 py-2 px-6 -mx-6 bg-[#e8e4dc] border-y border-border text-sm text-foreground font-medium">
+                <div className="col-span-2 mt-1">Quantity</div>
+                <div className="col-span-2 mt-1">Deliverable</div>
+                <div className="col-span-4 mt-1">Format/Requirements</div>
+                <div className="col-span-2 mt-1">Due Date</div>
+                <div className="col-span-2 mt-1">Price</div>
+            </div>
+
+            <div className="flex flex-col">
+                {deliverables.map((d, i) => (
+                <div key={i} className="grid grid-cols-12 gap-4 py-4 px-6 -mx-6 border-b border-border items-start">
+                    <div className="col-span-2 text-sm text-foreground">{d.qty}</div>
+                    <div className="col-span-2 text-sm text-foreground break-words">{d.deliverable}</div>
+                    <div className="col-span-4 text-sm text-foreground break-words">{d.format}</div>
+                    <div className="col-span-2 text-sm text-foreground">{d.dueDate || "——————"}</div>
+                    <div className="col-span-2 text-sm text-foreground">
                         ${d.price.toLocaleString("en-US", { minimumFractionDigits: 2 })}
-                        </TableCell>
-                    </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
-        </Card>
+                    </div>
+                </div>
+                ))}
+            </div>
+        </div>
     )
 }

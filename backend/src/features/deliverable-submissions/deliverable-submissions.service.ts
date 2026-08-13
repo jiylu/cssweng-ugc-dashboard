@@ -1,5 +1,4 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { SubmitWrittenAssetDTO } from '../written-assets/dto/submit-written-asset.dto';
 import { SubmitMediaAssetDTO } from '../media-assets/dto/submit-media-asset.dto';
 import { UpdateWrittenAssetCommentDTO } from '../written-assets/dto/update-written-asset-comment.dto';
 import { UpdateMediaAssetCommentDTO } from '../media-assets/dto/update-media-asset-comment.dto';
@@ -32,14 +31,56 @@ export class DeliverableSubmissionsService {
   ) {}
 
   async submitWrittenAsset(deliverableItemId: string, content: string) {
-    return await this.writtenAssetsService.submitWrittenAsset(
-      deliverableItemId,
-      content,
+    const submittedWrittenAsset =
+      await this.writtenAssetsService.submitWrittenAsset(
+        deliverableItemId,
+        content,
+      );
+
+    const deliverableItem =
+      await this.deliverableItemsService.findOneDeliverableItem(
+        deliverableItemId,
+      );
+
+    const deliverable = await this.deliverablesService.findOneDeliverableByUID(
+      deliverableItem.deliverable_id,
     );
+
+    const campaign = await this.campaignsService.findOneCampaign(
+      deliverable.campaign_id,
+    );
+
+    return {
+      submittedWrittenAsset,
+      client_id: campaign.client_id,
+      deliverable_index: deliverableItem.deliverable_index,
+      deliverable_content: deliverable.deliverable_content,
+    };
   }
 
   async submitMediaAsset(dto: SubmitMediaAssetDTO) {
-    return await this.mediaAssetsService.submitMediaAsset(dto);
+    const submittedMediaAsset =
+      await this.mediaAssetsService.submitMediaAsset(dto);
+
+    const deliverableItem =
+      await this.deliverableItemsService.findOneDeliverableItem(
+        dto.deliverableItemId,
+      );
+
+    const deliverable = await this.deliverablesService.findOneDeliverableByUID(
+      deliverableItem.deliverable_id,
+    );
+
+    const campaign = await this.campaignsService.findOneCampaign(
+      deliverable.campaign_id,
+    );
+
+    return {
+      submittedMediaAsset,
+      client_id: campaign.client_id,
+      deliverable_index: deliverableItem.deliverable_index,
+      deliverable_content: deliverable.deliverable_content,
+    };
   }
 
   async approveWrittenAsset(writtenAssetId: string) {
@@ -60,6 +101,15 @@ export class DeliverableSubmissionsService {
           writtenAsset.deliverable_item_id,
           tx,
         );
+
+      const deliverable =
+        await this.deliverablesService.findOneDeliverableByUID(
+          deliverableItem.deliverable_id,
+        );
+
+      const campaign = await this.campaignsService.findOneCampaign(
+        deliverable.campaign_id,
+      );
 
       const updatedWrittenAsset =
         await this.writtenAssetsService.updateWrittenAssetAction(
@@ -83,7 +133,12 @@ export class DeliverableSubmissionsService {
         `Successfully approved written asset ${writtenAsset.written_asset_id} for DeliverableItem ${deliverableItem.deliverable_item_id}`,
       );
 
-      return updatedWrittenAsset;
+      return {
+        updatedWrittenAsset,
+        ugc_id: campaign.ugc_creator_id,
+        deliverable_index: deliverableItem.deliverable_index,
+        deliverable_content: deliverable.deliverable_content,
+      };
     });
 
     return result;
@@ -96,6 +151,11 @@ export class DeliverableSubmissionsService {
     this.logger.debug(`Revising written asset ${writtenAssetId}`);
 
     const result = this.prisma.$transaction(async (tx) => {
+      const writtenAsset = await this.writtenAssetsService.findOneWrittenAsset(
+        writtenAssetId,
+        tx,
+      );
+
       await this.writtenAssetsService.updateWrittenAssetComments(
         writtenAssetId,
         dto,
@@ -109,11 +169,33 @@ export class DeliverableSubmissionsService {
           tx,
         );
 
+      const deliverableItem =
+        await this.deliverableItemsService.findOneDeliverableItem(
+          writtenAsset.deliverable_item_id,
+          tx,
+        );
+
+      const deliverable =
+        await this.deliverablesService.findOneDeliverableByUID(
+          deliverableItem.deliverable_id,
+          tx,
+        );
+
+      const campaign = await this.campaignsService.findOneCampaign(
+        deliverable.campaign_id,
+        tx,
+      );
+
       this.logger.log(
         `Successfully revised written asset ${writtenAssetId} to ${revisedWrittenAsset.written_asset_action}`,
       );
 
-      return revisedWrittenAsset;
+      return {
+        revisedWrittenAsset,
+        ugc_id: campaign.ugc_creator_id,
+        deliverable_index: deliverableItem.deliverable_index,
+        deliverable_content: deliverable.deliverable_content,
+      };
     });
 
     return result;
@@ -126,6 +208,11 @@ export class DeliverableSubmissionsService {
     this.logger.debug(`Revising media asset ${mediaAssetId}`);
 
     const result = this.prisma.$transaction(async (tx) => {
+      const mediaAsset = await this.mediaAssetsService.findOneMediaAsset(
+        mediaAssetId,
+        tx,
+      );
+
       await this.mediaAssetsService.updateMediaAssetComments(
         mediaAssetId,
         dto,
@@ -139,11 +226,33 @@ export class DeliverableSubmissionsService {
           tx,
         );
 
+      const deliverableItem =
+        await this.deliverableItemsService.findOneDeliverableItem(
+          mediaAsset.deliverable_item_id,
+          tx,
+        );
+
+      const deliverable =
+        await this.deliverablesService.findOneDeliverableByUID(
+          deliverableItem.deliverable_id,
+          tx,
+        );
+
+      const campaign = await this.campaignsService.findOneCampaign(
+        deliverable.campaign_id,
+        tx,
+      );
+
       this.logger.log(
         `Successfully revised media asset ${mediaAssetId} to ${revisedMediaAsset.media_asset_action}`,
       );
 
-      return revisedMediaAsset;
+      return {
+        revisedMediaAsset,
+        ugc_id: campaign.ugc_creator_id,
+        deliverable_index: deliverableItem.deliverable_index,
+        deliverable_content: deliverable.deliverable_content,
+      };
     });
 
     return result;
@@ -178,11 +287,27 @@ export class DeliverableSubmissionsService {
 
       await this.approveDeliverableIfAssetsApproved(deliverableItem, tx);
 
+      const deliverable =
+        await this.deliverablesService.findOneDeliverableByUID(
+          deliverableItem.deliverable_id,
+          tx,
+        );
+
+      const campaign = await this.campaignsService.findOneCampaign(
+        deliverable.campaign_id,
+        tx,
+      );
+
       this.logger.log(
         `Successfully approved media asset ${mediaAsset.media_asset_id} for DeliverableItem ${deliverableItem.deliverable_item_id}`,
       );
 
-      return updatedMediaAsset;
+      return {
+        updatedMediaAsset,
+        ugc_id: campaign.ugc_creator_id,
+        deliverable_index: deliverableItem.deliverable_index,
+        deliverable_content: deliverable.deliverable_content,
+      };
     });
 
     return result;

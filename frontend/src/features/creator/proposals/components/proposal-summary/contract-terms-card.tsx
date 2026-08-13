@@ -20,10 +20,10 @@ export function ContractTermsSummaryCard({ terms }: ContractTermsSummaryCardProp
             <div className="flex flex-col gap-4">
             {terms.map((term, i) => (
                 <div key={i} className="flex items-start gap-3">
-                    <CheckSquare size={18} className="text-[#6b1fa8] shrink-0 mt-0.5" />
+                    <CheckSquare size={18} className="text-[#6b1fa8] shrink-0" />
                     <div className="flex flex-col gap-0.5">
                         <p className="text-sm font-bold text-foreground">{term.title}</p>
-                        <p className="text-xs text-muted-foreground">{term.description}</p>
+                        <p className="text-sm text-muted-foreground">{term.description}</p>
                     </div>
                     </div>
             ))}

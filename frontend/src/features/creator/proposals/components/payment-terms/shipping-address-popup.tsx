@@ -5,6 +5,7 @@ import { ShippingAddress } from "../../types/payment-terms.types"
 import { useLocationData } from "../../hooks/useLocationData"
 import { AddressField } from "./address-field"
 import { LocationSelectField } from "./location-select-field"
+import { Separator } from "@/components/ui/separator"
 
 interface ShippingAddressPopupProps {
   open: boolean
@@ -46,18 +47,20 @@ export function ShippingAddressPopup({ open, onClose, form, errors, onFieldChang
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-md bg-[#F2F0EA]" showCloseButton>
+      <DialogContent className="!max-w-lg bg-[#F2F0EA] p-6" showCloseButton>
         <DialogHeader>
           <DialogTitle className="text-2xl font-normal">Shipping Address</DialogTitle>
         </DialogHeader>
+        <Separator className="my-1 bg-border" />   
 
-        <div className="flex flex-col gap-4 mt-2">
+        <div className="flex flex-col gap-3 mt-1">
           <AddressField
             label="Address Line 1"
             value={form.addressLine1}
             onChange={(v) => onFieldChange("addressLine1", v)}
             error={errors.addressLine1}
             helper="Street address, P.O. box, company name, c/o"
+            required
           />
 
           <AddressField
@@ -76,6 +79,7 @@ export function ShippingAddressPopup({ open, onClose, form, errors, onFieldChang
               placeholder="Country"
               loading={loadingCountries}
               error={errors.country}
+              required
             />
             <LocationSelectField
               label="State/Province"
@@ -86,6 +90,7 @@ export function ShippingAddressPopup({ open, onClose, form, errors, onFieldChang
               loading={loadingStates}
               disabled={!form.country}
               error={errors.stateProvince}
+              required
             />
           </div>
 
@@ -99,6 +104,7 @@ export function ShippingAddressPopup({ open, onClose, form, errors, onFieldChang
               loading={loadingCities}
               disabled={!form.stateProvince}
               error={errors.city}
+              required
             />
             <AddressField
               label="Zip Code"
@@ -106,12 +112,13 @@ export function ShippingAddressPopup({ open, onClose, form, errors, onFieldChang
               onChange={(v) => onFieldChange("zipCode", v)}
               placeholder="Enter Zip Code"
               error={errors.zipCode}
+              required
             />
           </div>
 
           <Button
             onClick={onSave}
-            className="w-full bg-[#6b1fa8] hover:bg-[#5a1a8f] text-white rounded-[3px] mt-2"
+            className="w-full bg-[#6b1fa8] hover:bg-[#5a1a8f] text-white rounded-[3px] mt-3 p-4"
           >
             Save Address
           </Button>
