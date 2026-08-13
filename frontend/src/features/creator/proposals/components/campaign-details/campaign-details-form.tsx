@@ -25,6 +25,9 @@ export interface CampaignDetailsFormProps {
 }
 
 export default function CampaignDetailsSection({ form }: CampaignDetailsFormProps) {
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+
   return (
     <div className="bg-white border border-border rounded p-5.5 flex flex-col gap-6 transition-[border-color,box-shadow] duration-300">
       <h2 className="text-[26px] font-normal text-foreground">Campaign Details</h2>
@@ -58,6 +61,7 @@ export default function CampaignDetailsSection({ form }: CampaignDetailsFormProp
           <DatePickerInput
             value={form.startDate}
             onChange={(iso) => form.setStartDate(iso)}
+            minDate={today}
           />
           {form.errors.startDate && (
             <p className="text-xs mt-1 text-[#ff6467]">{form.errors.startDate}</p>
@@ -69,6 +73,7 @@ export default function CampaignDetailsSection({ form }: CampaignDetailsFormProp
           <DatePickerInput  
             value={form.endDate}
             onChange={(iso) => form.setEndDate(iso)}
+            minDate={today}
           />
           {form.errors.endDate && (
             <p className="text-xs mt-1 text-[#ff6467]">{form.errors.endDate}</p>

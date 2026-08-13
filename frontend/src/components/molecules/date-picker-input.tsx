@@ -10,10 +10,11 @@ interface DatePickerInputProps {
   value: string
   onChange: (iso: string) => void
   placeholder?: string
+  minDate?: Date
 }
 
-export function DatePickerInput({ value, onChange, placeholder = "mm/dd/yyyy" }: DatePickerInputProps) {
-  const { selectedDate, open, setOpen, month, setMonth, inputText, setInputText, handleTextChange } = useDatePickerInput(value, onChange)
+export function DatePickerInput({ value, onChange, placeholder = "mm/dd/yyyy", minDate }: DatePickerInputProps) {
+  const { selectedDate, open, setOpen, month, setMonth, inputText, setInputText, handleTextChange } = useDatePickerInput(value, onChange, minDate)
 
   return (
     <InputGroup className="border-muted">
@@ -42,6 +43,7 @@ export function DatePickerInput({ value, onChange, placeholder = "mm/dd/yyyy" }:
               selected={selectedDate}
               month={month}
               onMonthChange={setMonth}
+              disabled={minDate ? { before: minDate } : undefined}
               onSelect={(date: Date | undefined) => {
               if (date) {
                 console.log("raw date from calendar:", date.toString())
