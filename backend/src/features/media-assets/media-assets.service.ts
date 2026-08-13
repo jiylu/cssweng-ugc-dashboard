@@ -22,6 +22,8 @@ import { nanoid } from 'nanoid';
 import { SubmitMediaAssetDTO } from './dto/submit-media-asset.dto';
 import { UpdateMediaAssetActionDTO } from './dto/update-media-asset-action.dto';
 import { UpdateMediaAssetCommentDTO } from './dto/update-media-asset-comment.dto';
+import { FinalAssetsService } from '../assets/final-assets/final-assets.service';
+import { CreateFinalAssetDTO } from '../assets/final-assets/dto/create-final-asset.dto';
 
 @Injectable()
 export class MediaAssetsService {
@@ -32,6 +34,7 @@ export class MediaAssetsService {
     private proposalsService: ProposalsService,
     private deliverablesService: DeliverablesService,
     private deliverableItemsService: DeliverableItemsService,
+    private finalAssetsService: FinalAssetsService,
   ) {}
 
   async submitMediaAsset(dto: SubmitMediaAssetDTO) {
@@ -185,17 +188,7 @@ export class MediaAssetsService {
 
     const mediaAsset = await this.findOneMediaAsset(mediaAssetId, tx);
 
-    if (mediaAsset.media_asset_action !== AssetActions.PENDING) {
-      this.logger.warn(
-        `Cannot update action for MediaAsset ${mediaAssetId} since it is already ${mediaAsset.media_asset_action}.`,
-      );
-
-      throw new ConflictException({
-        code: 'MEDIA_ASSET_ACTION_CANNOT_BE_UPDATED',
-        message:
-          'Media asset action can only be updated while the action is PENDING.',
-      });
-    }
+    this.assertMediaAssetActionUpdatable(mediaAsset);
 
     const updated = await tx.mediaAssets.update({
       where: { media_asset_id: mediaAssetId },
@@ -205,11 +198,44 @@ export class MediaAssetsService {
       },
     });
 
+    if (dto.action === AssetActions.APPROVE) {
+      const deliverableItem =
+        await this.deliverableItemsService.findOneDeliverableItem(
+          mediaAsset.deliverable_item_id,
+          tx,
+        );
+
+      const finalAssetDto: CreateFinalAssetDTO = {
+        deliverableId: deliverableItem.deliverable_id,
+        fileUrl: mediaAsset.content_url,
+      };
+
+      await this.finalAssetsService.createFinalAssets(finalAssetDto, tx);
+
+      this.logger.log(
+        `Created final asset for deliverable ${deliverableItem.deliverable_id} after approving media asset ${mediaAssetId}`,
+      );
+    }
+
     this.logger.log(
       `Action updated to ${updated.media_asset_action} for media asset ${mediaAssetId}`,
     );
 
     return updated;
+  }
+
+  private assertMediaAssetActionUpdatable(mediaAsset: MediaAssets) {
+    if (mediaAsset.media_asset_action !== AssetActions.PENDING) {
+      this.logger.warn(
+        `Cannot update action for MediaAsset ${mediaAsset.media_asset_id} since it is already ${mediaAsset.media_asset_action}.`,
+      );
+
+      throw new ConflictException({
+        code: 'MEDIA_ASSET_ACTION_CANNOT_BE_UPDATED',
+        message:
+          'Media asset action can only be updated while the action is PENDING.',
+      });
+    }
   }
 
   async updateMediaAssetComments(
