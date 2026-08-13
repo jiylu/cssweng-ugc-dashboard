@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, Matches } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateClientDTO {
@@ -26,11 +26,19 @@ export class CreateClientDTO {
   @IsNotEmpty()
   contactPerson!: string;
 
-  @ApiProperty({ example: 1234567890 })
-  @IsNumber()
-  companyContactNumber!: number;
+  @ApiProperty({ example: '639429459448' })
+  @IsString()
+  @IsNotEmpty()
+  @Matches(/^\d+$/, {
+    message: 'companyContactNumber must contain only numbers',
+  })
+  companyContactNumber!: string;
 
-  @ApiProperty({ example: 9876543210 })
-  @IsNumber()
-  contactPersonContactNumber!: number;
+  @ApiProperty({ example: '639876543210' })
+  @IsString()
+  @IsNotEmpty()
+  @Matches(/^\d+$/, {
+    message: 'contactPersonContactNumber must contain only numbers',
+  })
+  contactPersonContactNumber!: string;
 }

@@ -1,7 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UserService } from '../users.service';
 import { PrismaService } from 'src/shared/prisma/prisma.service';
-import { BadRequestException, ConflictException, NotFoundException, } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateUserTransactionDTO } from '../dto/create-user-transaction.dto';
 import { UserRoles } from '@prisma/client';
 import { UpdateUserDTO } from '../dto/update-user.dto';
@@ -175,8 +179,8 @@ describe('UserService', () => {
       companyEmail: 'billing@client.test',
       billablePerson: 'Billing Person',
       contactPerson: 'Contact Person',
-      companyContactNumber: 1234567890,
-      contactPersonContactNumber: 1234567890,
+      companyContactNumber: '639429459448',
+      contactPersonContactNumber: '639429459448',
     };
     const dto: CreateUserTransactionDTO = {
       userDTO: {
