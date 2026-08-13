@@ -4,6 +4,7 @@ import { CampaignsModule } from '../campaigns/campaigns.module';
 import { ProposalsModule } from '../proposals/proposals.module';
 import { DeliverablesModule } from '../deliverables/deliverables.module';
 import { DeliverableItemsModule } from '../deliverable-items/deliverable-items.module';
+import { FinalAssetsModule } from '../assets/final-assets/final-assets.module';
 import { MediaAssetsService } from './media-assets.service';
 import { MediaAssetsController } from './media-assets.controller';
 
@@ -14,6 +15,7 @@ import { MediaAssetsController } from './media-assets.controller';
     ProposalsModule,
     DeliverablesModule,
     DeliverableItemsModule,
+    FinalAssetsModule,
   ],
   providers: [MediaAssetsService],
   controllers: [MediaAssetsController],

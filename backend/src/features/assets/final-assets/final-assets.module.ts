@@ -9,5 +9,6 @@ import { FinalAssetsController } from './final-assets.controller';
   imports: [PrismaModule, CampaignsModule, DeliverablesModule],
   providers: [FinalAssetsService],
   controllers: [FinalAssetsController],
+  exports: [FinalAssetsService],
 })
 export class FinalAssetsModule {}
