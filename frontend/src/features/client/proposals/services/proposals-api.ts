@@ -6,6 +6,7 @@ import type {
   ProposalCampaign,
   ProposalContract,
   ProposalDeliverable,
+  ProposalGiftedProduct,
   ProposalRecord,
   ProposalReviewData,
 } from "../types/proposal-review.types";
@@ -28,12 +29,29 @@ interface RawAddOn {
   opt_in: boolean;
 }
 
+interface RawGiftedProduct {
+  public_id: string;
+  product_name: string;
+  value: number | string;
+  shipping_address: {
+    delivery_address_line_1: string;
+    delivery_address_line_2?: string;
+    city: string;
+    state_province: string;
+    country: string;
+    zip_code: number;
+  } | null;
+  delivery_instructions: string;
+  ownership_terms: string;
+}
+
 interface CampaignSetupResponse {
   campaign: ProposalCampaign;
   proposal: ProposalRecord;
   contract: ProposalContract;
   deliverables: RawDeliverable[];
   addOns: RawAddOn[] | null;
+  giftedProducts: RawGiftedProduct[] | null;
 }
 
 interface CreatorResponse {
@@ -57,10 +75,29 @@ function formatDate(value: string) {
   }).format(new Date(value));
 }
 
+function formatAddress(address: RawGiftedProduct["shipping_address"]) {
+  if (!address) return "Not specified";
+  return [address.delivery_address_line_1, address.delivery_address_line_2, address.city, address.state_province, address.country, address.zip_code]
+    .filter((part) => part !== undefined && part !== null && part !== "")
+    .join(", ");
+}
+
 function readable(value: unknown) {
   if (typeof value === "boolean") return value ? "Yes" : "No";
   if (value === null || value === undefined || value === "") return "Not specified";
   return String(value).replaceAll("_", " ");
+}
+
+function formatPaymentMethod(value: unknown) {
+  const normalized = String(value ?? "").trim().toLowerCase();
+  const labels: Record<string, string> = {
+    gcash: "GCash",
+    paypal: "PayPal",
+    check: "Check",
+    bank_transfer: "Bank Transfer",
+    "bank transfer": "Bank Transfer",
+  };
+  return labels[normalized] ?? readable(value);
 }
 
 function sentenceCase(value: string) {
@@ -128,8 +165,18 @@ export async function getProposalReview(publicId: string): Promise<ProposalRevie
   const selectedAddOnsFee = (setup.addOns ?? [])
     .filter((item) => item.opt_in)
     .reduce((total, item) => total + Number(item.fee), 0);
+  const giftedProducts: ProposalGiftedProduct[] = (setup.giftedProducts ?? []).map((item) => ({
+    id: item.public_id,
+    productName: item.product_name,
+    value: formatMoney(Number(item.value), currency),
+    numericValue: Number(item.value),
+    shippingAddress: formatAddress(item.shipping_address),
+    deliveryInstructions: item.delivery_instructions || "Not specified",
+    ownershipTerms: item.ownership_terms || "Not specified",
+  }));
+  const giftedProductsTotal = giftedProducts.reduce((total, item) => total + item.numericValue, 0);
   const taxRate = Number(setup.campaign.tax);
-  const totalDue = (baseFee + selectedAddOnsFee) * (1 + taxRate / 100);
+  const totalDue = (baseFee + selectedAddOnsFee + giftedProductsTotal) * (1 + taxRate / 100);
   const deliverables: ProposalDeliverable[] = setup.deliverables.map((item) => ({
     quantity: item.quantity,
     deliverable: `${item.deliverable_type} ${item.deliverable_content}`,
@@ -147,7 +194,9 @@ export async function getProposalReview(publicId: string): Promise<ProposalRevie
     deliverables,
     terms: mapTerms(setup.contract),
     addOns,
-    paymentMethod: readable(setup.contract.payment_terms.payment_method),
+    giftedProducts,
+    giftedProductsTotal,
+    paymentMethod: formatPaymentMethod(setup.contract.payment_terms.payment_method),
     baseFee,
     selectedAddOnsFee,
     taxRate,
