@@ -17,6 +17,12 @@ export function trimString(value: string | null | undefined): string {
   return value?.trim() ?? ""
 }
 
+function toIsoDate(value: string): string {
+  if (!value) return ""
+  const date = new Date(value)
+  return Number.isNaN(date.getTime()) ? "" : date.toISOString()
+}
+
 export function toShippingAddressPayload(
   address: ShippingAddress | null | undefined,
 ): GiftedProductShippingAddress | null {
@@ -46,16 +52,16 @@ export function buildProposalPayload({ userId, form, contractTerms, paymentTerms
       platforms: Object.fromEntries(
         form.platforms.map((p) => [p.platform.trim(), p.handle.trim()]),
       ),
-      startDate: new Date(form.startDate).toISOString(),
-      endDate: new Date(form.endDate).toISOString(),
+      startDate: toIsoDate(form.startDate),
+      endDate: toIsoDate(form.endDate),
     },
     deliverables: form.deliverables.map((d) => ({
       quantity: Number(d.quantity ?? 1),
       deliverableType: d.deliverableType as 'COLLABORATION' | 'UGC',
       deliverableContent: `${d.platform.trim()} ${d.contentType.trim()}`.trim(),
       requirements: d.description.trim(),
-      dueDate: d.draftDeadline ? new Date(d.draftDeadline).toISOString() : new Date().toISOString(),
-      postDate: d.postDate ? new Date(d.postDate).toISOString() : new Date().toISOString(),
+      dueDate: toIsoDate(d.draftDeadline),
+      postDate: toIsoDate(d.postDate),
       pricing: parseFloat(d.pricing.replace(/,/g, '') || '0'),
     })),
     proposal: {
@@ -85,12 +91,8 @@ export function buildProposalPayload({ userId, form, contractTerms, paymentTerms
       ...(contractTerms.hasExclusivity && {
         exclusivity: {
           category: contractTerms.exclusivityCategory.trim(),
-          startDate: contractTerms.exclusivityStartDate
-            ? new Date(contractTerms.exclusivityStartDate).toISOString()
-            : "",
-          endDate: contractTerms.exclusivityEndDate
-            ? new Date(contractTerms.exclusivityEndDate).toISOString()
-            : "",
+          startDate: toIsoDate(contractTerms.exclusivityStartDate),
+          endDate: toIsoDate(contractTerms.exclusivityEndDate),
           territory: contractTerms.exclusivityTerritory.trim(),
           brandlist: contractTerms.exclusivityCompetitorList.trim(),
           exclusivity_fee: parseFloat(

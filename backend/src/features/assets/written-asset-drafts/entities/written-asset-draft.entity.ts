@@ -5,7 +5,10 @@ export class WrittenAssetDraftEntity {
   written_asset_draft_id!: string;
 
   @Exclude()
-  written_asset_id!: string;
+  deliverable_item_id!: string;
+
+  @Exclude()
+  written_asset_id!: string | null;
 
   @Expose()
   public_id!: string;

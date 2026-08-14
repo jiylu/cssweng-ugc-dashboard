@@ -10,9 +10,10 @@ interface CampaignDeliverablesContainerProps {
     form: ReturnType<typeof useCampaignForm>
     readOnly?: boolean
     onNext: () => void
+    onSaveDraft: () => void
 }
 
-export function CampaignDeliverablesContainer({ form, readOnly = false, onNext }: CampaignDeliverablesContainerProps) {
+export function CampaignDeliverablesContainer({ form, readOnly = false, onNext, onSaveDraft }: CampaignDeliverablesContainerProps) {
   return (
     <>
         <div className="grid grid-cols-2 gap-6 mb-6">
@@ -42,6 +43,7 @@ export function CampaignDeliverablesContainer({ form, readOnly = false, onNext }
         <div className="flex justify-end gap-3 mt-6 pb-8">
             <Button
                 variant="outline"
+                onClick={onSaveDraft}
                 className="flex items-center gap-2 p-5"
             >
                 <Save size={16} className="-mt-1" /> Save Draft

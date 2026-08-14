@@ -21,7 +21,7 @@ export function ApiCreateWrittenAssetDraft() {
     ApiOperation({
       summary: 'Create a written asset draft',
       description:
-        'Creates a new draft version for a specific written asset. Requires the written asset public ID and the text content of the draft.',
+        'Creates or updates the draft for a specific deliverable item. Requires the deliverable item public ID and the text content of the draft.',
     }),
     ApiBody({ type: CreateWrittenAssetDraftDto }),
     ApiResponse({
@@ -34,7 +34,7 @@ export function ApiCreateWrittenAssetDraft() {
     ApiResponse({
       status: 404,
       description:
-        'Written asset not found. The provided writtenAssetPublicId does not exist.',
+        'Deliverable item not found. The provided deliverableItemPublicId does not exist.',
     }),
     ApiResponse({ status: 500, description: 'Internal server error.' }),
   );
@@ -70,15 +70,15 @@ export function ApiFindWrittenAssetDraft() {
 export function ApiFindWrittenAssetDraftsForAsset() {
   return applyDecorators(
     ApiOperation({
-      summary: 'List drafts for a written asset',
+      summary: 'List drafts for a deliverable item',
       description:
-        'Retrieves all drafts associated with a specific written asset. Useful for version history or recovering previous drafts.',
+        'Retrieves all drafts associated with a specific deliverable item. Useful for version history or recovering previous drafts.',
     }),
     ApiQuery({
-      name: 'writtenAssetPublicId',
+      name: 'deliverableItemPublicId',
       required: true,
       type: String,
-      example: 'pub-written-1',
+      example: 'pub-item-1',
     }),
     ApiResponse({
       status: 200,
@@ -88,9 +88,9 @@ export function ApiFindWrittenAssetDraftsForAsset() {
     ApiResponse({
       status: 400,
       description:
-        'Invalid query parameters (e.g., missing writtenAssetPublicId).',
+        'Invalid query parameters (e.g., missing deliverableItemPublicId).',
     }),
-    ApiResponse({ status: 404, description: 'Written asset not found.' }),
+    ApiResponse({ status: 404, description: 'Deliverable item not found.' }),
     ApiResponse({ status: 500, description: 'Internal server error.' }),
   );
 }

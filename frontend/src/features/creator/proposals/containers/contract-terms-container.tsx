@@ -14,9 +14,10 @@ interface ContractTermsContainerProps {
   campaignDates: { startDate: string; endDate: string }
   onBack: () => void
   onNext: () => void
+  onSaveDraft: () => void
 }
 
-export function ContractTermsContainer({ contractTerms, currency, campaignDates, onBack, onNext }: ContractTermsContainerProps) {
+export function ContractTermsContainer({ contractTerms, currency, campaignDates, onBack, onNext, onSaveDraft }: ContractTermsContainerProps) {
   return (
     <>
       <div className="flex flex-col gap-6">
@@ -92,6 +93,7 @@ export function ContractTermsContainer({ contractTerms, currency, campaignDates,
         <div className="flex gap-3">
           <Button
                 variant="outline"
+                onClick={onSaveDraft}
                 className="flex items-center gap-2 p-5"
             >
                 <Save size={16} className="-mt-1" /> Save Draft

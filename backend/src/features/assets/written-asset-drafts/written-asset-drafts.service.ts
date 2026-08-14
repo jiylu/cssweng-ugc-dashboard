@@ -3,36 +3,65 @@ import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { CreateWrittenAssetDraftDto } from './dto/create-written-asset-draft.dto';
 import { UpdateWrittenAssetDraftDto } from './dto/update-written-asset-draft.dto';
 import { nanoid } from 'nanoid';
-import { WrittenAssetsService } from '../written-assets/written-assets.service';
+import { DeliverableItemsService } from '../../deliverable/deliverable-items/deliverable-items.service';
 
 @Injectable()
 export class WrittenAssetDraftsService {
   private readonly logger = new Logger(WrittenAssetDraftsService.name);
   constructor(
     private prisma: PrismaService,
-    private writtenAssetsService: WrittenAssetsService,
+    private deliverableItemsService: DeliverableItemsService,
   ) {}
 
   async createDraft(dto: CreateWrittenAssetDraftDto) {
     this.logger.debug(
-      `Creating written asset draft for asset ${dto.writtenAssetPublicId}`,
+      `Creating written asset draft for deliverable item ${dto.deliverableItemPublicId}`,
     );
 
-    const writtenAssetId = await this.writtenAssetsService.resolvePublicId(
-      dto.writtenAssetPublicId,
-    );
+    const deliverableItemId =
+      await this.deliverableItemsService.resolvePublicId(
+        dto.deliverableItemPublicId,
+      );
+
+    const existing = await this.prisma.writtenAssetsDrafts.findFirst({
+      where: {
+        deliverable_item_id: deliverableItemId,
+      },
+      orderBy: { updated_at: 'desc' },
+    });
+
+    if (existing) {
+      const updatedDraft = await this.prisma.writtenAssetsDrafts.update({
+        where: {
+          written_asset_draft_id: existing.written_asset_draft_id,
+        },
+        data: {
+          content: dto.content,
+          updated_at: new Date(),
+        },
+      });
+
+      this.logger.log(
+        `Updated written asset draft ${existing.written_asset_draft_id} for deliverable item ${deliverableItemId}`,
+      );
+
+      return updatedDraft;
+    }
+
     const publicId = nanoid(10);
 
     const draft = await this.prisma.writtenAssetsDrafts.create({
       data: {
         public_id: publicId,
-        written_asset_id: writtenAssetId,
+        deliverable_item_id: deliverableItemId,
         content: dto.content,
         created_at: new Date(),
       },
     });
 
-    this.logger.log(`Created written asset draft with publicId ${publicId}`);
+    this.logger.log(
+      `Created written asset draft with publicId ${publicId} for deliverable item ${deliverableItemId}`,
+    );
 
     return draft;
   }
@@ -86,17 +115,20 @@ export class WrittenAssetDraftsService {
     return draft;
   }
 
-  async findDraftsForWrittenAsset(writtenAssetId: string) {
-    this.logger.debug(`Finding drafts for written asset ${writtenAssetId}`);
+  async findDraftsForDeliverableItem(deliverableItemId: string) {
+    this.logger.debug(
+      `Finding drafts for deliverable item ${deliverableItemId}`,
+    );
 
     const drafts = await this.prisma.writtenAssetsDrafts.findMany({
       where: {
-        written_asset_id: writtenAssetId,
+        deliverable_item_id: deliverableItemId,
       },
+      orderBy: { updated_at: 'desc' },
     });
 
     this.logger.log(
-      `Found ${drafts.length} drafts for written asset ${writtenAssetId}.`,
+      `Found ${drafts.length} drafts for deliverable item ${deliverableItemId}.`,
     );
     return drafts;
   }

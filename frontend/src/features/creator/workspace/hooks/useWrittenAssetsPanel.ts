@@ -3,10 +3,23 @@ import { validateWrittenAssets } from "../utils/validators"
 
 export function useWrittenAssetsPanel() {
   const [content, setContent] = useState<string>("")
+  const [persisted, setPersisted] = useState<string>("")
   const [errors, setErrors] = useState<Record<string, string>>({})
 
   function updateContent(val: string) {
     setContent(val)
+    if (errors.content) {
+      setErrors((prev) => {
+        const next = { ...prev }
+        delete next.content
+        return next
+      })
+    }
+  }
+
+  function markSaved(val: string) {
+    setContent(val)
+    setPersisted(val)
     if (errors.content) {
       setErrors((prev) => {
         const next = { ...prev }
@@ -29,7 +42,9 @@ export function useWrittenAssetsPanel() {
   return {
     content,
     errors,
+    isDirty: content !== "" && content !== persisted,
     updateContent,
+    markSaved,
     validateAndSave,
   }
 }

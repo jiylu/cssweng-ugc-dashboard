@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { WrittenAssetDraftsService } from '../written-asset-drafts.service';
-import { WrittenAssetsService } from '../../written-assets/written-assets.service';
+import { DeliverableItemsService } from '../../../deliverable/deliverable-items/deliverable-items.service';
 import { CreateWrittenAssetDraftDto } from '../dto/create-written-asset-draft.dto';
 import { NotFoundException } from '@nestjs/common';
 
@@ -22,7 +22,7 @@ describe('WrittenAssetDraftsService', () => {
     },
   };
 
-  const mockWrittenAssetsService = {
+  const mockDeliverableItemsService = {
     resolvePublicId: jest.fn(),
   };
 
@@ -35,8 +35,8 @@ describe('WrittenAssetDraftsService', () => {
           useValue: mockPrisma,
         },
         {
-          provide: WrittenAssetsService,
-          useValue: mockWrittenAssetsService,
+          provide: DeliverableItemsService,
+          useValue: mockDeliverableItemsService,
         },
       ],
     }).compile();
@@ -49,39 +49,77 @@ describe('WrittenAssetDraftsService', () => {
   });
 
   describe('createDraft', () => {
-    it('should create a written asset draft', async () => {
+    it('should create a written asset draft when no draft exists', async () => {
       const dto: CreateWrittenAssetDraftDto = {
-        writtenAssetPublicId: 'pub-written-1',
+        deliverableItemPublicId: 'pub-item-1',
         content: 'Draft content',
       };
 
       const mockDraft = {
         written_asset_draft_id: 'draft-1',
         public_id: 'mock-public-id',
-        written_asset_id: 'internal-written-1',
+        deliverable_item_id: 'internal-item-1',
         content: dto.content,
         created_at: expect.any(Date),
       };
 
-      mockWrittenAssetsService.resolvePublicId.mockResolvedValue(
-        'internal-written-1',
+      mockDeliverableItemsService.resolvePublicId.mockResolvedValue(
+        'internal-item-1',
       );
+      mockPrisma.writtenAssetsDrafts.findFirst.mockResolvedValue(null);
       mockPrisma.writtenAssetsDrafts.create.mockResolvedValue(mockDraft);
 
       const res = await service.createDraft(dto);
 
       expect(res).toEqual(mockDraft);
-      expect(mockWrittenAssetsService.resolvePublicId).toHaveBeenCalledWith(
-        'pub-written-1',
+      expect(mockDeliverableItemsService.resolvePublicId).toHaveBeenCalledWith(
+        'pub-item-1',
       );
+      expect(mockPrisma.writtenAssetsDrafts.findFirst).toHaveBeenCalledWith({
+        where: {
+          deliverable_item_id: 'internal-item-1',
+        },
+        orderBy: { updated_at: 'desc' },
+      });
       expect(mockPrisma.writtenAssetsDrafts.create).toHaveBeenCalledWith({
         data: {
           public_id: 'mock-public-id',
-          written_asset_id: 'internal-written-1',
+          deliverable_item_id: 'internal-item-1',
           content: dto.content,
           created_at: expect.any(Date),
         },
       });
+    });
+
+    it('should update the existing draft when one exists', async () => {
+      const dto: CreateWrittenAssetDraftDto = {
+        deliverableItemPublicId: 'pub-item-1',
+        content: 'New draft content',
+      };
+
+      const existing = {
+        written_asset_draft_id: 'draft-1',
+        public_id: 'mock-public-id',
+        deliverable_item_id: 'internal-item-1',
+        content: 'Old content',
+      };
+
+      const updated = { ...existing, content: dto.content };
+
+      mockDeliverableItemsService.resolvePublicId.mockResolvedValue(
+        'internal-item-1',
+      );
+      mockPrisma.writtenAssetsDrafts.findFirst.mockResolvedValue(existing);
+      mockPrisma.writtenAssetsDrafts.update.mockResolvedValue(updated);
+
+      const res = await service.createDraft(dto);
+
+      expect(res).toEqual(updated);
+      expect(mockPrisma.writtenAssetsDrafts.update).toHaveBeenCalledWith({
+        where: { written_asset_draft_id: 'draft-1' },
+        data: { content: dto.content, updated_at: expect.any(Date) },
+      });
+      expect(mockPrisma.writtenAssetsDrafts.create).not.toHaveBeenCalled();
     });
   });
 
@@ -121,13 +159,19 @@ describe('WrittenAssetDraftsService', () => {
     });
   });
 
-  describe('findDraftsForWrittenAsset', () => {
-    it('should return drafts for an asset', async () => {
+  describe('findDraftsForDeliverableItem', () => {
+    it('should return drafts for a deliverable item', async () => {
       const mockDrafts = [{ written_asset_draft_id: 'draft-1' }];
       mockPrisma.writtenAssetsDrafts.findMany.mockResolvedValue(mockDrafts);
 
-      const res = await service.findDraftsForWrittenAsset('internal-written-1');
+      const res = await service.findDraftsForDeliverableItem(
+        'internal-item-1',
+      );
       expect(res).toEqual(mockDrafts);
+      expect(mockPrisma.writtenAssetsDrafts.findMany).toHaveBeenCalledWith({
+        where: { deliverable_item_id: 'internal-item-1' },
+        orderBy: { updated_at: 'desc' },
+      });
     });
   });
 

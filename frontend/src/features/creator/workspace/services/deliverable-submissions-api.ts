@@ -77,7 +77,7 @@ export interface WrittenAssetDraft {
 }
 
 export async function saveWrittenAssetDraft(
-  writtenAssetPublicId: string,
+  deliverableItemPublicId: string,
   content: string,
 ): Promise<WrittenAssetDraft> {
   const response = await fetch(
@@ -87,7 +87,7 @@ export async function saveWrittenAssetDraft(
       credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        writtenAssetPublicId,
+        deliverableItemPublicId,
         content,
       }),
     },
@@ -95,6 +95,21 @@ export async function saveWrittenAssetDraft(
   if (!response.ok) {
     throw new Error(
       await parseApiError(response, "Unable to save written asset draft."),
+    )
+  }
+  return response.json()
+}
+
+export async function getWrittenAssetDrafts(
+  deliverableItemPublicId: string,
+): Promise<WrittenAssetDraft[]> {
+  const response = await fetch(
+    `${API_BASE_URL}/written-asset-drafts?deliverableItemPublicId=${deliverableItemPublicId}`,
+    { credentials: "include" },
+  )
+  if (!response.ok) {
+    throw new Error(
+      await parseApiError(response, "Unable to fetch written asset drafts."),
     )
   }
   return response.json()
