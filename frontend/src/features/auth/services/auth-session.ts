@@ -1,14 +1,11 @@
-import { API_BASE_URL, parseApiError } from "@/src/features/auth/services/users-api";
-
-export type AuthUser = {
-  user_id: string;
-  email: string;
-  first_name: string;
-  last_name: string;
-};
+import { API_BASE_URL } from "@/src/config/api";
+import { parseApiError } from "@/src/features/auth/services/users-api";
+import {
+  authUserSchema,
+  type AuthUser,
+} from "@/src/features/auth/schemas/auth-user.schema";
 
 export async function getCurrentUser(): Promise<AuthUser | null> {
-  // PROD: Keep this endpoint (FOR NOW) in dev, but replace the temporary dashboard behavior with real route middleware/guards once protected pages exist.
   const response = await fetch(`${API_BASE_URL}/users/me`, {
     credentials: "include",
   });
@@ -21,7 +18,13 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
     throw new Error(await parseApiError(response, "Unable to load session."));
   }
 
-  return response.json();
+  const user = authUserSchema.safeParse(await response.json());
+
+  if (!user.success) {
+    throw new Error("Unable to validate session user.");
+  }
+
+  return user.data;
 }
 
 export async function logoutUser() {
@@ -34,4 +37,94 @@ export async function logoutUser() {
   if (!response.ok) {
     throw new Error(await parseApiError(response, "Unable to logout."));
   }
+}
+
+export async function updateCurrentUser(payload: {
+  firstName: string;
+  lastName: string;
+  middleName: string;
+  displayName: string;
+  primaryHandle: string;
+  email: string;
+  phoneNumber?: string;
+  timezone: string;
+}): Promise<AuthUser> {
+  const response = await fetch(`${API_BASE_URL}/users/me`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    throw new Error(await parseApiError(response, "Unable to save profile."));
+  }
+
+  const user = authUserSchema.safeParse(await response.json());
+  if (!user.success) throw new Error("Unable to validate updated profile.");
+  return user.data;
+}
+
+async function parseUpdatedUser(response: Response): Promise<AuthUser> {
+  if (!response.ok) {
+    throw new Error(
+      await parseApiError(response, "Unable to update profile picture."),
+    );
+  }
+
+  const user = authUserSchema.safeParse(await response.json());
+  if (!user.success) throw new Error("Unable to validate updated profile.");
+  return user.data;
+}
+
+export async function uploadProfilePicture(file: File): Promise<AuthUser> {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const response = await fetch(`${API_BASE_URL}/users/me/profile-picture`, {
+    method: "POST",
+    credentials: "include",
+    body: formData,
+  });
+
+  return parseUpdatedUser(response);
+}
+
+export async function removeProfilePicture(): Promise<AuthUser> {
+  const response = await fetch(`${API_BASE_URL}/users/me/profile-picture`, {
+    method: "DELETE",
+    credentials: "include",
+  });
+
+  return parseUpdatedUser(response);
+}
+
+export async function requestPasswordReset(email: string) {
+  const response = await fetch(`${API_BASE_URL}/users/forgot-password`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email }),
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      await parseApiError(response, "Unable to request a reset link."),
+    );
+  }
+
+  return response.json() as Promise<{ message: string }>;
+}
+
+export async function resetPassword(accessToken: string, password: string) {
+  const response = await fetch(`${API_BASE_URL}/users/reset-password`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ accessToken, password }),
+  });
+
+  if (!response.ok) {
+    throw new Error(await parseApiError(response, "Unable to reset password."));
+  }
+
+  return response.json() as Promise<{ message: string }>;
 }

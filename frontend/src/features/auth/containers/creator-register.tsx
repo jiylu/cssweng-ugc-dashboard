@@ -2,6 +2,7 @@ import Image from "next/image";
 import LandingLeftPanel from "../components/landing-left-panel";
 import RegisterCard from "../components/register-card";
 import { useRegister } from "../hooks/useRegister";
+import OtpCard from "../components/otp-card";
 
 export default function CreatorRegister() {
   const registerForm = useRegister();
@@ -21,13 +22,11 @@ export default function CreatorRegister() {
           />
 
           <h1 className="text-[64px] text-[#141518] leading-tight tracking-[-0.5px]">
-            Become a Creator
+            {registerForm.step === "otp" ? "Verify It’s You" : "Become a Creator"}
           </h1>
 
 
-          <RegisterCard 
-            registerForm={registerForm}
-          />
+          {registerForm.step === "otp" ? <OtpCard registerForm={registerForm} /> : <RegisterCard registerForm={registerForm} />}
         </div>
 
       </section>

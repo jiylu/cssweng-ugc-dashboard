@@ -1,0 +1,43 @@
+import { z } from "zod"
+
+export const shippingAddressSchema = z.object({
+  addressLine1: z.string()
+    .min(1, "Address Line 1 is required."),
+  addressLine2: z.string()
+    .optional(),
+  country: z.string()
+    .min(1, "Country is required."),
+  stateProvince: z.string()
+    .optional(),
+  city: z.string()
+    .optional(),
+  zipCode: z.string()
+    .min(1, "Zip Code is required."),
+})
+
+export const giftedProductSchema = z.object({
+  productName: z.string()
+    .min(1, "Product name is required.")
+    .max(100, "Product name must be less than 100 characters."),
+  value: z.string()
+    .min(1, "Value is required."),
+  ownershipTerms: z.string()
+    .min(1, "Ownership terms are required.").max(500, "Ownership terms must be less than 500 characters."),
+  shippingAddress: shippingAddressSchema.nullable().refine(
+    (val) => val !== null && val.addressLine1.length > 0,
+    { message: "Shipping address is required." }
+  ),
+  deliveryInstructions: z.string()
+    .min(1, "Delivery instructions are required."),
+})
+
+export const paymentTermsSchema = z.object({
+  giftedProducts: z.array(giftedProductSchema).optional(),
+  paymentSchedule: z.string()
+    .min(1, "Payment schedule is required."),
+  paymentMethod: z.string()
+    .min(1, "Payment method is required."),
+  taxRate: z.number()
+    .min(1, "Tax rate must be 1 or greater.")
+    .max(60, "Tax rate must not exceed 60%."),
+})

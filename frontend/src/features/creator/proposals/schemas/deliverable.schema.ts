@@ -1,20 +1,39 @@
 import z from "zod";
 
 export const deliverableSchema = z.object({
-  deliverable_title: z.string()
-      .min(1, "Deliverable title is required.")
-      .max(50, "Deliverable name must be less than 50 characters."),
-
   description: z.string()
-      .min(20, "Deliverable description must be at least 20 characters.")
-      .max(100, "Description must be less than 100 characters."),
+    .min(50, "Deliverable requirement must be at least 50 characters."),
   
-  deliverable_type: z.string()
-    .min(1, "Please select a deliverable type."),
+  deliverableType: z.string()
+    .min(1, "Deliverable type is required."),
   
-  deadline: z.string()
-    .min(1, "Please select a deadline."),
+  draftDeadline: z.string()
+    .min(1, "Please select a valid deadline."),
 
   pricing: z.string()
     .min(1, "Pricing is required."),
+
+  quantity: z.string()
+    .min(1, "Quantity is required."),
+
+  platform: z.string()
+    .min(1, "Platform is required."),
+
+  contentType: z.string()
+    .min(1, "Content type is required."),
+
+  postDate: z.string()
+    .min(1, "Post date is required."),
+}).refine((data) => {
+  if (!data.postDate || !data.draftDeadline) return true
+  return new Date(data.draftDeadline) <= new Date(data.postDate)
+}, {
+  message: "Due date cannot be after the post date.",
+  path: ["postDate"]
+}).refine((data) => {
+  if (!data.quantity) return true
+  return /^\d+$/.test(data.quantity) && Number(data.quantity) >= 1
+}, {
+  message: "Quantity must be a whole number.",
+  path: ["quantity"]
 })

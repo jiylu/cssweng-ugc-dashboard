@@ -153,7 +153,7 @@ export default function RegisterCard({ registerForm }: RegisterCardProps) {
               one uppercase letter (A–Z),
               one lowercase letter (a–z),
               one number (0–9), and
-              one special character (!@#$%^&*)
+              one special character (!@#$%^&*_)
             </FieldDescription>
             <div aria-live="polite" className="min-h-6">
               {registerForm.submitError && (

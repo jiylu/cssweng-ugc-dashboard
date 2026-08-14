@@ -1,13 +1,19 @@
 import 'dotenv-flow/config';
-import { NestFactory } from '@nestjs/core';
+import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
+import {
+  ClassSerializerInterceptor,
+  Logger,
+  ValidationPipe,
+} from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import type { NextFunction, Request, Response } from 'express';
 
 async function bootstrap() {
   const port = process.env.PORT ?? 8080;
   const app = await NestFactory.create(AppModule);
+
+  const logger = new Logger('MAIN');
 
   app.use((req: Request, _res: Response, next: NextFunction) => {
     if (req.url === '/users' || req.url.startsWith('/users/')) {
@@ -31,6 +37,12 @@ async function bootstrap() {
     }),
   );
 
+  app.useGlobalInterceptors(
+    new ClassSerializerInterceptor(app.get(Reflector), {
+      excludeExtraneousValues: true,
+    }),
+  );
+
   const swaggerConfig = new DocumentBuilder()
     .setTitle('UGC Dashboard API')
     .setDescription('API Documentation for UGC Dashboard')
@@ -39,8 +51,8 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('docs', app, document);
 
-  await app.listen(port);
-  console.log(`Server running at http://localhost:${port}`);
-  console.log(`Find docs at http://localhost:${port}/docs`);
+  await app.listen(port, '0.0.0.0');
+  logger.log(`Server running at http://localhost:${port}`);
+  logger.log(`Find docs at http://localhost:${port}/docs`);
 }
 bootstrap();

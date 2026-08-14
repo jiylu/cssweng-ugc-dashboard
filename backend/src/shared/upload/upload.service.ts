@@ -1,0 +1,52 @@
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
+import { SupabaseStorageService } from '../supabase-storage/supabase-storage.service';
+
+@Injectable()
+export class UploadService {
+  constructor(
+    private readonly cloudinaryService: CloudinaryService,
+    private readonly supabaseStorageService: SupabaseStorageService,
+  ) {}
+
+  async upload(
+    file: Express.Multer.File,
+  ): Promise<{ url: string; type: 'image' | 'video' | 'pdf' }> {
+    if (!file) {
+      throw new BadRequestException({
+        code: 'FILE_NOT_PROVIDED',
+        message: 'No file was uploaded.',
+      });
+    }
+
+    if (file.mimetype.startsWith('image/')) {
+      const result = await this.supabaseStorageService.upload(file);
+
+      return {
+        url: result.publicUrl,
+        type: 'image',
+      };
+    }
+
+    if (file.mimetype.startsWith('video/')) {
+      const result = await this.cloudinaryService.uploadVideo(file);
+      return {
+        url: result.secure_url,
+        type: 'video',
+      };
+    }
+
+    if (file.mimetype === 'application/pdf') {
+      const result = await this.supabaseStorageService.upload(file);
+      return {
+        url: result.publicUrl,
+        type: 'pdf',
+      };
+    }
+
+    throw new BadRequestException({
+      code: 'UNSUPPORTED_FILE_TYPE',
+      message: 'Unsupported file type.',
+    });
+  }
+}

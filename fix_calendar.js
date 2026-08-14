@@ -1,0 +1,1 @@
+const fs = require('fs'); const path = 'frontend/src/features/creator/calendar/calendar.mock.ts'; let content = fs.readFileSync(path, 'utf8'); content = content.replace(/deliverable_id: '[^']+',\r?\n\s*/g, ''); content = content.replace(/campaign_id: 'mock-camp-[^']+',\r?\n\s*public_id/g, 'public_id'); fs.writeFileSync(path, content);

@@ -8,7 +8,7 @@ export default function LandingLeftPanel() {
       <div className="pointer-events-none absolute -left-5 bottom-5 h-55 w-55 rounded-full bg-[radial-gradient(circle,#22d34c_-50%,transparent_50%)]" />
 
       <Image
-        src="/Logo.svg"
+        src="/Logo-black.svg"
         alt="Logo"
         className="w-50 mb-10"
         width={30}
@@ -19,7 +19,7 @@ export default function LandingLeftPanel() {
       <div className="z-1">
         <h2 className="text-[64px] font-extralight text-[#141518] leading-tight m-0 mb-3 tracking-[-0.5px]">
           Everything you need, <br />
-          <span className="text-[#8811FF]">in one place.</span>
+          <span className="text-[#6B1FA8]">in one place.</span>
         </h2>
         <p>Manage your content, track analytics,<br />and collaborate with clients.</p>
 
