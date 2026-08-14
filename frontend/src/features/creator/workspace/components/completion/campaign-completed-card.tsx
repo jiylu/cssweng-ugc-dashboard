@@ -6,9 +6,10 @@ interface CampaignCompletedCardProps {
   isDownloading?: boolean
   onDownloadAssets: () => void
   onBackToDashboard: () => void
+  onPrevious?: () => void
 }
 
-export function CampaignCompletedCard({ isDownloading, onDownloadAssets, onBackToDashboard }: CampaignCompletedCardProps) {
+export function CampaignCompletedCard({ isDownloading, onDownloadAssets, onBackToDashboard, onPrevious }: CampaignCompletedCardProps) {
   return (
     <Card className="flex flex-col items-center gap-3 px-10 py-10 max-w-md mx-auto text-center">
       <div className="flex items-center justify-center h-16 w-16 rounded-xl bg-[#6b1fa8]">
@@ -42,6 +43,17 @@ export function CampaignCompletedCard({ isDownloading, onDownloadAssets, onBackT
           Back to Dashboard
           <Undo2 size={16} />
         </Button>
+
+        {onPrevious && (
+          <Button
+            type="button"
+            variant="outline"
+            className="rounded-[3px] border-[#6b1fa8] text-[#6b1fa8] hover:bg-[#6b1fa8]/5 hover:text-[#6b1fa8]"
+            onClick={onPrevious}
+          >
+            Previous: Invoicing
+          </Button>
+        )}
       </div>
     </Card>
   )
