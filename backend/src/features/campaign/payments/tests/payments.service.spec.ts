@@ -258,6 +258,7 @@ describe('PaymentsService', () => {
         client_id: 'client-1',
         project_name: 'Test Campaign',
         payment_schedule: PaymentSchedule.DUE_FINAL_DELIVERY,
+        paid_amount: { toNumber: () => 0 },
         pricing: { toNumber: () => 5000 },
       });
       mockProposalsService.findProposalByCampaignId.mockResolvedValue({
@@ -289,6 +290,84 @@ describe('PaymentsService', () => {
       expect(mockCampaignService.updatePaidAmount).toHaveBeenCalledWith(
         'camp-1',
         { paidAmount: 5000 },
+        mockPrisma,
+      );
+    });
+
+    it('should set the full pricing as paid for DEPOSIT_50 schedule', async () => {
+      const existing = {
+        payment_id: 'payment-2',
+        public_id: 'pub-2',
+        campaign_id: 'camp-1',
+        proof_payment_url: 'https://example.com/proof.png',
+        is_payment_verified: false,
+      };
+
+      mockPrisma.payments.findFirst.mockResolvedValue(existing);
+      mockPrisma.payments.update.mockResolvedValue({
+        ...existing,
+        is_payment_verified: true,
+      });
+      mockCampaignService.findOneCampaign.mockResolvedValue({
+        campaign_id: 'camp-1',
+        client_id: 'client-1',
+        project_name: 'Test Campaign',
+        payment_schedule: PaymentSchedule.DEPOSIT_50_FINAL_50,
+        paid_amount: { toNumber: () => 2500 },
+        pricing: { toNumber: () => 5000 },
+      });
+      mockProposalsService.findProposalByCampaignId.mockResolvedValue({
+        proposal_id: 'proposal-1',
+        proposal_status: ProposalStatus.ACCEPTED,
+      });
+      mockCampaignService.updateCampaignStatus.mockResolvedValue({});
+      mockCampaignService.updatePaidAmount.mockResolvedValue({});
+      mockCampaignService.updatePaidFull.mockResolvedValue({});
+
+      await service.validatePayment('payment-2');
+
+      expect(mockCampaignService.updatePaidAmount).toHaveBeenCalledWith(
+        'camp-1',
+        { paidAmount: 5000 },
+        mockPrisma,
+      );
+    });
+
+    it('should keep overpayment and not reduce paid amount below pricing', async () => {
+      const existing = {
+        payment_id: 'payment-3',
+        public_id: 'pub-3',
+        campaign_id: 'camp-1',
+        proof_payment_url: 'https://example.com/proof.png',
+        is_payment_verified: false,
+      };
+
+      mockPrisma.payments.findFirst.mockResolvedValue(existing);
+      mockPrisma.payments.update.mockResolvedValue({
+        ...existing,
+        is_payment_verified: true,
+      });
+      mockCampaignService.findOneCampaign.mockResolvedValue({
+        campaign_id: 'camp-1',
+        client_id: 'client-1',
+        project_name: 'Test Campaign',
+        payment_schedule: PaymentSchedule.DEPOSIT_50_FINAL_50,
+        paid_amount: { toNumber: () => 6000 },
+        pricing: { toNumber: () => 5000 },
+      });
+      mockProposalsService.findProposalByCampaignId.mockResolvedValue({
+        proposal_id: 'proposal-1',
+        proposal_status: ProposalStatus.ACCEPTED,
+      });
+      mockCampaignService.updateCampaignStatus.mockResolvedValue({});
+      mockCampaignService.updatePaidAmount.mockResolvedValue({});
+      mockCampaignService.updatePaidFull.mockResolvedValue({});
+
+      await service.validatePayment('payment-3');
+
+      expect(mockCampaignService.updatePaidAmount).toHaveBeenCalledWith(
+        'camp-1',
+        { paidAmount: 6000 },
         mockPrisma,
       );
     });

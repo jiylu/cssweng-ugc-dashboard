@@ -8,7 +8,7 @@ import { DeliverablesService } from 'src/features/deliverable/deliverables/deliv
 import { ProposalsService } from 'src/features/campaign/proposals/proposals.service';
 import { ProposalHistoryService } from 'src/features/campaign/proposals/proposal-history.service';
 import { CreateCampaignRequestDto } from '../dto/create-campaign-request-dto';
-import { DeliverableType, PaymentSchedule } from '@prisma/client';
+import { DeliverableType, PaymentSchedule, Prisma } from '@prisma/client';
 import { EmailService } from 'src/shared/email/email.service';
 import { ActivityLogService } from 'src/shared/activity-log/activity-log.service';
 import { ContractsService } from 'src/features/campaign/contracts/contracts.service';
@@ -249,7 +249,7 @@ describe('CampaignSetupService', () => {
         },
       };
 
-      const totalPrice = 300 + 300 * (10 / 100);
+      const totalPrice = 330;
 
       const mockCampaign = {
         campaign_id: 'camp-1',
@@ -474,7 +474,7 @@ describe('CampaignSetupService', () => {
 
       mockCampaignService.findOneCampaign.mockResolvedValue({
         campaign_id: campaignId,
-        tax: 10,
+        tax: new Prisma.Decimal(10),
       });
       mockCampaignService.updateCampaignDetails.mockResolvedValue(
         updatedCampaign,
@@ -516,12 +516,8 @@ describe('CampaignSetupService', () => {
         updatedContract,
       );
       mockDeliverableService.findDeliverablesForCampaign.mockResolvedValue([
-        { pricing: { toNumber: () => 500 } },
-        { pricing: { toNumber: () => 550 } },
-      ]);
-      mockAddOnService.findAddOnsForCampaign.mockResolvedValue([
-        { fee: { toNumber: () => 100 }, opt_in: false },
-        { fee: { toNumber: () => 200 }, opt_in: true },
+        { pricing: new Prisma.Decimal(500) },
+        { pricing: new Prisma.Decimal(550) },
       ]);
       mockGiftedProductsService.findGiftedProductsForCampaign.mockResolvedValue(
         [],
@@ -559,7 +555,7 @@ describe('CampaignSetupService', () => {
       );
       expect(mockCampaignService.updateCampaignDetails).toHaveBeenCalledWith(
         campaignId,
-        { pricing: 1375 },
+        { pricing: 1155 },
         tx,
       );
       expect(mockContractService.updateContractDetails).toHaveBeenCalledWith(

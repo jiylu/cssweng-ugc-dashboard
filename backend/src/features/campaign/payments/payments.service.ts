@@ -8,12 +8,7 @@ import {
 import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { CampaignsService } from '../campaigns/campaigns.service';
 import { CreatePaymentDTO } from './dto/create-payment.dto';
-import {
-  CampaignStatus,
-  PaymentSchedule,
-  Prisma,
-  ProposalStatus,
-} from '@prisma/client';
+import { CampaignStatus, Prisma, ProposalStatus } from '@prisma/client';
 import { nanoid } from 'nanoid';
 import { ProposalsService } from '../proposals/proposals.service';
 
@@ -186,10 +181,10 @@ export class PaymentsService {
         },
       });
 
-      const paidAmount =
-        campaign.payment_schedule === PaymentSchedule.DUE_FINAL_DELIVERY
-          ? campaign.pricing.toNumber()
-          : campaign.paid_amount.mul(2).toNumber();
+      const paidAmount = Math.max(
+        campaign.paid_amount.toNumber(),
+        campaign.pricing.toNumber(),
+      );
 
       await this.campaignsService.updateCampaignStatus(
         campaign.campaign_id,

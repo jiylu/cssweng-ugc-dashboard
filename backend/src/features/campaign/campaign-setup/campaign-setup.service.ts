@@ -16,7 +16,12 @@ import { GiftedProductsService } from '../gifted-products/gifted-products.servic
 import { UpdateCampaignSetupDto } from './dto/update-campaign-setup.dto';
 import { UserService } from '../../user/users/users.service';
 import { PAYMENT_SCHEDULE } from '../contracts/dto/payment-terms.dto';
-import { PaymentSchedule, ProposalStatus, UserRoles } from '@prisma/client';
+import {
+  PaymentSchedule,
+  Prisma,
+  ProposalStatus,
+  UserRoles,
+} from '@prisma/client';
 
 @Injectable()
 export class CampaignSetupService {
@@ -60,99 +65,86 @@ export class CampaignSetupService {
       clientId = user.user_id;
     }
 
-    const result = await this.prisma.$transaction(async (tx) => {
-      const deliverablesTotal = dto.deliverables.reduce(
-        (sum, d) => sum + Number(d.pricing),
-        0,
-      );
+    const result = await this.prisma.$transaction(
+      async (tx) => {
+        const deliverablesTotal = dto.deliverables.reduce(
+          (sum, d) => sum.plus(new Prisma.Decimal(d.pricing)),
+          new Prisma.Decimal(0),
+        );
 
-      const addOnsTotal = (dto.addOns ?? []).reduce(
-        (sum, addOn) => sum + Number(addOn.fee),
-        0,
-      );
+        const taxRate = new Prisma.Decimal(dto.campaign.tax).div(100);
+        const totalPrice = deliverablesTotal.times(taxRate.plus(1));
 
-      const exclusivityTotal = dto.contract.exclusivity
-        ? Number(dto.contract.exclusivity.exclusivity_fee)
-        : 0;
+        const paymentSchedule =
+          dto.contract.payment_terms.payment_schedule ===
+          PAYMENT_SCHEDULE.DUE_FINAL_DELIVERY
+            ? PaymentSchedule.DUE_FINAL_DELIVERY
+            : PaymentSchedule.DEPOSIT_50_FINAL_50;
 
-      const giftedProductsTotal = (dto.giftedProducts ?? []).reduce(
-        (sum, product) => sum + Number(product.value),
-        0,
-      );
+        const campaign = await this.campaignService.createCampaign(
+          {
+            ...dto.campaign,
+            pricing: totalPrice.toNumber(),
+            paymentSchedule: paymentSchedule,
+            clientId: clientId,
+          },
+          tx,
+        );
 
-      const subtotal =
-        deliverablesTotal +
-        addOnsTotal +
-        exclusivityTotal +
-        giftedProductsTotal;
+        const [proposal, deliverables, contract, addOns, giftedProducts] =
+          await Promise.all([
+            this.proposalService.createProposal(
+              { ...dto.proposal, campaignId: campaign.campaign_id },
+              tx,
+            ),
+            this.deliverableService.createManyDeliverables(
+              campaign.campaign_id,
+              dto.deliverables.map((d) => ({
+                ...d,
+                campaignId: campaign.campaign_id,
+              })),
+              tx,
+            ),
+            this.contractService.createContract(
+              { ...dto.contract, campaignId: campaign.campaign_id },
+              tx,
+            ),
+            dto.addOns?.length
+              ? this.addOnService.createManyAddOns(
+                  campaign.campaign_id,
+                  dto.addOns.map((a) => ({
+                    ...a,
+                    campaignId: campaign.campaign_id,
+                  })),
+                  tx,
+                )
+              : Promise.resolve([]),
+            dto.giftedProducts?.length
+              ? this.giftedProductsService.createManyGiftedProducts(
+                  campaign.campaign_id,
+                  dto.giftedProducts.map((g) => ({
+                    ...g,
+                    campaignId: campaign.campaign_id,
+                  })),
+                  tx,
+                )
+              : Promise.resolve([]),
+          ]);
 
-      const totalPrice = subtotal + subtotal * (dto.campaign.tax / 100);
-
-      const paymentSchedule =
-        dto.contract.payment_terms.payment_schedule ===
-        PAYMENT_SCHEDULE.DUE_FINAL_DELIVERY
-          ? PaymentSchedule.DUE_FINAL_DELIVERY
-          : PaymentSchedule.DEPOSIT_50_FINAL_50;
-
-      const campaign = await this.campaignService.createCampaign(
-        {
-          ...dto.campaign,
-          pricing: totalPrice,
-          paymentSchedule: paymentSchedule,
-          clientId: clientId,
-        },
-        tx,
-      );
-
-      const [proposal, deliverables, contract, addOns, giftedProducts] =
-        await Promise.all([
-          this.proposalService.createProposal(
-            { ...dto.proposal, campaignId: campaign.campaign_id },
-            tx,
-          ),
-          this.deliverableService.createManyDeliverables(
-            campaign.campaign_id,
-            dto.deliverables.map((d) => ({
-              ...d,
-              campaignId: campaign.campaign_id,
-            })),
-            tx,
-          ),
-          this.contractService.createContract(
-            { ...dto.contract, campaignId: campaign.campaign_id },
-            tx,
-          ),
-          dto.addOns?.length
-            ? this.addOnService.createManyAddOns(
-                campaign.campaign_id,
-                dto.addOns.map((a) => ({
-                  ...a,
-                  campaignId: campaign.campaign_id,
-                })),
-                tx,
-              )
-            : Promise.resolve([]),
-          dto.giftedProducts?.length
-            ? this.giftedProductsService.createManyGiftedProducts(
-                campaign.campaign_id,
-                dto.giftedProducts.map((g) => ({
-                  ...g,
-                  campaignId: campaign.campaign_id,
-                })),
-                tx,
-              )
-            : Promise.resolve([]),
-        ]);
-
-      return {
-        campaign,
-        proposal,
-        deliverables,
-        contract,
-        addOns,
-        giftedProducts,
-      };
-    });
+        return {
+          campaign,
+          proposal,
+          deliverables,
+          contract,
+          addOns,
+          giftedProducts,
+        };
+      },
+      {
+        maxWait: 10_000,
+        timeout: 30_000,
+      },
+    );
 
     await this.proposalHistoryService.createProposalHistory({
       proposalId: result.proposal.proposal_id,
@@ -340,28 +332,24 @@ export class CampaignSetupService {
         tx,
       );
 
-      const [campaignDeliverables, campaignAddOns] = await Promise.all([
-        this.deliverableService.findDeliverablesForCampaign(campaignId, tx),
-        this.addOnService.findAddOnsForCampaign(campaignId, tx),
-      ]);
+      const campaignDeliverables =
+        await this.deliverableService.findDeliverablesForCampaign(
+          campaignId,
+          tx,
+        );
 
       const deliverablesTotal = campaignDeliverables.reduce(
-        (sum, deliverable) => sum + deliverable.pricing.toNumber(),
-        0,
+        (sum, deliverable) => sum.plus(deliverable.pricing),
+        new Prisma.Decimal(0),
       );
 
-      const optedInAddOnsTotal = (campaignAddOns ?? [])
-        .filter((addOn) => addOn.opt_in)
-        .reduce((sum, addOn) => sum + addOn.fee.toNumber(), 0);
-
-      const subtotal = deliverablesTotal + optedInAddOnsTotal;
-      const totalPrice =
-        subtotal + subtotal * (Number(currentCampaign.tax) / 100);
+      const taxRate = currentCampaign.tax.div(100);
+      const totalPrice = deliverablesTotal.times(taxRate.plus(1));
 
       const recomputedCampaign =
         await this.campaignService.updateCampaignDetails(
           campaignId,
-          { pricing: totalPrice },
+          { pricing: totalPrice.toNumber() },
           tx,
         );
 

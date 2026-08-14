@@ -389,15 +389,15 @@ export class CampaignsService {
 
     const campaign = await this.findOneCampaign(campaignId, tx);
 
-    if (!campaign.paid_amount.equals(campaign.pricing)) {
+    if (campaign.paid_amount.lessThan(campaign.pricing)) {
       this.logger.warn(
-        `Campaign ${campaign.campaign_id} paid amount ${campaign.paid_amount.toString()} does not match pricing ${campaign.pricing.toString()}`,
+        `Campaign ${campaign.campaign_id} paid amount ${campaign.paid_amount.toString()} is less than pricing ${campaign.pricing.toString()}`,
       );
 
       throw new ConflictException({
         status: HttpStatus.CONFLICT,
         code: 'PAID_AMOUNT_MISMATCH',
-        message: 'Paid amount does not match pricing',
+        message: 'Paid amount does not cover full pricing',
       });
     }
 
@@ -465,41 +465,23 @@ export class CampaignsService {
 
     const campaign = await this.findOneCampaign(campaignId, tx);
 
-    const [deliverables, addOns] = await Promise.all([
-      tx.deliverables.findMany({
-        where: {
-          campaign_id: campaign.campaign_id,
-          is_deleted: false,
-        },
-        select: {
-          pricing: true,
-        },
-      }),
-      tx.addOns.findMany({
-        where: {
-          campaign_id: campaign.campaign_id,
-          is_deleted: false,
-          opt_in: true,
-        },
-        select: {
-          fee: true,
-        },
-      }),
-    ]);
+    const deliverables = await tx.deliverables.findMany({
+      where: {
+        campaign_id: campaign.campaign_id,
+        is_deleted: false,
+      },
+      select: {
+        pricing: true,
+      },
+    });
 
     const deliverablesTotal = deliverables.reduce(
       (sum, deliverable) => sum.plus(deliverable.pricing),
       new Prisma.Decimal(0),
     );
 
-    const optedInAddOnsTotal = addOns.reduce(
-      (sum, addOn) => sum.plus(addOn.fee),
-      new Prisma.Decimal(0),
-    );
-
-    const subtotal = deliverablesTotal.plus(optedInAddOnsTotal);
     const taxRate = campaign.tax.div(100);
-    const totalPrice = subtotal.times(taxRate.plus(1));
+    const totalPrice = deliverablesTotal.times(taxRate.plus(1));
 
     const updatedCampaign = await tx.campaigns.update({
       where: { campaign_id: campaign.campaign_id },
