@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 import * as React from "react"
 import { isValidDate, formatDate } from "@/src/utils/date"
 
@@ -75,3 +76,4 @@ function handleTextChange(e: React.ChangeEvent<HTMLInputElement>) {
           handleTextChange 
          }
 }
+

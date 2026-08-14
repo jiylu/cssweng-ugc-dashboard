@@ -1,5 +1,5 @@
 import { Deliverable } from "../types/deliverables.types"
-import { AddOnItem } from "../components/add-ons/add-ons-form"
+import { AddOnItem } from "../types/add-on.types"
 import { GiftedProduct } from "../types/payment-terms.types"
 
 export function calculateBaseCreatorFee(
