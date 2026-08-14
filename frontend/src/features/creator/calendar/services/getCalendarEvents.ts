@@ -1,5 +1,52 @@
 import { API_BASE_URL } from '@/src/config/api';
-import { CalendarEvent, Deliverable } from '../types/calendar.types';
+import { CalendarEvent, Campaign, Deliverable } from '../types/calendar.types';
+
+/**
+ * Converts a list of Campaign objects (each with nested deliverables) into a
+ * flat CalendarEvent[]. Used by the mock hook; this function is pure (no
+ * side-effects / no network calls).
+ */
+export function mapCampaignsToEvents(campaigns: Campaign[]): CalendarEvent[] {
+  const events: CalendarEvent[] = [];
+
+  for (const campaign of campaigns) {
+    for (const d of campaign.deliverables) {
+      if (d.is_deleted) continue;
+
+      const label = `${campaign.project_name} - ${d.deliverable_content}`;
+
+      // Due date chip
+      events.push({
+        id: `due-${d.public_id}`,
+        title: label,
+        date: new Date(d.due_date),
+        type: 'DELIVERABLE_DUE',
+        status: campaign.campaign_status,
+        campaignId: campaign.public_id,
+        sourceId: d.public_id,
+        campaignName: campaign.project_name,
+        campaignCurrency: campaign.currency,
+        deliverable: d,
+      });
+
+      // Post date chip
+      events.push({
+        id: `post-${d.public_id}`,
+        title: label,
+        date: new Date(d.post_date),
+        type: 'DELIVERABLE_POST',
+        status: campaign.campaign_status,
+        campaignId: campaign.public_id,
+        sourceId: d.public_id,
+        campaignName: campaign.project_name,
+        campaignCurrency: campaign.currency,
+        deliverable: d,
+      });
+    }
+  }
+
+  return events;
+}
 
 interface ApiCalendarEntry {
   campaignName: string;
