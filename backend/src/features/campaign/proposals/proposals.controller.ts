@@ -33,6 +33,7 @@ import { ProposalHistoryEntity } from './entities/proposal-history.entity';
 import { ProposalStatus, UserRoles } from '@prisma/client';
 import { RolesGuard } from 'src/shared/guards/roles.guard';
 import { Roles } from 'src/shared/decorators/roles.decorator';
+import { UserService } from '../../user/users/users.service';
 
 @Controller('proposals')
 export class ProposalsController {
@@ -42,7 +43,28 @@ export class ProposalsController {
     private readonly proposalHistoryService: ProposalHistoryService,
     private readonly notificationsService: NotificationsService,
     private readonly campaignsService: CampaignsService,
+    private readonly userService: UserService,
   ) {}
+
+  private async getClientName(clientId: string | null) {
+    if (!clientId) return 'Your client';
+    const client = await this.userService.findActiveUserById(clientId);
+    if (!client) return 'Your client';
+    return (
+      client.display_name?.trim() ||
+      `${client.first_name} ${client.last_name}`.trim() ||
+      'Your client'
+    );
+  }
+
+  private getProposalNotificationTitle(
+    action: string,
+    clientName: string,
+    projectName: string,
+  ) {
+    const title = `${action} ${clientName}: ${projectName}`;
+    return title.length > 150 ? `${title.slice(0, 149)}…` : title;
+  }
 
   @ApiFindProposal()
   @Get(':publicId')
@@ -98,13 +120,18 @@ export class ProposalsController {
     if (dto.proposalStatus === ProposalStatus.REJECTED) {
       const { updatedProposal, campaign } =
         await this.proposalsService.rejectProposal(publicId);
+      const clientName = await this.getClientName(campaign.client_id);
 
       try {
         await this.notificationsService.createNotification({
+          category: 'PROPOSAL',
           userId: campaign.ugc_creator_id,
-          title: `Your Proposal Has Been Rejected.`,
-          message:
-            'Unfortunately, your proposal has been rejected by the client.',
+          title: this.getProposalNotificationTitle(
+            'Proposal rejected by',
+            clientName,
+            campaign.project_name,
+          ),
+          message: `${clientName} rejected your proposal for "${campaign.project_name}".`,
         });
       } catch (err) {
         this.logger.warn(`Failed to send notification`, err);
@@ -132,12 +159,18 @@ export class ProposalsController {
   ) {
     const { campaign, updatedHistory } =
       await this.proposalsService.reviseProposal(publicId, dto);
+    const clientName = await this.getClientName(campaign.client_id);
 
     try {
       await this.notificationsService.createNotification({
+        category: 'PROPOSAL',
         userId: campaign.ugc_creator_id,
-        title: 'Your Proposal Has New comments',
-        message: `Comment for your proposal: ${updatedHistory.client_comments}`,
+        title: this.getProposalNotificationTitle(
+          'New proposal feedback from',
+          clientName,
+          campaign.project_name,
+        ),
+        message: `${clientName} left feedback on your proposal for "${campaign.project_name}": ${updatedHistory.client_comments}`,
       });
     } catch (err) {
       this.logger.warn(`Failed to send notification`, err);
@@ -156,12 +189,18 @@ export class ProposalsController {
   ) {
     const { campaign, updatedHistory } =
       await this.proposalsService.reviseProposal(publicId, dto);
+    const clientName = await this.getClientName(campaign.client_id);
 
     try {
       await this.notificationsService.createNotification({
+        category: 'PROPOSAL',
         userId: campaign.ugc_creator_id,
-        title: 'Your Proposal Has New comments',
-        message: `Comment for your proposal: ${updatedHistory.client_comments}`,
+        title: this.getProposalNotificationTitle(
+          'New proposal feedback from',
+          clientName,
+          campaign.project_name,
+        ),
+        message: `${clientName} left feedback on your proposal for "${campaign.project_name}": ${updatedHistory.client_comments}`,
       });
     } catch (err) {
       this.logger.warn(`Failed to send notification`, err);
@@ -177,13 +216,18 @@ export class ProposalsController {
   async reject(@Param('publicId') publicId: string) {
     const { updatedProposal, campaign } =
       await this.proposalsService.rejectProposal(publicId);
+    const clientName = await this.getClientName(campaign.client_id);
 
     try {
       await this.notificationsService.createNotification({
+        category: 'PROPOSAL',
         userId: campaign.ugc_creator_id,
-        title: `Your Proposal Has Been Rejected.`,
-        message:
-          'Unfortunately, your proposal has been rejected by the client.',
+        title: this.getProposalNotificationTitle(
+          'Proposal rejected by',
+          clientName,
+          campaign.project_name,
+        ),
+        message: `${clientName} rejected your proposal for "${campaign.project_name}".`,
       });
     } catch (err) {
       this.logger.warn(`Failed to send notification`, err);
@@ -199,13 +243,18 @@ export class ProposalsController {
   async accept(@Param('publicId') publicId: string) {
     const { updatedProposal, updatedCampaign } =
       await this.proposalsService.acceptProposal(publicId);
+    const clientName = await this.getClientName(updatedCampaign.client_id);
 
     try {
       await this.notificationsService.createNotification({
+        category: 'PROPOSAL',
         userId: updatedCampaign.ugc_creator_id,
-        title: `Your Proposal Has Been Accepted.`,
-        message:
-          'Your proposal has been accepted! Please wait for the contract to be signed by the client.',
+        title: this.getProposalNotificationTitle(
+          'Proposal accepted by',
+          clientName,
+          updatedCampaign.project_name,
+        ),
+        message: `${clientName} accepted your proposal for "${updatedCampaign.project_name}". You can now proceed to contract signing.`,
       });
     } catch (err) {
       this.logger.warn(`Failed to send notification`, err);

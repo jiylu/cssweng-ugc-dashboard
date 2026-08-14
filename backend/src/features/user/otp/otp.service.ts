@@ -50,6 +50,33 @@ export class OtpService {
     return { message: 'Verification code sent' };
   }
 
+  async createLogin(emailValue: string, role: UserRoles) {
+    const email = emailValue.trim().toLowerCase();
+    const otp = randomInt(0, 100_000_000).toString().padStart(8, '0');
+
+    await this.prisma.$transaction([
+      this.prisma.registrationOtp.updateMany({
+        where: { email, role, consumed_at: null },
+        data: { consumed_at: new Date() },
+      }),
+      this.prisma.registrationOtp.create({
+        data: {
+          email,
+          role,
+          otp_hash: this.hash(otp),
+          expires_at: new Date(Date.now() + OTP_LIFETIME_MS),
+        },
+      }),
+    ]);
+
+    await this.emailService.sendLoginOtpEmail(email, otp);
+  }
+
+  async validateLogin(email: string, role: UserRoles, otp: string) {
+    const { verificationToken } = await this.validate({ email, role, otp });
+    await this.consumeVerification(email, role, verificationToken);
+  }
+
   async createGuest(dto: CreateGuestOtpDto) {
     await this.assertProposalGuestEmail(dto.proposalPublicId, dto.email);
     return this.create({ email: dto.email, role: UserRoles.CLIENT });

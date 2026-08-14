@@ -30,11 +30,17 @@ export default function ClientCampaignCard({
 
   return (
     <article className="grid min-h-[106px] grid-cols-[300px_1px_1fr_1px_300px] items-center rounded border border-[#d8d4cb] bg-white px-8 py-4 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
-      <div className="pl-10">
-        <h2 className="text-[30px] leading-none text-[#141518]">
+      <div className="min-w-0 pl-10 pr-6">
+        <h2
+          className="truncate text-[30px] leading-none text-[#141518]"
+          title={campaign.name}
+        >
           {campaign.name}
         </h2>
-        <p className="mt-2 text-lg leading-none text-[#7b7771]">
+        <p
+          className="mt-2 truncate text-lg leading-none text-[#7b7771]"
+          title={campaign.creatorName}
+        >
           {campaign.creatorName}
         </p>
       </div>
