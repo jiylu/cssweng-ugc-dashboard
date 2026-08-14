@@ -45,7 +45,6 @@ export async function updateCurrentUser(payload: {
   middleName: string;
   displayName: string;
   primaryHandle: string;
-  bio: string;
   email: string;
   phoneNumber: string;
   timezone: string;

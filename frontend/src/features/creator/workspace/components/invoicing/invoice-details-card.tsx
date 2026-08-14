@@ -13,10 +13,11 @@ import {
 
 interface InvoiceDetailsCardProps {
   campaignId: string
+  onPrevious?: () => void
   onNext?: () => void
 }
 
-export function InvoiceDetailsCard({ campaignId, onNext }: InvoiceDetailsCardProps) {
+export function InvoiceDetailsCard({ campaignId, onPrevious, onNext }: InvoiceDetailsCardProps) {
   const [payment, setPayment] = useState<Payment | null>(null)
   const [checked, setChecked] = useState(false)
   const [isLoadingInvoice, setIsLoadingInvoice] = useState(false)
@@ -125,16 +126,28 @@ export function InvoiceDetailsCard({ campaignId, onNext }: InvoiceDetailsCardPro
               <ExternalLink size={16} />
             </a>
           </Button>
-          {onNext && (
-            <Button
-              type="button"
-              onClick={onNext}
-              className="w-full max-w-64 rounded-[3px] bg-[#6b1fa8] hover:bg-[#5a1a8f] text-white"
-            >
-              Next: Completion
-              <ArrowRight size={16} />
-            </Button>
-          )}
+          <div className="flex w-full max-w-64 items-center justify-between gap-3">
+            {onPrevious && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onPrevious}
+                className="w-full flex-1 rounded-[3px] border-[#6b1fa8] text-[#6b1fa8]"
+              >
+                Previous
+              </Button>
+            )}
+            {onNext && (
+              <Button
+                type="button"
+                onClick={onNext}
+                className="w-full flex-1 rounded-[3px] bg-[#6b1fa8] hover:bg-[#5a1a8f] text-white"
+              >
+                Next
+                <ArrowRight size={16} className="ml-1" />
+              </Button>
+            )}
+          </div>
         </div>
       </Card>
     )
@@ -203,6 +216,16 @@ export function InvoiceDetailsCard({ campaignId, onNext }: InvoiceDetailsCardPro
             {isSending ? "Sending..." : "Send Invoice"}
             <ArrowRight size={16} />
           </Button>
+          {onPrevious && (
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full rounded-[3px] border-[#6b1fa8] text-[#6b1fa8]"
+              onClick={onPrevious}
+            >
+              Previous: Deliverables
+            </Button>
+          )}
         </div>
       </div>
     </Card>
