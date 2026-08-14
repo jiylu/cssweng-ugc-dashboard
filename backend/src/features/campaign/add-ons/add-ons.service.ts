@@ -24,6 +24,7 @@ export class AddOnsService {
   async createAddOn(
     dto: CreateAddOnDTO,
     tx: Prisma.TransactionClient | PrismaService = this.prisma,
+    skipRecalculate = false,
   ) {
     this.logger.debug(`Creating add-on ${dto.addOnName}`);
 
@@ -39,6 +40,13 @@ export class AddOnsService {
         initials: dto.initials,
       },
     });
+
+    if (!skipRecalculate) {
+      await this.campaignsService.recalculateCampaignPricing(
+        dto.campaignId,
+        tx,
+      );
+    }
 
     this.logger.log(
       `Created add-on ${addOn.add_on_name} with id ${addOn.add_on_id}`,
@@ -59,8 +67,10 @@ export class AddOnsService {
     await this.campaignsService.findOneCampaign(campaignId, tx);
 
     const createdAddOns = await Promise.all(
-      addOns.map((a) => this.createAddOn(a, tx)),
+      addOns.map((a) => this.createAddOn(a, tx, true)),
     );
+
+    await this.campaignsService.recalculateCampaignPricing(campaignId, tx);
 
     this.logger.log(
       `Successfully created ${createdAddOns.length} add-ons for campaign ${createdAddOns[0].campaign_id}`,
@@ -169,6 +179,8 @@ export class AddOnsService {
       },
     });
 
+    await this.campaignsService.recalculateCampaignPricing(oldAddOn.campaign_id);
+
     this.logger.log(
       `AddOn ${oldAddOn.add_on_id} opt-in updated from ${oldAddOn.opt_in} to ${updatedAddOn.opt_in}`,
     );
@@ -194,6 +206,8 @@ export class AddOnsService {
         ...(dto.initials !== undefined && { initials: dto.initials }),
       },
     });
+
+    await this.campaignsService.recalculateCampaignPricing(updatedAddOn.campaign_id, tx);
 
     this.logger.log(`Add-on ${addOnId} updated successfully`);
 
@@ -226,6 +240,8 @@ export class AddOnsService {
         is_deleted: true,
       },
     });
+
+    await this.campaignsService.recalculateCampaignPricing(deletedAddOn.campaign_id, tx);
 
     this.logger.log(
       `Successfully deleted add-on with id ${deletedAddOn.add_on_id}`,

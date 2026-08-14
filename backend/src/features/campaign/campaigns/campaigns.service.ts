@@ -485,6 +485,17 @@ export class CampaignsService {
       },
     });
 
+    const addOns = await tx.addOns.findMany({
+      where: {
+        campaign_id: campaign.campaign_id,
+        is_deleted: false,
+        opt_in: true,
+      },
+      select: {
+        fee: true,
+      },
+    });
+
     const deliverablesTotal = deliverables.reduce(
       (sum, deliverable) => sum.plus(deliverable.pricing),
       new Prisma.Decimal(0),
@@ -495,9 +506,15 @@ export class CampaignsService {
       new Prisma.Decimal(0),
     );
 
+    const addOnsTotal = addOns.reduce(
+      (sum, addOn) => sum.plus(addOn.fee),
+      new Prisma.Decimal(0),
+    );
+
     const taxRate = campaign.tax.div(100);
     const totalPrice = deliverablesTotal
       .plus(giftedProductsTotal)
+      .plus(addOnsTotal)
       .times(taxRate.plus(1));
 
     const updatedCampaign = await tx.campaigns.update({
