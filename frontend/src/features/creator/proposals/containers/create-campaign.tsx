@@ -21,7 +21,8 @@ import { ContractTermsContainer } from "@/src/features/creator/proposals/contain
 import { PaymentTermsContainer } from "@/src/features/creator/proposals/containers/payment-terms-container";
 import { AddOnsContainer } from "@/src/features/creator/proposals/containers/add-ons-container";
 import { ProposalSummaryContainer } from "@/src/features/creator/proposals/containers/proposal-summary-container"
-import { buildProposalPayload, toShippingAddressPayload, trimString } from "@/src/features/creator/proposals/utils/buildProposalPayload"
+import { buildProposalPayload } from "@/src/features/creator/proposals/utils/buildProposalPayload"
+import { buildDraftPayload } from "@/src/features/creator/proposals/utils/buildDraftPayload"
 import { useContractTerms } from "@/src/features/creator/proposals/hooks/useContractTerms"
 import { usePaymentTerms } from "@/src/features/creator/proposals/hooks/usePaymentTerms"
 import { useAddOns } from "@/src/features/creator/proposals/hooks/useAddOns"
@@ -102,28 +103,13 @@ export default function CreateCampaign() {
       return;
     }
 
-    const payload = buildPayload();
-    const draftPayload = {
-      campaign: {
-        ...payload.campaign,
-        platforms: payload.campaign.platforms,
-      },
-      proposal: payload.proposal,
-      deliverables: payload.deliverables,
-      contract: payload.contract,
-      addOns: addOns.addOns.map((a) => ({
-        addOnName: trimString(a.title),
-        description: trimString(a.desc),
-        fee: a.fee ?? 0,
-      })),
-      giftedProducts: paymentTerms.giftedProducts.map((p) => ({
-        productName: trimString(p.productName),
-        value: parseFloat(p.value.replace(/,/g, "") || "0"),
-        shippingAddress: toShippingAddressPayload(p.shippingAddress),
-        deliveryInstructions: trimString(p.deliveryInstructions),
-        ownershipTerms: trimString(p.ownershipTerms),
-      })),
-    };
+    const draftPayload = buildDraftPayload({
+      userId: user.user_id,
+      form,
+      contractTerms,
+      paymentTerms,
+      addOns,
+    });
 
     if (draftId) {
       saveExistingDraft(draftPayload, {
@@ -137,7 +123,7 @@ export default function CreateCampaign() {
     }
 
     saveNewDraft(
-      { userId: user.user_id, ...draftPayload },
+      draftPayload,
       {
         onSuccess: (data) => {
           toast.success("Draft saved!");
