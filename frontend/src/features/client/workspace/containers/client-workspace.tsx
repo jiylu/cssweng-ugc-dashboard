@@ -428,7 +428,8 @@ function FeedbackActions({
             className="mt-3 w-full rounded bg-[#6b1fa8] font-normal hover:bg-[#551783]"
             onClick={onNext}
           >
-            Continue
+            {isWrittenStep ? "Next: Media Assets" : "Next: Completion"}
+            <ArrowRight className="ml-2 size-4" />
           </Button>
         </div>
       ) : !currentAssetPublicId ? (
@@ -993,7 +994,9 @@ export default function ClientWorkspace({
                   writtenAssetAction={latestWrittenAsset?.written_asset_action}
                   mediaAssetAction={latestMediaAsset?.media_asset_action}
                   onMutationSuccess={handleMutationSuccess}
-                  onNext={() => setActiveSubmissionStep(2)}
+                  onNext={() =>
+                    setActiveSubmissionStep((step) => Math.min(step + 1, 2))
+                  }
                 />
               )}
               </div>
