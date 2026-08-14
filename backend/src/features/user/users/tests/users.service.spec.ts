@@ -47,6 +47,8 @@ describe('UserService', () => {
 
   const mockOtp = {
     consumeVerification: jest.fn(),
+    createLogin: jest.fn(),
+    validateLogin: jest.fn(),
   };
 
   const mockEmail = {
@@ -299,6 +301,7 @@ describe('UserService', () => {
     expect(res).toEqual({
       user: mockUser,
       session,
+      requiresTwoFactor: false,
     });
     expect(mockSupabase.client.auth.signInWithPassword).toHaveBeenCalledWith({
       email: dto.email,
@@ -310,6 +313,63 @@ describe('UserService', () => {
         is_active: true,
       },
     });
+  });
+
+  it('should require an emailed OTP when two-factor authentication is enabled', async () => {
+    const session = { access_token: 'access-token', refresh_token: 'refresh-token' };
+    const mockUser = {
+      user_id: 'abc123',
+      email: 'john@test.com',
+      role: UserRoles.CREATOR,
+      is_active: true,
+      two_factor_enabled: true,
+    };
+    mockSupabase.client.auth.signInWithPassword.mockResolvedValue({
+      data: { user: { id: mockUser.user_id }, session },
+      error: null,
+    });
+    mockPrisma.user.findFirst.mockResolvedValue(mockUser);
+
+    await expect(
+      service.login({ email: mockUser.email, password: 'Password1!' }),
+    ).resolves.toEqual({ requiresTwoFactor: true });
+    expect(mockOtp.createLogin).toHaveBeenCalledWith(
+      mockUser.email,
+      mockUser.role,
+    );
+  });
+
+  it('should validate the OTP before completing a two-factor login', async () => {
+    const session = { access_token: 'access-token', refresh_token: 'refresh-token' };
+    const mockUser = {
+      user_id: 'abc123',
+      email: 'john@test.com',
+      role: UserRoles.CREATOR,
+      is_active: true,
+      two_factor_enabled: true,
+    };
+    mockSupabase.client.auth.signInWithPassword.mockResolvedValue({
+      data: { user: { id: mockUser.user_id }, session },
+      error: null,
+    });
+    mockPrisma.user.findFirst.mockResolvedValue(mockUser);
+
+    await expect(
+      service.login({
+        email: mockUser.email,
+        password: 'Password1!',
+        otp: '12345678',
+      }),
+    ).resolves.toEqual({
+      user: mockUser,
+      session,
+      requiresTwoFactor: false,
+    });
+    expect(mockOtp.validateLogin).toHaveBeenCalledWith(
+      mockUser.email,
+      mockUser.role,
+      '12345678',
+    );
   });
 
   it('should find a user', async () => {
@@ -409,7 +469,6 @@ describe('UserService', () => {
         middleName: ' Anne-Marie ',
         displayName: ' Jane Smith ',
         primaryHandle: 'jane.smith',
-        bio: ' Creator bio ',
         email: 'john@test.com',
         phoneNumber: '639123456789',
         timezone: 'Asia/Manila',
@@ -424,7 +483,6 @@ describe('UserService', () => {
         middle_name: 'Anne-Marie',
         display_name: 'Jane Smith',
         primary_handle: 'jane.smith',
-        bio: 'Creator bio',
         phone_number: '639123456789',
         timezone: 'Asia/Manila',
       },

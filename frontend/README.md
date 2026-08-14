@@ -1,36 +1,80 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ASCEOfT UGC Dashboard — Frontend
 
-## Getting Started
+Web frontend for the ASCEOfT UGC management platform, where creators and clients
+manage campaigns, proposals, and contracts.
 
-First, run the development server:
+## 1. Tech Stack
+
+- **Next.js 16** (App Router) + **React 19** + **TypeScript**
+- **Tailwind CSS 4** + **shadcn/ui** (radix-ui primitives)
+- **TanStack Query** (server state) + **TanStack Table**
+- **TipTap** (rich text editor), **@react-pdf/renderer**, **jszip**, **zod**, **sonner**
+- **pnpm** for dependency management
+
+## 2. Prerequisites
+
+- Node.js 20+
+- pnpm (`npm install -g pnpm`)
+- Backend running on `http://localhost:8080` (see `docker-compose.yml` at repo root)
+
+## 3. Getting Started
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+pnpm install
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 4. Environment Variables
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Create a `.env` file in the frontend root (see `.env` for reference):
 
-## Learn More
+| Variable                  | Description                                    |
+| ------------------------- | ---------------------------------------------- |
+| `NEXT_PUBLIC_API_URL`     | Backend API base URL (e.g. `http://localhost:8080/api`) |
+| `WATCHPACK_POLLING`       | Set `true` to enable file-watch polling (Docker) |
 
-To learn more about Next.js, take a look at the following resources:
+## 5. Running with Docker
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+docker compose up
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Frontend on `:3000`, backend on `:8080`. Hot reload works via volume mounts and
+polling env vars (`WATCHPACK_POLLING`, `CHOKIDAR_USEPOLLING`).
 
-## Deploy on Vercel
+## 6. Scripts
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+| Script    | Command            | Description             |
+| --------- | ------------------ | ----------------------- |
+| `dev`     | `next dev --webpack` | Start dev server      |
+| `build`   | `next build`       | Production build        |
+| `start`   | `next start`       | Start production server |
+| `lint`    | `eslint`           | Lint the codebase       |
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 7. Project Structure
+
+```
+src/app/          # App Router routes: login, creator/client register, campaigns,
+                  #   contracts, proposals, calendar, dashboard, notifications,
+                  #   workspace, settings
+src/features/     # auth, client, creator, notifications feature modules
+src/components/   # shared/UI components
+src/hooks/        # shared hooks
+src/lib/          # utilities and shared helpers
+src/config/       # app configuration
+src/providers/    # React providers (query client, etc.)
+src/utils/        # utility functions
+```
+
+## 8. Roles
+
+- **Creator** — creator registration, creator dashboard
+- **Client** — client registration, client workspace
+
+## 9. Notes
+
+- Uses **webpack** for the dev server (`next dev --webpack`).
+- Server state is managed via **TanStack Query**; forms validated with **zod**.
+- Part of a monorepo — shared root includes `backend/` and `docker-compose.yml`.

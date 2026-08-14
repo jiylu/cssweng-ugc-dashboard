@@ -4,6 +4,8 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
+  Length,
+  Matches,
   MinLength,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
@@ -27,4 +29,10 @@ export class LoginUserDTO {
   @IsBoolean({ message: 'Remember me must be a boolean.' })
   @IsOptional()
   rememberMe?: boolean;
+
+  @IsString()
+  @Length(8, 8)
+  @Matches(/^\d{8}$/)
+  @IsOptional()
+  otp?: string;
 }

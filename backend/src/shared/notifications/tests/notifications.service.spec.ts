@@ -5,6 +5,7 @@ import { UserService } from 'src/features/user/users/users.service';
 import { NotificationsService } from '../notifications.service';
 import { CreateNotificationDTO } from '../dto/create-notification.dto';
 import { FindNotificationsQueryDTO } from '../dto/find-notifications-query.dto';
+import { EmailService } from 'src/shared/email/email.service';
 
 jest.mock('nanoid', () => ({ nanoid: jest.fn(() => 'mock-pb-id') }));
 
@@ -24,12 +25,17 @@ describe('NotificationsService', () => {
     getActiveUserById: jest.fn(),
   };
 
+  const mockEmailService = {
+    sendNotificationEmail: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         NotificationsService,
         { provide: PrismaService, useValue: mockPrisma },
         { provide: UserService, useValue: mockUserService },
+        { provide: EmailService, useValue: mockEmailService },
       ],
     }).compile();
 
@@ -59,6 +65,8 @@ describe('NotificationsService', () => {
 
       mockUserService.getActiveUserById.mockResolvedValue({
         user_id: dto.userId,
+        email: 'user@example.com',
+        email_proposal_updates: true,
       });
       mockPrisma.notifications.create.mockResolvedValue(mockNotification);
 
@@ -76,6 +84,11 @@ describe('NotificationsService', () => {
           message: dto.message,
         },
       });
+      expect(mockEmailService.sendNotificationEmail).toHaveBeenCalledWith(
+        'user@example.com',
+        dto.title,
+        dto.message,
+      );
     });
 
     it('should propagate user lookup errors', async () => {
@@ -93,6 +106,29 @@ describe('NotificationsService', () => {
         'User not found',
       );
       expect(mockPrisma.notifications.create).not.toHaveBeenCalled();
+    });
+
+    it('should respect the email preference for the notification category', async () => {
+      const dto: CreateNotificationDTO = {
+        category: 'PAYMENT',
+        userId: 'user-1',
+        title: 'Payment validated',
+        message: 'Your payment was validated.',
+      };
+      mockUserService.getActiveUserById.mockResolvedValue({
+        user_id: dto.userId,
+        email: 'user@example.com',
+        email_payment_updates: false,
+      });
+      mockPrisma.notifications.create.mockResolvedValue({
+        notification_id: 'notif-1',
+        ...dto,
+      });
+
+      await service.createNotification(dto);
+
+      expect(mockEmailService.sendNotificationEmail).not.toHaveBeenCalled();
+      expect(mockPrisma.notifications.create).toHaveBeenCalled();
     });
   });
 
