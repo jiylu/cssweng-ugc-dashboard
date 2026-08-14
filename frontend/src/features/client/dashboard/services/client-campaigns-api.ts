@@ -48,12 +48,19 @@ function formatDate(dateString: string) {
  * CampaignStatus in DB: ACTIVE | REJECTED | COMPLETED | CANCELLED
  * ProposalStatus in DB: PENDING | FOR_REVISION | REJECTED | ACCEPTED | CANCELLED
  *
- * UI statuses: COMPLETE | ACTIVE | PENDING | FOR REVISIONS
+ * UI statuses: COMPLETE | ACTIVE | PENDING | FOR REVISIONS | REJECTED | CANCELLED
  */
 function deriveDisplayStatus(
   campaignStatus: string,
   proposalStatus: string,
 ): ClientCampaignStatus {
+  // Terminal proposal/campaign states must never fall through to ACTIVE.
+  if (proposalStatus === "REJECTED" || campaignStatus === "REJECTED") {
+    return "REJECTED";
+  }
+  if (proposalStatus === "CANCELLED" || campaignStatus === "CANCELLED") {
+    return "CANCELLED";
+  }
   // If proposal is still pending client review, show PENDING
   if (proposalStatus === "PENDING") return "PENDING";
   // If proposal needs revision, show FOR REVISIONS
