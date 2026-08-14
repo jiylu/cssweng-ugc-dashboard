@@ -288,6 +288,14 @@ model Payments {
   verified_at           DateTime?
 }
 
+model Invoices {
+  invoice_id     String     @id @default(uuid())
+  public_id      String     @unique @db.VarChar(10)
+  campaign_id    String     @unique
+  invoice_url    String
+  created_at     DateTime   @default(now())
+}
+
 enum UserRoles {
   CLIENT
   CREATOR
