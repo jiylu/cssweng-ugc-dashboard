@@ -14,9 +14,13 @@ export class WrittenAssetDraftsService {
   ) {}
 
   async createDraft(dto: CreateWrittenAssetDraftDto) {
-    this.logger.debug(`Creating written asset draft for asset ${dto.writtenAssetPublicId}`);
+    this.logger.debug(
+      `Creating written asset draft for asset ${dto.writtenAssetPublicId}`,
+    );
 
-    const writtenAssetId = await this.writtenAssetsService.resolvePublicId(dto.writtenAssetPublicId);
+    const writtenAssetId = await this.writtenAssetsService.resolvePublicId(
+      dto.writtenAssetPublicId,
+    );
     const publicId = nanoid(10);
 
     const draft = await this.prisma.writtenAssetsDrafts.create({
@@ -46,13 +50,17 @@ export class WrittenAssetDraftsService {
     });
 
     if (!draft) {
-      this.logger.warn(`Written asset draft with publicId ${publicId} not found.`);
+      this.logger.warn(
+        `Written asset draft with publicId ${publicId} not found.`,
+      );
       throw new NotFoundException({
         code: 'DRAFT_NOT_FOUND',
         message: 'Draft not found',
       });
     }
-    this.logger.log(`Public id ${publicId} resolved: ${draft.written_asset_draft_id}`);
+    this.logger.log(
+      `Public id ${publicId} resolved: ${draft.written_asset_draft_id}`,
+    );
     return draft.written_asset_draft_id;
   }
 
@@ -87,7 +95,9 @@ export class WrittenAssetDraftsService {
       },
     });
 
-    this.logger.log(`Found ${drafts.length} drafts for written asset ${writtenAssetId}.`);
+    this.logger.log(
+      `Found ${drafts.length} drafts for written asset ${writtenAssetId}.`,
+    );
     return drafts;
   }
 

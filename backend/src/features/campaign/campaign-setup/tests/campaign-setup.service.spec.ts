@@ -117,7 +117,9 @@ describe('CampaignSetupService', () => {
         },
         {
           provide: UserService,
-          useValue: { findActiveUserByEmail: jest.fn().mockResolvedValue(null) },
+          useValue: {
+            findActiveUserByEmail: jest.fn().mockResolvedValue(null),
+          },
         },
       ],
     }).compile();
@@ -182,7 +184,7 @@ describe('CampaignSetupService', () => {
           description: 'A project for testing',
           currency: 'PHP',
           tax: 10,
-          platforms: { Instagram: "true", Tiktok: "true" },
+          platforms: { Instagram: 'true', Tiktok: 'true' },
           startDate: new Date('2026-06-10T00:00:00Z').toISOString(),
           endDate: new Date('2026-06-20T00:00:00Z').toISOString(),
         },
@@ -322,7 +324,7 @@ describe('CampaignSetupService', () => {
           description: 'A project for testing',
           currency: 'PHP',
           tax: 10,
-          platforms: { Instagram: "true", TikTok: "true" },
+          platforms: { Instagram: 'true', TikTok: 'true' },
           startDate: new Date().toISOString(),
           endDate: new Date().toISOString(),
         },

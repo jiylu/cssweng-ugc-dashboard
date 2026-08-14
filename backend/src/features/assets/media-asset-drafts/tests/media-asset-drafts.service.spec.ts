@@ -57,13 +57,20 @@ describe('MediaAssetDraftsService', () => {
         created_at: expect.any(Date),
       };
 
-      mockMediaAssetsService.resolvePublicId.mockResolvedValue('internal-media-1');
+      mockMediaAssetsService.resolvePublicId.mockResolvedValue(
+        'internal-media-1',
+      );
       mockPrisma.mediaAssetsDrafts.create.mockResolvedValue(mockDraft);
 
-      const res = await service.createDraft('pub-media-1', 'http://example.com/file.jpg');
+      const res = await service.createDraft(
+        'pub-media-1',
+        'http://example.com/file.jpg',
+      );
 
       expect(res).toEqual(mockDraft);
-      expect(mockMediaAssetsService.resolvePublicId).toHaveBeenCalledWith('pub-media-1');
+      expect(mockMediaAssetsService.resolvePublicId).toHaveBeenCalledWith(
+        'pub-media-1',
+      );
       expect(mockPrisma.mediaAssetsDrafts.create).toHaveBeenCalledWith({
         data: {
           public_id: 'mock-public-id',
@@ -77,7 +84,9 @@ describe('MediaAssetDraftsService', () => {
 
   describe('resolvePublicId', () => {
     it('should return draft_id for valid publicId', async () => {
-      mockPrisma.mediaAssetsDrafts.findFirst.mockResolvedValue({ media_asset_draft_id: 'internal-draft-1' });
+      mockPrisma.mediaAssetsDrafts.findFirst.mockResolvedValue({
+        media_asset_draft_id: 'internal-draft-1',
+      });
 
       const res = await service.resolvePublicId('pub-valid');
       expect(res).toBe('internal-draft-1');
@@ -86,7 +95,9 @@ describe('MediaAssetDraftsService', () => {
     it('should throw NotFoundException when no draft matches', async () => {
       mockPrisma.mediaAssetsDrafts.findFirst.mockResolvedValue(null);
 
-      await expect(service.resolvePublicId('pub-missing')).rejects.toBeInstanceOf(NotFoundException);
+      await expect(
+        service.resolvePublicId('pub-missing'),
+      ).rejects.toBeInstanceOf(NotFoundException);
     });
   });
 
@@ -101,7 +112,9 @@ describe('MediaAssetDraftsService', () => {
 
     it('should throw NotFoundException if draft not found', async () => {
       mockPrisma.mediaAssetsDrafts.findFirst.mockResolvedValue(null);
-      await expect(service.findOneDraft('draft-1')).rejects.toBeInstanceOf(NotFoundException);
+      await expect(service.findOneDraft('draft-1')).rejects.toBeInstanceOf(
+        NotFoundException,
+      );
     });
   });
 
@@ -117,17 +130,29 @@ describe('MediaAssetDraftsService', () => {
 
   describe('updateDraft', () => {
     it('should update draft content_url', async () => {
-      const existing = { media_asset_draft_id: 'draft-1', content_url: 'http://example.com/old.jpg' };
-      const updated = { ...existing, content_url: 'http://example.com/new.jpg' };
+      const existing = {
+        media_asset_draft_id: 'draft-1',
+        content_url: 'http://example.com/old.jpg',
+      };
+      const updated = {
+        ...existing,
+        content_url: 'http://example.com/new.jpg',
+      };
 
       mockPrisma.mediaAssetsDrafts.findFirst.mockResolvedValue(existing);
       mockPrisma.mediaAssetsDrafts.update.mockResolvedValue(updated);
 
-      const res = await service.updateDraft('draft-1', 'http://example.com/new.jpg');
+      const res = await service.updateDraft(
+        'draft-1',
+        'http://example.com/new.jpg',
+      );
       expect(res).toEqual(updated);
       expect(mockPrisma.mediaAssetsDrafts.update).toHaveBeenCalledWith({
         where: { media_asset_draft_id: 'draft-1' },
-        data: { content_url: 'http://example.com/new.jpg', updated_at: expect.any(Date) },
+        data: {
+          content_url: 'http://example.com/new.jpg',
+          updated_at: expect.any(Date),
+        },
       });
     });
   });
@@ -135,7 +160,7 @@ describe('MediaAssetDraftsService', () => {
   describe('deleteDraft', () => {
     it('should delete a draft', async () => {
       const existing = { media_asset_draft_id: 'draft-1' };
-      
+
       mockPrisma.mediaAssetsDrafts.findFirst.mockResolvedValue(existing);
       mockPrisma.mediaAssetsDrafts.delete.mockResolvedValue(existing);
 

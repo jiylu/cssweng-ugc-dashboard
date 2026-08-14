@@ -19,7 +19,10 @@ export class CreateCampaignDTO {
   @IsNotEmpty({ message: 'UGC creator ID is required.' })
   ugcId!: string;
 
-  @ApiProperty({ example: '550e8400-e29b-41d4-a716-446655440000', required: false })
+  @ApiProperty({
+    example: '550e8400-e29b-41d4-a716-446655440000',
+    required: false,
+  })
   @IsOptional()
   @IsString({ message: 'Client ID must be a string.' })
   clientId?: string;

@@ -7,6 +7,7 @@ import {
   Patch,
   Post,
   UploadedFiles,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { ContractsService } from './contracts.service';
@@ -28,6 +29,8 @@ import { UploadService } from 'src/shared/upload/upload.service';
 import { ContractSignaturesService } from './contract-signatures.service';
 import { ContractSignaturesEntity } from './entities/contract-signatures.entity';
 import { UserRoles } from '@prisma/client';
+import { RolesGuard } from 'src/shared/guards/roles.guard';
+import { Roles } from 'src/shared/decorators/roles.decorator';
 @Controller('contracts')
 export class ContractsController {
   constructor(
@@ -40,6 +43,7 @@ export class ContractsController {
 
   @ApiFindContractByPublicId()
   @Get(':publicId')
+  @UseGuards(RolesGuard)
   async findOne(@Param('publicId') publicId: string) {
     const contractId = await this.contractsService.resolvePublicId(publicId);
     const contract = await this.contractsService.findContractByUID(contractId);
@@ -49,6 +53,7 @@ export class ContractsController {
 
   @ApiFindContractByCampaignId()
   @Get('/campaign/:publicId')
+  @UseGuards(RolesGuard)
   async findOneByCampaignId(@Param('publicId') publicId: string) {
     const campaignId =
       await this.campaignsService.resolveCampaignPublicId(publicId);
@@ -64,6 +69,7 @@ export class ContractsController {
 
   @ApiGetContractSignatures()
   @Get('/signatures/:publicId')
+  @UseGuards(RolesGuard)
   async findManySignatures(@Param('publicId') publicId: string) {
     const contractId = await this.contractsService.resolvePublicId(publicId);
 
@@ -75,6 +81,7 @@ export class ContractsController {
 
   @ApiSignContract()
   @Post('/sign/:publicId')
+  @UseGuards(RolesGuard)
   @UseInterceptors(
     FileFieldsInterceptor([
       { name: 'signature', maxCount: 1 },
@@ -126,21 +133,6 @@ export class ContractsController {
         message: `Your client has signed the contract for ${campaign.project_name}, you may now sign the contract.`,
       });
     }
-
-    return plainToInstance(ContractsEntity, contract);
-  }
-
-  @ApiUpdateContractDetails()
-  @Patch(':publicId')
-  async update(
-    @Param('publicId') publicId: string,
-    @Body() dto: UpdateContractDTO,
-  ) {
-    const contractId = await this.contractsService.resolvePublicId(publicId);
-    const contract = await this.contractsService.updateContractDetails(
-      contractId,
-      dto,
-    );
 
     return plainToInstance(ContractsEntity, contract);
   }
