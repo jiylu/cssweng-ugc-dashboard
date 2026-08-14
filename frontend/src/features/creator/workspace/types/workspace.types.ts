@@ -1,5 +1,7 @@
 export type DeliverableType = 'COLLABORATION' | 'UGC';
 
+export type DeliverableStepStatus = "CURRENT" | "UPCOMING" | "COMPLETED"
+
 export interface Deliverable {
   deliverable_id: string;
   public_id: string;

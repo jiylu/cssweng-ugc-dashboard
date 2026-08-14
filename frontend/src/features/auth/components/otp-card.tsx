@@ -19,8 +19,8 @@ export default function OtpCard({ registerForm }: { registerForm: ReturnType<typ
     <section className="mx-auto w-full max-w-[760px] rounded border border-[#d8d4cb] bg-white px-8 py-10 max-md:px-5">
       <form onSubmit={registerForm.handleOtpSubmit} className="flex flex-col items-center">
         <h2 className="text-center text-[28px] text-[#141518]">Enter the 8-digit code sent to</h2>
-        <p className="mt-1 text-[#6b1fa8]">{registerForm.form.email}</p>
-        <div className="my-10 flex justify-center gap-4 max-sm:gap-1.5" onPaste={(event) => {
+        <p className="mt-1 max-w-full break-all text-center text-[#6b1fa8]">{registerForm.form.email}</p>
+        <div className="my-10 grid w-full max-w-[284px] grid-cols-8 justify-items-center gap-1" onPaste={(event) => {
           const pasted = event.clipboardData.getData("text").replace(/\D/g, "").slice(0, 8);
           if (pasted) { event.preventDefault(); registerForm.setOtp(pasted); inputs.current[Math.min(pasted.length, 7)]?.focus(); }
         }}>
@@ -30,7 +30,7 @@ export default function OtpCard({ registerForm }: { registerForm: ReturnType<typ
               onChange={(event) => updateDigit(index, event.target.value)} onKeyDown={(event) => {
                 if (event.key === "Backspace" && !digit.trim() && index > 0) inputs.current[index - 1]?.focus();
               }}
-              className="h-20 w-14 border border-[#9f9f9f] text-center text-3xl focus:border-[#6b1fa8] focus:outline-none max-sm:h-14 max-sm:w-9" />
+              className="h-12 w-full min-w-0 max-w-7 border border-[#9f9f9f] text-center text-lg focus:border-[#6b1fa8] focus:outline-none" />
           ))}
         </div>
         {registerForm.submitError && <p role="alert" className="mb-4 text-sm text-[#ff6467]">{registerForm.submitError}</p>}

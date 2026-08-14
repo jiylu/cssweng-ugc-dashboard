@@ -161,11 +161,11 @@ Write-Host '   contract signed by creator' -ForegroundColor Green
 
 Write-Host '=== STEP 7: POST /deliverable-submissions/written-assets (submit written asset)' -ForegroundColor Yellow
 $Env:DLVR_CAMPAIGN_PUBLIC = $campaignPublicId
-$deliverableItemId = & node --env-file=$EnvFile -e 'const{Client}=require("pg");(async()=>{const c=new Client({connectionString:process.env.DATABASE_URL});await c.connect();const r=await c.query("SELECT di.deliverable_item_id FROM \"DeliverableItems\" di JOIN \"Deliverables\" d ON d.deliverable_id=di.deliverable_id JOIN \"Campaigns\" c ON c.campaign_id=d.campaign_id WHERE c.public_id=$1 ORDER BY di.deliverable_index LIMIT 1",[process.env.DLVR_CAMPAIGN_PUBLIC]);await c.end();process.stdout.write(r.rows.length?r.rows[0].deliverable_item_id:"")})().catch(e=>{console.error(e.message);process.exit(1)})'
-if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($deliverableItemId)) { throw 'Could not resolve deliverable_item_id from database.' }
-Write-Host "   deliverableItemId=$deliverableItemId" -ForegroundColor Green
+$deliverableItemPublicId = & node --env-file=$EnvFile -e 'const{Client}=require("pg");(async()=>{const c=new Client({connectionString:process.env.DATABASE_URL});await c.connect();const r=await c.query("SELECT di.public_id FROM \"DeliverableItems\" di JOIN \"Deliverables\" d ON d.deliverable_id=di.deliverable_id JOIN \"Campaigns\" c ON c.campaign_id=d.campaign_id WHERE c.public_id=$1 ORDER BY di.deliverable_index LIMIT 1",[process.env.DLVR_CAMPAIGN_PUBLIC]);await c.end();process.stdout.write(r.rows.length?r.rows[0].public_id:"")})().catch(e=>{console.error(e.message);process.exit(1)})'
+if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($deliverableItemPublicId)) { throw 'Could not resolve deliverable_item_public_id from database.' }
+Write-Host "   deliverableItemPublicId=$deliverableItemPublicId" -ForegroundColor Green
 $wa1Body = @"
-{ "deliverableItemId": "$deliverableItemId", "content": "Draft caption and hashtags for the 60-second UGC video review of the product." }
+{ "deliverableItemPublicId": "$deliverableItemPublicId", "content": "Draft caption and hashtags for the 60-second UGC video review of the product." }
 "@
 $wa1File = Join-Path $Tmp 'written-asset-1.json'
 Set-Content -LiteralPath $wa1File -Value $wa1Body -Encoding utf8
@@ -184,7 +184,7 @@ Write-Host '   written asset revision requested' -ForegroundColor Green
 
 Write-Host '=== STEP 9: POST /deliverable-submissions/written-assets (resubmit written asset)' -ForegroundColor Yellow
 $wa2Body = @"
-{ "deliverableItemId": "$deliverableItemId", "content": "Updated caption with a more enthusiastic tone, a stronger call to action, and the agreed hashtags." }
+{ "deliverableItemPublicId": "$deliverableItemPublicId", "content": "Updated caption with a more enthusiastic tone, a stronger call to action, and the agreed hashtags." }
 "@
 $wa2File = Join-Path $Tmp 'written-asset-2.json'
 Set-Content -LiteralPath $wa2File -Value $wa2Body -Encoding utf8
@@ -198,8 +198,8 @@ Write-Host '   written asset approved' -ForegroundColor Green
 
 Write-Host '=== STEP 11: POST /deliverable-submissions/media-assets (submit media asset)' -ForegroundColor Yellow
 $form = @{
-    'deliverableItemId' = $deliverableItemId
-    'file'              = "@$($MediaPath -replace '\\', '/');type=image/png"
+    'deliverableItemPublicId' = $deliverableItemPublicId
+    'file'                    = "@$($MediaPath -replace '\\', '/');type=image/png"
 }
 $media = Request -Method POST -Path '/deliverable-submissions/media-assets' -Form $form | ConvertFrom-Json
 $mediaPublicId = $media.public_id
@@ -216,13 +216,17 @@ $form = @{
 $payment = Request -Method POST -Path '/payments/pay' -Query "campaignPublic=$campaignPublicId" -Form $form | ConvertFrom-Json
 Write-Host "   payment = $($payment.public_id)" -ForegroundColor Green
 
-Write-Host '=== STEP 14: GET /deliverable-items/deliverable/:publicId (list items for deliverable)' -ForegroundColor Yellow
+Write-Host '=== STEP 14: PATCH /payments/validate/:publicId (verify payment)' -ForegroundColor Yellow
+$validatedPayment = Request -Method PATCH -Path "/payments/validate/$($payment.public_id)" | ConvertFrom-Json
+Write-Host "   payment verified=$($validatedPayment.is_payment_verified)" -ForegroundColor Green
+
+Write-Host '=== STEP 15: GET /deliverable-items/deliverable/:publicId (list items for deliverable)' -ForegroundColor Yellow
 $items = @(Request -Method GET -Path "/deliverable-items/deliverable/$deliverablePublicId" | ConvertFrom-Json)
 if ($items.Count -eq 0) { throw 'No deliverable items returned for the deliverable.' }
 $deliverableItemPublicId = $items[0].public_id
 Write-Host "   deliverableItemPublicId=$deliverableItemPublicId" -ForegroundColor Green
 
-Write-Host '=== STEP 15: GET /deliverable-items/item/:publicId (get single deliverable item)' -ForegroundColor Yellow
+Write-Host '=== STEP 16: GET /deliverable-items/item/:publicId (get single deliverable item)' -ForegroundColor Yellow
 $item = Request -Method GET -Path "/deliverable-items/item/$deliverableItemPublicId" | ConvertFrom-Json
 Write-Host "   deliverable item index=$($item.deliverable_index) status=$($item.deliverable_item_status)" -ForegroundColor Green
 
@@ -231,5 +235,5 @@ Write-Host "campaign: $campaignPublicId" -ForegroundColor Green
 Write-Host "proposal: $proposalPublicId" -ForegroundColor Green
 Write-Host "contract: $contractPublicId" -ForegroundColor Green
 Write-Host "deliverable: $deliverablePublicId" -ForegroundColor Green
-Write-Host "deliverableItem: $deliverableItemId" -ForegroundColor Green
 Write-Host "deliverableItemPublic: $deliverableItemPublicId" -ForegroundColor Green
+Write-Host "payment: $($payment.public_id)" -ForegroundColor Green

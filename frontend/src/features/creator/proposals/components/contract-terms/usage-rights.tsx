@@ -35,7 +35,7 @@ export function UsageRights({
         <Separator />
 
         <div className="flex flex-col gap-1">
-          <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">INCLUDED ORGANIC USAGE</label>
+          <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">INCLUDED ORGANIC USAGE<span className="text-[#ff6467] ml-1">*</span></label>
           <Textarea
             value={includedOrganicUsage}
             onChange={(e) => setIncludedOrganicUsage(e.target.value)}
@@ -47,7 +47,7 @@ export function UsageRights({
 
         <div className="grid grid-cols-2 gap-4">
           <div className="flex flex-col gap-1">
-            <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">TERRITORY</label>
+            <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">TERRITORY<span className="text-[#ff6467] ml-1">*</span></label>
             <Input
               value={territory}
               onChange={(e) => setTerritory(e.target.value)}
@@ -76,19 +76,26 @@ export function UsageRights({
 
         {/* Content Retention */}
         <div className="flex flex-col gap-1">
-          <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">CONTENT RETENTION</label>
+          <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">CONTENT RETENTION<span className="text-[#ff6467] ml-1">*</span></label>
           <div className="flex items-center gap-2">
             <InputGroup className="border border-border p-1 rounded-[3px] bg-white w-full">
               <InputGroupInput
                 type="number"
+                min={1}
+                max={120}
                 value={contentRetention}
-                onChange={(e) => setContentRetention(Math.max(1, Number(e.target.value)))}
+                onChange={(e) => setContentRetention(Math.min(120, Math.max(1, Number(e.target.value))))}
                 className="border-0 p-0 h-auto text-sm shadow-none focus-visible:ring-0 px-2 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               />
               <InputGroupAddon align="inline-end">MONTHS</InputGroupAddon>
               <InputGroupAddon align="inline-end">
                 <div className="flex flex-col shrink-0 px-1.5">
-                  <ChevronUp size={12} className="cursor-pointer text-muted-foreground hover:text-foreground" onClick={() => setContentRetention(contentRetention + 1)} />
+                  <ChevronUp
+                    size={12}
+                    aria-disabled={contentRetention >= 120}
+                    className={contentRetention >= 120 ? "cursor-not-allowed text-muted-foreground opacity-40" : "cursor-pointer text-muted-foreground hover:text-foreground"}
+                    onClick={() => setContentRetention(Math.min(120, contentRetention + 1))}
+                  />
                   <ChevronDown size={12} className="cursor-pointer text-muted-foreground hover:text-foreground" onClick={() => setContentRetention(Math.max(1, contentRetention - 1))} />
                 </div>
               </InputGroupAddon>

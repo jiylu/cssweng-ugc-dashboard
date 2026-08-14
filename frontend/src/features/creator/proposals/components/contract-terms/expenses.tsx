@@ -30,7 +30,7 @@ export function Expenses({
 
         <div className="grid grid-cols-2 gap-4">
           <div className="flex flex-col gap-1">
-          <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">REIMBURSEMENT PERIOD</label>
+          <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">REIMBURSEMENT PERIOD<span className="text-[#ff6467] ml-1">*</span></label>
           <div className="flex items-center gap-2">
             <InputGroup className="border border-border rounded-[3px] bg-white w-full">
               <InputGroupAddon>
@@ -79,7 +79,7 @@ export function Expenses({
 
         <div className="flex flex-col gap-3">
           <div className="flex flex-col gap-1">
-            <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">CANCELLATION PERIOD</label>
+            <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">CANCELLATION PERIOD<span className="text-[#ff6467] ml-1">*</span></label>
             <div className="flex items-center gap-2">
               <InputGroup className="border border-border rounded-[3px] bg-white w-full">
                 <InputGroupAddon>

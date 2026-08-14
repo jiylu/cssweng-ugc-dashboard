@@ -1,6 +1,6 @@
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
-const tabs = ["ALL", "ACTIVE", "PENDING", "FOR REVISIONS", "COMPLETED"]
+const tabs = ["ALL", "ACTIVE", "REJECTED", "COMPLETED", "CANCELLED"]
 
 interface CampaignTabsProps {
   active: string
@@ -9,7 +9,6 @@ interface CampaignTabsProps {
 
 export function CampaignTabs({ active, onChange }: CampaignTabsProps) {
   return (
-    // TODO: Make tabs(filters) work
     <Tabs value={active} onValueChange={onChange}>
       <TabsList className="bg-transparent p-0 gap-6 h-auto">
         {tabs.map((tab) => (

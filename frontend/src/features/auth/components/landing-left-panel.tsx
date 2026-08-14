@@ -8,7 +8,7 @@ export default function LandingLeftPanel() {
       <div className="pointer-events-none absolute -left-5 bottom-5 h-55 w-55 rounded-full bg-[radial-gradient(circle,#22d34c_-50%,transparent_50%)]" />
 
       <Image
-        src="/Logo.svg"
+        src="/Logo-black.svg"
         alt="Logo"
         className="w-50 mb-10"
         width={30}

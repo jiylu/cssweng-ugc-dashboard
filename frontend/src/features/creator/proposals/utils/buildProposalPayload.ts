@@ -120,7 +120,7 @@ export function buildProposalPayload({ userId, form, contractTerms, paymentTerms
       },
       extra_notes: (contractTerms.extraNotes ?? "").trim(),
     },
-    addOns: addOns.addOns.map((a) => ({
+    addOns: addOns.addOns.filter((a) => a.isEnabled).map((a) => ({
       addOnName: a.title.trim(),
       description: (a.desc ?? "").trim(),
       fee: a.fee ?? 0,

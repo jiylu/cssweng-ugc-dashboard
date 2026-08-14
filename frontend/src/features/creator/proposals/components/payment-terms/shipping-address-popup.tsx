@@ -60,6 +60,7 @@ export function ShippingAddressPopup({ open, onClose, form, errors, onFieldChang
             onChange={(v) => onFieldChange("addressLine1", v)}
             error={errors.addressLine1}
             helper="Street address, P.O. box, company name, c/o"
+            required
           />
 
           <AddressField
@@ -78,6 +79,7 @@ export function ShippingAddressPopup({ open, onClose, form, errors, onFieldChang
               placeholder="Country"
               loading={loadingCountries}
               error={errors.country}
+              required
             />
             <LocationSelectField
               label="State/Province"
@@ -88,6 +90,7 @@ export function ShippingAddressPopup({ open, onClose, form, errors, onFieldChang
               loading={loadingStates}
               disabled={!form.country}
               error={errors.stateProvince}
+              required
             />
           </div>
 
@@ -101,6 +104,7 @@ export function ShippingAddressPopup({ open, onClose, form, errors, onFieldChang
               loading={loadingCities}
               disabled={!form.stateProvince}
               error={errors.city}
+              required
             />
             <AddressField
               label="Zip Code"
@@ -108,6 +112,7 @@ export function ShippingAddressPopup({ open, onClose, form, errors, onFieldChang
               onChange={(v) => onFieldChange("zipCode", v)}
               placeholder="Enter Zip Code"
               error={errors.zipCode}
+              required
             />
           </div>
 

@@ -11,26 +11,33 @@ import { Input } from "@/components/ui/input";
 import Button from "@/src/components/atoms/button";
 import SignatureField from "./signature-field";
 import { signContract } from "../services/contracts-api";
+import { acceptProposal } from "../../proposals/services/proposals-api";
 
 interface SignContractModalProps {
   contractPublicId: string;
+  proposalPublicId?: string;
 }
 
-export default function SignContractModal({ contractPublicId }: SignContractModalProps) {
+export default function SignContractModal({ contractPublicId, proposalPublicId }: SignContractModalProps) {
   const router = useRouter();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [signatureDataUrl, setSignatureDataUrl] = useState("");
   const [initialsDataUrl, setInitialsDataUrl] = useState("");
   const signingMutation = useMutation({
-    mutationFn: () =>
-      signContract(contractPublicId, {
+    mutationFn: async () => {
+      await signContract(contractPublicId, {
         signatureDataUrl,
         initialsDataUrl,
         signerRole: "CLIENT",
-      }),
+      });
+
+      if (proposalPublicId) {
+        await acceptProposal(proposalPublicId);
+      }
+    },
     onSuccess: () => {
-      toast.success("Contract signed successfully.");
+      toast.success("Contract signed and proposal accepted.");
       router.push("/dashboard");
     },
     onError: (error) =>
@@ -51,36 +58,37 @@ export default function SignContractModal({ contractPublicId }: SignContractModa
           Accept and Sign Contract
         </Button>
       </DialogTrigger>
-      <DialogContent className="min-w-xl max-w-3xl bg-[#f2f0ea]">
+      <DialogContent className="max-h-[90vh] min-w-3xl max-w-5xl overflow-y-auto bg-[#f2f0ea]">
         <DialogHeader>
           <DialogTitle
-            className="text-[#6b1fa8] text-xl font-normal"
+            className="text-xl font-normal text-[#6b1fa8]"
           >
             Adopt Your Signature
           </DialogTitle>
+        </DialogHeader>
 
-          <Card
-            className="rounded-none p-3.5"
-          >
+        <Card
+          className="flex flex-col gap-4 rounded-none p-4"
+        >
             <span className="text-[#78746e] font-light">Confirm your name, initials, and signature</span>
             <div className="flex gap-6">
-              <Field className="flex flex-col gap-1.5">
+              <Field className="flex flex-1 flex-col gap-1.5">
                 <FieldLabel htmlFor="firstname-input">First Name</FieldLabel>
                 <Input
                   id="firstname-input"
                   placeholder="Enter First Name"
-                  className="w-64 border-[#78746e]"
+                  className="w-full border-[#78746e]"
                   value={firstName}
                   onChange={(event) => setFirstName(event.target.value)}
                 />
               </Field>
           
-              <Field className="flex flex-col gap-1.5">
+              <Field className="flex flex-1 flex-col gap-1.5">
                 <FieldLabel htmlFor="lastname-input">Last Name</FieldLabel>
                 <Input
                   id="lastname-input"
                   placeholder="Enter Last Name"
-                  className="w-64 border-[#78746e]"
+                  className="w-full border-[#78746e]"
                   value={lastName}
                   onChange={(event) => setLastName(event.target.value)}
                 />
@@ -89,18 +97,18 @@ export default function SignContractModal({ contractPublicId }: SignContractModa
 
             </div>
 
-            <div className="flex gap-8 rounded-lg border border-input/40 p-4">
+            <div className="flex gap-8 rounded-lg border border-input/40 p-6">
               <SignatureField
                 label="Signed by:"
                 id={contractPublicId}
-                className="w-64"
-                height={50}
+                className="flex-1"
+                height={120}
                 onChange={setSignatureDataUrl}
               />
               <SignatureField
                 label="Initials"
-                height={50}
-                className="w-24"
+                height={120}
+                className="w-48"
                 onChange={setInitialsDataUrl}
               />
             </div>
@@ -131,7 +139,6 @@ export default function SignContractModal({ contractPublicId }: SignContractModa
             </div>
             
           </Card>
-        </DialogHeader>
       </DialogContent>
     </Dialog>
   )

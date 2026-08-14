@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { Bell } from "lucide-react";
 import type { AuthUser } from "@/src/features/auth/schemas/auth-user.schema";
 
@@ -26,18 +25,24 @@ export default function ClientDashboardHeader({
           <Bell className="size-8" />
         </button>
         <div className="flex items-center gap-3">
-          <div className="text-right">
-            <p className="text-base leading-tight text-[#141518]">
-              {user.first_name} {user.last_name}
-            </p>
+          <div className="flex flex-col items-end">
+            <div className="mb-0.5 flex items-center gap-2">
+              <span className="inline-flex translate-y-[-2px] items-center justify-center rounded-full bg-[#6b1fa8]/10 px-2.5 py-1 text-xs font-medium text-[#6b1fa8]">
+                <span className="-mb-[3px]">Client</span>
+              </span>
+              <p className="text-base leading-tight text-[#141518]">
+                {user.first_name} {user.last_name}
+              </p>
+            </div>
             <p className="text-sm text-[#7b7771]">{user.email}</p>
           </div>
-          <Image
-            src="/default-profile.png"
-            alt=""
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={user.profile_picture_url || "/default-profile.png"}
+            alt={`${user.first_name} ${user.last_name}`.trim() || "Profile"}
             width={46}
             height={46}
-            className="size-[46px] rounded-full"
+            className="size-[46px] rounded-full object-cover"
           />
         </div>
       </div>

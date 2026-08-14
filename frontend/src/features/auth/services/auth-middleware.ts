@@ -1,7 +1,13 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import { authUserSchema, type AuthUser } from "@/src/features/auth/schemas/auth-user.schema";
-import { getAuthenticatedHomeRoute, LOGIN_ROUTE } from "@/src/features/auth/utils/auth-routes";
+import {
+  authUserSchema,
+  type AuthUser,
+} from "@/src/features/auth/schemas/auth-user.schema";
+import {
+  getAuthenticatedHomeRoute,
+  LOGIN_ROUTE,
+} from "@/src/features/auth/utils/auth-routes";
 
 const AUTH_COOKIE_NAME = "ugc_auth_session";
 const DEFAULT_API_URL = "http://localhost:8080";
@@ -24,14 +30,17 @@ const guestOnlyRoutes = [
   LOGIN_ROUTE,
   "/creator-register",
   "/client-register",
+  "/forgot-password",
+  "/reset-password",
 ];
 
 function getApiBaseUrl() {
   const configuredUrl =
-    process.env.INTERNAL_API_URL?.replace(/\/$/, "") ??
-    DEFAULT_API_URL;
+    process.env.INTERNAL_API_URL?.replace(/\/$/, "") ?? DEFAULT_API_URL;
 
-  return configuredUrl.endsWith("/api") ? configuredUrl : `${configuredUrl}/api`;
+  return configuredUrl.endsWith("/api")
+    ? configuredUrl
+    : `${configuredUrl}/api`;
 }
 
 function isRouteMatch(pathname: string, routes: string[]) {

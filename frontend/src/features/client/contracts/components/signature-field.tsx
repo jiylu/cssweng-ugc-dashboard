@@ -2,6 +2,44 @@ import * as React from "react"
 import SignatureCanvas from "react-signature-canvas"
 import { cn } from "@/lib/utils"
 
+function getTrimmedCanvas(canvas: HTMLCanvasElement): HTMLCanvasElement {
+  const context = canvas.getContext("2d")
+  if (!context) return canvas
+
+  const width = canvas.width
+  const height = canvas.height
+  const data = context.getImageData(0, 0, width, height).data
+
+  let minX = width
+  let minY = height
+  let maxX = 0
+  let maxY = 0
+
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      if (data[(y * width + x) * 4 + 3] > 0) {
+        if (x < minX) minX = x
+        if (x > maxX) maxX = x
+        if (y < minY) minY = y
+        if (y > maxY) maxY = y
+      }
+    }
+  }
+
+  if (maxX < minX || maxY < minY) return canvas
+
+  const trimmed = document.createElement("canvas")
+  trimmed.width = maxX - minX + 1
+  trimmed.height = maxY - minY + 1
+  trimmed.getContext("2d")?.putImageData(
+    context.getImageData(minX, minY, maxX - minX + 1, maxY - minY + 1),
+    0,
+    0,
+  )
+
+  return trimmed
+}
+
 function Corner({ className }: { className?: string }) {
   return (
     <svg
@@ -76,7 +114,7 @@ export default function SignatureField({
                 const signature = sigRef.current
                 if (!signature || signature.isEmpty()) return
 
-                onChange?.(signature.getTrimmedCanvas().toDataURL("image/png"))
+                onChange?.(signature.getCanvas().toDataURL("image/png"))
               }}
             />
           )}

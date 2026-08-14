@@ -8,6 +8,7 @@ import { ChevronUp, ChevronDown } from "lucide-react"
 import { adjustPriceValue } from "@/src/features/creator/proposals/utils/formatPrice"
 
 interface ExclusivityProps {
+  campaignDates: { startDate: string; endDate: string }
   hasExclusivity: boolean
   setHasExclusivity: (v: boolean) => void
   exclusivityCategory: string
@@ -26,7 +27,13 @@ interface ExclusivityProps {
   errors: Record<string, string>
 }
 
-export function Exclusivity({ 
+function parseCalendarDate(value: string): Date | undefined {
+  const [year, month, day] = value.split("T")[0].split("-").map(Number)
+  if (!year || !month || !day) return undefined
+  return new Date(year, month - 1, day)
+}
+
+export function Exclusivity({ campaignDates,
                               hasExclusivity, setHasExclusivity, 
                               exclusivityCategory, setExclusivityCategory, 
                               exclusivityCompetitorList, setExclusivityCompetitorList, 
@@ -36,6 +43,12 @@ export function Exclusivity({
                               exclusivityTerritory, setExclusivityTerritory, 
                               currency, errors }: ExclusivityProps) 
                             {
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const campaignStart = parseCalendarDate(campaignDates.startDate)
+  const minimumDate = campaignStart && campaignStart > today ? campaignStart : today
+  const maximumDate = parseCalendarDate(campaignDates.endDate)
+
   return (
     <Card className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
@@ -55,7 +68,7 @@ export function Exclusivity({
           <Separator />
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-1">
-              <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">CATEGORY</label>
+              <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">CATEGORY<span className="text-[#ff6467] ml-1">*</span></label>
               <Input
                 value={exclusivityCategory}
                 onChange={(e) => setExclusivityCategory(e.target.value)}
@@ -65,7 +78,7 @@ export function Exclusivity({
               {errors.exclusivityCategory && <p className="text-xs mt-1 text-[#ff6467]">{errors.exclusivityCategory}</p>}
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">COMPETITOR LIST</label>
+              <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">COMPETITOR LIST<span className="text-[#ff6467] ml-1">*</span></label>
               <Input
                 value={exclusivityCompetitorList}
                 onChange={(e) => setExclusivityCompetitorList(e.target.value)}
@@ -78,17 +91,17 @@ export function Exclusivity({
 
           <div className="grid grid-cols-3 gap-4">
             <div className="flex flex-col gap-1">
-              <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">START DATE</label>
-              <DatePickerInput value={exclusivityStartDate} onChange={setExclusivityStartDate} placeholder="Set exclusivity start date" />
+              <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">START DATE<span className="text-[#ff6467] ml-1">*</span></label>
+              <DatePickerInput value={exclusivityStartDate} onChange={setExclusivityStartDate} placeholder="Set exclusivity start date" minDate={minimumDate} maxDate={maximumDate} />
               {errors.exclusivityStartDate && <p className="text-xs mt-1 text-[#ff6467]">{errors.exclusivityStartDate}</p>}
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">END DATE</label>
-              <DatePickerInput value={exclusivityEndDate} onChange={setExclusivityEndDate} placeholder="Set exclusivity end date" />
+              <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">END DATE<span className="text-[#ff6467] ml-1">*</span></label>
+              <DatePickerInput value={exclusivityEndDate} onChange={setExclusivityEndDate} placeholder="Set exclusivity end date" minDate={minimumDate} maxDate={maximumDate} />
               {errors.exclusivityEndDate && <p className="text-xs mt-1 text-[#ff6467]">{errors.exclusivityEndDate}</p>}
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">EXCLUSIVITY FEE</label>
+              <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">EXCLUSIVITY FEE<span className="text-[#ff6467] ml-1">*</span></label>
               <div className="flex items-center gap-1">
                 <InputGroup className="border border-border rounded-[3px]">
                   <InputGroupInput

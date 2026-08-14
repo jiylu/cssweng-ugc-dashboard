@@ -43,6 +43,7 @@ export function ContractTermsContainer({ contractTerms, currency, campaignDates,
           errors={contractTerms.errors}
         />
         <Exclusivity
+          campaignDates={campaignDates}
           hasExclusivity={contractTerms.hasExclusivity}
           setHasExclusivity={contractTerms.setHasExclusivity}
           exclusivityCategory={contractTerms.exclusivityCategory}

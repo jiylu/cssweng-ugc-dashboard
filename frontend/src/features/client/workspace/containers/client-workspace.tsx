@@ -1,15 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import Image from "next/image";
+import { useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
-  Bell,
   Check,
-  ChevronLeft,
-  ChevronRight,
   FileText,
   History,
   Loader2,
@@ -27,6 +23,8 @@ import LogoLoader from "@/src/components/molecules/logo-loader";
 import { useAuth } from "@/src/features/auth/hooks/useAuth";
 import { logoutUser } from "@/src/features/auth/services/auth-session";
 import ClientSidebar from "@/src/features/client/dashboard/components/client-sidebar";
+import { ClientDeliverablesSidebar } from "@/src/features/client/workspace/components/client-deliverables-sidebar";
+import { ClientWorkspaceHeader } from "@/src/features/client/workspace/components/client-workspace-header";
 import { useCampaignSetup } from "@/src/features/creator/workspace/hooks/useCampaignSetup";
 import { useDeliverableItems } from "@/src/features/client/workspace/hooks/useDeliverableItems";
 import {
@@ -41,49 +39,71 @@ import {
   type WrittenAsset,
   type MediaAsset,
 } from "@/src/features/client/workspace/services/deliverable-submissions-api";
+import {
+  getPaymentForCampaign,
+  uploadPaymentProof,
+} from "@/src/features/client/workspace/services/payments-api";
 
 const STEPS = [
   "Contract Signing",
-  "Script Drafting",
-  "Video Submission",
+  "Deliverable Submission",
   "Invoicing",
   "Completion",
 ] as const;
 
-function formatDueDate(value?: string) {
-  if (!value) return "Date to be confirmed";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-  return new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    day: "2-digit",
-    year: "numeric",
-    timeZone: "UTC",
-  }).format(date);
-}
-
 // ── Progress Bar ───────────────────────────────────────────────────────────────
 
-function Progress({ activeStep, onChange }: { activeStep: number; onChange: (step: number) => void }) {
+function Progress({
+  activeStep,
+  onChange,
+}: {
+  activeStep: number;
+  onChange: (step: number) => void;
+}) {
   return (
-    <div className="min-w-0 flex-1">
-      <p className="mb-5 text-lg text-[#141518]">Campaign Progress</p>
-      <div className="flex items-start">
+    <div className="flex flex-col gap-2">
+      <p className="text-sm text-muted-foreground">Campaign Progress</p>
+      <div className="flex items-center">
         {STEPS.map((step, index) => (
-          <div key={step} className={cn("flex items-start", index < STEPS.length - 1 && "flex-1")}>
-            <button type="button" className="group flex shrink-0 flex-col items-center gap-2" onClick={() => onChange(index)}>
+          <div
+            key={step}
+            className={cn(
+              "flex items-center",
+            )}
+          >
+            <button
+              type="button"
+              className="group flex flex-col items-center gap-1"
+              onClick={() => onChange(index)}
+            >
               <span
                 className={cn(
-                  "size-5 rounded-[4px] border-2 transition-transform group-hover:scale-110",
-                  index < activeStep && "border-[#1f8a4a] bg-[#1f8a4a]",
-                  index === activeStep && "border-[#6b1fa8] bg-[#6b1fa8]",
-                  index > activeStep && "border-[#bcb9b2] bg-[#bcb9b2]",
+                  "size-5 rounded-[3px] border-2 transition-colors",
+                  index < activeStep
+                    ? "border-[#2d7a3a] bg-[#2d7a3a]"
+                    : index === activeStep
+                      ? "border-[#6b1fa8] bg-[#6b1fa8]"
+                      : "border-border bg-transparent",
                 )}
               />
-              <span className={cn("whitespace-nowrap text-[10px] text-[#6f6a63]", index === activeStep && "text-[#6b1fa8]")}>{step}</span>
+              <span
+                className={cn(
+                  "whitespace-nowrap text-[11px]",
+                  index === activeStep
+                    ? "text-[#6b1fa8]"
+                    : "text-muted-foreground",
+                )}
+              >
+                {step}
+              </span>
             </button>
             {index < STEPS.length - 1 && (
-              <span className={cn("mt-[9px] h-[2px] min-w-8 flex-1 bg-[#bcb9b2]", index < activeStep && "bg-[#1f8a4a]")} />
+              <span
+                className={cn(
+                  "mx-1 mb-4 h-px w-24",
+                  index < activeStep ? "bg-[#2d7a3a]" : "bg-border",
+                )}
+              />
             )}
           </div>
         ))}
@@ -94,7 +114,13 @@ function Progress({ activeStep, onChange }: { activeStep: number; onChange: (ste
 
 // ── Media Preview ──────────────────────────────────────────────────────────────
 
-function MediaPreview({ onOpen, contentUrl }: { onOpen: () => void; contentUrl?: string }) {
+function MediaPreview({
+  onOpen,
+  contentUrl,
+}: {
+  onOpen: () => void;
+  contentUrl?: string;
+}) {
   return (
     <button
       type="button"
@@ -103,7 +129,10 @@ function MediaPreview({ onOpen, contentUrl }: { onOpen: () => void; contentUrl?:
       aria-label="Preview submitted video"
     >
       {contentUrl ? (
-        <video src={contentUrl} className="max-h-[260px] w-full object-contain" />
+        <video
+          src={contentUrl}
+          className="max-h-[260px] w-full object-contain"
+        />
       ) : (
         <span className="flex size-16 items-center justify-center rounded-full border-[4px] border-[#141518] transition-transform group-hover:scale-105">
           <Play className="ml-1 size-8 fill-[#141518]" />
@@ -114,6 +143,21 @@ function MediaPreview({ onOpen, contentUrl }: { onOpen: () => void; contentUrl?:
 }
 
 // ── Written Asset Panel (Wired) ────────────────────────────────────────────────
+
+const RICH_TEXT_TAGS = new Set([
+  "p", "br", "strong", "b", "em", "i", "u", "s", "ul", "ol", "li",
+  "h1", "h2", "h3", "h4", "blockquote",
+]);
+
+function sanitizeRichText(content: string) {
+  return content
+    .replace(/<(script|style|iframe|object|embed)[^>]*>[\s\S]*?<\/\1>/gi, "")
+    .replace(/<\/?([a-z0-9]+)(?:\s[^>]*)?>/gi, (tag, name: string) => {
+      const normalizedName = name.toLowerCase();
+      if (!RICH_TEXT_TAGS.has(normalizedName)) return "";
+      return tag.startsWith("</") ? `</${normalizedName}>` : `<${normalizedName}>`;
+    });
+}
 
 function WrittenAssetPanel({
   asset,
@@ -130,7 +174,11 @@ function WrittenAssetPanel({
         <h2 className="text-2xl text-[#141518]">Written Assets</h2>
         <div className="flex items-center gap-3 text-sm text-[#6f6a63]">
           {asset && <span>Version {asset.version_number}</span>}
-          <Button variant="outline" className="h-9 rounded border-[#6b1fa8] px-5 font-normal" onClick={onHistory}>
+          <Button
+            variant="outline"
+            className="h-9 rounded border-[#6b1fa8] px-5 font-normal"
+            onClick={onHistory}
+          >
             <History className="mr-2 size-4" /> History
           </Button>
         </div>
@@ -141,19 +189,25 @@ function WrittenAssetPanel({
         </div>
       ) : asset ? (
         <div className="pt-5">
-          <div className="min-h-[200px] rounded border border-[#d8d4cb] p-5 text-sm leading-6 text-[#44403b] whitespace-pre-wrap">
-            {asset.content}
-          </div>
+          <div
+            className="prose prose-sm min-h-[200px] max-w-none rounded border border-[#d8d4cb] p-5 leading-6 text-[#44403b]"
+            dangerouslySetInnerHTML={{ __html: sanitizeRichText(asset.content) }}
+          />
           {asset.client_comments && (
             <div className="mt-4 rounded border border-amber-200 bg-amber-50 p-3">
-              <p className="text-xs font-medium text-amber-800">Previous Feedback:</p>
-              <p className="mt-1 text-sm text-amber-700">{asset.client_comments}</p>
+              <p className="text-xs font-medium text-amber-800">
+                Previous Feedback:
+              </p>
+              <p className="mt-1 text-sm text-amber-700">
+                {asset.client_comments}
+              </p>
             </div>
           )}
         </div>
       ) : (
         <p className="pt-7 text-sm italic leading-6 text-[#77736d]">
-          The creator has not submitted a script yet. The latest written draft will appear here once it has been submitted for approval.
+          The creator has not submitted a script yet. The latest written draft
+          will appear here once it has been submitted for approval.
         </p>
       )}
     </section>
@@ -179,7 +233,11 @@ function MediaAssetPanel({
         <h2 className="text-2xl text-[#141518]">Video</h2>
         <div className="flex items-center gap-3 text-sm text-[#6f6a63]">
           {asset && <span>Version {asset.version_number}</span>}
-          <Button variant="outline" className="h-9 rounded border-[#6b1fa8] px-5 font-normal" onClick={onHistory}>
+          <Button
+            variant="outline"
+            className="h-9 rounded border-[#6b1fa8] px-5 font-normal"
+            onClick={onHistory}
+          >
             <History className="mr-2 size-4" /> History
           </Button>
         </div>
@@ -193,14 +251,19 @@ function MediaAssetPanel({
           <MediaPreview onOpen={onPreview} contentUrl={asset.content_url} />
           {asset.client_comments && (
             <div className="mt-4 rounded border border-amber-200 bg-amber-50 p-3">
-              <p className="text-xs font-medium text-amber-800">Previous Feedback:</p>
-              <p className="mt-1 text-sm text-amber-700">{asset.client_comments}</p>
+              <p className="text-xs font-medium text-amber-800">
+                Previous Feedback:
+              </p>
+              <p className="mt-1 text-sm text-amber-700">
+                {asset.client_comments}
+              </p>
             </div>
           )}
         </div>
       ) : (
         <p className="pt-7 text-sm italic leading-6 text-[#77736d]">
-          The creator has not submitted a video yet. The latest media submission will appear here once it has been uploaded for approval.
+          The creator has not submitted a video yet. The latest media submission
+          will appear here once it has been uploaded for approval.
         </p>
       )}
     </section>
@@ -210,14 +273,14 @@ function MediaAssetPanel({
 // ── Feedback Actions (Wired) ───────────────────────────────────────────────────
 
 function FeedbackActions({
-  activeStep,
+  submissionStep,
   writtenAssetPublicId,
   mediaAssetPublicId,
   writtenAssetAction,
   mediaAssetAction,
   onMutationSuccess,
 }: {
-  activeStep: number;
+  submissionStep: number;
   writtenAssetPublicId: string | undefined;
   mediaAssetPublicId: string | undefined;
   writtenAssetAction: string | undefined;
@@ -225,8 +288,10 @@ function FeedbackActions({
   onMutationSuccess: () => void;
 }) {
   const [feedback, setFeedback] = useState("");
-  const isWrittenStep = activeStep <= 1;
-  const currentAssetPublicId = isWrittenStep ? writtenAssetPublicId : mediaAssetPublicId;
+  const isWrittenStep = submissionStep === 0;
+  const currentAssetPublicId = isWrittenStep
+    ? writtenAssetPublicId
+    : mediaAssetPublicId;
   const currentAction = isWrittenStep ? writtenAssetAction : mediaAssetAction;
   const isAlreadyApproved = currentAction === "APPROVE";
 
@@ -238,12 +303,18 @@ function FeedbackActions({
         : approveMediaAsset(currentAssetPublicId);
     },
     onSuccess: () => {
-      toast.success(isWrittenStep ? "Script approved successfully." : "Video approved successfully.");
+      toast.success(
+        isWrittenStep
+          ? "Script approved successfully."
+          : "Video approved successfully.",
+      );
       setFeedback("");
       onMutationSuccess();
     },
     onError: (error) =>
-      toast.error(error instanceof Error ? error.message : "Unable to approve."),
+      toast.error(
+        error instanceof Error ? error.message : "Unable to approve.",
+      ),
   });
 
   const reviseMutation = useMutation({
@@ -259,11 +330,14 @@ function FeedbackActions({
       onMutationSuccess();
     },
     onError: (error) =>
-      toast.error(error instanceof Error ? error.message : "Unable to request revision."),
+      toast.error(
+        error instanceof Error ? error.message : "Unable to request revision.",
+      ),
   });
 
   const isPending = approveMutation.isPending || reviseMutation.isPending;
-  const canRevise = feedback.trim().length >= 30 && feedback.trim().length <= 500;
+  const canRevise =
+    feedback.trim().length >= 30 && feedback.trim().length <= 500;
 
   return (
     <aside className="w-[250px] shrink-0 rounded border border-[#d8d4cb] bg-white p-5 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
@@ -273,12 +347,15 @@ function FeedbackActions({
         <div className="mt-4 flex flex-col items-center gap-2 text-center">
           <Check className="size-8 text-[#1f8a4a]" />
           <p className="text-sm text-[#6f6a63]">
-            {isWrittenStep ? "Script has been approved." : "Video has been approved."}
+            {isWrittenStep
+              ? "Script has been approved."
+              : "Video has been approved."}
           </p>
         </div>
       ) : !currentAssetPublicId ? (
         <p className="mt-4 text-sm italic text-[#77736d]">
-          Waiting for the creator to submit {isWrittenStep ? "a script" : "a video"} before you can review.
+          Waiting for the creator to submit{" "}
+          {isWrittenStep ? "a script" : "a video"} before you can review.
         </p>
       ) : (
         <>
@@ -289,11 +366,16 @@ function FeedbackActions({
             className="mt-4 min-h-[120px] resize-none rounded border-[#77736d] text-sm focus-visible:ring-[#6b1fa8]"
             disabled={isPending}
           />
-          <p className={cn(
-            "mt-1 text-xs",
-            feedback.length > 0 && feedback.length < 30 ? "text-red-500" : "text-[#6f6a63]",
-          )}>
-            {feedback.length}/500 {feedback.length > 0 && feedback.length < 30 && "(min 30 chars)"}
+          <p
+            className={cn(
+              "mt-1 text-xs",
+              feedback.length > 0 && feedback.length < 30
+                ? "text-red-500"
+                : "text-[#6f6a63]",
+            )}
+          >
+            {feedback.length}/500{" "}
+            {feedback.length > 0 && feedback.length < 30 && "(min 30 chars)"}
           </p>
           <div className="mt-4 grid grid-cols-2 gap-3">
             <Button
@@ -301,7 +383,9 @@ function FeedbackActions({
               onClick={() => approveMutation.mutate()}
               disabled={isPending}
             >
-              {approveMutation.isPending ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
+              {approveMutation.isPending ? (
+                <Loader2 className="mr-2 size-4 animate-spin" />
+              ) : null}
               Accept
             </Button>
             <Button
@@ -310,7 +394,9 @@ function FeedbackActions({
               onClick={() => reviseMutation.mutate()}
               disabled={isPending || !canRevise}
             >
-              {reviseMutation.isPending ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
+              {reviseMutation.isPending ? (
+                <Loader2 className="mr-2 size-4 animate-spin" />
+              ) : null}
               Revise
             </Button>
           </div>
@@ -327,7 +413,8 @@ function ContractSigningPlaceholder() {
     <section className="flex min-h-[350px] flex-1 flex-col items-center justify-center rounded border border-[#d8d4cb] bg-white p-7 text-center">
       <FileText className="size-12 text-[#6b1fa8]" strokeWidth={1.6} />
       <p className="mt-4 max-w-lg text-sm leading-5 text-[#44403b]">
-        The contract for this campaign needs to be reviewed and signed. Please check your proposal invitation or visit the contract review page.
+        The contract for this campaign needs to be reviewed and signed. Please
+        check your proposal invitation or visit the contract review page.
       </p>
     </section>
   );
@@ -335,36 +422,131 @@ function ContractSigningPlaceholder() {
 
 // ── Invoice Panel ──────────────────────────────────────────────────────────────
 
-function InvoicePanel() {
+function InvoicePanel({ campaignId }: { campaignId: string }) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [invoiceOpen, setInvoiceOpen] = useState(false);
+  const { data: payment, isFetching: isLoadingInvoice, refetch: loadInvoice } =
+    useQuery({
+      queryKey: ["payment", campaignId],
+      queryFn: () => getPaymentForCampaign(campaignId),
+      enabled: false,
+    });
+
+  const handleViewInvoice = async () => {
+    const result = await loadInvoice();
+    if (result.error) {
+      toast.error(
+        result.error instanceof Error ? result.error.message : "Unable to load invoice.",
+      );
+      return;
+    }
+    if (!result.data) {
+      toast.info("No payment proof has been uploaded yet.");
+      return;
+    }
+    setInvoiceOpen(true);
+  };
+
+  const handleProofSelection = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please upload an image file as proof of payment.");
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      await uploadPaymentProof(campaignId, file);
+      toast.success("Proof of payment uploaded successfully.");
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Unable to upload proof of payment.",
+      );
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   return (
     <section className="flex min-h-[350px] flex-1 flex-col rounded border border-[#d8d4cb] bg-white p-7">
-      <h2 className="border-b border-[#d8d4cb] pb-3 text-2xl">Invoice Details</h2>
+      <h2 className="border-b border-[#d8d4cb] pb-3 text-2xl">
+        Invoice Details
+      </h2>
       <div className="flex flex-1 flex-col items-center justify-center text-center">
         <ReceiptText className="size-12 text-[#6b1fa8]" strokeWidth={1.6} />
         <p className="mt-4 max-w-lg text-sm leading-5 text-[#44403b]">
-          The final itemized breakdown of services, fees, and pay-outs is available for review. Once payment is confirmed, upload the proof of payment here.
+          The final itemized breakdown of services, fees, and pay-outs is
+          available for review. Once payment is confirmed, upload the proof of
+          payment here.
         </p>
-        <Button className="mt-5 rounded bg-[#6b1fa8] font-normal hover:bg-[#551783]">
-          View Invoice <FileText className="ml-2 size-4" />
+        <Button
+          type="button"
+          className="mt-5 rounded bg-[#6b1fa8] font-normal hover:bg-[#551783]"
+          onClick={handleViewInvoice}
+          disabled={isLoadingInvoice}
+        >
+          {isLoadingInvoice ? "Loading..." : "View Invoice"}
+          <FileText className="ml-2 size-4" />
         </Button>
-        <Button className="mt-3 rounded bg-[#6b1fa8] font-normal hover:bg-[#551783]">
-          Upload Proof of Payment <UploadCloud className="ml-2 size-4" />
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={handleProofSelection}
+        />
+        <Button
+          type="button"
+          className="mt-3 rounded bg-[#6b1fa8] font-normal hover:bg-[#551783]"
+          onClick={() => fileInputRef.current?.click()}
+          disabled={isUploading}
+        >
+          {isUploading ? "Uploading..." : "Upload Proof of Payment"}
+          <UploadCloud className="ml-2 size-4" />
         </Button>
       </div>
+
+      <Dialog open={invoiceOpen} onOpenChange={setInvoiceOpen}>
+        <DialogContent className="max-h-[95vh] !max-w-5xl overflow-y-auto border-[#d8d4cb] bg-[#f2f0ea] p-8">
+          <DialogTitle className="text-3xl font-normal">Invoice</DialogTitle>
+          {payment?.proof_payment_url ? (
+            <div className="mt-5 rounded border border-[#d8d4cb] bg-white p-5">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={payment.proof_payment_url}
+                alt="Uploaded proof of payment"
+                className="max-h-[78vh] w-full object-contain"
+              />
+            </div>
+          ) : null}
+        </DialogContent>
+      </Dialog>
     </section>
   );
 }
 
 // ── Main Client Workspace ──────────────────────────────────────────────────────
 
-export default function ClientWorkspace({ campaignId }: { campaignId: string }) {
+export default function ClientWorkspace({
+  campaignId,
+}: {
+  campaignId: string;
+}) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const { user, loading } = useAuth();
   const { data, isLoading: campaignLoading } = useCampaignSetup(campaignId);
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
+  const [activeSubmissionStep, setActiveSubmissionStep] = useState(0);
   const [activeDeliverable, setActiveDeliverable] = useState(0);
+  const [activeDeliverableItem, setActiveDeliverableItem] = useState(0);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
 
@@ -376,14 +558,17 @@ export default function ClientWorkspace({ campaignId }: { campaignId: string }) 
   const selectedDeliverable = deliverables[activeDeliverable];
 
   // Fetch deliverable items for the selected deliverable
-  const { data: deliverableItems } = useDeliverableItems(selectedDeliverable?.public_id);
+  const { data: deliverableItems } = useDeliverableItems(
+    selectedDeliverable?.public_id,
+  );
 
-  // Use the first deliverable item (index 0) for now
-  const firstDeliverableItem = deliverableItems?.[0];
+  const selectedDeliverableItem = deliverableItems?.[activeDeliverableItem];
 
   // Fetch the latest written and media assets for the selected deliverable item
-  const { data: latestWrittenAsset, isLoading: writtenLoading } = useLatestWrittenAsset(firstDeliverableItem?.public_id);
-  const { data: latestMediaAsset, isLoading: mediaLoading } = useLatestMediaAsset(firstDeliverableItem?.public_id);
+  const { data: latestWrittenAsset, isLoading: writtenLoading } =
+    useLatestWrittenAsset(selectedDeliverableItem?.public_id);
+  const { data: latestMediaAsset, isLoading: mediaLoading } =
+    useLatestMediaAsset(selectedDeliverableItem?.public_id);
 
   const handleSignOut = async () => {
     setIsSigningOut(true);
@@ -404,7 +589,8 @@ export default function ClientWorkspace({ campaignId }: { campaignId: string }) 
     queryClient.invalidateQueries({ queryKey: ["deliverableItems"] });
   };
 
-  if (loading || campaignLoading) return <LogoLoader label="Loading client workspace" />;
+  if (loading || campaignLoading)
+    return <LogoLoader label="Loading client workspace" />;
   if (!user) return null;
 
   return (
@@ -414,62 +600,49 @@ export default function ClientWorkspace({ campaignId }: { campaignId: string }) 
         onSignOut={handleSignOut}
         showBackToCampaigns
       />
-      <section className="flex-1 overflow-y-auto px-8 py-8">
-        <header className="flex items-center justify-between border-b border-[#d8d4cb] pb-3">
-          <h1 className="text-[52px] font-normal leading-none text-[#141518]">Workspace</h1>
-          <div className="flex items-center gap-5">
-            <button type="button" aria-label="Notifications"><Bell className="size-8 text-[#77736d]" /></button>
-            <Image src="/default-profile.png" alt="" width={46} height={46} className="size-[46px] rounded-full" />
-          </div>
-        </header>
+      <section className="h-screen flex-1 overflow-y-auto">
+        <div className="mx-auto flex w-full max-w-325 flex-col gap-6 p-8">
+          <ClientWorkspaceHeader
+            campaignName={data?.campaign?.project_name ?? "Campaign Name"}
+            campaignOverview={data?.campaign?.description ?? "Campaign Overview"}
+            progress={<Progress activeStep={activeStep} onChange={setActiveStep} />}
+          />
 
-        <div className="mt-4 flex gap-12">
-          <div className="w-44 shrink-0">
-            <h2 className="text-lg text-[#141518]">{data?.campaign?.project_name ?? "Campaign Name"}</h2>
-            <p className="mt-3 text-sm text-[#44403b]">{data?.campaign?.description ?? "Campaign Overview"}</p>
-          </div>
-          <Progress activeStep={activeStep} onChange={setActiveStep} />
-        </div>
-
-        <div className="mt-20 flex items-start gap-10">
-          {/* Deliverables Sidebar */}
-          <aside className="w-[250px] shrink-0">
-            <h2 className="border-b border-[#d8d4cb] pb-2 text-2xl">Deliverables</h2>
-            <div className="mt-3 space-y-5">
-              {deliverables.length === 0 ? (
-                <p className="text-sm italic text-[#77736d]">No deliverables found for this campaign.</p>
-              ) : (
-                deliverables.map((deliverable, index) => (
-                  <button
-                    key={deliverable.deliverable_id}
-                    type="button"
-                    onClick={() => setActiveDeliverable(index)}
-                    className={cn(
-                      "w-full rounded border border-transparent bg-white p-4 text-left transition-colors",
-                      activeDeliverable === index && "bg-[#6b1fa8] text-white",
-                    )}
-                  >
-                    <span className="flex items-start justify-between gap-2">
-                      <strong className="text-base">{deliverable.deliverable_content}</strong>
-                      <span className={cn("rounded bg-[#6b1fa8] px-2 py-1 text-[8px] text-white", activeDeliverable === index && "bg-white/20")}>
-                        {deliverable.deliverable_type}
-                      </span>
-                    </span>
-                    <span className="mt-3 block text-sm">Due: {formatDueDate(deliverable.due_date)}</span>
-                  </button>
-                ))
-              )}
-            </div>
-          </aside>
+          <div className="mt-14 flex items-start justify-center gap-6">
+            {deliverables.length === 0 ? (
+              <aside className="w-64 shrink-0">
+                <p className="text-2xl text-foreground">Deliverables</p>
+                <p className="mt-3 text-sm italic text-[#77736d]">
+                  No deliverables found for this campaign.
+                </p>
+              </aside>
+            ) : (
+              <ClientDeliverablesSidebar
+                deliverables={deliverables}
+                items={deliverableItems ?? []}
+                activeDeliverable={activeDeliverable}
+                activeDeliverableItem={activeDeliverableItem}
+                activeStep={activeSubmissionStep}
+                onChange={(index) => {
+                  setActiveDeliverable(index);
+                  setActiveDeliverableItem(0);
+                }}
+                onItemChange={setActiveDeliverableItem}
+                onStepChange={(step) => {
+                  setActiveSubmissionStep(step);
+                  setActiveStep(1);
+                }}
+              />
+            )}
 
           {/* Main Content Area */}
           {activeStep === 0 ? (
             <ContractSigningPlaceholder />
-          ) : activeStep === 3 ? (
-            <InvoicePanel />
-          ) : (
+          ) : activeStep === 2 ? (
+            <InvoicePanel campaignId={campaignId} />
+          ) : activeStep === 1 ? (
             <div className="flex min-w-0 flex-1 gap-6">
-              {activeStep <= 1 ? (
+              {activeSubmissionStep === 0 ? (
                 <WrittenAssetPanel
                   asset={latestWrittenAsset}
                   isLoading={writtenLoading}
@@ -484,7 +657,7 @@ export default function ClientWorkspace({ campaignId }: { campaignId: string }) 
                 />
               )}
               <FeedbackActions
-                activeStep={activeStep}
+                submissionStep={activeSubmissionStep}
                 writtenAssetPublicId={latestWrittenAsset?.public_id}
                 mediaAssetPublicId={latestMediaAsset?.public_id}
                 writtenAssetAction={latestWrittenAsset?.written_asset_action}
@@ -492,19 +665,41 @@ export default function ClientWorkspace({ campaignId }: { campaignId: string }) 
                 onMutationSuccess={handleMutationSuccess}
               />
             </div>
+          ) : (
+            <section className="flex min-h-[350px] flex-1 flex-col items-center justify-center rounded border border-[#d8d4cb] bg-white p-7 text-center">
+              <Check className="size-12 text-[#2d7a3a]" strokeWidth={1.6} />
+              <p className="mt-4 text-sm leading-5 text-[#44403b]">
+                This campaign has been completed.
+              </p>
+            </section>
           )}
+          </div>
         </div>
       </section>
 
       {/* Video Preview Dialog */}
       <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
-        <DialogContent showCloseButton={false} className="max-h-[90vh] !max-w-4xl overflow-y-auto border-[#d8d4cb] bg-[#f2f0ea] p-8">
-          <div className="flex items-center justify-between"><DialogTitle className="text-3xl font-normal">Preview</DialogTitle><button onClick={() => setPreviewOpen(false)}><X /></button></div>
+        <DialogContent
+          showCloseButton={false}
+          className="max-h-[90vh] !max-w-4xl overflow-y-auto border-[#d8d4cb] bg-[#f2f0ea] p-8"
+        >
+          <div className="flex items-center justify-between">
+            <DialogTitle className="text-3xl font-normal">Preview</DialogTitle>
+            <button onClick={() => setPreviewOpen(false)}>
+              <X />
+            </button>
+          </div>
           <div className="mx-auto mt-5 w-full max-w-3xl rounded border border-[#d8d4cb] bg-white p-5">
             {latestMediaAsset?.content_url ? (
-              <video src={latestMediaAsset.content_url} controls className="w-full" />
+              <video
+                src={latestMediaAsset.content_url}
+                controls
+                className="w-full"
+              />
             ) : (
-              <p className="text-sm italic text-[#77736d]">No video to preview.</p>
+              <p className="text-sm italic text-[#77736d]">
+                No video to preview.
+              </p>
             )}
           </div>
         </DialogContent>
@@ -512,34 +707,58 @@ export default function ClientWorkspace({ campaignId }: { campaignId: string }) 
 
       {/* History Dialog */}
       <Dialog open={historyOpen} onOpenChange={setHistoryOpen}>
-        <DialogContent showCloseButton={false} className="max-h-[90vh] !max-w-5xl overflow-y-auto border-[#d8d4cb] bg-[#f2f0ea] p-8">
+        <DialogContent
+          showCloseButton={false}
+          className="max-h-[90vh] !max-w-5xl overflow-y-auto border-[#d8d4cb] bg-[#f2f0ea] p-8"
+        >
           <div className="flex items-center justify-between">
             <div className="flex items-baseline gap-8">
               <DialogTitle className="text-3xl font-normal">
-                Version {activeStep <= 1 ? latestWrittenAsset?.version_number ?? "-" : latestMediaAsset?.version_number ?? "-"}
+                Version{" "}
+                {activeSubmissionStep === 0
+                  ? (latestWrittenAsset?.version_number ?? "-")
+                  : (latestMediaAsset?.version_number ?? "-")}
               </DialogTitle>
               <span className="text-sm text-[#6f6a63]">
-                {activeStep <= 1
-                  ? latestWrittenAsset?.created_at ? new Date(latestWrittenAsset.created_at).toLocaleString() : ""
-                  : latestMediaAsset?.created_at ? new Date(latestMediaAsset.created_at).toLocaleString() : ""
-                }
+                {activeSubmissionStep === 0
+                  ? latestWrittenAsset?.created_at
+                    ? new Date(latestWrittenAsset.created_at).toLocaleString()
+                    : ""
+                  : latestMediaAsset?.created_at
+                    ? new Date(latestMediaAsset.created_at).toLocaleString()
+                    : ""}
               </span>
             </div>
-            <button onClick={() => setHistoryOpen(false)}><X /></button>
+            <button onClick={() => setHistoryOpen(false)}>
+              <X />
+            </button>
           </div>
           <div className="mt-5 grid grid-cols-[1.35fr_1fr] gap-7">
             <section className="rounded border border-[#d8d4cb] bg-white p-6">
-              <h3 className="border-b pb-3 text-2xl">{activeStep <= 1 ? "Written Assets" : "Media Assets"}</h3>
-              {activeStep <= 1 ? (
-                <div className="mt-5 min-h-[320px] rounded border p-5 text-sm whitespace-pre-wrap">
-                  {latestWrittenAsset?.content ?? "No submission yet."}
-                </div>
+              <h3 className="border-b pb-3 text-2xl">
+                {activeSubmissionStep === 0 ? "Written Assets" : "Media Assets"}
+              </h3>
+              {activeSubmissionStep === 0 ? (
+                <div
+                  className="prose prose-sm mt-5 min-h-[320px] max-w-none rounded border p-5"
+                  dangerouslySetInnerHTML={{
+                    __html: latestWrittenAsset?.content
+                      ? sanitizeRichText(latestWrittenAsset.content)
+                      : "No submission yet.",
+                  }}
+                />
               ) : (
                 <div className="mt-5">
                   {latestMediaAsset?.content_url ? (
-                    <video src={latestMediaAsset.content_url} controls className="w-full" />
+                    <video
+                      src={latestMediaAsset.content_url}
+                      controls
+                      className="w-full"
+                    />
                   ) : (
-                    <p className="text-sm italic text-[#77736d]">No video submitted yet.</p>
+                    <p className="text-sm italic text-[#77736d]">
+                      No video submitted yet.
+                    </p>
                   )}
                 </div>
               )}
@@ -549,10 +768,9 @@ export default function ClientWorkspace({ campaignId }: { campaignId: string }) 
               <div className="mt-5 rounded border p-5">
                 <p className="font-medium">Client</p>
                 <p className="mt-5 text-sm leading-6">
-                  {activeStep <= 1
+                  {activeSubmissionStep === 0
                     ? latestWrittenAsset?.client_comments || "No feedback yet."
-                    : latestMediaAsset?.client_comments || "No feedback yet."
-                  }
+                    : latestMediaAsset?.client_comments || "No feedback yet."}
                 </p>
               </div>
             </section>

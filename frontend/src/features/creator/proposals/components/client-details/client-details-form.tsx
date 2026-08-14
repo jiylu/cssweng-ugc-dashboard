@@ -8,9 +8,10 @@ export interface ClientDetailsFormProps {
   contactEmail: string;
   setContactEmail: (v: string) => void;
   errors: Record<string, string>;
+  readOnly?: boolean;
 }
 
-export default function ClientDetailsForm({ contactPerson, setContactPerson, contactEmail, setContactEmail, errors }: ClientDetailsFormProps) {
+export default function ClientDetailsForm({ contactPerson, setContactPerson, contactEmail, setContactEmail, errors, readOnly = false }: ClientDetailsFormProps) {
   return (
     <Card className="h-fit">
       <h2 className="text-[26px] font-normal text-foreground">
@@ -34,6 +35,7 @@ export default function ClientDetailsForm({ contactPerson, setContactPerson, con
           type="text"
           className="border-muted"
           placeholder="Enter name of contact person"
+          disabled={readOnly}
         />
         {errors.contactPerson && (
           <p className="text-xs mt-1 text-[#ff6467]">{errors.contactPerson}</p>
@@ -41,8 +43,8 @@ export default function ClientDetailsForm({ contactPerson, setContactPerson, con
       </div>
 
       <div className="flex flex-col gap-0">
-        <label className="text-sm text-muted-foreground uppercase tracking-[0.03em] mt-0">
-          CONTACT PERSON EMAIL
+        <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">
+          CONTACT PERSON EMAIL<span className="text-[#ff6467] ml-1">*</span>
         </label>
 
         <Input
@@ -51,6 +53,7 @@ export default function ClientDetailsForm({ contactPerson, setContactPerson, con
           type="email"
           className="border-muted"
           placeholder="Enter email of contact person"
+          disabled={readOnly}
         />
         {errors.contactEmail && (
           <p className="text-xs mt-1 text-[#ff6467]">{errors.contactEmail}</p>

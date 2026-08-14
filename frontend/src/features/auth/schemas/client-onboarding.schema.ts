@@ -7,12 +7,12 @@ export const clientOnboardingSchema = z.object({
   companyPhoneNumber: z
     .string()
     .min(1, "Company phone number is required.")
-    .regex(/^[+\d][\d\s()-]{6,}$/, "Enter a valid company phone number."),
+    .regex(/^\d{7,}$/, "Enter a valid company phone number."),
   contactPerson: z.string().min(1, "Contact person is required."),
   contactNumber: z
     .string()
     .min(1, "Contact number is required.")
-    .regex(/^[+\d][\d\s()-]{6,}$/, "Enter a valid contact number."),
+    .regex(/^\d{7,}$/, "Enter a valid contact number."),
   billablePerson: z.string().min(1, "Billable person is required."),
   billingEmail: z.email("Enter a valid billing email address."),
 });

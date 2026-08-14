@@ -1,6 +1,4 @@
-import { Card } from "@/src/components/atoms/card"
-import { Separator } from "@/components/ui/separator"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { formatCurrency } from "@/src/features/creator/proposals/utils/formatCurrency"
 
 interface DeliverableRow {
     qty: number
@@ -36,7 +34,7 @@ export function DeliverablesCard({ deliverables }: DeliverablesCardProps) {
                     <div className="col-span-4 text-sm text-foreground break-words">{d.format}</div>
                     <div className="col-span-2 text-sm text-foreground">{d.dueDate || "——————"}</div>
                     <div className="col-span-2 text-sm text-foreground">
-                        ${d.price.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                        {formatCurrency(d.price, d.currency)}
                     </div>
                 </div>
                 ))}

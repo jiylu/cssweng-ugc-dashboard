@@ -38,8 +38,9 @@ function toProposalStatus(status: string): ProposalStatus {
   switch (status) {
     case "ACCEPTED":
       return "ACTIVE"
-    case "PENDING":
     case "FOR_REVISION":
+      return "FOR_REVISION"
+    case "PENDING":
       return "PENDING"
     case "REJECTED":
       return "REJECTED"
@@ -62,8 +63,10 @@ export function mapCampaignToSubmittedProposal(
   const currency = asString(campaign.currency) || "USD"
   const total = asNumber(campaign.pricing)
   const symbol = CURRENCY_SYMBOLS[currency] ?? "$"
-  const platforms = campaign.platforms ?? {}
-  const firstPlatform = Object.keys(platforms)[0]
+  const platformsValue = (campaign.platforms ?? {}) as Record<string, string> | string[]
+  const firstPlatform = Array.isArray(platformsValue)
+    ? (platformsValue[0] ?? "")
+    : Object.keys(platformsValue)[0]
 
   return {
     id: campaign.public_id,

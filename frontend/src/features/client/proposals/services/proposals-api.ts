@@ -107,7 +107,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 
 export async function getProposalReview(publicId: string): Promise<ProposalReviewData> {
   const setup = await request<CampaignSetupResponse>(
-    `/campaign-setup/proposal/${publicId}`,
+    `/campaign-setup/${publicId}`,
   );
   const creator = await request<CreatorResponse>(
     `/users/${setup.campaign.ugc_creator_id}`,
@@ -170,6 +170,12 @@ export function declineProposal(proposalId: string) {
   return request<ProposalRecord>(`/proposals/status/${proposalId}`, {
     method: "PATCH",
     body: JSON.stringify({ proposalStatus: "REJECTED" }),
+  });
+}
+
+export function acceptProposal(proposalId: string) {
+  return request<ProposalRecord>(`/proposals/accept/${proposalId}`, {
+    method: "PATCH",
   });
 }
 

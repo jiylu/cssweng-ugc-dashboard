@@ -9,6 +9,7 @@ import { CampaignTabs } from "@/src/features/creator/campaigns/components/campai
 import { CampaignList } from "@/src/features/creator/campaigns/components/campaign-list"
 import { Button } from "@/components/ui/button"
 import { useCampaigns } from "@/src/features/creator/campaigns/hooks/useCampaign"
+import { useApprovedCampaigns } from "@/src/features/creator/campaigns/hooks/useApprovedCampaigns"
 import LogoLoader from "@/src/components/molecules/logo-loader";
 
 export default function Campaigns() {
@@ -16,9 +17,13 @@ export default function Campaigns() {
   const [page, setPage] = useState(1)
   const [activeTab, setActiveTab] = useState("ALL")
   const { data, isLoading, isError } = useCampaigns(user?.user_id ?? "", page)
+  const { approvedCampaigns, proposalClients, isLoading: proposalsLoading } = useApprovedCampaigns(data)
+  const filteredCampaigns = approvedCampaigns.filter(
+    (campaign) => activeTab === "ALL" || campaign.campaign_status === activeTab,
+  )
   const router = useRouter();
 
-  if (loading || isLoading) return <LogoLoader label="Loading campaigns" />;
+  if (loading || isLoading || proposalsLoading) return <LogoLoader label="Loading campaigns" />;
 
   if (isError) return <p>Something went wrong.</p>;
   if (!user) return null;
@@ -44,18 +49,18 @@ export default function Campaigns() {
 
               {/* Tabs + Create Button */}
               <div className="flex items-center justify-between">
-                <CampaignTabs active={activeTab} onChange={setActiveTab} />
+                <CampaignTabs
+                  active={activeTab}
+                  onChange={(tab) => {
+                    setActiveTab(tab)
+                    setPage(1)
+                  }}
+                />
               </div>
 
               {/* Campaign List */}
               {/* TODO: Make total dynamic */}
-              {/* <CampaignList 
-                campaigns={data?.data ?? []}
-                total={data?.total ?? 0}
-                page={page}
-                onPageChange={setPage} 
-              /> */}
-              <CampaignList campaigns={data ?? []} />
+              <CampaignList campaigns={filteredCampaigns} clientNames={proposalClients} page={page} onPageChange={setPage} />
             </div>
         </section>
     </main>

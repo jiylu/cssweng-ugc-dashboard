@@ -24,6 +24,7 @@ export interface CampaignSetupProposal {
 }
 
 export interface CampaignSetupDeliverable {
+  deliverable_id: string
   public_id: string
   quantity: number
   deliverable_type: string
@@ -35,6 +36,7 @@ export interface CampaignSetupDeliverable {
 }
 
 export interface CampaignSetupAddOn {
+  add_on_id: string
   public_id: string
   add_on_name: string
   description: string
@@ -62,6 +64,7 @@ export interface CampaignSetupGiftedProduct {
 }
 
 export interface CampaignSetupContract {
+  contract_id: string
   public_id: string
   revision_policy: {
     revision_rounds: number

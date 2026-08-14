@@ -92,7 +92,7 @@ export function ProposalSummaryContainer({ form, contractTerms, addOns, paymentT
             description={summary.campaign.description}
           />
           <DeliverablesCard deliverables={summary.deliverables} />
-          <AddOnsSummaryCard addOns={addOnRows} />
+          <AddOnsSummaryCard addOns={addOnRows} currency={summary.earnings.currency} />
         </div>
 
         {/* Right column */}

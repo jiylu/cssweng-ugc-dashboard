@@ -22,7 +22,7 @@ export function PaymentInvoicingSection({ paymentSchedule, setPaymentSchedule, p
 
       <div className="grid grid-cols-2 gap-4">
         <div className="flex flex-col gap-1">
-          <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">PAYMENT SCHEDULE</label>
+          <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">PAYMENT SCHEDULE<span className="text-[#ff6467] ml-1">*</span></label>
           <Select value={paymentSchedule} onValueChange={setPaymentSchedule}>
             <SelectTrigger className="bg-white border-border rounded-[3px] text-sm h-[38px] w-full text-left [&>span]:truncate">
               <SelectValue placeholder="Select payment schedule" />
@@ -38,7 +38,7 @@ export function PaymentInvoicingSection({ paymentSchedule, setPaymentSchedule, p
         </div>
 
         <div className="flex flex-col gap-1">
-          <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">PAYMENT METHOD</label>
+          <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">PAYMENT METHOD<span className="text-[#ff6467] ml-1">*</span></label>
           <Select value={paymentMethod} onValueChange={setPaymentMethod}>
             {/* Set standard h-[40px] and w-full */}
             <SelectTrigger className="bg-white border-border rounded-[3px] text-sm h-[40px] w-full text-left">
@@ -55,10 +55,12 @@ export function PaymentInvoicingSection({ paymentSchedule, setPaymentSchedule, p
         </div>
 
         <div className="flex flex-col gap-1">
-          <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">TAX RATE</label>
+          <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">SET TAX RATE<span className="text-[#ff6467] ml-1">*</span></label>
           <InputGroup className="border border-border rounded-[3px] bg-white w-full h-[38px] flex items-center pr-1">
             <InputGroupInput
               type="number"
+              min={1}
+              max={60}
               value={taxRate}
               onChange={(e) => setTaxRate(Math.min(60, Math.max(1, Number(e.target.value))))}
               className="border-0 p-0 h-full text-sm shadow-none focus-visible:ring-0 px-2 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none flex-1"
@@ -68,7 +70,12 @@ export function PaymentInvoicingSection({ paymentSchedule, setPaymentSchedule, p
             </InputGroupAddon>
             <InputGroupAddon align="inline-end">
               <div className="flex flex-col shrink-0 px-1">
-                <ChevronUp size={12} className="cursor-pointer text-muted-foreground hover:text-[#6b1fa8]" onClick={() => setTaxRate(taxRate + 1)} />
+                <ChevronUp
+                  size={12}
+                  aria-disabled={taxRate >= 60}
+                  className={taxRate >= 60 ? "cursor-not-allowed text-muted-foreground opacity-40" : "cursor-pointer text-muted-foreground hover:text-[#6b1fa8]"}
+                  onClick={() => setTaxRate(Math.min(60, taxRate + 1))}
+                />
                 <ChevronDown size={12} className="cursor-pointer text-muted-foreground hover:text-[#6b1fa8]" onClick={() => setTaxRate(Math.max(1, taxRate - 1))} />
               </div>
             </InputGroupAddon>
