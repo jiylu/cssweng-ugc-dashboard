@@ -42,6 +42,7 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [isDownloading, setIsDownloading] = useState(false)
+  const [creatorSignedLocally, setCreatorSignedLocally] = useState(false)
   const pendingNavigationRef = useRef<
     | { type: "deliverable"; index: number }
     | { type: "item"; index: number }
@@ -56,6 +57,12 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
     .filter(Boolean)
     .join(" ") || "Client"
   const deliverables = campaignSetup?.deliverables ?? []
+  const isContractSigned =
+    creatorSignedLocally ||
+    Boolean(
+      campaignSetup?.contract?.creator_signed &&
+        campaignSetup?.contract?.client_signed,
+    )
   const router = useRouter();
   const selectedDeliverable = deliverables[activeDeliverable]
   const {
@@ -159,6 +166,10 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
   }
 
   const handleStepChange = (step: number) => {
+    if (step === 1 && !isContractSigned) {
+      toast.info("Please complete contract signing before submitting deliverables.")
+      return
+    }
     if (step < 2) {
       setActiveStep(step)
       return
@@ -276,6 +287,8 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
             {activeStep === 0 && (
               <ContractSigningPanel 
                 contract={campaignSetup?.contract} 
+                campaignId={campaignId}
+                onSigned={() => setCreatorSignedLocally(true)}
                 onNext={() => setActiveStep(1)}
               />
             )}

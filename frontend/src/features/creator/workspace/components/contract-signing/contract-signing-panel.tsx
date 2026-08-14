@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { CircleCheck } from "lucide-react";
 import { Card } from "@/components/ui/card";
@@ -13,22 +13,28 @@ import { CampaignContract } from "@/src/features/creator/workspace/services/getC
 
 interface ContractSigningPanelProps {
   contract?: CampaignContract;
+  campaignId?: string;
   onNext?: () => void;
+  onSigned?: () => void;
 }
 
-export function ContractSigningPanel({ contract, onNext }: ContractSigningPanelProps) {
+export function ContractSigningPanel({
+  contract,
+  campaignId,
+  onNext,
+  onSigned,
+}: ContractSigningPanelProps) {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [signatureDataUrl, setSignatureDataUrl] = useState("");
   const [initialsDataUrl, setInitialsDataUrl] = useState("");
   const [hasSigned, setHasSigned] = useState(false);
+  const queryClient = useQueryClient();
 
   const signingMutation = useMutation({
     mutationFn: () => {
       if (!contract) throw new Error("Contract is missing");
       return signContract(contract.public_id, {
-        firstName: firstName.trim(),
-        lastName: lastName.trim(),
         signatureDataUrl,
         initialsDataUrl,
         signerRole: "CREATOR",
@@ -36,6 +42,12 @@ export function ContractSigningPanel({ contract, onNext }: ContractSigningPanelP
     },
     onSuccess: () => {
       setHasSigned(true);
+      onSigned?.();
+      if (campaignId) {
+        queryClient.invalidateQueries({
+          queryKey: ["campaignSetup", campaignId],
+        });
+      }
       toast.success("Contract signed successfully.");
     },
     onError: (error) =>
