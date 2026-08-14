@@ -34,10 +34,6 @@ export class UpdateOwnProfileDTO {
   })
   primaryHandle!: string;
 
-  @IsString()
-  @MaxLength(100)
-  bio!: string;
-
   @IsEmail()
   email!: string;
 
