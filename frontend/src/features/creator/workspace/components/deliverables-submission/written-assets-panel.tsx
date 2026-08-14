@@ -1,10 +1,12 @@
 import { useEffect } from "react"
+import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/src/components/atoms/card"
 import { Separator } from "@/components/ui/separator"
 import { useWrittenAssetsPanel } from "@/src/features/creator/workspace/hooks/useWrittenAssetsPanel"
 import RichTextEditor from "@/components/ui/rich-text-editor"
 import { WrittenAssetPreview } from "./written-asset-preview"
+import { getWrittenAssetLocalDraft, saveWrittenAssetLocalDraft } from "@/src/features/creator/workspace/utils/written-asset-draft-storage"
 import type { WrittenAsset } from "@/src/features/client/workspace/services/deliverable-submissions-api"
 
 interface WrittenAssetsPanelProps {
@@ -15,6 +17,7 @@ interface WrittenAssetsPanelProps {
   onNext: () => void
   onHistory: () => void
   writtenAsset?: WrittenAsset | null
+  deliverableItemPublicId?: string
   isSubmitting?: boolean
   isSavingDraft?: boolean
   itemsLoading?: boolean
@@ -29,29 +32,50 @@ export function WrittenAssetsPanel({
   onNext,
   onHistory,
   writtenAsset,
+  deliverableItemPublicId,
   isSubmitting,
   isSavingDraft,
   itemsLoading,
   itemsError,
 }: WrittenAssetsPanelProps) {
-  const { content, errors, updateContent, validateAndSave } = useWrittenAssetsPanel()
+  const { content, errors, isDirty, updateContent, markSaved, validateAndSave } =
+    useWrittenAssetsPanel()
 
   const submittedContent = writtenAsset?.content ?? ""
 
   useEffect(() => {
-    updateContent(submittedContent)
-  }, [writtenAsset?.public_id])
+    if (writtenAsset) {
+      markSaved(submittedContent)
+      return
+    }
+    if (deliverableItemPublicId) {
+      markSaved(getWrittenAssetLocalDraft(deliverableItemPublicId) ?? "")
+    }
+  }, [writtenAsset?.public_id, deliverableItemPublicId])
 
   useEffect(() => {
-    onDirtyChange(content !== "" && content !== submittedContent)
+    onDirtyChange(isDirty)
     return () => onDirtyChange(false)
-  }, [content, submittedContent, onDirtyChange])
+  }, [isDirty, onDirtyChange])
 
   const action = writtenAsset?.written_asset_action
   const isAwaitingReview = action === "PENDING"
   const isApproved = action === "APPROVE"
   const isRevisionRequested = action === "REVISE"
   const isLocked = isAwaitingReview || isApproved
+
+  const handleSaveDraft = () => {
+    if (writtenAsset) {
+      onSaveDraft(content)
+      return
+    }
+    if (!deliverableItemPublicId) return
+    saveWrittenAssetLocalDraft(deliverableItemPublicId, content)
+    markSaved(content)
+    toast.success("Draft saved.")
+  }
+
+  const hasContent = content.replace(/<[^>]*>/g, "").trim().length > 0
 
   return (
     <Card className="flex-1 border border-[#6b1fa8] p-5 flex flex-col gap-4 min-w-0 h-full">
@@ -104,14 +128,8 @@ export function WrittenAssetsPanel({
       <div className="flex justify-end gap-2">
         <Button
           variant="outline"
-          onClick={() => onSaveDraft(content)}
-          disabled={
-            isSavingDraft ||
-            isLocked ||
-            !writtenAsset ||
-            content.replace(/<[^>]*>/g, "").trim().length === 0
-          }
-          title={!writtenAsset ? "Submit a version first to save drafts." : undefined}
+          onClick={handleSaveDraft}
+          disabled={isSavingDraft || isLocked || !hasContent}
         >
           {isSavingDraft ? "Saving Draft..." : "Save Draft"}
         </Button>
