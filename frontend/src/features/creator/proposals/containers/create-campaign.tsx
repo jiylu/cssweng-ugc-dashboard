@@ -112,7 +112,9 @@ export default function CreateCampaign() {
     });
 
     if (draftId) {
-      saveExistingDraft(draftPayload, {
+      const { userId, ...updatePayload } = draftPayload;
+      void userId;
+      saveExistingDraft(updatePayload, {
         onSuccess: () => {
           toast.success("Draft saved!");
           router.push('/proposals/drafts');

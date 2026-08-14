@@ -72,25 +72,15 @@ export function buildDraftPayload({
     client_last_name: clientLastName,
   }
 
-  const deliverables = form.deliverables
-    .filter(
-      (d) =>
-        trimString(d.platform) !== "" ||
-        trimString(d.contentType) !== "" ||
-        trimString(d.description) !== "" ||
-        trimString(d.draftDeadline) !== "" ||
-        trimString(d.postDate) !== "" ||
-        parseFloat(d.pricing.replace(/,/g, "") || "0") > 0,
-    )
-    .map((d) => ({
-      quantity: Number(d.quantity ?? 1),
-      deliverableType: d.deliverableType as "COLLABORATION" | "UGC",
-      deliverableContent: `${trimString(d.platform)} ${trimString(d.contentType)}`.trim(),
-      requirements: trimString(d.description),
-      dueDate: toIsoDate(d.draftDeadline),
-      postDate: toIsoDate(d.postDate),
-      pricing: parseFloat(d.pricing.replace(/,/g, "") || "0"),
-    }))
+  const deliverables = form.deliverables.map((d) => ({
+    quantity: Number(d.quantity ?? 1),
+    deliverableType: d.deliverableType as "COLLABORATION" | "UGC",
+    deliverableContent: `${trimString(d.platform)} ${trimString(d.contentType)}`.trim(),
+    requirements: trimString(d.description),
+    dueDate: toIsoDate(d.draftDeadline),
+    postDate: toIsoDate(d.postDate),
+    pricing: parseFloat(d.pricing.replace(/,/g, "") || "0"),
+  }))
 
   const contract = {
     revision_policy: {
@@ -156,32 +146,23 @@ export function buildDraftPayload({
       fee: a.fee ?? 0,
     }))
 
-  const giftedProducts = paymentTerms.giftedProducts
-    .filter(
-      (p) =>
-        trimString(p.productName) !== "" ||
-        parseFloat(p.value.replace(/,/g, "") || "0") > 0 ||
-        trimString(p.deliveryInstructions) !== "" ||
-        trimString(p.ownershipTerms) !== "" ||
-        p.shippingAddress !== null,
-    )
-    .map((p) => ({
-      productName: trimString(p.productName),
-      value: parseFloat(p.value.replace(/,/g, "") || "0"),
-      shippingAddress: p.shippingAddress
-        ? {
-            delivery_address_line_1: trimString(p.shippingAddress.addressLine1),
-            delivery_address_line_2:
-              trimString(p.shippingAddress.addressLine2) || undefined,
-            country: trimString(p.shippingAddress.country),
-            state_province: trimString(p.shippingAddress.stateProvince),
-            city: trimString(p.shippingAddress.city),
-            zip_code: Number(p.shippingAddress.zipCode) || 0,
-          }
-        : null,
-      deliveryInstructions: trimString(p.deliveryInstructions),
-      ownershipTerms: trimString(p.ownershipTerms),
-    }))
+  const giftedProducts = paymentTerms.giftedProducts.map((p) => ({
+    productName: trimString(p.productName),
+    value: parseFloat(p.value.replace(/,/g, "") || "0"),
+    shippingAddress: p.shippingAddress
+      ? {
+          delivery_address_line_1: trimString(p.shippingAddress.addressLine1),
+          delivery_address_line_2:
+            trimString(p.shippingAddress.addressLine2) || undefined,
+          country: trimString(p.shippingAddress.country),
+          state_province: trimString(p.shippingAddress.stateProvince),
+          city: trimString(p.shippingAddress.city),
+          zip_code: Number(p.shippingAddress.zipCode) || 0,
+        }
+      : null,
+    deliveryInstructions: trimString(p.deliveryInstructions),
+    ownershipTerms: trimString(p.ownershipTerms),
+  }))
 
   return prune({
     userId,
