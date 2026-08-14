@@ -18,14 +18,18 @@ function escapeHtml(value: string) {
 export class EmailService {
   private readonly logger = new Logger(EmailService.name);
   private readonly transporter = nodemailer.createTransport({
-    host: 'smtp.zoho.com',
-    port: 587,
-    secure: false,
+    host: 'smtp.purelymail.com',
+    port: 465,
+    secure: true,
     auth: {
-      user: process.env.ZOHO_USER,
-      pass: process.env.ZOHO_APP_PASSWORD,
+      user: process.env.PURELYMAIL_USER,
+      pass: process.env.PURELYMAIL_APP_PASSWORD,
     },
   });
+
+  private getSender() {
+    return `Asceoft Notifications <${process.env.PURELYMAIL_USER}>`;
+  }
 
   private getFrontendUrl() {
     return (
@@ -38,7 +42,7 @@ export class EmailService {
   async sendRegistrationOtpEmail(email: string, otp: string) {
     try {
       await this.transporter.sendMail({
-        from: `Asceoft Notifications <${process.env.ZOHO_USER}>`,
+        from: this.getSender(),
         to: email,
         subject: `Your Asceoft verification code is ${otp}.`,
         text: `Your verification code is ${otp}. It expires in 10 minutes.`,
@@ -82,7 +86,7 @@ export class EmailService {
   async sendLoginOtpEmail(email: string, otp: string) {
     try {
       await this.transporter.sendMail({
-        from: `Asceoft Notifications <${process.env.ZOHO_USER}>`,
+        from: this.getSender(),
         to: email,
         subject: `Your Asceoft login code is ${otp}`,
         text: `Your login verification code is ${otp}. It expires in 10 minutes.`,
@@ -112,7 +116,7 @@ export class EmailService {
     const safeSubject = escapeHtml(subject);
     const safeMessage = escapeHtml(message);
     await this.transporter.sendMail({
-      from: `Asceoft Notifications <${process.env.ZOHO_USER}>`,
+      from: this.getSender(),
       to: email,
       subject,
       text: message,
@@ -131,7 +135,7 @@ export class EmailService {
 
     try {
       await this.transporter.sendMail({
-        from: `Asceoft Notifications <${process.env.ZOHO_USER}>`,
+        from: this.getSender(),
         to: email,
         subject: 'Reset your Asceoft password',
         text: `Reset your Asceoft password using this link: ${resetUrl}. This link expires and can only be used once.`,
@@ -184,7 +188,7 @@ export class EmailService {
 
     try {
       await this.transporter.sendMail({
-        from: `Asceoft Notifications <${process.env.ZOHO_USER}>`,
+        from: this.getSender(),
         to: clientEmail,
         subject: subject,
         text: `A content creator has sent you a proposal for "${projectName}". Please check your Acseoft dashboard when you have a moment.`,

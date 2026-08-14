@@ -51,8 +51,8 @@ out of the repo):
 | `SUPABASE_SERVICE_ROLE`    | Supabase service-role key                       |
 | `SUPABASE_SECRET_KEY`      | Supabase secret key                             |
 | `SUPABASE_STORAGE_BUCKET`  | Storage bucket name for uploads                 |
-| `ZOHO_USER`                | Zoho mail account for outbound email            |
-| `ZOHO_APP_PASSWORD`        | Zoho app password                               |
+| `PURELYMAIL_USER`          | PurelyMail account for outbound email            |
+| `PURELYMAIL_APP_PASSWORD`  | PurelyMail password or app password               |
 | `OTP_HASH_SECRET`          | Secret used to hash registration OTPs           |
 | `CLOUDINARY_URL`           | Cloudinary connection URL                       |
 | `CLOUDINARY_CLOUD_NAME`    | Cloudinary cloud name                           |
@@ -102,7 +102,7 @@ src/
     supabase/          # Supabase client
     supabase-storage/  # file uploads to Supabase Storage
     cloudinary/        # media uploads via Cloudinary
-    email/             # mailer (Zoho)
+    email/             # mailer (PurelyMail)
     notifications/     # WebSocket notifications
     analytics/         # analytics service
     activity-log/      # user activity logging
