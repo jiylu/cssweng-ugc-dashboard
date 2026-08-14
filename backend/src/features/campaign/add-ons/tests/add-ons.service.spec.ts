@@ -23,6 +23,7 @@ describe('AddOnsService', () => {
 
   const mockCampaignService = {
     findOneCampaign: jest.fn(),
+    recalculateCampaignPricing: jest.fn(),
   };
 
   beforeEach(async () => {

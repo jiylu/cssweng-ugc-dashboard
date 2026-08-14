@@ -57,6 +57,7 @@ describe('AnalyticsService', () => {
           {
             campaign_id: 'camp-3',
             paid_amount: new Prisma.Decimal(500.5),
+            currency: 'PHP',
           },
         ]);
       mockProposalService.findProposalByCampaignId
@@ -89,6 +90,7 @@ describe('AnalyticsService', () => {
         select: {
           campaign_id: true,
           paid_amount: true,
+          currency: true,
         },
       });
       expect(
@@ -109,8 +111,8 @@ describe('AnalyticsService', () => {
       mockPrisma.campaigns.findMany
         .mockResolvedValueOnce([])
         .mockResolvedValueOnce([
-          { campaign_id: 'camp-1', paid_amount: new Prisma.Decimal(1000) },
-          { campaign_id: 'camp-2', paid_amount: new Prisma.Decimal(250.75) },
+          { campaign_id: 'camp-1', paid_amount: new Prisma.Decimal(1000), currency: 'PHP' },
+          { campaign_id: 'camp-2', paid_amount: new Prisma.Decimal(250.75), currency: 'PHP' },
         ]);
 
       const result = await service.generateAnalyticsForUser('user-1');
