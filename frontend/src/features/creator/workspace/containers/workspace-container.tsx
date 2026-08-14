@@ -392,6 +392,7 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
                       setHistoryType("media")
                       setHistoryOpen(true)
                     }}
+                    onPrevious={() => setActiveDeliverableStep(0)}
                     onNext={() => setActiveDeliverableStep(2)}
                     deliverableItemPublicId={selectedDeliverableItem?.public_id}
                     mediaAsset={latestMediaAsset}
@@ -402,6 +403,7 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
                 {activeDeliverableStep === 2 && (
                   <DeliverableApprovedCard
                     deliverableName={activeDeliverableName}
+                    onPrevious={() => setActiveDeliverableStep(1)}
                     onNext={() => handleStepChange(2)}
                   />
                 )}
@@ -420,6 +422,7 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
             {activeStep === 2 && (
               <InvoiceDetailsCard
                 campaignId={campaignId}
+                onPrevious={() => handleStepChange(1)}
                 onNext={() => handleStepChange(3)}
               />
             )}
@@ -429,6 +432,7 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
                 isDownloading={isDownloading}
                 onDownloadAssets={handleDownloadAssets}
                 onBackToDashboard={() => router.push('/creator-dashboard')}
+                onPrevious={() => handleStepChange(2)}
               />
             )}
           </div>

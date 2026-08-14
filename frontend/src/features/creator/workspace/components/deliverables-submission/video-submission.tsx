@@ -16,6 +16,7 @@ interface VideoSubmissionProps {
   onRemoveFile: (id: string) => void
   onPreviewFile: (id: string) => void
   onSubmit: () => void
+  onPrevious?: () => void
   onNext?: () => void
   isSubmitting?: boolean
   accept?: string
@@ -31,6 +32,7 @@ export function VideoSubmission({
   onRemoveFile,
   onPreviewFile,
   onSubmit,
+  onPrevious,
   onNext,
   isSubmitting,
   accept,
@@ -103,7 +105,16 @@ export function VideoSubmission({
       )}
 
       {/* Submit */}
-      <div className="flex justify-end mt-2">
+      <div className="flex justify-end mt-2 gap-3">
+        {onPrevious && (
+          <Button
+            onClick={onPrevious}
+            variant="outline"
+            className="border-[#6b1fa8] text-[#6b1fa8] hover:bg-[#6b1fa8]/5"
+          >
+            Previous
+          </Button>
+        )}
         {isApproved && onNext ? (
           <Button
             onClick={onNext}
