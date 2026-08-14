@@ -35,19 +35,20 @@ export function Expenses({
             <InputGroup className="border border-border rounded-[3px] bg-white w-full">
               <InputGroupAddon>
                 <div className="flex flex-col shrink-0 px-1.5">
-                  <ChevronUp size={12} className="cursor-pointer text-muted-foreground hover:text-foreground" onClick={() => setReimbursementDays(reimbursementDays + 1)} />
+                  <ChevronUp size={12} className="cursor-pointer text-muted-foreground hover:text-foreground" onClick={() => setReimbursementDays(Math.min(60, reimbursementDays + 1))} />
                   <ChevronDown size={12} className="cursor-pointer text-muted-foreground hover:text-foreground" onClick={() => setReimbursementDays(Math.max(1, reimbursementDays - 1))} />
                 </div>
               </InputGroupAddon>
               <InputGroupInput
                 type="number"
                 value={reimbursementDays}
-                onChange={(e) => setReimbursementDays(Math.max(1, Number(e.target.value)))}
+                onChange={(e) => setReimbursementDays(Math.max(1, 60))}
                 className="border-0 p-0 h-auto text-sm shadow-none focus-visible:ring-0 px-2 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               />
               <InputGroupAddon align="inline-end">DAYS</InputGroupAddon>
             </InputGroup>
           </div>
+          {errors.reimbursementDays && <p className="text-xs mt-1 text-[#ff6467]">{errors.reimbursementDays}</p>}
           <p className="text-xs text-muted-foreground italic mt-1">NOTE: Approved expenses must be reimbursed by Brand within set amount of days after Creator submits valid receipts.</p>
           <div className="flex flex-col gap-1 mt-3">
             <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">GIFTED PRODUCT TERMS</label>
