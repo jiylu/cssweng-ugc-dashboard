@@ -2,7 +2,7 @@ import { Text, View } from "@react-pdf/renderer"
 import { ProposalSummaryData } from "../../../../types/proposal-summary.types"
 import { styles } from "../pdf-styles"
 import { formatAddressParts, formatCurrency } from "../pdf-utils"
-import { LabelValueRow, TermsTable, TermsTableRow } from "../pdf-table"
+import { GIFTED_PRODUCT_COLUMN_WIDTHS, LabelValueRow, TermsTable, TermsTableRow } from "../pdf-table"
 
 export function DeliverablesSection({
   summary,
@@ -36,6 +36,28 @@ export function DeliverablesSection({
           />
         ))}
       </TermsTable>
+      {summary.giftedProducts.length > 0 && (
+        <>
+          <Text style={[styles.termTitle, { marginTop: 10 }]}>Gifted Products / In-Kind Items</Text>
+          <TermsTable>
+            <TermsTableRow head widths={GIFTED_PRODUCT_COLUMN_WIDTHS} cells={["Product", "Value", "Delivery Address", "Delivery Instructions", "Ownership Terms"]} />
+            {summary.giftedProducts.map((p, i) => (
+              <TermsTableRow
+                key={i}
+                last={i === summary.giftedProducts.length - 1}
+                widths={GIFTED_PRODUCT_COLUMN_WIDTHS}
+                cells={[
+                  p.productName,
+                  formatCurrency(parseFloat(p.value.replace(/,/g, "") || "0"), summary.fees.currency),
+                  formatAddressParts(p.shippingAddress),
+                  p.deliveryInstructions || "—",
+                  p.ownershipTerms || "—",
+                ]}
+              />
+            ))}
+          </TermsTable>
+        </>
+      )}
       <View style={styles.tableFooter}>
         <Text style={styles.tableFooterText}>
           Total ({summary.fees.currency}): {formatCurrency(summary.fees.total, summary.fees.currency)}
