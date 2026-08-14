@@ -8,6 +8,7 @@ import CampaignOverviewCard from "../components/campaign-overview-card";
 import ContractTermsSection from "../components/contract-terms-section";
 import DeliverablesTable from "../components/deliverables-table";
 import OptionalAddOnsCard from "../components/optional-add-ons-card";
+import GiftedProductsCard from "../components/gifted-products-card";
 import PaymentSummaryCard from "../components/payment-summary-card";
 import ProposalFeedbackPanel from "../components/proposal-feedback-panel";
 import ProposalReviewHeader from "../components/proposal-review-header";
@@ -137,6 +138,7 @@ export default function ClientProposalReview() {
 
           <DeliverablesTable deliverables={data.deliverables} />
           <ContractTermsSection terms={data.terms} />
+          <GiftedProductsCard products={data.giftedProducts} />
           <OptionalAddOnsCard
             addOns={data.addOns}
             readOnly={requestedGuestAccess}
@@ -183,8 +185,9 @@ export default function ClientProposalReview() {
             paymentMethod={data.paymentMethod}
             baseFee={formatMoney(data.baseFee, currency)}
             selectedAddOns={formatMoney(data.selectedAddOnsFee, currency)}
+            giftedProducts={formatMoney(data.giftedProductsTotal, currency)}
             tax={`Tax (${data.taxRate}%): ${formatMoney(
-              data.totalDue - data.baseFee - data.selectedAddOnsFee,
+              data.totalDue - data.baseFee - data.selectedAddOnsFee - data.giftedProductsTotal,
               currency,
             )}`}
             totalDue={formatMoney(data.totalDue, currency)}

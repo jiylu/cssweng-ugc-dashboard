@@ -2,6 +2,7 @@ interface PaymentSummaryCardProps {
   paymentMethod: string;
   baseFee: string;
   selectedAddOns: string;
+  giftedProducts: string;
   tax: string;
   totalDue: string;
 }
@@ -10,6 +11,7 @@ export default function PaymentSummaryCard({
   paymentMethod,
   baseFee,
   selectedAddOns,
+  giftedProducts,
   tax,
   totalDue,
 }: PaymentSummaryCardProps) {
@@ -20,6 +22,7 @@ export default function PaymentSummaryCard({
         <p>Payment Method: {paymentMethod}</p>
         <p>Base Creator Fee: {baseFee}</p>
         <p>Selected Add-Ons: {selectedAddOns}</p>
+        <p>Gifted Products: {giftedProducts}</p>
         <p>{tax}</p>
       </div>
       <div className="border-t border-[#d8d4cb] p-5 text-2xl font-bold text-[#141518]">
