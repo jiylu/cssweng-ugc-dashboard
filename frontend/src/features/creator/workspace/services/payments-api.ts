@@ -10,9 +10,8 @@ export interface Invoice {
 export interface Payment {
   public_id: string
   proof_payment_url: string | null
-}
-
-export interface Payment {
+  is_payment_verified: boolean
+  created_at: string
   verified_at: string | null
 }
 
@@ -54,4 +53,35 @@ export async function getInvoiceForCampaign(
 export async function getPaymentForCampaign(
   campaignPublicId: string,
 ): Promise<Payment | null> {
+  const response = await fetch(
+    `${API_BASE_URL}/payments/campaign/${encodeURIComponent(campaignPublicId)}`,
+    { credentials: "include" },
+  )
+  if (!response.ok) {
+    throw new Error(await parseApiError(response, "Unable to fetch invoice."))
+  }
+  const text = await response.text()
+  return text ? JSON.parse(text) : null
+}
 
+export async function validatePayment(paymentPublicId: string): Promise<Payment> {
+  const response = await fetch(
+    `${API_BASE_URL}/payments/validate/${encodeURIComponent(paymentPublicId)}`,
+    { method: "PATCH", credentials: "include" },
+  )
+  if (!response.ok) {
+    throw new Error(await parseApiError(response, "Unable to send invoice."))
+  }
+  return response.json()
+}
+
+export async function sendInvoice(campaignPublicId: string): Promise<Payment> {
+  const response = await fetch(
+    `${API_BASE_URL}/payments/invoice?campaignPublic=${encodeURIComponent(campaignPublicId)}`,
+    { method: "POST", credentials: "include" },
+  )
+  if (!response.ok) {
+    throw new Error(await parseApiError(response, "Unable to send invoice."))
+  }
+  return response.json()
+}
