@@ -428,7 +428,7 @@ function FeedbackActions({
             className="mt-3 w-full rounded bg-[#6b1fa8] font-normal hover:bg-[#551783]"
             onClick={onNext}
           >
-            Continue
+            {isWrittenStep ? "Next: Media Assets" : "Next: Completed"}
           </Button>
         </div>
       ) : !currentAssetPublicId ? (
