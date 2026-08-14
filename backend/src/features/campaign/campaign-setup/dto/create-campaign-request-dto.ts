@@ -30,7 +30,7 @@ export class CreateCampaignRequestDto {
   @ApiProperty({
     type: CampaignSetupDto,
     description:
-      "Campaign details (omit 'pricing' — computed from deliverables)",
+      "Campaign details (omit 'pricing' — computed from deliverables and gifted products)",
   })
   @ValidateNested()
   @Type(() => CampaignSetupDto)

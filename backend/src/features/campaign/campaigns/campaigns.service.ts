@@ -475,13 +475,30 @@ export class CampaignsService {
       },
     });
 
+    const giftedProducts = await tx.giftedProducts.findMany({
+      where: {
+        campaign_id: campaign.campaign_id,
+        is_deleted: false,
+      },
+      select: {
+        value: true,
+      },
+    });
+
     const deliverablesTotal = deliverables.reduce(
       (sum, deliverable) => sum.plus(deliverable.pricing),
       new Prisma.Decimal(0),
     );
 
+    const giftedProductsTotal = giftedProducts.reduce(
+      (sum, giftedProduct) => sum.plus(giftedProduct.value),
+      new Prisma.Decimal(0),
+    );
+
     const taxRate = campaign.tax.div(100);
-    const totalPrice = deliverablesTotal.times(taxRate.plus(1));
+    const totalPrice = deliverablesTotal
+      .plus(giftedProductsTotal)
+      .times(taxRate.plus(1));
 
     const updatedCampaign = await tx.campaigns.update({
       where: { campaign_id: campaign.campaign_id },

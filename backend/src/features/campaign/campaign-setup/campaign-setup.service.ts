@@ -72,8 +72,15 @@ export class CampaignSetupService {
           new Prisma.Decimal(0),
         );
 
+        const giftedProductsTotal = (dto.giftedProducts ?? []).reduce(
+          (sum, g) => sum.plus(new Prisma.Decimal(g.value)),
+          new Prisma.Decimal(0),
+        );
+
         const taxRate = new Prisma.Decimal(dto.campaign.tax).div(100);
-        const totalPrice = deliverablesTotal.times(taxRate.plus(1));
+        const totalPrice = deliverablesTotal
+          .plus(giftedProductsTotal)
+          .times(taxRate.plus(1));
 
         const paymentSchedule =
           dto.contract.payment_terms.payment_schedule ===
@@ -338,13 +345,26 @@ export class CampaignSetupService {
           tx,
         );
 
+      const campaignGiftedProducts =
+        await this.giftedProductsService.findGiftedProductsForCampaign(
+          campaignId,
+          tx,
+        );
+
       const deliverablesTotal = campaignDeliverables.reduce(
         (sum, deliverable) => sum.plus(deliverable.pricing),
         new Prisma.Decimal(0),
       );
 
+      const giftedProductsTotal = (campaignGiftedProducts ?? []).reduce(
+        (sum, giftedProduct) => sum.plus(giftedProduct.value),
+        new Prisma.Decimal(0),
+      );
+
       const taxRate = currentCampaign.tax.div(100);
-      const totalPrice = deliverablesTotal.times(taxRate.plus(1));
+      const totalPrice = deliverablesTotal
+        .plus(giftedProductsTotal)
+        .times(taxRate.plus(1));
 
       const recomputedCampaign =
         await this.campaignService.updateCampaignDetails(
@@ -352,6 +372,20 @@ export class CampaignSetupService {
           { pricing: totalPrice.toNumber() },
           tx,
         );
+
+      if (
+        currentCampaign.payment_schedule ===
+          PaymentSchedule.DEPOSIT_50_FINAL_50 &&
+        currentCampaign.paid_amount.equals(currentCampaign.pricing.div(2))
+      ) {
+        await this.campaignService.updatePaidAmount(
+          campaignId,
+          {
+            paidAmount: totalPrice.div(2).toNumber(),
+          },
+          tx,
+        );
+      }
 
       return {
         campaign: recomputedCampaign,

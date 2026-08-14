@@ -37,6 +37,9 @@ describe('CampaignService', () => {
     addOns: {
       findMany: jest.fn(),
     },
+    giftedProducts: {
+      findMany: jest.fn(),
+    },
   };
 
   const mockUserService = {
@@ -767,7 +770,7 @@ describe('CampaignService', () => {
   });
 
   describe('recalculateCampaignPricing', () => {
-    it('should recompute pricing from deliverables and tax only', async () => {
+    it('should recompute pricing from deliverables, gifted products and tax', async () => {
       const campaignId = 'camp-price-1';
       const mockCampaign = {
         campaign_id: campaignId,
@@ -790,14 +793,17 @@ describe('CampaignService', () => {
         { pricing: new Prisma.Decimal(1000) },
         { pricing: new Prisma.Decimal(500) },
       ]);
+      mockPrisma.giftedProducts.findMany.mockResolvedValue([
+        { value: new Prisma.Decimal(300) },
+      ]);
       mockPrisma.campaigns.update.mockResolvedValue({
         ...mockCampaign,
-        pricing: new Prisma.Decimal(1680),
+        pricing: new Prisma.Decimal(2016),
       });
 
       const res = await service.recalculateCampaignPricing(campaignId);
 
-      expect(res.pricing).toEqual(new Prisma.Decimal(1680));
+      expect(res.pricing).toEqual(new Prisma.Decimal(2016));
       expect(mockPrisma.campaigns.findFirst).toHaveBeenCalledWith({
         where: { campaign_id: campaignId },
       });
@@ -805,10 +811,14 @@ describe('CampaignService', () => {
         where: { campaign_id: campaignId, is_deleted: false },
         select: { pricing: true },
       });
+      expect(mockPrisma.giftedProducts.findMany).toHaveBeenCalledWith({
+        where: { campaign_id: campaignId, is_deleted: false },
+        select: { value: true },
+      });
       expect(mockPrisma.addOns.findMany).not.toHaveBeenCalled();
       expect(mockPrisma.campaigns.update).toHaveBeenCalledWith({
         where: { campaign_id: campaignId },
-        data: { pricing: new Prisma.Decimal(1680) },
+        data: { pricing: new Prisma.Decimal(2016) },
       });
     });
 
@@ -819,6 +829,7 @@ describe('CampaignService', () => {
         service.recalculateCampaignPricing('missing-camp'),
       ).rejects.toBeInstanceOf(NotFoundException);
       expect(mockPrisma.deliverables.findMany).not.toHaveBeenCalled();
+      expect(mockPrisma.giftedProducts.findMany).not.toHaveBeenCalled();
       expect(mockPrisma.addOns.findMany).not.toHaveBeenCalled();
       expect(mockPrisma.campaigns.update).not.toHaveBeenCalled();
     });

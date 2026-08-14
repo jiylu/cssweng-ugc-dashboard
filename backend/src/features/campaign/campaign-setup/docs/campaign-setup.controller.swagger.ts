@@ -8,7 +8,7 @@ export function ApiCreateFullCampaign() {
     ApiOperation({
       summary: 'Create full campaign setup in one transaction',
       description:
-        'Creates the complete campaign package from a single request payload using CreateCampaignRequestDto. The endpoint creates campaign, proposal, deliverables, contract, optional add-ons, and optional gifted products inside one database transaction. Campaign pricing is computed server-side from deliverable pricing and tax (`sum(deliverables.pricing) + tax%`) and should not be sent by clients. If any sub-step fails, all writes are rolled back.',
+        'Creates the complete campaign package from a single request payload using CreateCampaignRequestDto. The endpoint creates campaign, proposal, deliverables, contract, optional add-ons, and optional gifted products inside one database transaction. Campaign pricing is computed server-side from deliverable and gifted product value plus tax (`(sum(deliverables.pricing) + sum(giftedProducts.value)) + tax%`) and should not be sent by clients. If any sub-step fails, all writes are rolled back.',
     }),
     ApiBody({
       type: CreateCampaignRequestDto,

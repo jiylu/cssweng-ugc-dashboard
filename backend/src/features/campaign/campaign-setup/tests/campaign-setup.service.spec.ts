@@ -29,6 +29,7 @@ describe('CampaignSetupService', () => {
     createCampaign: jest.fn(),
     findOneCampaign: jest.fn(),
     updateCampaignDetails: jest.fn(),
+    updatePaidAmount: jest.fn(),
   };
 
   const mockDeliverableService = {
@@ -310,6 +311,123 @@ describe('CampaignSetupService', () => {
         mockCampaign.campaign_id,
         dto.deliverables.map((d) => ({
           ...d,
+          campaignId: mockCampaign.campaign_id,
+        })),
+        {},
+      );
+    });
+
+    it('should include gifted product value in the computed pricing', async () => {
+      const dto: CreateCampaignRequestDto = {
+        campaign: {
+          ugcId: 'ugc-1',
+          projectName: 'Gifted Test',
+          description: 'A project for testing gifted products',
+          currency: 'PHP',
+          tax: 10,
+          platforms: { Instagram: 'true' },
+          startDate: new Date('2026-06-10T00:00:00Z').toISOString(),
+          endDate: new Date('2026-06-20T00:00:00Z').toISOString(),
+        },
+        deliverables: [
+          {
+            quantity: 1,
+            deliverableType: DeliverableType.UGC,
+            deliverableContent: 'TikTok Video',
+            requirements: 'Long enough description for d1',
+            dueDate: new Date('2026-06-15T00:00:00Z').toISOString(),
+            postDate: new Date('2026-06-16T00:00:00Z').toISOString(),
+            pricing: 300,
+          },
+        ],
+        proposal: {
+          clientEmail: 'client@test.com',
+          client_first_name: 'Jane',
+          client_last_name: 'Doe',
+        },
+        contract: {
+          revision_policy: {
+            revision_rounds: 3,
+            revision_window_days: 7,
+            auto_approve_after_days: 5,
+          },
+          usage_rights: {
+            is_exclusive: true,
+            is_transferrable: false,
+            organic_usage:
+              'Brand may repost creator content on owned channels.',
+            territory: 'Worldwide',
+            restrictions: 'None',
+          },
+          posting_requirements: {
+            content_retention_months: 12,
+            partnership_tags: '#ad',
+          },
+          cancellation_period: 30,
+          payment_terms: {
+            payment_schedule: PAYMENT_SCHEDULE.NET_30,
+            payment_method: 'Bank Transfer',
+          },
+          invoice_requirements: {
+            name: 'Test',
+            email: 'test@test.com',
+            campaign_name: 'Test',
+            payment_details: 'Bank',
+          },
+          general_terms: {
+            governed_by: 'Laws of the Republic of the Philippines',
+            disputes_handled_in: 'Makati City courts',
+          },
+        },
+        giftedProducts: [
+          {
+            productName: 'Hydrating Night Cream',
+            value: 500,
+            shippingAddress: {
+              delivery_address_line_1: '123 Sample St',
+              country: 'Philippines',
+              state_province: 'Metro Manila',
+              city: 'Makati City',
+              zip_code: 1226,
+            },
+            deliveryInstructions: 'Deliver weekdays 9AM-5PM',
+            ownershipTerms: 'Recipient retains ownership.',
+          },
+        ],
+      };
+
+      const totalPrice = 880;
+
+      const mockCampaign = {
+        campaign_id: 'camp-gifted',
+        ...dto.campaign,
+        pricing: totalPrice,
+      };
+
+      mockCampaignService.createCampaign.mockResolvedValue(mockCampaign);
+      mockProposalService.createProposal.mockResolvedValue({
+        proposal_id: 'prop-gifted',
+      });
+      mockDeliverableService.createManyDeliverables.mockResolvedValue([]);
+      mockGiftedProductsService.createManyGiftedProducts.mockResolvedValue([]);
+
+      const res = await service.createFullCampaignService(dto);
+
+      expect(res.campaign).toEqual(mockCampaign);
+      expect(mockCampaignService.createCampaign).toHaveBeenCalledWith(
+        {
+          ...dto.campaign,
+          pricing: totalPrice,
+          paymentSchedule: PaymentSchedule.DEPOSIT_50_FINAL_50,
+        },
+        {},
+      );
+      expect(
+        mockGiftedProductsService.createManyGiftedProducts,
+      ).toHaveBeenCalledWith(
+        mockCampaign.campaign_id,
+        (dto.giftedProducts ?? []).map((g) => ({
+          ...g,
           campaignId: mockCampaign.campaign_id,
         })),
         {},
@@ -611,6 +729,91 @@ describe('CampaignSetupService', () => {
         { proposalStatus: 'PENDING' },
         tx,
       );
+    });
+
+    it('should re-credit half the pricing for a DEPOSIT_50 campaign when paid amount is still the original deposit', async () => {
+      const tx = { tx: true };
+      mockPrisma.$transaction.mockImplementation((cb: any) =>
+        Promise.resolve(cb(tx)),
+      );
+
+      const campaignId = 'camp-deposit';
+      const currentCampaign = {
+        campaign_id: campaignId,
+        tax: new Prisma.Decimal(10),
+        pricing: new Prisma.Decimal(5000),
+        paid_amount: new Prisma.Decimal(2500),
+        payment_schedule: PaymentSchedule.DEPOSIT_50_FINAL_50,
+      };
+
+      mockCampaignService.findOneCampaign.mockResolvedValue(currentCampaign);
+      mockCampaignService.updateCampaignDetails.mockResolvedValue(
+        currentCampaign,
+      );
+      mockCampaignService.updatePaidAmount.mockResolvedValue(currentCampaign);
+      mockProposalService.findProposalByCampaignId.mockResolvedValue({
+        proposal_id: 'prop-deposit',
+        proposal_status: 'PENDING',
+      });
+      mockContractService.findContractByCampaignId.mockResolvedValue(null);
+      mockDeliverableService.findDeliverablesForCampaign.mockResolvedValue([
+        { pricing: new Prisma.Decimal(500) },
+        { pricing: new Prisma.Decimal(550) },
+      ]);
+      mockAddOnService.findAddOnsForCampaign.mockResolvedValue([]);
+      mockGiftedProductsService.findGiftedProductsForCampaign.mockResolvedValue(
+        [{ value: new Prisma.Decimal(100) }],
+      );
+
+      await service.updateCampaignSetup(campaignId, {
+        campaign: { projectName: 'Deposit Update' },
+      });
+
+      expect(mockCampaignService.updatePaidAmount).toHaveBeenCalledWith(
+        campaignId,
+        { paidAmount: 632.5 },
+        tx,
+      );
+    });
+
+    it('should not re-credit the deposit once the paid amount has moved past the original deposit', async () => {
+      const tx = { tx: true };
+      mockPrisma.$transaction.mockImplementation((cb: any) =>
+        Promise.resolve(cb(tx)),
+      );
+
+      const campaignId = 'camp-paid';
+      const currentCampaign = {
+        campaign_id: campaignId,
+        tax: new Prisma.Decimal(10),
+        pricing: new Prisma.Decimal(5000),
+        paid_amount: new Prisma.Decimal(5000),
+        payment_schedule: PaymentSchedule.DEPOSIT_50_FINAL_50,
+      };
+
+      mockCampaignService.findOneCampaign.mockResolvedValue(currentCampaign);
+      mockCampaignService.updateCampaignDetails.mockResolvedValue(
+        currentCampaign,
+      );
+      mockProposalService.findProposalByCampaignId.mockResolvedValue({
+        proposal_id: 'prop-paid',
+        proposal_status: 'PENDING',
+      });
+      mockContractService.findContractByCampaignId.mockResolvedValue(null);
+      mockDeliverableService.findDeliverablesForCampaign.mockResolvedValue([
+        { pricing: new Prisma.Decimal(500) },
+        { pricing: new Prisma.Decimal(550) },
+      ]);
+      mockAddOnService.findAddOnsForCampaign.mockResolvedValue([]);
+      mockGiftedProductsService.findGiftedProductsForCampaign.mockResolvedValue(
+        [],
+      );
+
+      await service.updateCampaignSetup(campaignId, {
+        campaign: { projectName: 'Paid Update' },
+      });
+
+      expect(mockCampaignService.updatePaidAmount).not.toHaveBeenCalled();
     });
   });
 });
