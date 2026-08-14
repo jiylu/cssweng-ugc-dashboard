@@ -2,8 +2,8 @@ jest.mock('nanoid', () => ({ nanoid: jest.fn(() => 'mock-pb-id') }));
 
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from 'src/shared/prisma/prisma.service';
-import { CampaignsService } from 'src/features/campaigns/campaigns.service';
-import { DeliverablesService } from 'src/features/deliverables/deliverables.service';
+import { CampaignsService } from 'src/features/campaign/campaigns/campaigns.service';
+import { DeliverablesService } from 'src/features/deliverable/deliverables/deliverables.service';
 import { FinalAssetsService } from '../final-assets.service';
 import { ForbiddenException } from '@nestjs/common';
 

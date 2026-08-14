@@ -5,7 +5,7 @@ import { ContractTermsData } from "../types/contract-terms.types";
 import { paymentTermsSchema, shippingAddressSchema } from "../schemas/payment-terms.schema"
 import { PaymentTermsData, ShippingAddress } from "../types/payment-terms.types"
 import { addOnsSchema } from "../schemas/add-ons.schema"
-import { AddOnItem } from "../components/add-ons/add-ons-form"
+import { AddOnItem } from "@/src/features/creator/proposals/types/add-on.types"
 
 interface FormData {
     projectName: string;

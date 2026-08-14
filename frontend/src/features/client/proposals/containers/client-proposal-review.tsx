@@ -167,7 +167,11 @@ export default function ClientProposalReview() {
           ) : (
             <ProposalFeedbackPanel
               feedback={displayedFeedback}
-              onContractSigning={() => router.push(`/contracts/${data.contract.public_id}`)}
+              onContractSigning={() =>
+                router.push(
+                  `/contracts/${data.contract.public_id}?proposal=${data.proposal.public_id}`,
+                )
+              }
               onDecline={handleDecline}
               onFeedbackChange={setFeedback}
               onReviseProposal={handleReviseProposal}

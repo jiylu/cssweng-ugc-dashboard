@@ -4,9 +4,10 @@ import SignContractModal from "./sign-contract-modal";
 
 interface ContractActionPanelProps {
   contractPublicId: string;
+  proposalPublicId?: string;
 }
 
-export default function ContractActionPanel({ contractPublicId }: ContractActionPanelProps) {
+export default function ContractActionPanel({ contractPublicId, proposalPublicId }: ContractActionPanelProps) {
   const router = useRouter();
 
   return (
@@ -23,6 +24,7 @@ export default function ContractActionPanel({ contractPublicId }: ContractAction
       <div className="mt-12 space-y-3">
         <SignContractModal
           contractPublicId={contractPublicId}
+          proposalPublicId={proposalPublicId}
         />
         <Button
           type="button"

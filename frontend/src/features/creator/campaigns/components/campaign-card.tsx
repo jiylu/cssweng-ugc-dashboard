@@ -5,24 +5,25 @@ import { Campaign } from "../types/campaign.types"
 import { formatDate } from "@/src/utils/date"
 
 const statusStyles: Record<string, string> = {
-  COMPLETE: "bg-[#2d7a3a] text-white border-0",
   ACTIVE: "bg-[#F2F0EA] text-foreground border border-[#2d7a3a]",
-  PENDING: "bg-[#F2F0EA] text-foreground border border-border",
-  "FOR REVISIONS": "bg-transparent text-foreground border border-border",
+  COMPLETED: "bg-[#2d7a3a] text-white border-0",
+  REJECTED: "bg-transparent text-foreground border border-border",
+  CANCELLED: "bg-transparent text-foreground border border-border",
 }
 
 interface CampaignCardProps {
   campaign: Campaign
+  clientName?: string
   onOpenWorkspace: (id: string) => void
 }
 
-export function CampaignCard({ campaign, onOpenWorkspace }: CampaignCardProps) {
+export function CampaignCard({ campaign, clientName, onOpenWorkspace }: CampaignCardProps) {
   return (
     <Card className="flex flex-row items-center justify-between px-6 py-4 h-20">
-      {/* Name & Company */}
+      {/* Name & Client */}
       <div className="w-48 shrink-0">
-        <p className="font-normal text-foreground">{campaign.project_name}</p>
-        <p className="text-sm text-muted-foreground">{campaign.currency}</p>
+        <p className="font-normal text-foreground break-words min-w-0">{campaign.project_name}</p>
+        <p className="text-sm text-muted-foreground">{clientName ?? campaign.currency}</p>
       </div>
 
       {/* Divider */}

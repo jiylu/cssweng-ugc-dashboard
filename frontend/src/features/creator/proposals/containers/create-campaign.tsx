@@ -1,5 +1,5 @@
 "use client"
-import { useEffect } from "react"
+import { useEffect, useRef } from "react"
 import CreatorProposalsNavigation from "@/src/features/creator/proposals/components/proposals-nav";
 import CreatorSidebar from "@/src/components/organisms/creator-sidebar";
 import { useCampaignForm } from "../hooks/useCampaignForm";
@@ -7,7 +7,11 @@ import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/src/features/auth/hooks/useAuth";
 import { useCreateCampaign } from "@/src/features/creator/proposals/hooks/useCreateCampaignMutation";
 import { useCreateDraft, useDeleteDraft, useDraft, useUpdateDraft } from "@/src/features/creator/proposals/hooks/useProposalDrafts";
+import { useSubmittedProposalDetails } from "@/src/features/creator/proposals/hooks/useSubmittedProposalDetails";
+import { useUpdateCampaignSetup } from "@/src/features/creator/proposals/hooks/useUpdateCampaignSetup";
 import { applyDraftToForm } from "@/src/features/creator/proposals/utils/applyDraftToForm";
+import { applyCampaignSetupToForm, LoadedSetupIds } from "@/src/features/creator/proposals/utils/applyCampaignSetupToForm";
+import { buildUpdateCampaignPayload } from "@/src/features/creator/proposals/utils/buildUpdateCampaignPayload";
 import { toast } from "sonner";
 import { useRouter, useSearchParams } from "next/navigation"
 import { useQueryClient } from "@tanstack/react-query"
@@ -35,10 +39,15 @@ export default function CreateCampaign() {
   const paymentTerms = usePaymentTerms()
   const addOns = useAddOns()
   const draftId = searchParams.get("draft")
+  const editCampaignId = searchParams.get("edit")
+  const isEditing = !!editCampaignId
   const { mutate: saveNewDraft, isPending: isSavingNewDraft } = useCreateDraft()
   const { mutate: saveExistingDraft, isPending: isSavingExistingDraft } = useUpdateDraft(draftId ?? undefined)
   const { mutate: deleteDraft } = useDeleteDraft()
   const { data: draft, isLoading: draftLoading } = useDraft(draftId ?? undefined)
+  const { data: setupDetails, isLoading: setupLoading } = useSubmittedProposalDetails(editCampaignId ?? undefined)
+  const { mutate: updateCampaign, isPending: isUpdating } = useUpdateCampaignSetup()
+  const loadedIdsRef = useRef<LoadedSetupIds | null>(null)
   const isSavingDraft = isSavingNewDraft || isSavingExistingDraft
   const baseCreatorFee = calculateBaseCreatorFee(
     form.deliverables,
@@ -56,6 +65,14 @@ export default function CreateCampaign() {
   }, [draft, user])
 
   useEffect(() => {
+    if (setupDetails && user) {
+      const ids = applyCampaignSetupToForm({ form, contractTerms, paymentTerms, addOns, details: setupDetails })
+      loadedIdsRef.current = ids
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [setupDetails, user])
+
+  useEffect(() => {
     const warnBeforeLeaving = (event: BeforeUnloadEvent) => {
       event.preventDefault()
       event.returnValue = true
@@ -69,7 +86,7 @@ export default function CreateCampaign() {
 
   if (!user) return null;
 
-  if (draftLoading) return <LogoLoader label="Loading draft" />;
+  if (draftLoading || (isEditing && (setupLoading || !setupDetails))) return <LogoLoader label="Loading proposal details" />;
 
   const buildPayload = () => buildProposalPayload({
     userId: user.user_id,
@@ -80,6 +97,11 @@ export default function CreateCampaign() {
   })
 
   const handleSaveDraft = () => {
+    if (isEditing) {
+      toast.info("Draft saving is not available while editing a submitted proposal.");
+      return;
+    }
+
     if (!form.validateForm()) {
       const allErrors = Object.entries(form.errors)
         .map(([field, err]) => {
@@ -153,6 +175,28 @@ export default function CreateCampaign() {
       }
       return;
     };
+
+    if (isEditing) {
+      if (!editCampaignId || !loadedIdsRef.current) return;
+      updateCampaign(
+        {
+          campaignPublicId: editCampaignId,
+          payload: buildUpdateCampaignPayload({ form, contractTerms, paymentTerms, addOns, loadedIds: loadedIdsRef.current }),
+        },
+        {
+          onSuccess: () => {
+            toast.success("Proposal updated!");
+            queryClient.invalidateQueries({ queryKey: ["submitted-proposals", user.user_id] });
+            queryClient.invalidateQueries({ queryKey: ["proposal-client", editCampaignId] });
+            queryClient.invalidateQueries({ queryKey: ["submitted-proposal-details", editCampaignId] });
+            router.push('/proposals/submitted');
+          },
+          onError: (err) => toast.error(err.message),
+        }
+      );
+      return;
+    }
+
     submitCampaign(
       { payload: buildPayload() },
       {
@@ -184,10 +228,12 @@ export default function CreateCampaign() {
           {/* HEADER */}
           <div className="mt-5 mb-5">
             <h1 className="text-[44px] font-normal">
-              Create New Proposal
+              {isEditing ? "Edit Proposal" : "Create New Proposal"}
             </h1>
             <p className="text-[18px] text-muted-foreground">
-              Draft a proposal for your next client collaboration. Ensure all deliverables are clearly defined.
+              {isEditing
+                ? "Update the proposal and resubmit it to your client for review."
+                : "Draft a proposal for your next client collaboration. Ensure all deliverables are clearly defined."}
             </p>
           </div>
 
@@ -212,6 +258,7 @@ export default function CreateCampaign() {
           {form.activeStep === 1 && (
             <CampaignDeliverablesContainer
               form={form}
+              readOnly={isEditing}
               onNext={() => form.setActiveStep(2)}
             />
           )}
@@ -245,7 +292,7 @@ export default function CreateCampaign() {
               onNext={() => form.setActiveStep(5)}
               onSaveDraft={handleSaveDraft}
               onSubmit={handleSendProposal}
-              isPending={isPending}
+              isPending={isEditing ? isUpdating : isPending}
               baseCreatorFee={baseCreatorFee}
               currency={form.currency}
               taxRate={paymentTerms.taxRate}
@@ -263,7 +310,7 @@ export default function CreateCampaign() {
               onBack={() => form.setActiveStep(4)}
               onSaveDraft={handleSaveDraft}
               onSubmit={handleSendProposal}
-              isPending={isPending}
+              isPending={isEditing ? isUpdating : isPending}
               isSavingDraft={isSavingDraft}
             />
           )}

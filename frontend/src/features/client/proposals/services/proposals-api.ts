@@ -173,6 +173,12 @@ export function declineProposal(proposalId: string) {
   });
 }
 
+export function acceptProposal(proposalId: string) {
+  return request<ProposalRecord>(`/proposals/accept/${proposalId}`, {
+    method: "PATCH",
+  });
+}
+
 export function updateAddOnOptIn(addOnId: string, optIn: boolean) {
   return request(`/add-ons/opt-in/${addOnId}`, {
     method: "POST",

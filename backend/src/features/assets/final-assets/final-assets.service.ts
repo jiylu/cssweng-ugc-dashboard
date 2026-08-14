@@ -4,8 +4,8 @@ import {
   Injectable,
   Logger,
 } from '@nestjs/common';
-import { CampaignsService } from 'src/features/campaigns/campaigns.service';
-import { DeliverablesService } from 'src/features/deliverables/deliverables.service';
+import { CampaignsService } from 'src/features/campaign/campaigns/campaigns.service';
+import { DeliverablesService } from 'src/features/deliverable/deliverables/deliverables.service';
 import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { CreateFinalAssetDTO } from './dto/create-final-asset.dto';
 import { nanoid } from 'nanoid';

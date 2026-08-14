@@ -9,6 +9,9 @@ const apiDestinationBaseUrl = apiBaseUrl.endsWith("/api")
 
 const nextConfig: NextConfig = {
   devIndicators: false,
+  experimental: {
+    proxyClientMaxBodySize: "300mb",
+  },
   turbopack: {}, 
   webpack: (config) => {
     config.watchOptions = {
