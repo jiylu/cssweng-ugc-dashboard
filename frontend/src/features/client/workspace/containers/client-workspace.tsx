@@ -682,9 +682,7 @@ function InvoicePanel({ campaignId, onPrevious, onNext }: { campaignId: string; 
           ) : null}
         </DialogContent>
       </Dialog>
-<<<<<<< HEAD
 
-=======
       <div className="mt-8 flex items-center justify-end gap-3 border-t border-[#d8d4cb] pt-4">
         <Button variant="outline" className="min-w-32" onClick={onPrevious}>
           Previous: Deliverables
@@ -714,7 +712,6 @@ function DeliverableCompletedPanel({ onNext }: { onNext: () => void }) {
       >
         Next: Invoicing
       </Button>
->>>>>>> origin/dev
     </section>
   );
 }
@@ -960,7 +957,6 @@ export default function ClientWorkspace({
                   onPreview={() => setPreviewOpen(true)}
                 />
               ) : (
-<<<<<<< HEAD
                 <ClientDeliverableApprovedCard
                   deliverableName={activeDeliverableName}
                   allApproved={Boolean(data?.campaign?.all_deliverables_approved)}
@@ -978,22 +974,6 @@ export default function ClientWorkspace({
                   mediaAssetAction={latestMediaAsset?.media_asset_action}
                   onMutationSuccess={handleMutationSuccess}
                   onNext={() => setActiveSubmissionStep(activeSubmissionStep + 1)}
-                />
-              )}
-=======
-                <DeliverableCompletedPanel
-                  onNext={() => setActiveStep(2)}
-                />
-              )}
-              {activeSubmissionStep < 2 && (
-                <FeedbackActions
-                  submissionStep={activeSubmissionStep}
-                  writtenAssetPublicId={latestWrittenAsset?.public_id}
-                  mediaAssetPublicId={latestMediaAsset?.public_id}
-                  writtenAssetAction={latestWrittenAsset?.written_asset_action}
-                  mediaAssetAction={latestMediaAsset?.media_asset_action}
-                  onMutationSuccess={handleMutationSuccess}
-                  onNext={() => setActiveSubmissionStep(2)}
                 />
               )}
               </div>
@@ -1033,7 +1013,7 @@ export default function ClientWorkspace({
                   <ArrowRight className="ml-2 size-4" />
                 </Button>
               )}
->>>>>>> origin/dev
+
             </div>
           </div>
         </div>
