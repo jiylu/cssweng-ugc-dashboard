@@ -1,100 +1,128 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# ASCEOfT UGC Dashboard — Backend
 
-<p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+REST API for the ASCEOfT UGC management platform, where creators and clients
+manage campaigns, proposals, contracts, deliverables, payments, and invoices.
 
-## Description
+## 1. Tech Stack
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- **NestJS 11** (Express) + **TypeScript**
+- **Prisma 7** + **PostgreSQL**
+- **Supabase** (Auth) + **Supabase Storage** + **Cloudinary** (file/media uploads)
+- **JWT** (passport-jwt), **class-validator** / **class-transformer**
+- **WebSockets** (`ws`), **Nodemailer** (email/OTP), **Swagger UI**
+- **Jest** + **Supertest** for testing
 
-## Project setup
+## 2. Prerequisites
+
+- Node.js 20+
+- npm or pnpm
+- A Supabase project (Postgres, Auth, Storage) or a local PostgreSQL instance
+- Docker (optional, for containerized dev)
+- Frontend running on `http://localhost:3000` (CORS is restricted to this origin)
+
+## 3. Getting Started
 
 ```bash
-$ npm install
+pnpm install
+pnpm prisma generate
+
+cp .env.development .env   # or use .env.production for prod-style config
+pnpm run db:push:dev
+pnpm run start:dev
 ```
 
-## Compile and run the project
+- API: `http://localhost:8080/api`
+- Swagger docs: `http://localhost:8080/docs`
+
+Note: the app uses `dotenv-flow`, which loads the matching `.env.<NODE_ENV>`
+file automatically based on `NODE_ENV`.
+
+## 4. Environment Variables
+
+Create a `.env` file in the backend root (names listed below; values are kept
+out of the repo):
+
+| Variable                   | Description                                     |
+| -------------------------- | ----------------------------------------------- |
+| `DATABASE_URL`             | PostgreSQL connection string                    |
+| `PORT`                     | Server port (default `8080`)                    |
+| `SUPABASE_URL`             | Supabase project URL                            |
+| `SUPABASE_ANON_KEY`        | Supabase anon (public) key                      |
+| `SUPABASE_SERVICE_ROLE`    | Supabase service-role key                       |
+| `SUPABASE_SECRET_KEY`      | Supabase secret key                             |
+| `SUPABASE_STORAGE_BUCKET`  | Storage bucket name for uploads                 |
+| `ZOHO_USER`                | Zoho mail account for outbound email            |
+| `ZOHO_APP_PASSWORD`        | Zoho app password                               |
+| `OTP_HASH_SECRET`          | Secret used to hash registration OTPs           |
+| `CLOUDINARY_URL`           | Cloudinary connection URL                       |
+| `CLOUDINARY_CLOUD_NAME`    | Cloudinary cloud name                           |
+| `CLOUDINARY_API_KEY`       | Cloudinary API key                              |
+| `CLOUDINARY_SECRET_KEY`    | Cloudinary API secret                           |
+
+## 5. Running with Docker
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+docker compose up
 ```
 
-## Run tests
+Frontend on `:3000`, backend on `:8080`. Hot reload works via volume mounts and
+polling env vars (`WATCHPACK_POLLING`, `CHOKIDAR_USEPOLLING`).
 
-```bash
-# unit tests
-$ npm run test
+> The backend service loads its config from `./backend/.env`, so create it
+> before running.
 
-# e2e tests
-$ npm run test:e2e
+## 6. Scripts
 
-# test coverage
-$ npm run test:cov
+| Script           | Command                          | Description                |
+| ---------------- | -------------------------------- | -------------------------- |
+| `start`          | `nest start`                     | Start without watching     |
+| `start:dev`      | `nest start --watch`             | Dev mode with hot reload   |
+| `start:prod`     | `node dist/main`                 | Run the production build   |
+| `build`          | `nest build`                     | Compile to `dist/`         |
+| `lint`           | `eslint "src/**/*.ts" --fix`     | Lint (and fix) source      |
+| `format`         | `prettier --write`               | Format source files        |
+| `test`           | `jest`                           | Run unit tests             |
+| `test:e2e`       | `jest --config ./test/jest-e2e.json` | Run e2e tests         |
+| `test:cov`       | `jest --coverage`                | Run tests with coverage    |
+| `db:push:dev`    | `prisma db push` (dev env)       | Sync schema to dev DB      |
+| `db:push:prod`   | `prisma db push` (prod env)      | Sync schema to prod DB     |
+
+## 7. Project Structure
+
+```
+src/
+  features/            # feature modules
+    user/              # users, OTP
+    campaign/          # campaigns, proposals, contracts, add-ons, drafts,
+                       #   gifted-products, payments, invoices, campaign-setup
+    deliverable/       # deliverables, submissions, items
+    assets/            # written assets, media assets (+ drafts)
+  shared/              # cross-cutting infrastructure
+    prisma/            # Prisma client module
+    supabase/          # Supabase client
+    supabase-storage/  # file uploads to Supabase Storage
+    cloudinary/        # media uploads via Cloudinary
+    email/             # mailer (Zoho)
+    notifications/     # WebSocket notifications
+    analytics/         # analytics service
+    activity-log/      # user activity logging
+    upload/            # upload helpers
+    guards/            # auth guards
+    decorators/        # custom decorators
+prisma/
+  schema.prisma        # database schema
+  migrations/          # Prisma migrations
+test/                  # e2e tests
 ```
 
-## Deployment
+## 8. Roles
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+- **Creator** — creator registration, creator dashboard
+- **Client** — client registration, client workspace
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+## 9. Notes
 
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
-
-
-
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
-
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+- API endpoints are prefixed with `/api`.
+- CORS is limited to `http://localhost:3000`.
+- Prisma 7 resolves the datasource URL via `prisma.config.ts` (per env file).
+- Part of a monorepo — shared root includes `frontend/` and `docker-compose.yml`.
