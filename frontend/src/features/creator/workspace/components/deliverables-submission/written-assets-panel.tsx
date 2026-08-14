@@ -10,12 +10,13 @@ import type { WrittenAsset } from "@/src/features/client/workspace/services/deli
 interface WrittenAssetsPanelProps {
   version: number
   onDirtyChange: (dirty: boolean) => void
-  onSaveDraft: () => void
+  onSaveDraft: (content: string) => void
   onSubmit: (content: string) => void
   onNext: () => void
   onHistory: () => void
   writtenAsset?: WrittenAsset | null
   isSubmitting?: boolean
+  isSavingDraft?: boolean
   itemsLoading?: boolean
   itemsError?: boolean
 }
@@ -29,6 +30,7 @@ export function WrittenAssetsPanel({
   onHistory,
   writtenAsset,
   isSubmitting,
+  isSavingDraft,
   itemsLoading,
   itemsError,
 }: WrittenAssetsPanelProps) {
@@ -100,7 +102,19 @@ export function WrittenAssetsPanel({
       <p className="text-xs mt-1 text-[#ff6467] min-h-[16px]">{errors.content ?? ""}</p>
 
       <div className="flex justify-end gap-2">
-        <Button variant="outline" onClick={onSaveDraft}>Save Draft</Button>
+        <Button
+          variant="outline"
+          onClick={() => onSaveDraft(content)}
+          disabled={
+            isSavingDraft ||
+            isLocked ||
+            !writtenAsset ||
+            content.replace(/<[^>]*>/g, "").trim().length === 0
+          }
+          title={!writtenAsset ? "Submit a version first to save drafts." : undefined}
+        >
+          {isSavingDraft ? "Saving Draft..." : "Save Draft"}
+        </Button>
         {isApproved ? (
           <Button
             onClick={onNext}

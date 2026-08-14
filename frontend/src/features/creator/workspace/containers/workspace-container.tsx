@@ -24,6 +24,7 @@ import { useDeliverableItems } from "@/src/features/creator/workspace/hooks/useD
 import { useAllDeliverableItems } from "@/src/features/creator/workspace/hooks/useAllDeliverableItems"
 import { useLatestWrittenAsset, useLatestMediaAsset } from "@/src/features/creator/workspace/hooks/useLatestAsset"
 import { useSubmitWrittenAsset } from "@/src/features/creator/workspace/hooks/useSubmitWrittenAsset"
+import { useSaveWrittenAssetDraft } from "@/src/features/creator/workspace/hooks/useSaveWrittenAssetDraft"
 import {
   downloadFinalAssetsAsZip,
   getFinalAssetsForCampaign,
@@ -89,6 +90,7 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
   const { data: latestWrittenAsset } = useLatestWrittenAsset(selectedDeliverableItem?.public_id)
   const { data: latestMediaAsset } = useLatestMediaAsset(selectedDeliverableItem?.public_id)
   const { mutate: submitWrittenAsset, isPending: isSubmittingWrittenAsset } = useSubmitWrittenAsset()
+  const { mutate: saveWrittenAssetDraftMutation, isPending: isSavingDraft } = useSaveWrittenAssetDraft()
 
   const activeDeliverableName =
     selectedDeliverableItem && (deliverableItems?.length ?? 0) > 1
@@ -200,6 +202,24 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
     )
   }
 
+  const handleSaveDraft = (content: string) => {
+    if (!latestWrittenAsset) {
+      toast.info("Submit a version first to save drafts.")
+      return
+    }
+    saveWrittenAssetDraftMutation(
+      {
+        writtenAssetPublicId: latestWrittenAsset.public_id,
+        content,
+      },
+      {
+        onSuccess: () => toast.success("Draft saved."),
+        onError: (error) =>
+          toast.error(error instanceof Error ? error.message : "Unable to save draft."),
+      },
+    )
+  }
+
   const handleDownloadAssets = async () => {
     setIsDownloading(true)
     try {
@@ -303,11 +323,12 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
                       setHistoryType("written")
                       setHistoryOpen(true)
                     }}
-                    onSaveDraft={() => console.log("Save draft")}
+                    onSaveDraft={handleSaveDraft}
                     onSubmit={handleSubmitWrittenAsset}
                     onNext={() => setActiveDeliverableStep(1)}
                     writtenAsset={latestWrittenAsset}
                     isSubmitting={isSubmittingWrittenAsset}
+                    isSavingDraft={isSavingDraft}
                     itemsLoading={itemsLoading}
                     itemsError={!!itemsError}
                   />

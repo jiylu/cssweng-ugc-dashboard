@@ -69,6 +69,37 @@ export async function getLatestMediaAsset(
   return response.json()
 }
 
+export interface WrittenAssetDraft {
+  public_id: string
+  content: string
+  created_at: string
+  updated_at: string | null
+}
+
+export async function saveWrittenAssetDraft(
+  writtenAssetPublicId: string,
+  content: string,
+): Promise<WrittenAssetDraft> {
+  const response = await fetch(
+    `${API_BASE_URL}/written-asset-drafts`,
+    {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        writtenAssetPublicId,
+        content,
+      }),
+    },
+  )
+  if (!response.ok) {
+    throw new Error(
+      await parseApiError(response, "Unable to save written asset draft."),
+    )
+  }
+  return response.json()
+}
+
 export async function getMediaAssetHistory(
   deliverableItemPublicId: string,
 ): Promise<MediaAsset[]> {
