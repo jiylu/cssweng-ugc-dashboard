@@ -27,26 +27,31 @@ export function buildDeliverableRows(
     )
 }
 
+export function formatDueIn(dueDate: string): string {
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const target = new Date(dueDate)
+  const days = Math.ceil(
+    (target.getTime() - today.getTime()) / 86400000,
+  )
+  if (days < 0) return "Overdue"
+  if (days === 0) return "Due today"
+  return `Due in ${days} day${days === 1 ? "" : "s"}`
+}
+
 export function buildUpcomingTodos(
   campaigns: Campaign[] | undefined,
   deliverablesByCampaign: Record<string, DashboardDeliverable[]>,
   count = 3,
 ): DashboardTodo[] {
   const rows = buildDeliverableRows(campaigns, deliverablesByCampaign)
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
 
   return rows.slice(0, count).map((row) => {
-    const dueDate = new Date(row.deliverable.due_date)
-    const days = Math.ceil(
-      (dueDate.getTime() - today.getTime()) / 86400000,
-    )
+    const label = formatDueIn(row.deliverable.due_date).toLowerCase()
     const message =
-      days < 0
-        ? "Overdue."
-        : days === 0
-          ? "Due today."
-          : `Deliverable due in ${days} day${days === 1 ? "" : "s"}.`
+      label === "overdue" || label === "due today"
+        ? `${label.charAt(0).toUpperCase()}${label.slice(1)}.`
+        : `Deliverable ${label}.`
     return { campaignName: row.campaignName, message }
   })
 }

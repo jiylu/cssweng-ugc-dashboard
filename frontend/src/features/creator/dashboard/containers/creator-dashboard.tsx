@@ -10,8 +10,7 @@ import { useAuth } from "@/src/features/auth/hooks/useAuth";
 import { useAnalytics } from "../hooks/useAnalytics";
 import { useCampaigns } from "@/src/features/creator/campaigns/hooks/useCampaign";
 import { useCampaignDeliverables } from "../hooks/useCampaignDeliverables";
-import { buildDeliverableRows, buildUpcomingTodos } from "../utils/dashboard-rows";
-import { formatDate } from "@/src/utils/date";
+import { buildDeliverableRows, buildUpcomingTodos, formatDueIn } from "../utils/dashboard-rows";
 import { DashboardDeliverable } from "../types/dashboard-deliverable.types";
 import { useRouter } from "next/navigation";
 import LogoLoader from "@/src/components/molecules/logo-loader";
@@ -131,7 +130,7 @@ export default function CreatorDashboard() {
                         </TableCell>
                         <TableCell>{row.deliverable.deliverable_content}</TableCell>
                         <TableCell>{deliverableTypeLabel(row.deliverable.deliverable_type)}</TableCell>
-                        <TableCell>{formatDate(new Date(row.deliverable.due_date))}</TableCell>
+                        <TableCell>{formatDueIn(row.deliverable.due_date)}</TableCell>
                         <TableCell>
                           <span className="text-purple-700 bg-purple-50 px-2 py-1 rounded text-xs font-medium">
                             {deliverableStatusLabel(row.deliverable.deliverable_status)}
