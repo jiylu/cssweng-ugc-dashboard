@@ -10,8 +10,8 @@ const statusStyles: Record<ClientCampaign["status"], string> = {
   ACTIVE: "border-[#7bb184] bg-[#eeeae2] text-[#44403b]",
   PENDING: "border-[#d8d4cb] bg-[#eeeae2] text-[#44403b]",
   "FOR REVISIONS": "border-[#6b1fa8] bg-[#f5effb] text-[#6b1fa8]",
-  REJECTED: "border-[#ff6467] bg-[#fff1f1] text-[#c83f42]",
-  CANCELLED: "border-[#d8d4cb] bg-[#eeeae2] text-[#7b7771]",
+  REJECTED: "border-[#dc2626] bg-[#fee2e2] text-[#dc2626]",
+  CANCELLED: "border-[#78746e] bg-[#f5f5f5] text-[#78746e]",
 };
 
 interface ClientCampaignCardProps {
@@ -67,6 +67,7 @@ export default function ClientCampaignCard({
           type="button"
           variant="outline"
           className="h-9 w-[148px] rounded-none border-[#6b1fa8] bg-white text-base font-normal text-[#44403b] hover:bg-[#f7f2fb]"
+          disabled={campaign.status === "REJECTED" || campaign.status === "CANCELLED"}
           onClick={() =>
             router.push(
               opensProposal && campaign.proposalId
@@ -75,7 +76,7 @@ export default function ClientCampaignCard({
             )
           }
         >
-          {actionLabel}
+          {campaign.status === "REJECTED" ? "Declined" : campaign.status === "CANCELLED" ? "Cancelled" : actionLabel}
         </Button>
       </div>
     </article>

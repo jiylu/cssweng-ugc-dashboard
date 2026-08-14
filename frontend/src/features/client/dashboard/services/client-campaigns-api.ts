@@ -54,13 +54,8 @@ function deriveDisplayStatus(
   campaignStatus: string,
   proposalStatus: string,
 ): ClientCampaignStatus {
-  // Terminal proposal/campaign states must never fall through to ACTIVE.
-  if (proposalStatus === "REJECTED" || campaignStatus === "REJECTED") {
-    return "REJECTED";
-  }
-  if (proposalStatus === "CANCELLED" || campaignStatus === "CANCELLED") {
-    return "CANCELLED";
-  }
+  if (proposalStatus === "REJECTED" || campaignStatus === "REJECTED") return "REJECTED";
+  if (proposalStatus === "CANCELLED" || campaignStatus === "CANCELLED") return "CANCELLED";
   // If proposal is still pending client review, show PENDING
   if (proposalStatus === "PENDING") return "PENDING";
   // If proposal needs revision, show FOR REVISIONS
