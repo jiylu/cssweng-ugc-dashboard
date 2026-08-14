@@ -28,6 +28,43 @@ export class PaymentsService {
     private invoiceService: InvoiceService,
   ) {}
 
+  async sendInvoice(campaignId: string) {
+    const campaign = await this.campaignsService.findOneCampaign(campaignId);
+
+    if (campaign.campaign_status !== CampaignStatus.ACTIVE) {
+      throw new BadRequestException({
+        code: 'CAMPAIGN_NOT_ACTIVE',
+        message: 'An invoice can only be sent for an active campaign.',
+      });
+    }
+    if (!campaign.all_deliverables_approved) {
+      throw new BadRequestException({
+        code: 'ALL_DELIVERABLES_NOT_APPROVED',
+        message: 'All campaign deliverables must be approved before invoicing.',
+      });
+    }
+
+    const existingInvoice = await this.prisma.payments.findFirst({
+      where: { campaign_id: campaignId, invoice_sent_at: { not: null } },
+      orderBy: { created_at: 'desc' },
+    });
+    const invoice =
+      existingInvoice ??
+      (await this.prisma.payments.create({
+        data: {
+          public_id: nanoid(10),
+          campaign_id: campaignId,
+          invoice_sent_at: new Date(),
+        },
+      }));
+
+    return {
+      invoice,
+      client_id: campaign.client_id,
+      project_name: campaign.project_name,
+    };
+  }
+
   async createPayment(dto: CreatePaymentDTO) {
     this.logger.debug(`Storing payment for campaign ${dto.campaignId}`);
 
@@ -37,13 +74,20 @@ export class PaymentsService {
 
     await this.assertCampaignCanBePaid(campaign);
 
-    const publicId = nanoid(10);
-    const recordedPayment = await this.prisma.payments.create({
-      data: {
-        public_id: publicId,
-        campaign_id: campaign.campaign_id,
-        proof_payment_url: dto.proofPaymentUrl,
-      },
+    const invoice = await this.prisma.payments.findFirst({
+      where: { campaign_id: campaign.campaign_id, invoice_sent_at: { not: null } },
+      orderBy: { created_at: 'desc' },
+    });
+    if (!invoice) {
+      throw new ConflictException({
+        code: 'INVOICE_NOT_SENT',
+        message: 'The creator must send an invoice before payment proof can be uploaded.',
+      });
+    }
+
+    const recordedPayment = await this.prisma.payments.update({
+      where: { payment_id: invoice.payment_id },
+      data: { proof_payment_url: dto.proofPaymentUrl },
     });
 
     this.logger.log(
@@ -136,6 +180,13 @@ export class PaymentsService {
 
     const result = await this.prisma.$transaction(async (tx) => {
       const paymentRecord = await this.findOnePaymentRecord(paymentId, tx);
+
+      if (!paymentRecord.proof_payment_url) {
+        throw new ConflictException({
+          code: 'PAYMENT_PROOF_NOT_SUBMITTED',
+          message: 'Payment proof must be submitted before validation.',
+        });
+      }
 
       const campaign = await this.campaignsService.findOneCampaign(
         paymentRecord.campaign_id,

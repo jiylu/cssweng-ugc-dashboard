@@ -35,6 +35,26 @@ export class PaymentsController {
     private readonly notificationsService: NotificationsService,
   ) {}
 
+  @Post('invoice')
+  @UseGuards(RolesGuard)
+  @Roles(UserRoles.CREATOR)
+  async sendInvoice(@Query('campaignPublic') campaignPublic: string) {
+    const campaignId =
+      await this.campaignsService.resolveCampaignPublicId(campaignPublic);
+    const result = await this.paymentsService.sendInvoice(campaignId);
+
+    if (result.client_id) {
+      await this.notificationsService.createNotification({
+        category: 'PAYMENT',
+        userId: result.client_id,
+        title: 'An invoice has been sent',
+        message: `The creator has sent an invoice for "${result.project_name}". You can now upload proof of payment.`,
+      });
+    }
+
+    return plainToInstance(PaymentsEntity, result.invoice);
+  }
+
   @ApiCreatePayment()
   @Post('pay')
   @UseGuards(RolesGuard)
@@ -54,8 +74,9 @@ export class PaymentsController {
     });
 
     await this.notificationsService.createNotification({
+      category: 'PAYMENT',
       userId: result.creator_id,
-      title: 'Payment Proof has been Submitted',
+      title: 'Payment proof has been submitted',
       message: `The client has submitted proof of payment for "${result.project_name}". Please review and validate the payment.`,
     });
 
@@ -94,8 +115,9 @@ export class PaymentsController {
 
     if (result.client_id) {
       await this.notificationsService.createNotification({
+        category: 'PAYMENT',
         userId: result.client_id,
-        title: 'Payment has been Validated',
+        title: 'Payment has been validated',
         message: `Your payment for "${result.project_name}" has been validated.`,
       });
     }

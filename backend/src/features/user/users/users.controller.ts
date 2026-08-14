@@ -27,6 +27,7 @@ import { UpdateOwnProfileDTO } from './dto/update-own-profile.dto';
 import { SupabaseStorageService } from 'src/shared/supabase-storage/supabase-storage.service';
 import { ForgotPasswordDTO } from './dto/forgot-password.dto';
 import { ResetPasswordDTO } from './dto/reset-password.dto';
+import { UpdateUserSettingsDTO } from './dto/update-user-settings.dto';
 
 @Controller('users')
 export class UserController {
@@ -49,6 +50,9 @@ export class UserController {
       email: dto.userDTO.email,
       password: dto.userDTO.password,
     });
+    if (!session) {
+      throw new BadRequestException('Unable to create the initial session.');
+    }
 
     res.setHeader(
       'Set-Cookie',
@@ -71,6 +75,12 @@ export class UserController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const data = await this.userService.login(dto);
+    if (data.requiresTwoFactor) {
+      return {
+        requiresTwoFactor: true,
+        message: 'A verification code was sent to your email.',
+      };
+    }
     // TODO: Revisit persistent-session length with the Asceoft's security policy. Current remember-me duration is 30 days for testing.
     const rememberMe = Boolean(dto.rememberMe);
 
@@ -88,6 +98,7 @@ export class UserController {
 
     return {
       user: data.user,
+      requiresTwoFactor: false,
     };
   }
 
@@ -109,6 +120,19 @@ export class UserController {
   @Patch('me')
   updateMe(@Req() req: AuthenticatedRequest, @Body() dto: UpdateOwnProfileDTO) {
     return this.userService.updateOwnProfile(req.authUser.user_id, dto);
+  }
+
+  @Get('me/settings')
+  getSettings(@Req() req: AuthenticatedRequest) {
+    return this.userService.getSettings(req.authUser.user_id);
+  }
+
+  @Patch('me/settings')
+  updateSettings(
+    @Req() req: AuthenticatedRequest,
+    @Body() dto: UpdateUserSettingsDTO,
+  ) {
+    return this.userService.updateSettings(req.authUser.user_id, dto);
   }
 
   @Post('me/profile-picture')

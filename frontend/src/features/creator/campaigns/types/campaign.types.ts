@@ -25,6 +25,7 @@ export interface Campaign {
   created_at: string
   campaign_status: "ACTIVE" | "REJECTED" | "COMPLETED" | "CANCELLED"
   paid_full?: boolean
+  all_deliverables_approved?: boolean
 }
 
 export type CampaignListResponse = Campaign[]
