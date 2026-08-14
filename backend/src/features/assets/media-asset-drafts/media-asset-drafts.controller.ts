@@ -8,6 +8,7 @@ import {
   Post,
   Query,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
   BadRequestException,
 } from '@nestjs/common';
@@ -24,6 +25,9 @@ import {
   ApiFindMediaAssetDraftsForAsset,
   ApiUpdateMediaAssetDraft,
 } from './docs/media-asset-drafts.controller.swagger';
+import { RolesGuard } from 'src/shared/guards/roles.guard';
+import { Roles } from 'src/shared/decorators/roles.decorator';
+import { UserRoles } from '@prisma/client';
 
 @Controller('media-asset-drafts')
 export class MediaAssetDraftsController {
@@ -35,6 +39,8 @@ export class MediaAssetDraftsController {
 
   @ApiCreateMediaAssetDraft()
   @Post()
+  @UseGuards(RolesGuard)
+  @Roles(UserRoles.CREATOR)
   @UseInterceptors(FileInterceptor('file'))
   async create(
     @Body('mediaAssetPublicId') mediaAssetPublicId: string,
@@ -53,6 +59,8 @@ export class MediaAssetDraftsController {
 
   @ApiFindMediaAssetDraft()
   @Get(':publicId')
+  @UseGuards(RolesGuard)
+  @Roles(UserRoles.CREATOR)
   async findOne(@Param('publicId') publicId: string) {
     const draftId =
       await this.mediaAssetDraftsService.resolvePublicId(publicId);
@@ -62,6 +70,8 @@ export class MediaAssetDraftsController {
 
   @ApiFindMediaAssetDraftsForAsset()
   @Get()
+  @UseGuards(RolesGuard)
+  @Roles(UserRoles.CREATOR)
   async findMany(@Query('mediaAssetPublicId') mediaAssetPublicId: string) {
     const mediaAssetId =
       await this.mediaAssetsService.resolvePublicId(mediaAssetPublicId);
@@ -72,6 +82,8 @@ export class MediaAssetDraftsController {
 
   @ApiUpdateMediaAssetDraft()
   @Patch(':publicId')
+  @UseGuards(RolesGuard)
+  @Roles(UserRoles.CREATOR)
   @UseInterceptors(FileInterceptor('file'))
   async update(
     @Param('publicId') publicId: string,
@@ -92,6 +104,8 @@ export class MediaAssetDraftsController {
 
   @ApiDeleteMediaAssetDraft()
   @Delete(':publicId')
+  @UseGuards(RolesGuard)
+  @Roles(UserRoles.CREATOR)
   async remove(@Param('publicId') publicId: string) {
     const draftId =
       await this.mediaAssetDraftsService.resolvePublicId(publicId);
