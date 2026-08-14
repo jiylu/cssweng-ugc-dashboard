@@ -76,11 +76,12 @@ export type LoginUserPayload = {
   email: string;
   password: string;
   rememberMe?: boolean;
+  otp?: string;
 };
 
-export type LoginUserResponse = {
-  user: AuthUser;
-};
+export type LoginUserResponse =
+  | { requiresTwoFactor: true; message: string }
+  | { requiresTwoFactor: false; user: AuthUser };
 
 export type CreatedUser = Pick<
   AuthUser,
@@ -168,12 +169,22 @@ export async function loginUser(
     throw new Error(await parseApiError(response, "Unable to login."));
   }
 
-  const body = (await response.json()) as { user?: unknown };
+  const body = (await response.json()) as {
+    requiresTwoFactor?: boolean;
+    message?: string;
+    user?: unknown;
+  };
+  if (body.requiresTwoFactor) {
+    return {
+      requiresTwoFactor: true,
+      message: body.message ?? "A verification code was sent to your email.",
+    };
+  }
   const user = authUserSchema.safeParse(body.user);
 
   if (!user.success) {
     throw new Error("Unable to validate logged-in user.");
   }
 
-  return { user: user.data };
+  return { requiresTwoFactor: false, user: user.data };
 }

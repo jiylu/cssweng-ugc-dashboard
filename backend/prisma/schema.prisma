@@ -11,16 +11,20 @@ model User {
   email      String    @unique
   createdAt  DateTime  @default(now())
   first_name String
-  middle_name String @default("")
+  middle_name String?
   last_name  String
-  display_name String @default("")
-  primary_handle String @default("")
-  bio String @default("")
-  phone_number String @default("")
-  timezone String @default("Asia/Manila")
+  display_name String?
+  primary_handle String?
+  phone_number String?
+  timezone String?
   profile_picture_url String @default("https://www.clipartmax.com/png/full/449-4492509_lefroy-ice-breakers-minor-hockey-tournament-sorry-no-image-available.png")
   role       UserRoles
   is_active  Boolean   @default(true)
+  two_factor_enabled Boolean @default(false)
+  email_proposal_updates Boolean @default(true)
+  email_contract_updates Boolean @default(true)
+  email_deliverable_updates Boolean @default(true)
+  email_payment_updates Boolean @default(true)
 
   campaigns_as_creator Campaigns[] @relation("CreatorCampaigns")
   campaigns_as_client  Campaigns[] @relation("ClientCampaigns")
@@ -282,7 +286,8 @@ model Payments {
   payment_id            String   @id @default(uuid())
   public_id             String   @unique @db.VarChar(10)
   campaign_id           String
-  proof_payment_url     String
+  proof_payment_url     String?
+  invoice_sent_at      DateTime?
   is_payment_verified   Boolean @default(false)
   created_at            DateTime @default(now())
   verified_at           DateTime?

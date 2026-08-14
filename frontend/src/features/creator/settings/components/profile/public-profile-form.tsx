@@ -2,7 +2,6 @@ import { useRef, useState } from "react";
 import Image from "next/image";
 import { User, Upload, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -161,28 +160,6 @@ export function PublicProfileSection({
         </div>
       </div>
 
-      {/* bio */}
-      <div className="space-y-2">
-        <label className="text-[15px] font-normal uppercase text-muted-foreground">
-          Bio
-        </label>
-        {isEditing ? <div className="relative">
-          <Textarea
-            placeholder="Enter your bio"
-            className="min-h-[160px] resize-none pb-8 italic placeholder:text-gray-400 border-muted"
-            value={data.bio ?? ""}
-            onChange={(event) => onChange("bio", event.target.value)}
-            maxLength={100}
-          />
-          <span className="absolute bottom-3 right-3 text-[15px] text-gray-500 font-light">
-            {(data.bio ?? "").length}/100
-          </span>
-        </div> : (
-          <p className="min-h-12 whitespace-pre-wrap py-2 text-base leading-relaxed text-[#141518]">
-            {data.bio || "—"}
-          </p>
-        )}
-      </div>
     </div>
   );
 }

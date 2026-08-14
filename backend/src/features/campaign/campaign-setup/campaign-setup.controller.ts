@@ -71,8 +71,9 @@ export class CampaignSetupController {
 
     if (result.campaign.client_id) {
       await this.notificationsService.createNotification({
+        category: 'PROPOSAL',
         userId: result.campaign.client_id,
-        title: 'New Campaign Setup Submitted',
+        title: 'New campaign setup submitted',
         message: `The creator has submitted a new campaign setup for "${dto.campaign.projectName}". Please review the details.`,
       });
     }
@@ -109,8 +110,9 @@ export class CampaignSetupController {
 
     if (campaign.client_id) {
       await this.notificationsService.createNotification({
+        category: 'PROPOSAL',
         userId: campaign.client_id,
-        title: 'Campaign Setup has been Updated',
+        title: 'Campaign setup has been updated',
         message: `The creator has updated the campaign setup for "${campaign.project_name}". Please review the updated details.`,
       });
     }

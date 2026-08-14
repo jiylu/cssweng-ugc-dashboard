@@ -1,7 +1,19 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, MaxLength } from 'class-validator';
+import { IsIn, IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
+
+export const NOTIFICATION_CATEGORIES = [
+  'PROPOSAL',
+  'CONTRACT',
+  'DELIVERABLE',
+  'PAYMENT',
+] as const;
+export type NotificationCategory = (typeof NOTIFICATION_CATEGORIES)[number];
 
 export class CreateNotificationDTO {
+  @IsOptional()
+  @IsIn(NOTIFICATION_CATEGORIES)
+  category?: NotificationCategory;
+
   @ApiProperty({
     description:
       'ID of the recipient user who will receive the notification. Must reference an existing active user.',
@@ -19,6 +31,7 @@ export class CreateNotificationDTO {
   })
   @IsString({ message: 'Title must be a string.' })
   @IsNotEmpty({ message: 'Title is required.' })
+  @MaxLength(150, { message: 'Title must not exceed 150 characters.' })
   title!: string;
 
   @ApiProperty({

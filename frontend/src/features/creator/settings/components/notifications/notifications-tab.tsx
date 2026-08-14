@@ -1,17 +1,34 @@
-import { useState } from "react"
 import { Separator } from "@/components/ui/separator"
 import { Switch } from "@/components/ui/switch"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { toast } from "sonner"
+import {
+  getAccountSettings,
+  updateAccountSettings,
+  type UpdateAccountSettings,
+} from "../../services/settings-api"
 
 interface NotificationsTabProps {
   isClient?: boolean
 }
 
 export function NotificationsTab({ isClient = false }: NotificationsTabProps) {
-  // state for toggles
-  const [proposalUpdates1, setProposalUpdates1] = useState(true)
-  const [proposalUpdates2, setProposalUpdates2] = useState(true)
-  const [campaignMilestones, setCampaignMilestones] = useState(true)
-  const [overdueAlerts, setOverdueAlerts] = useState(true)
+  const queryClient = useQueryClient()
+  const { data, isLoading } = useQuery({
+    queryKey: ["account-settings"],
+    queryFn: getAccountSettings,
+  })
+  const mutation = useMutation({
+    mutationFn: (payload: UpdateAccountSettings) => updateAccountSettings(payload),
+    onSuccess: (settings) => {
+      queryClient.setQueryData(["account-settings"], settings)
+      toast.success("Notification preference updated.")
+    },
+    onError: (error) =>
+      toast.error(error instanceof Error ? error.message : "Unable to update notifications."),
+  })
+
+  const disabled = isLoading || mutation.isPending
 
   return (
     <div className="bg-white border rounded-lg p-8 shadow-sm">
@@ -36,9 +53,11 @@ export function NotificationsTab({ isClient = false }: NotificationsTabProps) {
                 </div>
 
                 <Switch 
-                    disabled
-                    checked={proposalUpdates1} 
-                    onCheckedChange={setProposalUpdates1} 
+                    disabled={disabled}
+                    checked={data?.email_proposal_updates ?? true}
+                    onCheckedChange={(checked) =>
+                      mutation.mutate({ emailProposalUpdates: checked })
+                    }
                     className="data-[state=checked]:bg-[#6b1fa8]"
                 />
             </div>
@@ -57,9 +76,11 @@ export function NotificationsTab({ isClient = false }: NotificationsTabProps) {
                 </div>
 
                 <Switch 
-                    disabled
-                    checked={proposalUpdates2} 
-                    onCheckedChange={setProposalUpdates2} 
+                    disabled={disabled}
+                    checked={data?.email_contract_updates ?? true}
+                    onCheckedChange={(checked) =>
+                      mutation.mutate({ emailContractUpdates: checked })
+                    }
                     className="data-[state=checked]:bg-[#6b1fa8]"
                 />
             </div>
@@ -80,9 +101,11 @@ export function NotificationsTab({ isClient = false }: NotificationsTabProps) {
                 </div>
 
                 <Switch 
-                    disabled
-                    checked={campaignMilestones} 
-                    onCheckedChange={setCampaignMilestones} 
+                    disabled={disabled}
+                    checked={data?.email_deliverable_updates ?? true}
+                    onCheckedChange={(checked) =>
+                      mutation.mutate({ emailDeliverableUpdates: checked })
+                    }
                     className="data-[state=checked]:bg-[#6b1fa8]"
                 />
             </div>
@@ -103,9 +126,11 @@ export function NotificationsTab({ isClient = false }: NotificationsTabProps) {
                 </div>
 
                 <Switch 
-                    disabled
-                    checked={overdueAlerts} 
-                    onCheckedChange={setOverdueAlerts} 
+                    disabled={disabled}
+                    checked={data?.email_payment_updates ?? true}
+                    onCheckedChange={(checked) =>
+                      mutation.mutate({ emailPaymentUpdates: checked })
+                    }
                     className="data-[state=checked]:bg-[#6b1fa8]"
                 />
             </div>
