@@ -14,6 +14,14 @@ export interface ContractStatus {
   effective_date: string | null;
 }
 
+export interface ContractSignature {
+  contract_id: string;
+  signer_role: "CLIENT" | "CREATOR";
+  signature_url: string;
+  initials_url: string;
+  signed_at: string;
+}
+
 export async function getContractStatus(contractPublicId: string): Promise<ContractStatus> {
   const response = await fetch(`${API_BASE_URL}/contracts/${contractPublicId}`, {
     credentials: "include",
@@ -22,12 +30,6 @@ export async function getContractStatus(contractPublicId: string): Promise<Contr
     throw new Error(await parseApiError(response, "Unable to load contract status."));
   }
   return response.json();
-export interface ContractSignature {
-  contract_id: string;
-  signer_role: "CLIENT" | "CREATOR";
-  signature_url: string;
-  initials_url: string;
-  signed_at: string;
 }
 
 function dataUrlToPng(dataUrl: string, filename: string): File {
