@@ -24,6 +24,7 @@ export interface Campaign {
   end_date: string
   created_at: string
   campaign_status: "ACTIVE" | "REJECTED" | "COMPLETED" | "CANCELLED"
+  all_deliverables_approved?: boolean
   paid_full?: boolean
   all_deliverables_approved?: boolean
 }

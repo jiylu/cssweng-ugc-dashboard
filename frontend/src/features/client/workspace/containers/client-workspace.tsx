@@ -16,6 +16,7 @@ import {
   ReceiptText,
   UploadCloud,
   X,
+  CheckCircle2,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -422,15 +423,13 @@ function FeedbackActions({
               ? "Script has been approved."
               : "Media assets have been approved."}
           </p>
-          {!isWrittenStep && (
-            <Button
-              type="button"
-              className="mt-3 w-full rounded bg-[#6b1fa8] font-normal hover:bg-[#551783]"
-              onClick={onNext}
-            >
-              Next: Completion
-            </Button>
-          )}
+          <Button
+            type="button"
+            className="mt-3 w-full rounded bg-[#6b1fa8] font-normal hover:bg-[#551783]"
+            onClick={onNext}
+          >
+            Continue
+          </Button>
         </div>
       ) : !currentAssetPublicId ? (
         <p className="mt-4 text-sm italic text-[#77736d]">
@@ -483,6 +482,56 @@ function FeedbackActions({
         </>
       )}
     </aside>
+  );
+}
+
+// ── Completion Step (Wired) ────────────────────────────────────────────────────
+
+function ClientDeliverableApprovedCard({
+  deliverableName,
+  allApproved,
+  isPaidFull,
+  onNextInvoicing,
+  onNextCompletion,
+}: {
+  deliverableName: string;
+  allApproved: boolean;
+  isPaidFull: boolean;
+  onNextInvoicing: () => void;
+  onNextCompletion: () => void;
+}) {
+  return (
+    <div className="flex flex-col items-center justify-center gap-3 rounded border border-[#d8d4cb] bg-white px-10 py-16 mx-auto w-full text-center shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
+      <CheckCircle2 className="text-[#2d7a3a]" size={56} strokeWidth={1.5} />
+
+      <h2 className="text-2xl font-normal text-[#141518]">
+        Deliverable Completed & Approved
+      </h2>
+
+      <p className="text-sm text-[#6f6a63]">
+        You have successfully reviewed and approved the {deliverableName} submission.
+      </p>
+
+      <p className="text-xs italic text-[#77736d]">
+        Tip: You can view the approved assets by clicking on the stages in the card on the left.
+      </p>
+
+      {allApproved ? (
+        isPaidFull ? (
+          <Button type="button" className="mt-4 rounded bg-[#6b1fa8] font-normal hover:bg-[#551783] min-w-48" onClick={onNextCompletion}>
+            Complete Campaign
+          </Button>
+        ) : (
+          <Button type="button" className="mt-4 rounded bg-[#6b1fa8] font-normal hover:bg-[#551783] min-w-48" onClick={onNextInvoicing}>
+            Next: Invoicing
+          </Button>
+        )
+      ) : (
+        <p className="mt-4 text-sm text-[#6f6a63]">
+          Please select the next deliverable from the sidebar to continue.
+        </p>
+      )}
+    </div>
   );
 }
 
@@ -633,6 +682,9 @@ function InvoicePanel({ campaignId, onPrevious, onNext }: { campaignId: string; 
           ) : null}
         </DialogContent>
       </Dialog>
+<<<<<<< HEAD
+
+=======
       <div className="mt-8 flex items-center justify-end gap-3 border-t border-[#d8d4cb] pt-4">
         <Button variant="outline" className="min-w-32" onClick={onPrevious}>
           Previous: Deliverables
@@ -662,6 +714,7 @@ function DeliverableCompletedPanel({ onNext }: { onNext: () => void }) {
       >
         Next: Invoicing
       </Button>
+>>>>>>> origin/dev
     </section>
   );
 }
@@ -767,6 +820,11 @@ export default function ClientWorkspace({
   const { data: latestMediaAsset, isLoading: mediaLoading } =
     useLatestMediaAsset(selectedDeliverableItem?.public_id);
 
+  const activeDeliverableName =
+    selectedDeliverableItem && (deliverableItems?.length ?? 0) > 1
+      ? `${deliverables[activeDeliverable]?.deliverable_content} ${selectedDeliverableItem.deliverable_index}`
+      : deliverables[activeDeliverable]?.deliverable_content ?? "Deliverable";
+
   const isContractSigned = Boolean(
     data?.contract?.creator_signed && data?.contract?.client_signed,
   );
@@ -808,6 +866,7 @@ export default function ClientWorkspace({
 
   const handleMutationSuccess = () => {
     // Invalidate all relevant queries to refresh the UI
+    queryClient.invalidateQueries({ queryKey: ["campaign", campaignId] });
     queryClient.invalidateQueries({ queryKey: ["latestWrittenAsset"] });
     queryClient.invalidateQueries({ queryKey: ["latestMediaAsset"] });
     queryClient.invalidateQueries({ queryKey: ["deliverableItems"] });
@@ -901,6 +960,27 @@ export default function ClientWorkspace({
                   onPreview={() => setPreviewOpen(true)}
                 />
               ) : (
+<<<<<<< HEAD
+                <ClientDeliverableApprovedCard
+                  deliverableName={activeDeliverableName}
+                  allApproved={Boolean(data?.campaign?.all_deliverables_approved)}
+                  isPaidFull={Boolean(data?.campaign?.paid_full)}
+                  onNextInvoicing={() => setActiveStep(2)}
+                  onNextCompletion={() => setActiveStep(3)}
+                />
+              )}
+              {activeSubmissionStep < 2 && (
+                <FeedbackActions
+                  submissionStep={activeSubmissionStep}
+                  writtenAssetPublicId={latestWrittenAsset?.public_id}
+                  mediaAssetPublicId={latestMediaAsset?.public_id}
+                  writtenAssetAction={latestWrittenAsset?.written_asset_action}
+                  mediaAssetAction={latestMediaAsset?.media_asset_action}
+                  onMutationSuccess={handleMutationSuccess}
+                  onNext={() => setActiveSubmissionStep(activeSubmissionStep + 1)}
+                />
+              )}
+=======
                 <DeliverableCompletedPanel
                   onNext={() => setActiveStep(2)}
                 />
@@ -953,6 +1033,7 @@ export default function ClientWorkspace({
                   <ArrowRight className="ml-2 size-4" />
                 </Button>
               )}
+>>>>>>> origin/dev
             </div>
           </div>
         </div>

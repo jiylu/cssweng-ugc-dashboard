@@ -47,7 +47,6 @@ export const MOCK_CAMPAIGNS: Campaign[] = [
     campaign_status: 'ACTIVE',
     deliverables: [
       {
-        
         public_id: 'DEL-001A',
         campaign_id: 'mock-camp-001',
         quantity: 1,
@@ -60,7 +59,6 @@ export const MOCK_CAMPAIGNS: Campaign[] = [
         is_deleted: false,
       },
       {
-        
         public_id: 'DEL-001B',
         campaign_id: 'mock-camp-001',
         quantity: 1,
@@ -73,7 +71,6 @@ export const MOCK_CAMPAIGNS: Campaign[] = [
         is_deleted: false,
       },
       {
-        
         public_id: 'DEL-001C',
         campaign_id: 'mock-camp-001',
         quantity: 1,
@@ -105,7 +102,6 @@ export const MOCK_CAMPAIGNS: Campaign[] = [
     campaign_status: 'ACTIVE',
     deliverables: [
       {
-        
         public_id: 'DEL-002A',
         campaign_id: 'mock-camp-002',
         quantity: 1,
@@ -118,7 +114,6 @@ export const MOCK_CAMPAIGNS: Campaign[] = [
         is_deleted: false,
       },
       {
-        
         public_id: 'DEL-002B',
         campaign_id: 'mock-camp-002',
         quantity: 2,
@@ -131,7 +126,6 @@ export const MOCK_CAMPAIGNS: Campaign[] = [
         is_deleted: false,
       },
       {
-        
         public_id: 'DEL-002C',
         campaign_id: 'mock-camp-002',
         quantity: 1,
@@ -163,7 +157,6 @@ export const MOCK_CAMPAIGNS: Campaign[] = [
     campaign_status: 'COMPLETED',
     deliverables: [
       {
-        
         public_id: 'DEL-003A',
         campaign_id: 'mock-camp-003',
         quantity: 1,
@@ -176,7 +169,6 @@ export const MOCK_CAMPAIGNS: Campaign[] = [
         is_deleted: false,
       },
       {
-        
         public_id: 'DEL-003B',
         campaign_id: 'mock-camp-003',
         quantity: 1,
@@ -208,7 +200,6 @@ export const MOCK_CAMPAIGNS: Campaign[] = [
     campaign_status: 'ACTIVE',
     deliverables: [
       {
-        
         public_id: 'DEL-004A',
         campaign_id: 'mock-camp-004',
         quantity: 1,
@@ -221,7 +212,6 @@ export const MOCK_CAMPAIGNS: Campaign[] = [
         is_deleted: false,
       },
       {
-        
         public_id: 'DEL-004B',
         campaign_id: 'mock-camp-004',
         quantity: 1,
@@ -234,7 +224,6 @@ export const MOCK_CAMPAIGNS: Campaign[] = [
         is_deleted: false,
       },
       {
-        
         public_id: 'DEL-004C',
         campaign_id: 'mock-camp-004',
         quantity: 1,
