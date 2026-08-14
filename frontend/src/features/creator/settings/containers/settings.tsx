@@ -141,7 +141,6 @@ export function SettingsContainer() {
 
   const validateProfile = (profile: ProfileSettings) => {
     const errors: Partial<Record<keyof ProfileSettings, string>> = {};
-    if (!profile.displayName.trim()) errors.displayName = "Display name is required.";
     if (profile.primaryHandle && !/^[a-zA-Z0-9._]{3,30}$/.test(profile.primaryHandle)) {
       errors.primaryHandle = "Primary handle must be 3–30 letters, numbers, dots, or underscores.";
     }
@@ -153,7 +152,6 @@ export function SettingsContainer() {
     if (profile.phoneNumber && !/^\d{7,15}$/.test(profile.phoneNumber)) {
       errors.phoneNumber = "Phone number must contain 7–15 digits.";
     }
-    if (!profile.location) errors.location = "Location / timezone is required.";
     setProfileErrors(errors);
     return Object.keys(errors).length === 0;
   };

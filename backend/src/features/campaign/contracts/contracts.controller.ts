@@ -121,15 +121,17 @@ export class ContractsController {
     if (dto.signerRole === UserRoles.CREATOR) {
       if (campaign.client_id) {
         await this.notificationsService.createNotification({
+          category: 'CONTRACT',
           userId: campaign.client_id,
-          title: `Contract Signed For:  ${campaign.project_name}`,
+          title: `Contract signed for: ${campaign.project_name}`,
           message: `The creator has signed the contract for ${campaign.project_name}. The contract is now fully signed.`,
         });
       }
     } else {
       await this.notificationsService.createNotification({
+        category: 'CONTRACT',
         userId: campaign.ugc_creator_id,
-        title: `Contract Signed For:  ${campaign.project_name}`,
+        title: `Contract signed for: ${campaign.project_name}`,
         message: `Your client has signed the contract for ${campaign.project_name}, you may now sign the contract.`,
       });
     }

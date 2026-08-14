@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import {
   getPaymentForCampaign,
+  sendInvoice,
   validatePayment,
   type Payment,
 } from "@/src/features/creator/workspace/services/payments-api"
@@ -67,21 +68,27 @@ export function InvoiceDetailsCard({ campaignId, onPrevious, onNext }: InvoiceDe
   const handleSendInvoice = async () => {
     setIsSending(true)
     try {
-      let current = payment
-      if (!current) {
-        current = await getPaymentForCampaign(campaignId)
-      }
-      if (!current) {
-        toast.error("No client payment yet to send.")
-        return
-      }
-      const validated = await validatePayment(current.public_id)
-      setPayment(validated)
+      const invoice = await sendInvoice(campaignId)
+      setPayment(invoice)
       toast.success("Invoice sent.")
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Unable to send invoice.",
       )
+    } finally {
+      setIsSending(false)
+    }
+  }
+
+  const handleValidatePayment = async () => {
+    if (!payment?.proof_payment_url) return
+    setIsSending(true)
+    try {
+      const validated = await validatePayment(payment.public_id)
+      setPayment(validated)
+      toast.success("Payment validated.")
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Unable to validate payment.")
     } finally {
       setIsSending(false)
     }
@@ -121,7 +128,7 @@ export function InvoiceDetailsCard({ campaignId, onPrevious, onNext }: InvoiceDe
             )}
           </div>
           <Button asChild type="button" variant="outline" className="w-full max-w-64 rounded-[3px] border-[#6b1fa8] text-[#6b1fa8] hover:bg-[#6b1fa8]/5 hover:text-[#6b1fa8]">
-            <a href={payment.proof_payment_url} target="_blank" rel="noreferrer">
+            <a href={payment.proof_payment_url ?? undefined} target="_blank" rel="noreferrer">
               View Proof of Payment
               <ExternalLink size={16} />
             </a>
@@ -172,14 +179,20 @@ export function InvoiceDetailsCard({ campaignId, onPrevious, onNext }: InvoiceDe
 
         {checked && !payment && (
           <p className="text-xs text-muted-foreground">
-            No client payment yet.
+            The invoice has not been sent yet.
+          </p>
+        )}
+
+        {payment && !payment.proof_payment_url && (
+          <p className="text-xs text-muted-foreground">
+            Invoice sent. Waiting for the client to upload proof of payment.
           </p>
         )}
 
         {payment && (
           <div className="flex flex-col gap-1 w-full max-w-64 rounded-[3px] border border-border px-3 py-2 text-xs text-muted-foreground">
             <span>Invoice ID: {payment.public_id}</span>
-            <a
+            {payment.proof_payment_url && <a
               href={payment.proof_payment_url}
               target="_blank"
               rel="noreferrer"
@@ -187,16 +200,20 @@ export function InvoiceDetailsCard({ campaignId, onPrevious, onNext }: InvoiceDe
             >
               Proof of Payment
               <ExternalLink size={12} />
-            </a>
+            </a>}
             <span>
               Status:{" "}
-              {payment.is_payment_verified ? "Verified" : "Pending verification"}
+              {payment.is_payment_verified
+                ? "Verified"
+                : payment.proof_payment_url
+                  ? "Pending verification"
+                  : "Awaiting proof of payment"}
             </span>
           </div>
         )}
 
         <div className="flex flex-col gap-2 w-full max-w-64">
-          <Button
+          {!payment && <Button
             type="button"
             variant="outline"
             className="rounded-[3px] border-[#6b1fa8] text-[#6b1fa8] hover:bg-[#6b1fa8]/5 hover:text-[#6b1fa8]"
@@ -205,7 +222,17 @@ export function InvoiceDetailsCard({ campaignId, onPrevious, onNext }: InvoiceDe
           >
             {isLoadingInvoice ? "Loading..." : "View Invoice"}
             <Eye size={16} />
-          </Button>
+          </Button>}
+
+          {payment?.proof_payment_url && <Button
+            type="button"
+            className="rounded-[3px] bg-[#6b1fa8] hover:bg-[#5a1a8f] text-white"
+            onClick={handleValidatePayment}
+            disabled={isSending || isLoadingInvoice}
+          >
+            {isSending ? "Validating..." : "Validate Payment"}
+            <ArrowRight size={16} />
+          </Button>}
 
           <Button
             type="button"
