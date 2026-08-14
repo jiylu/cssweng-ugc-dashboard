@@ -1,0 +1,69 @@
+"use client"
+import CreatorSidebar from "../../../../components/organisms/creator-sidebar";
+import Profile from "@/src/components/molecules/profile";
+import { useRouter } from "next/navigation"
+import { Separator } from "@/components/ui/separator";
+import { useAuth } from "@/src/features/auth/hooks/useAuth";
+import { useState } from "react"
+import { CampaignTabs } from "@/src/features/creator/campaigns/components/campaign-tabs"
+import { CampaignList } from "@/src/features/creator/campaigns/components/campaign-list"
+import { Button } from "@/components/ui/button"
+import { useCampaigns } from "@/src/features/creator/campaigns/hooks/useCampaign"
+import { useApprovedCampaigns } from "@/src/features/creator/campaigns/hooks/useApprovedCampaigns"
+import LogoLoader from "@/src/components/molecules/logo-loader";
+
+export default function Campaigns() {
+  const { user, loading } = useAuth();
+  const [page, setPage] = useState(1)
+  const [activeTab, setActiveTab] = useState("ALL")
+  const { data, isLoading, isError } = useCampaigns(user?.user_id ?? "", page)
+  const { approvedCampaigns, proposalClients, isLoading: proposalsLoading } = useApprovedCampaigns(data)
+  const filteredCampaigns = approvedCampaigns.filter(
+    (campaign) => activeTab === "ALL" || campaign.campaign_status === activeTab,
+  )
+  const router = useRouter();
+
+  if (loading || isLoading || proposalsLoading) return <LogoLoader label="Loading campaigns" />;
+
+  if (isError) return <p>Something went wrong.</p>;
+  if (!user) return null;
+
+  return (
+    <main className="flex flex-row w-full h-screen overflow-hidden">
+        <CreatorSidebar />
+        <section className="flex-1 h-screen overflow-y-scroll scrollbar-gutter-stable">
+            <div className="flex flex-col gap-6 p-8 w-full max-w-300 m-auto">
+              {/* HEADER */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between">
+                    <h1 className="text-4xl font-normal text-foreground">Campaigns</h1>
+                </div>
+
+                <Profile 
+                  firstName={user.first_name}
+                  lastName={user.last_name}
+                  email={user.email}
+                />
+              </div>
+              <Separator />
+
+              {/* Tabs + Create Button */}
+              <div className="flex items-center justify-between">
+                <CampaignTabs
+                  active={activeTab}
+                  onChange={(tab) => {
+                    setActiveTab(tab)
+                    setPage(1)
+                  }}
+                />
+              </div>
+
+              {/* Campaign List */}
+              {/* TODO: Make total dynamic */}
+              <CampaignList campaigns={filteredCampaigns} clientNames={proposalClients} page={page} onPageChange={setPage} />
+            </div>
+        </section>
+    </main>
+  )
+
+}

@@ -1,0 +1,388 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  user_id    String    @id
+  email      String    @unique
+  createdAt  DateTime  @default(now())
+  first_name String
+  middle_name String?
+  last_name  String
+  display_name String?
+  primary_handle String?
+  phone_number String?
+  timezone String @default("Asia/Manila")
+  profile_picture_url String @default("https://www.clipartmax.com/png/full/449-4492509_lefroy-ice-breakers-minor-hockey-tournament-sorry-no-image-available.png")
+  role       UserRoles
+  is_active  Boolean   @default(true)
+  two_factor_enabled Boolean @default(false)
+  email_proposal_updates Boolean @default(true)
+  email_contract_updates Boolean @default(true)
+  email_deliverable_updates Boolean @default(true)
+  email_payment_updates Boolean @default(true)
+
+  campaigns_as_creator Campaigns[] @relation("CreatorCampaigns")
+  campaigns_as_client  Campaigns[] @relation("ClientCampaigns")
+
+  activity_logs ActivityLog[] @relation("ActivityLogUser")
+}
+
+model Drafts {
+  draft_id                  String    @id @default(uuid())
+  public_id                 String    @unique
+  user_id                   String
+  campaign_content          Json?
+  proposal_content          Json?
+  deliverable_content       Json?
+  contract_content          Json?
+  add_ons_content           Json?
+  gifted_products_content   Json?
+  updated_at                DateTime  @default(now())
+  is_deleted                Boolean   @default(false)
+}
+
+model RegistrationOtp {
+  otp_id                  String    @id @default(uuid())
+  email                   String
+  role                    UserRoles
+  otp_hash                String
+  verification_token_hash String?   @unique
+  expires_at              DateTime
+  verified_at             DateTime?
+  consumed_at             DateTime?
+  created_at              DateTime  @default(now())
+
+  @@index([email, role, created_at])
+}
+
+model Clients {
+  client_id                 String @id @default(uuid())
+  user_id                   String @unique
+  company_legal_name        String
+  company_email             String
+  billable_person           String
+  contact_person            String
+  company_contact_no        String
+  contact_person_contact_no String
+}
+
+model Campaigns {
+  campaign_id               String           @id @default(uuid())
+  public_id                 String           @unique @db.VarChar(10)
+  ugc_creator_id            String
+  client_id                 String?
+  project_name              String
+  description               String
+  currency                  CampaignCurrency
+  tax                       Decimal
+  pricing                   Decimal
+  platforms                 Json
+  start_date                DateTime
+  end_date                  DateTime
+  created_at                DateTime         @default(now())
+  campaign_status           CampaignStatus   @default(ACTIVE)
+  paid_amount               Decimal          @default(0.0)
+  paid_full                 Boolean          @default(false)
+  payment_schedule          PaymentSchedule
+  all_deliverables_approved Boolean  @default(false)
+
+  creator      User           @relation("CreatorCampaigns", fields: [ugc_creator_id], references: [user_id])
+  client       User?          @relation("ClientCampaigns", fields: [client_id], references: [user_id])
+  proposals    Proposals[]
+  deliverables Deliverables[]
+}
+
+model Contracts {
+  contract_id              String    @id @default(uuid())
+  public_id                String    @unique @db.VarChar(10)
+  campaign_id              String    @unique
+  creator_signed           Boolean   @default(false)
+  client_signed            Boolean   @default(false)
+  effective_date           DateTime?
+  signed_contract_url      String?
+
+  revision_policy          Json
+  usage_rights             Json
+  posting_requirements     Json
+  exclusivity              Json?
+  expenses_purchases_terms Json?
+  cancellation_period      Int
+  payment_terms            Json
+  invoice_requirements     Json
+  general_terms            Json
+  extra_notes              String?
+}
+
+model ContractSignatures {
+  signature_id        String @id @default(uuid())
+  contract_id         String
+  signer_role         UserRoles
+  signature_url       String
+  initials_url        String
+  signed_at           DateTime @default(now())
+}
+
+model GiftedProducts {
+  gifted_product_id     String  @id @default(uuid())
+  public_id             String  @unique @db.VarChar(10)
+  campaign_id           String
+  product_name          String
+  value                 Decimal
+  shipping_address      Json
+  delivery_instructions String
+  ownership_terms       String
+  is_deleted            Boolean @default(false)
+}
+
+model Proposals {
+  proposal_id       String         @id @default(uuid())
+  public_id         String         @unique @db.VarChar(10)
+  campaign_id       String
+  client_email      String
+  client_first_name String
+  client_last_name  String
+  proposal_status   ProposalStatus @default(PENDING)
+
+  campaign Campaigns @relation(fields: [campaign_id], references: [campaign_id])
+}
+
+model ProposalHistory {
+  history_id                String         @id @default(uuid())
+  proposal_id               String
+  version_number            Int            @default(1)
+  campaign_content          Json
+  proposal_content          Json
+  deliverable_content       Json
+  contract_content          Json
+  add_ons_content           Json
+  gifted_products_content   Json
+  client_comments           String          @default("")
+  action                    ProposalActions @default(PENDING)
+  created_at                DateTime        @default(now())
+  updated_at                DateTime?
+}
+
+model Deliverables {
+  deliverable_id String @id @default(uuid())
+  public_id      String @unique @db.VarChar(10)
+  campaign_id    String
+
+  quantity            Int
+  deliverable_type    DeliverableType
+  deliverable_content String
+  requirements        String
+  due_date            DateTime
+  post_date           DateTime
+  pricing             Decimal
+  is_deleted          Boolean            @default(false)
+  deliverable_status  DeliverableStatus  @default(PENDING)
+
+  campaign Campaigns @relation(fields: [campaign_id], references: [campaign_id])
+  final_assets FinalAssets[]
+}
+
+model DeliverableItems {
+  deliverable_item_id     String                 @id @default(uuid())
+  deliverable_id          String
+  public_id               String                 @unique @db.VarChar(10)
+  deliverable_index       Int
+  deliverable_item_status DeliverableItemStatus  @default(PENDING)
+  written_asset_approved  Boolean                @default(false)
+  media_asset_approved    Boolean                @default(false)
+}
+
+model MediaAssets {
+  media_asset_id           String                       @id @default(uuid())
+  deliverable_item_id      String
+  public_id                String                       @unique @db.VarChar(10)
+  version_number           Int
+  is_video                 Boolean
+  content_url              String
+  client_comments          String                       @default("")
+  media_asset_action       AssetActions                 @default(PENDING)
+  created_at               DateTime                     @default(now())
+  updated_at               DateTime?
+}
+
+model WrittenAssets {
+  written_asset_id         String                      @id @default(uuid())
+  deliverable_item_id      String
+  public_id                String                      @unique @db.VarChar(10)
+  version_number           Int
+  content                  String
+  client_comments          String                      @default("")
+  written_asset_action     AssetActions                @default(PENDING)
+  created_at               DateTime                    @default(now())
+  updated_at               DateTime?
+}
+
+model WrittenAssetsDrafts {
+  written_asset_draft_id   String   @id @default(uuid())
+  deliverable_item_id      String
+  written_asset_id         String?
+  public_id                String
+  content                  String
+  created_at               DateTime
+  updated_at               DateTime?
+}
+
+model MediaAssetsDrafts {
+  media_asset_draft_id   String @id @default(uuid())
+  media_asset_id         String
+  public_id              String
+  content_url            String
+  created_at             DateTime
+  updated_at             DateTime?
+}
+
+model FinalAssets {
+  final_asset_id String   @id @default(uuid())
+  public_id      String   @unique @db.VarChar(10)
+  deliverable_id String
+  file_url       String
+  created_at     DateTime @default(now())
+
+  deliverable Deliverables @relation(fields: [deliverable_id], references: [deliverable_id])
+}
+
+model AddOns {
+  add_on_id   String  @id @default(uuid())
+  campaign_id String
+  public_id   String  @unique @db.VarChar(10)
+  add_on_name String
+  description String
+  fee         Decimal
+  initials    String
+  is_deleted  Boolean @default(false)
+  opt_in      Boolean @default(false)
+}
+
+model ActivityLog {
+  log_id      String     @id @default(uuid())
+  user_id     String
+  entity_type EntityType
+  entity_id   String
+  action      Action
+  created_at  DateTime
+
+  user User @relation("ActivityLogUser", fields: [user_id], references: [user_id])
+}
+
+model Notifications {
+  notification_id String   @id @default(uuid())
+  public_id       String   @unique @db.VarChar(10)
+  user_id         String
+  title           String
+  message         String
+  is_read         Boolean  @default(false)
+  created_at      DateTime @default(now())
+}
+
+model Payments {
+  payment_id            String   @id @default(uuid())
+  public_id             String   @unique @db.VarChar(10)
+  campaign_id           String
+  proof_payment_url     String?
+  is_payment_verified   Boolean @default(false)
+  created_at            DateTime @default(now())
+  verified_at           DateTime?
+}
+
+model Invoices {
+  invoice_id     String     @id @default(uuid())
+  public_id      String     @unique @db.VarChar(10)
+  campaign_id    String     @unique
+  invoice_url    String
+  created_at     DateTime   @default(now())
+}
+
+enum UserRoles {
+  CLIENT
+  CREATOR
+}
+
+// -- CAMPAIGN ENUMS -- //
+
+enum CampaignStatus {
+  ACTIVE
+  REJECTED
+  COMPLETED
+  CANCELLED
+}
+
+enum CampaignCurrency {
+  CAD
+  USD
+  PHP
+  EUR
+  GBP
+}
+
+enum PaymentSchedule {
+  DEPOSIT_50_FINAL_50
+  DUE_FINAL_DELIVERY
+}
+
+// -- DELIVERABLE ENUMS -- //
+
+enum DeliverableType {
+  COLLABORATION
+  UGC
+}
+
+enum DeliverableStatus {
+  PENDING
+  IN_PROGRESS
+  APPROVED
+  DELETED
+}
+
+enum DeliverableItemStatus {
+  PENDING
+  FOR_REVIEW
+  APPROVED
+  DELETED
+}
+
+enum AssetActions {
+  PENDING
+  REVISE
+  APPROVE
+}
+
+
+// -- PROPOSAL ENUMS -- //
+
+enum ProposalStatus {
+  PENDING
+  FOR_REVISION
+  REJECTED
+  ACCEPTED
+  CANCELLED
+}
+
+enum ProposalActions {
+  PENDING
+  REVISE
+  APPROVE
+  REJECT
+  CANCEL
+}
+
+// -- ACTIVITY LOG ENUMS -- // 
+enum EntityType {
+  CAMPAIGN
+  SUBMISSION
+  PAYMENT
+}
+
+enum Action {
+  SUBMISSION
+  APPROVE
+  SIGNED
+}
