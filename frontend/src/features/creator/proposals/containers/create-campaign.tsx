@@ -102,19 +102,6 @@ export default function CreateCampaign() {
       return;
     }
 
-    if (!form.validateForm()) {
-      const allErrors = Object.entries(form.errors)
-        .map(([field, err]) => {
-          const message = (err as { message?: string })?.message || err || "Invalid input";
-          return `${field}: ${message}`;
-        })
-        .join(", ");
-      if (allErrors) {
-        toast.error(allErrors);
-      }
-      return;
-    };
-
     const payload = buildPayload();
     const draftPayload = {
       campaign: {
@@ -260,6 +247,7 @@ export default function CreateCampaign() {
               form={form}
               readOnly={isEditing}
               onNext={() => form.setActiveStep(2)}
+              onSaveDraft={handleSaveDraft}
             />
           )}
 
@@ -271,6 +259,7 @@ export default function CreateCampaign() {
               campaignDates={{ startDate: form.startDate, endDate: form.endDate }}
               onBack={() => form.setActiveStep(1)}
               onNext={() => form.setActiveStep(3)}
+              onSaveDraft={handleSaveDraft}
             />
           )}
           
@@ -281,6 +270,7 @@ export default function CreateCampaign() {
               currency={form.currency}
               onBack={() => form.setActiveStep(2)}
               onNext={() => form.setActiveStep(4)}
+              onSaveDraft={handleSaveDraft}
             />
           )}
 
