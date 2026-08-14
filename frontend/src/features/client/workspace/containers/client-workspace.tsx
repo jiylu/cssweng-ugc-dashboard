@@ -460,6 +460,38 @@ function FeedbackActions({
   );
 }
 
+// ── Completion Step (Wired) ────────────────────────────────────────────────────
+
+function ClientDeliverableApprovedCard({
+  deliverableName,
+  onNext,
+}: {
+  deliverableName: string;
+  onNext: () => void;
+}) {
+  return (
+    <div className="flex flex-col items-center justify-center gap-3 rounded border border-[#d8d4cb] bg-white px-10 py-16 mx-auto w-full text-center shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
+      <CheckCircle2 className="text-[#2d7a3a]" size={56} strokeWidth={1.5} />
+
+      <h2 className="text-2xl font-normal text-[#141518]">
+        Deliverable Completed & Approved
+      </h2>
+
+      <p className="text-sm text-[#6f6a63]">
+        You have successfully reviewed and approved the {deliverableName} submission.
+      </p>
+
+      <p className="text-xs italic text-[#77736d]">
+        Tip: You can view the approved assets by clicking on the stages in the card on the left.
+      </p>
+
+      <Button type="button" className="mt-4 rounded bg-[#6b1fa8] font-normal hover:bg-[#551783] min-w-48" onClick={onNext}>
+        Next: Invoicing
+      </Button>
+    </div>
+  );
+}
+
 // ── Contract Signing Placeholder ───────────────────────────────────────────────
 
 function ContractSigningPlaceholder() {
@@ -678,6 +710,11 @@ export default function ClientWorkspace({
   const { data: latestMediaAsset, isLoading: mediaLoading } =
     useLatestMediaAsset(selectedDeliverableItem?.public_id);
 
+  const activeDeliverableName =
+    selectedDeliverableItem && (deliverableItems?.length ?? 0) > 1
+      ? `${deliverables[activeDeliverable]?.deliverable_content} ${selectedDeliverableItem.deliverable_index}`
+      : deliverables[activeDeliverable]?.deliverable_content ?? "Deliverable";
+
   const isContractSigned = Boolean(
     data?.contract?.creator_signed && data?.contract?.client_signed,
   );
@@ -780,22 +817,29 @@ export default function ClientWorkspace({
                   isLoading={writtenLoading}
                   onHistory={() => setHistoryOpen(true)}
                 />
-              ) : (
+              ) : activeSubmissionStep === 1 ? (
                 <MediaAssetPanel
                   asset={latestMediaAsset}
                   isLoading={mediaLoading}
                   onHistory={() => setHistoryOpen(true)}
                   onPreview={() => setPreviewOpen(true)}
                 />
+              ) : (
+                <ClientDeliverableApprovedCard
+                  deliverableName={activeDeliverableName}
+                  onNext={() => setActiveStep(2)}
+                />
               )}
-              <FeedbackActions
-                submissionStep={activeSubmissionStep}
-                writtenAssetPublicId={latestWrittenAsset?.public_id}
-                mediaAssetPublicId={latestMediaAsset?.public_id}
-                writtenAssetAction={latestWrittenAsset?.written_asset_action}
-                mediaAssetAction={latestMediaAsset?.media_asset_action}
-                onMutationSuccess={handleMutationSuccess}
-              />
+              {activeSubmissionStep < 2 && (
+                <FeedbackActions
+                  submissionStep={activeSubmissionStep}
+                  writtenAssetPublicId={latestWrittenAsset?.public_id}
+                  mediaAssetPublicId={latestMediaAsset?.public_id}
+                  writtenAssetAction={latestWrittenAsset?.written_asset_action}
+                  mediaAssetAction={latestMediaAsset?.media_asset_action}
+                  onMutationSuccess={handleMutationSuccess}
+                />
+              )}
             </div>
           ) : (
             <CompletionPanel
