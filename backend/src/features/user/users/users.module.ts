@@ -32,6 +32,7 @@ export class UsersModule implements NestModule {
       .exclude(
         { path: 'users', method: RequestMethod.POST },
         { path: 'users/login', method: RequestMethod.POST },
+        { path: 'users/logout', method: RequestMethod.POST },
         { path: 'users/forgot-password', method: RequestMethod.POST },
         { path: 'users/reset-password', method: RequestMethod.POST },
         { path: 'otps', method: RequestMethod.POST },
