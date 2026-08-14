@@ -202,6 +202,84 @@ export function InvoiceDetailsCard({ campaignId, onPrevious, onNext }: InvoiceDe
     )
   }
 
+  // ── Payment exists but not verified: show verify payment state ──
+  if (payment && !payment.is_payment_verified) {
+    return (
+      <Card className="flex flex-col gap-4 overflow-hidden p-0">
+        <h2 className="px-5 pt-4 pb-3 text-xl text-foreground">
+          Verify Payment
+        </h2>
+        <Separator />
+        <div className="flex flex-col items-center gap-4 px-8 pb-6 text-center">
+          <Receipt className="text-[#6b1fa8]" size={40} strokeWidth={1.5} />
+          
+          <div className="flex flex-col gap-1">
+            <p className="text-base font-medium text-foreground">
+              {payment.proof_payment_url ? "Proof of Payment Received" : "Waiting for Proof of Payment"}
+            </p>
+            <p className="text-sm text-muted-foreground">
+              {payment.proof_payment_url
+                ? "The client has uploaded a proof of payment. Please review it carefully and validate the payment to complete the invoicing phase."
+                : "The invoice has been sent. Waiting for the client to upload proof of payment before you can verify."}
+            </p>
+          </div>
+
+          <div className="flex w-full max-w-80 flex-col gap-1 rounded-[3px] border border-border px-3 py-2 text-left text-xs text-muted-foreground mt-2">
+            <span>Payment ID: {payment.public_id}</span>
+            <span>
+              Status: {payment.proof_payment_url ? "Pending verification" : "Awaiting proof of payment"}
+            </span>
+          </div>
+
+          {payment.proof_payment_url && (
+            <Button asChild type="button" variant="outline" className="w-full max-w-80 rounded-[3px] border-[#6b1fa8] text-[#6b1fa8] hover:bg-[#6b1fa8]/5 hover:text-[#6b1fa8]">
+              <a href={payment.proof_payment_url} target="_blank" rel="noreferrer">
+                View Proof of Payment
+                <ExternalLink size={16} className="ml-2" />
+              </a>
+            </Button>
+          )}
+
+          {payment.proof_payment_url && (
+            <Button
+              type="button"
+              className="w-full max-w-80 rounded-[3px] bg-[#6b1fa8] hover:bg-[#5a1a8f] text-white"
+              onClick={handleValidatePayment}
+              disabled={isSending || isUploading}
+            >
+              {isSending ? "Validating..." : "Validate Payment"}
+              <CircleCheck size={16} className="ml-2" />
+            </Button>
+          )}
+
+          <div className="flex w-full max-w-80 items-center justify-between gap-3 mt-2">
+            {onPrevious && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onPrevious}
+                className="w-full flex-1 rounded-[3px] border-[#6b1fa8] text-[#6b1fa8]"
+              >
+                Previous
+              </Button>
+            )}
+            {onNext && (
+              <Button
+                type="button"
+                onClick={onNext}
+                disabled // Cannot proceed until validated
+                className="w-full flex-1 rounded-[3px] bg-muted text-muted-foreground opacity-50 cursor-not-allowed"
+              >
+                Next
+                <ArrowRight size={16} className="ml-1" />
+              </Button>
+            )}
+          </div>
+        </div>
+      </Card>
+    )
+  }
+
   // ── Main invoicing flow ──
   return (
     <Card className="flex flex-col gap-4 p-0 overflow-hidden">
@@ -263,7 +341,7 @@ export function InvoiceDetailsCard({ campaignId, onPrevious, onNext }: InvoiceDe
           </div>
         )}
 
-        {/* Invoice uploaded: show file info and Step 2 */}
+        {/* Invoice uploaded: show file info */}
         {invoice && (
           <>
             <div className="flex flex-col gap-1 w-full max-w-80 rounded-[3px] border border-[#2d7a3a]/30 bg-[#e7f4ea] px-3 py-2 text-xs text-[#2d7a3a]">
@@ -285,48 +363,7 @@ export function InvoiceDetailsCard({ campaignId, onPrevious, onNext }: InvoiceDe
           </>
         )}
 
-        {/* Invoice sent: show status */}
-        {payment && !payment.proof_payment_url && (
-          <p className="text-xs text-muted-foreground">
-            Invoice sent. Waiting for the client to upload proof of payment.
-          </p>
-        )}
-
-        {/* Payment proof submitted: show info and validate button */}
-        {payment && (
-          <div className="flex flex-col gap-1 w-full max-w-80 rounded-[3px] border border-border px-3 py-2 text-xs text-muted-foreground">
-            <span>Payment ID: {payment.public_id}</span>
-            {payment.proof_payment_url && <a
-              href={payment.proof_payment_url}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-1 text-[#6b1fa8] hover:underline"
-            >
-              Proof of Payment
-              <ExternalLink size={12} />
-            </a>}
-            <span>
-              Status:{" "}
-              {payment.is_payment_verified
-                ? "Verified"
-                : payment.proof_payment_url
-                  ? "Pending verification"
-                  : "Awaiting proof of payment"}
-            </span>
-          </div>
-        )}
-
-        <div className="flex flex-col gap-2 w-full max-w-80">
-          {payment?.proof_payment_url && <Button
-            type="button"
-            className="rounded-[3px] bg-[#6b1fa8] hover:bg-[#5a1a8f] text-white"
-            onClick={handleValidatePayment}
-            disabled={isSending || isUploading}
-          >
-            {isSending ? "Validating..." : "Validate Payment"}
-            <ArrowRight size={16} />
-          </Button>}
-
+        <div className="flex flex-col gap-2 w-full max-w-80 mt-2">
           {onPrevious && (
             <Button
               type="button"
