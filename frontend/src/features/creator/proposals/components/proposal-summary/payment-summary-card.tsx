@@ -26,12 +26,6 @@ export function PaymentSummaryCard({ baseFee, addOnsTotal, taxRate, tax, total, 
                     <span>Base Fee</span>
                     <span>{fmt(baseFee)}</span>
                 </div>
-                {addOnsTotal > 0 && (
-                    <div className="flex justify-between text-sm text-foreground">
-                    <span>Add Ons (Usage Rights)</span>
-                    <span>{fmt(addOnsTotal)}</span>
-                    </div>
-                )}
                 <div className="flex justify-between text-sm text-foreground">
                     <span>Tax ({taxRate}%)</span>
                     <span>{fmt(tax)}</span>

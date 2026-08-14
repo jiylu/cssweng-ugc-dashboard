@@ -103,16 +103,6 @@ export function mapCampaignSetupToProposalSummary(
   const addOns = (details.addOns ?? []).map(mapAddOn)
   const giftedProducts = (details.giftedProducts ?? []).map(mapGiftedProduct)
 
-  const baseFeeWithoutAddOns = deliverables.reduce((sum, d) => sum + d.price, 0)
-  const addOnsTotal = addOns
-    .filter((a) => a.isEnabled)
-    .reduce((sum, a) => sum + a.fee, 0)
-  const baseFee = baseFeeWithoutAddOns + addOnsTotal
-
-  const taxRate = parseMoney(details.campaign.tax)
-  const tax = baseFee * (taxRate / 100)
-  const total = baseFee + tax
-
   const contract = details.contract
   const rawExclusivity = contract?.exclusivity ?? null
   const exclusivity =
@@ -121,6 +111,20 @@ export function mapCampaignSetupToProposalSummary(
     Object.keys(rawExclusivity).length > 0
       ? rawExclusivity
       : null
+
+  const giftedTotal = giftedProducts.reduce((sum, g) => sum + parseMoney(g.value), 0)
+  const exclusivityFee = exclusivity ? parseMoney(exclusivity.exclusivity_fee) : 0
+
+  const baseFeeWithoutAddOns =
+    deliverables.reduce((sum, d) => sum + d.price, 0) + exclusivityFee + giftedTotal
+  const addOnsTotal = addOns
+    .filter((a) => a.isEnabled)
+    .reduce((sum, a) => sum + a.fee, 0)
+  const baseFee = baseFeeWithoutAddOns + addOnsTotal
+
+  const taxRate = parseMoney(details.campaign.tax)
+  const tax = baseFeeWithoutAddOns * (taxRate / 100)
+  const total = baseFeeWithoutAddOns + tax
 
   const startDate = formatSummaryDate(details.campaign.start_date)
   const endDate = formatSummaryDate(details.campaign.end_date)

@@ -37,12 +37,12 @@ export function DeliverableRow({ item, index, campaignStartDate, campaignEndDate
   const maximumDate = parseCalendarDate(campaignEndDate)
 
   return (
-    <div className="flex flex-row items-center gap-4 w-full">
-      <div className="bg-[#F2F0EA] border border-border rounded-[3px] p-3 flex flex-row flex-1 gap-2">
+    <div className="flex flex-row items-center gap-4 w-full min-w-0">
+      <div className="bg-[#F2F0EA] border border-border rounded-[3px] p-3 flex flex-row flex-1 gap-2 min-w-0">
         {/* Left side */}
         <div className="flex flex-col gap-1 flex-1 min-w-0 self-stretch">
           {/* Top row - Quantity, Type, Content Type, Delete */}
-          <div className="flex flex-wrap items-start gap-4 w-full">
+          <div className="flex flex-wrap items-start gap-4 w-full min-w-0">
             {/* Quantity */}
             <div className="flex flex-col gap-1 w-24 shrink-0">
               <label className="text-xs text-muted-foreground uppercase tracking-[0.03em]">QUANTITY<span className="text-[#ff6467] ml-1">*</span></label>
@@ -101,14 +101,14 @@ export function DeliverableRow({ item, index, campaignStartDate, campaignEndDate
           </div>
 
           {/* Requirements */}
-          <div className="flex flex-col gap-1 flex-1 min-h-0">
+          <div className="flex flex-col gap-1 flex-1 min-h-0 min-w-0">
             <label className="text-xs text-muted-foreground uppercase tracking-[0.03em]">REQUIREMENTS<span className="text-[#ff6467] ml-1">*</span></label>
-            <div className="relative flex-1 flex flex-col h-full"> 
+            <div className="relative flex-1 flex flex-col h-full min-w-0"> 
               <Textarea
               value={item.description}
               onChange={(e) => onUpdate('description', e.target.value)}
               placeholder="Indicate requirements and format of the deliverable"
-              className="w-full flex-1 !h-full [field-sizing:fixed] bg-white border border-border rounded-[3px] text-sm text-foreground placeholder:text-muted-foreground placeholder:italic resize-none break-words overflow-hidden"
+              className="w-full min-w-0 flex-1 !h-full [field-sizing:fixed] bg-white border border-border rounded-[3px] text-sm text-foreground placeholder:text-muted-foreground placeholder:italic resize-none break-words overflow-hidden"
               />
               <span className="absolute bottom-3 right-3 text-[13px] text-gray-400">
                 {item.description?.length || 0}

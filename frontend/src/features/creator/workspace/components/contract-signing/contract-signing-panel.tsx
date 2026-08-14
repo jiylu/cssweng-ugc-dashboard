@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { CircleCheck } from "lucide-react";
+import { CircleCheck, FileText } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -10,10 +10,12 @@ import Button from "@/src/components/atoms/button";
 import SignatureField from "@/src/features/client/contracts/components/signature-field";
 import { signContract } from "@/src/features/client/contracts/services/contracts-api";
 import { CampaignContract } from "@/src/features/creator/workspace/services/getCampaignSetup";
+import { SignedContractPreviewDialog } from "@/src/features/creator/workspace/components/contract-signing/signed-contract-preview-dialog";
 
 interface ContractSigningPanelProps {
   contract?: CampaignContract;
   campaignId?: string;
+  creatorName?: string;
   onNext?: () => void;
   onSigned?: () => void;
 }
@@ -21,6 +23,7 @@ interface ContractSigningPanelProps {
 export function ContractSigningPanel({
   contract,
   campaignId,
+  creatorName,
   onNext,
   onSigned,
 }: ContractSigningPanelProps) {
@@ -29,6 +32,7 @@ export function ContractSigningPanel({
   const [signatureDataUrl, setSignatureDataUrl] = useState("");
   const [initialsDataUrl, setInitialsDataUrl] = useState("");
   const [hasSigned, setHasSigned] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
   const queryClient = useQueryClient();
 
   const signingMutation = useMutation({
@@ -80,9 +84,30 @@ export function ContractSigningPanel({
             Signed on {new Date(contract.effective_date).toLocaleDateString()}
           </p>
         )}
-        <Button type="button" className="mt-1 min-w-48" onClick={onNext}>
-          Next: Deliverables Submission
-        </Button>
+        <div className="mt-1 flex items-center gap-3">
+          <Button
+            type="button"
+            variant="outline"
+            className="min-w-48"
+            onClick={() => setPreviewOpen(true)}
+            disabled={!contract || !campaignId}
+          >
+            <FileText className="w-4 h-4" />
+            View PDF
+          </Button>
+          <Button type="button" className="min-w-48" onClick={onNext}>
+            Next: Deliverables Submission
+          </Button>
+        </div>
+        {contract && campaignId && (
+          <SignedContractPreviewDialog
+            open={previewOpen}
+            campaignId={campaignId}
+            contractPublicId={contract.public_id}
+            creatorName={creatorName ?? ""}
+            onClose={() => setPreviewOpen(false)}
+          />
+        )}
       </section>
     );
   }

@@ -1,5 +1,5 @@
 "use client"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { toast } from "sonner"
 import { Receipt, Eye, ArrowRight, CircleCheck, ExternalLink } from "lucide-react"
 import { Card } from "@/src/components/atoms/card"
@@ -13,13 +13,35 @@ import {
 
 interface InvoiceDetailsCardProps {
   campaignId: string
+  onNext?: () => void
 }
 
-export function InvoiceDetailsCard({ campaignId }: InvoiceDetailsCardProps) {
+export function InvoiceDetailsCard({ campaignId, onNext }: InvoiceDetailsCardProps) {
   const [payment, setPayment] = useState<Payment | null>(null)
   const [checked, setChecked] = useState(false)
   const [isLoadingInvoice, setIsLoadingInvoice] = useState(false)
   const [isSending, setIsSending] = useState(false)
+  const [initialLoading, setInitialLoading] = useState(true)
+
+  useEffect(() => {
+    let cancelled = false
+    getPaymentForCampaign(campaignId)
+      .then((result) => {
+        if (!cancelled) {
+          setPayment(result)
+          setChecked(true)
+        }
+      })
+      .catch(() => {
+        // ignore silent fetch errors on initial load
+      })
+      .finally(() => {
+        if (!cancelled) setInitialLoading(false)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [campaignId])
 
   const handleViewInvoice = async () => {
     setIsLoadingInvoice(true)
@@ -64,6 +86,14 @@ export function InvoiceDetailsCard({ campaignId }: InvoiceDetailsCardProps) {
     }
   }
 
+  if (initialLoading) {
+    return (
+      <Card className="flex flex-col items-center gap-4 overflow-hidden p-8">
+        <p className="text-sm text-muted-foreground">Loading invoice...</p>
+      </Card>
+    )
+  }
+
   if (payment?.is_payment_verified) {
     return (
       <Card className="flex flex-col gap-4 overflow-hidden p-0">
@@ -95,6 +125,16 @@ export function InvoiceDetailsCard({ campaignId }: InvoiceDetailsCardProps) {
               <ExternalLink size={16} />
             </a>
           </Button>
+          {onNext && (
+            <Button
+              type="button"
+              onClick={onNext}
+              className="w-full max-w-64 rounded-[3px] bg-[#6b1fa8] hover:bg-[#5a1a8f] text-white"
+            >
+              Next: Completion
+              <ArrowRight size={16} />
+            </Button>
+          )}
         </div>
       </Card>
     )

@@ -52,12 +52,8 @@ export function Expenses({
             <InputGroup className="border border-border rounded-[3px] bg-white w-full">
               <InputGroupAddon>
                 <div className="flex flex-col shrink-0 px-1.5">
-                  <button type="button" aria-label="Increase reimbursement period" disabled={reimbursementDays >= MAX_PERIOD_DAYS} className="text-foreground hover:text-[#6b1fa8] disabled:cursor-not-allowed disabled:text-muted-foreground disabled:opacity-40" onClick={() => setReimbursementDays(Math.min(MAX_PERIOD_DAYS, reimbursementDays + 1))}>
-                    <ChevronUp size={12} />
-                  </button>
-                  <button type="button" aria-label="Decrease reimbursement period" disabled={reimbursementDays <= 1} className="text-foreground hover:text-[#6b1fa8] disabled:cursor-not-allowed disabled:text-muted-foreground disabled:opacity-40" onClick={() => setReimbursementDays(Math.max(1, reimbursementDays - 1))}>
-                    <ChevronDown size={12} />
-                  </button>
+                  <ChevronUp size={12} className="cursor-pointer text-muted-foreground hover:text-foreground" onClick={() => setReimbursementDays(Math.min(60, reimbursementDays + 1))} />
+                  <ChevronDown size={12} className="cursor-pointer text-muted-foreground hover:text-foreground" onClick={() => setReimbursementDays(Math.max(1, reimbursementDays - 1))} />
                 </div>
               </InputGroupAddon>
               <InputGroupInput
@@ -67,20 +63,13 @@ export function Expenses({
                 step={1}
                 inputMode="numeric"
                 value={reimbursementDays}
-                aria-invalid={Boolean(reimbursementError)}
-                onKeyDown={(e) => {
-                  if (BLOCKED_NUMBER_KEYS.has(e.key)) e.preventDefault()
-                }}
-                onChange={(e) => {
-                  const value = parseWholeDays(e.target.value)
-                  if (value !== null) setReimbursementDays(value)
-                }}
+                onChange={(e) => setReimbursementDays(Math.max(1, 60))}
                 className="border-0 p-0 h-auto text-sm shadow-none focus-visible:ring-0 px-2 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               />
               <InputGroupAddon align="inline-end">DAYS</InputGroupAddon>
             </InputGroup>
           </div>
-          {reimbursementError && <p className="text-xs mt-1 text-[#ff6467]">{reimbursementError}</p>}
+          {errors.reimbursementDays && <p className="text-xs mt-1 text-[#ff6467]">{errors.reimbursementDays}</p>}
           <p className="text-xs text-muted-foreground italic mt-1">NOTE: Approved expenses must be reimbursed by Brand within set amount of days after Creator submits valid receipts.</p>
           <div className="flex flex-col gap-1 mt-3">
             <label className="text-sm text-muted-foreground uppercase tracking-[0.03em]">GIFTED PRODUCT TERMS</label>

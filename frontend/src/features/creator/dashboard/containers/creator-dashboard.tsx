@@ -80,7 +80,7 @@ export default function CreatorDashboard() {
 
           {/* TODOS */}
           <h2 className="text-xl sm:text-2xl font-bold mb-2">Urgent / To Do</h2>
-          <div className="flex flex-row gap-4 flex-start mb-10">
+          <div className="flex flex-row flex-wrap gap-4 mb-10">
             {todos.length > 0 ? (
               todos.map((todo) => (
                 <CreatorTodoCard

@@ -7,6 +7,14 @@ export interface SignContractPayload {
   signerRole: "CLIENT" | "CREATOR";
 }
 
+export interface ContractSignature {
+  contract_id: string;
+  signer_role: "CLIENT" | "CREATOR";
+  signature_url: string;
+  initials_url: string;
+  signed_at: string;
+}
+
 function dataUrlToPng(dataUrl: string, filename: string): File {
   const [metadata, encodedData] = dataUrl.split(",");
   if (!metadata || !encodedData || !metadata.includes("image/png")) {
@@ -48,6 +56,21 @@ export async function signContract(
 
   if (!response.ok) {
     throw new Error(await parseApiError(response, "Unable to sign contract."));
+  }
+
+  return response.json();
+}
+
+export async function getContractSignatures(
+  contractPublicId: string,
+): Promise<ContractSignature[]> {
+  const response = await fetch(
+    `${API_BASE_URL}/contracts/signatures/${contractPublicId}`,
+    { credentials: "include" },
+  );
+
+  if (!response.ok) {
+    throw new Error(await parseApiError(response, "Unable to fetch signatures."));
   }
 
   return response.json();

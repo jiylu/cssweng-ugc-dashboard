@@ -51,7 +51,7 @@ export default function CreateCampaign() {
   const isSavingDraft = isSavingNewDraft || isSavingExistingDraft
   const baseCreatorFee = calculateBaseCreatorFee(
     form.deliverables,
-    addOns.addOns,
+    [],
     contractTerms.exclusivityFee,
     contractTerms.hasExclusivity,
     paymentTerms.giftedProducts
