@@ -12,6 +12,7 @@ import {
   ListOrdered,
   Strikethrough,
 } from "lucide-react";
+import './style.css';
 import { Toggle } from "@/components/ui/toggle";
 import { Editor } from "@tiptap/react";
 
