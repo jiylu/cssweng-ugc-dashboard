@@ -6,6 +6,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
   Check,
+  Download,
   FileText,
   History,
   Loader2,
@@ -44,6 +45,10 @@ import {
   getPaymentForCampaign,
   uploadPaymentProof,
 } from "@/src/features/client/workspace/services/payments-api";
+import {
+  downloadFinalAssetsAsZip,
+  getFinalAssetsForCampaign,
+} from "@/src/features/creator/workspace/services/final-assets-api";
 
 const STEPS = [
   "Contract Signing",
@@ -122,22 +127,27 @@ function Progress({
 function MediaPreview({
   onOpen,
   contentUrl,
+  isVideo,
 }: {
   onOpen: () => void;
   contentUrl?: string;
+  isVideo?: boolean;
 }) {
   return (
     <button
       type="button"
       onClick={onOpen}
       className="group flex min-h-[260px] w-full items-center justify-center border border-[#d8d4cb] bg-white"
-      aria-label="Preview submitted video"
+      aria-label="Preview submitted media"
     >
-      {contentUrl ? (
+      {contentUrl && isVideo ? (
         <video
           src={contentUrl}
           className="max-h-[260px] w-full object-contain"
         />
+      ) : contentUrl ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={contentUrl} alt="Submitted media" className="max-h-[260px] w-full object-contain" />
       ) : (
         <span className="flex size-16 items-center justify-center rounded-full border-[4px] border-[#141518] transition-transform group-hover:scale-105">
           <Play className="ml-1 size-8 fill-[#141518]" />
@@ -274,7 +284,7 @@ function MediaAssetPanel({
   return (
     <section className="min-h-[410px] min-w-0 flex-1 rounded border border-[#d8d4cb] bg-white p-5 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
       <div className="flex items-center justify-between gap-4 border-b border-[#d8d4cb] pb-3">
-        <h2 className="text-2xl text-[#141518]">Video</h2>
+        <h2 className="text-2xl text-[#141518]">Media</h2>
         <div className="flex items-center gap-3 text-sm text-[#6f6a63]">
           {asset && <span>Version {asset.version_number}</span>}
           <Button
@@ -292,7 +302,7 @@ function MediaAssetPanel({
         </div>
       ) : asset ? (
         <div className="pt-5">
-          <MediaPreview onOpen={onPreview} contentUrl={asset.content_url} />
+          <MediaPreview onOpen={onPreview} contentUrl={asset.content_url} isVideo={asset.is_video} />
           {asset.client_comments && (
             <div className="mt-4 rounded border border-amber-200 bg-amber-50 p-3">
               <p className="text-xs font-medium text-amber-800">
@@ -306,7 +316,7 @@ function MediaAssetPanel({
         </div>
       ) : (
         <p className="pt-7 text-sm italic leading-6 text-[#77736d]">
-          The creator has not submitted a video yet. The latest media submission
+          The creator has not submitted media yet. The latest media submission
           will appear here once it has been uploaded for approval.
         </p>
       )}
@@ -575,6 +585,60 @@ function InvoicePanel({ campaignId }: { campaignId: string }) {
   );
 }
 
+function CompletionPanel({
+  campaignId,
+  campaignName,
+  isPaidFull,
+}: {
+  campaignId: string;
+  campaignName: string;
+  isPaidFull: boolean;
+}) {
+  const [isDownloading, setIsDownloading] = useState(false);
+  const { data: groupedAssets, isLoading } = useQuery({
+    queryKey: ["final-assets", campaignId],
+    queryFn: () => getFinalAssetsForCampaign(campaignId),
+    enabled: isPaidFull,
+  });
+  const assets = Object.values(groupedAssets ?? {}).flatMap((group) => group.finalAssets);
+
+  if (!isPaidFull) {
+    return (
+      <section className="flex min-h-[350px] flex-1 flex-col items-center justify-center rounded border border-[#d8d4cb] bg-white p-7 text-center">
+        <ReceiptText className="size-12 text-[#6b1fa8]" strokeWidth={1.6} />
+        <h2 className="mt-4 text-2xl text-[#141518]">Payment verification pending</h2>
+        <p className="mt-2 max-w-lg text-sm leading-5 text-[#44403b]">
+          Waiting for the creator to verify the full payment. Final assets will be available here once payment is confirmed.
+        </p>
+      </section>
+    );
+  }
+
+  const handleDownload = async () => {
+    setIsDownloading(true);
+    try {
+      const count = await downloadFinalAssetsAsZip(assets, `${campaignName}-final-assets.zip`);
+      if (count === 0) toast.info("No final assets are available yet.");
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  return (
+    <section className="flex min-h-[350px] flex-1 flex-col items-center justify-center rounded border border-[#d8d4cb] bg-white p-7 text-center">
+      <Check className="size-12 text-[#2d7a3a]" strokeWidth={1.6} />
+      <h2 className="mt-4 text-2xl text-[#141518]">Campaign completed</h2>
+      <p className="mt-2 text-sm text-[#44403b]">
+        {isLoading ? "Loading final assets..." : `${assets.length} final asset${assets.length === 1 ? "" : "s"} available.`}
+      </p>
+      <Button className="mt-5 rounded bg-[#6b1fa8] hover:bg-[#551783]" onClick={handleDownload} disabled={isLoading || isDownloading || assets.length === 0}>
+        <Download className="mr-2 size-4" />
+        {isDownloading ? "Downloading..." : "Download Final Assets"}
+      </Button>
+    </section>
+  );
+}
+
 // ── Main Client Workspace ──────────────────────────────────────────────────────
 
 export default function ClientWorkspace({
@@ -710,12 +774,11 @@ export default function ClientWorkspace({
               />
             </div>
           ) : (
-            <section className="flex min-h-[350px] flex-1 flex-col items-center justify-center rounded border border-[#d8d4cb] bg-white p-7 text-center">
-              <Check className="size-12 text-[#2d7a3a]" strokeWidth={1.6} />
-              <p className="mt-4 text-sm leading-5 text-[#44403b]">
-                This campaign has been completed.
-              </p>
-            </section>
+            <CompletionPanel
+              campaignId={campaignId}
+              campaignName={data?.campaign?.project_name ?? "campaign"}
+              isPaidFull={Boolean(data?.campaign?.paid_full)}
+            />
           )}
           </div>
         </div>
@@ -734,15 +797,18 @@ export default function ClientWorkspace({
             </button>
           </div>
           <div className="mx-auto mt-5 w-full max-w-3xl rounded border border-[#d8d4cb] bg-white p-5">
-            {latestMediaAsset?.content_url ? (
+            {latestMediaAsset?.content_url && latestMediaAsset.is_video ? (
               <video
                 src={latestMediaAsset.content_url}
                 controls
                 className="w-full"
               />
+            ) : latestMediaAsset?.content_url ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={latestMediaAsset.content_url} alt="Submitted media preview" className="max-h-[75vh] w-full object-contain" />
             ) : (
               <p className="text-sm italic text-[#77736d]">
-                No video to preview.
+                No media to preview.
               </p>
             )}
           </div>

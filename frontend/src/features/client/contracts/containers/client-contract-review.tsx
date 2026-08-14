@@ -2,12 +2,18 @@ import { useAuth } from "@/src/features/auth/hooks/useAuth";
 import { useParams, useSearchParams } from "next/navigation";
 import ContractActionPanel from "../components/contract-action-panel";
 import ContractReviewHeader from "../components/contract-review-header";
+import { useQuery } from "@tanstack/react-query";
+import { getContractStatus } from "../services/contracts-api";
 
 export default function ClientContractReview() {
   const params = useParams<{ proposalId: string }>();
   const searchParams = useSearchParams();
   const { user } = useAuth();
   const proposalPublicId = searchParams.get("proposal") ?? undefined;
+  const { data: contract } = useQuery({
+    queryKey: ["contract", params.proposalId],
+    queryFn: () => getContractStatus(params.proposalId),
+  });
 
   if (!user) {
     return;
@@ -41,6 +47,7 @@ export default function ClientContractReview() {
           <ContractActionPanel
             contractPublicId={params.proposalId}
             proposalPublicId={proposalPublicId}
+            contract={contract}
           />
         </aside>
       </div>
