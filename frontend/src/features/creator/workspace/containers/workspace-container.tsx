@@ -1,5 +1,5 @@
 "use client"
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Profile from "@/src/components/molecules/profile";
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
@@ -117,6 +117,27 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
     setActiveDeliverableItem(itemIndex)
     setActiveDeliverableStep(0)
   }
+
+  const hasInitializedRef = useRef(false)
+
+  useEffect(() => {
+    if (hasInitializedRef.current || campaignLoading || approvalLoading) return
+
+    if (campaignSetup) {
+      let initialStep = 0
+      if (isContractSigned) {
+        initialStep = 1
+        if (allDeliverablesApproved || campaignSetup.campaign?.all_deliverables_approved) {
+          initialStep = 2
+          if (campaignSetup.campaign?.campaign_status === "COMPLETED") {
+            initialStep = 3
+          }
+        }
+      }
+      setActiveStep(initialStep)
+      hasInitializedRef.current = true
+    }
+  }, [campaignSetup, campaignLoading, approvalLoading, isContractSigned, allDeliverablesApproved, setActiveStep])
 
   const handleDirtyChange = useCallback((dirty: boolean) => {
     setHasUnsavedChanges(dirty)
@@ -371,6 +392,7 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
                       setHistoryType("media")
                       setHistoryOpen(true)
                     }}
+                    onPrevious={() => setActiveDeliverableStep(0)}
                     onNext={() => setActiveDeliverableStep(2)}
                     deliverableItemPublicId={selectedDeliverableItem?.public_id}
                     mediaAsset={latestMediaAsset}
@@ -381,6 +403,7 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
                 {activeDeliverableStep === 2 && (
                   <DeliverableApprovedCard
                     deliverableName={activeDeliverableName}
+                    onPrevious={() => setActiveDeliverableStep(1)}
                     onNext={() => handleStepChange(2)}
                   />
                 )}
@@ -399,6 +422,7 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
             {activeStep === 2 && (
               <InvoiceDetailsCard
                 campaignId={campaignId}
+                onPrevious={() => handleStepChange(1)}
                 onNext={() => handleStepChange(3)}
               />
             )}
@@ -408,6 +432,7 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
                 isDownloading={isDownloading}
                 onDownloadAssets={handleDownloadAssets}
                 onBackToDashboard={() => router.push('/creator-dashboard')}
+                onPrevious={() => handleStepChange(2)}
               />
             )}
           </div>

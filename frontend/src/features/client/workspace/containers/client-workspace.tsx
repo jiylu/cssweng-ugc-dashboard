@@ -61,9 +61,11 @@ const STEPS = [
 
 function Progress({
   activeStep,
+  maxAllowedStep,
   onChange,
 }: {
   activeStep: number;
+  maxAllowedStep: number;
   onChange: (step: number) => void;
 }) {
   return (
@@ -79,10 +81,10 @@ function Progress({
           >
             <button
               type="button"
-              disabled={index < activeStep}
+              disabled={index > maxAllowedStep}
               className={cn(
                 "group flex flex-col items-center gap-1",
-                index < activeStep ? "cursor-default" : "cursor-pointer",
+                index > maxAllowedStep ? "cursor-default" : "cursor-pointer",
               )}
               onClick={() => onChange(index)}
             >
@@ -462,7 +464,7 @@ function FeedbackActions({
 
 // ── Contract Signing Placeholder ───────────────────────────────────────────────
 
-function ContractSigningPlaceholder() {
+function ContractSigningPlaceholder({ onNext }: { onNext: () => void }) {
   return (
     <section className="flex min-h-[350px] flex-1 flex-col items-center justify-center rounded border border-[#d8d4cb] bg-white p-7 text-center">
       <FileText className="size-12 text-[#6b1fa8]" strokeWidth={1.6} />
@@ -470,13 +472,16 @@ function ContractSigningPlaceholder() {
         The contract for this campaign needs to be reviewed and signed. Please
         check your proposal invitation or visit the contract review page.
       </p>
+      <Button type="button" className="mt-6 min-w-48" onClick={onNext}>
+        Next: Deliverables
+      </Button>
     </section>
   );
 }
 
 // ── Invoice Panel ──────────────────────────────────────────────────────────────
 
-function InvoicePanel({ campaignId }: { campaignId: string }) {
+function InvoicePanel({ campaignId, onPrevious, onNext }: { campaignId: string; onPrevious: () => void; onNext: () => void }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [invoiceOpen, setInvoiceOpen] = useState(false);
@@ -581,6 +586,14 @@ function InvoicePanel({ campaignId }: { campaignId: string }) {
           ) : null}
         </DialogContent>
       </Dialog>
+      <div className="mt-8 flex items-center justify-end gap-3 border-t border-[#d8d4cb] pt-4">
+        <Button variant="outline" className="min-w-32" onClick={onPrevious}>
+          Previous: Deliverables
+        </Button>
+        <Button className="min-w-32" onClick={onNext} disabled={!payment?.is_payment_verified}>
+          Next: Completion
+        </Button>
+      </div>
     </section>
   );
 }
@@ -589,10 +602,12 @@ function CompletionPanel({
   campaignId,
   campaignName,
   isPaidFull,
+  onPrevious,
 }: {
   campaignId: string;
   campaignName: string;
   isPaidFull: boolean;
+  onPrevious: () => void;
 }) {
   const [isDownloading, setIsDownloading] = useState(false);
   const { data: groupedAssets, isLoading } = useQuery({
@@ -631,10 +646,15 @@ function CompletionPanel({
       <p className="mt-2 text-sm text-[#44403b]">
         {isLoading ? "Loading final assets..." : `${assets.length} final asset${assets.length === 1 ? "" : "s"} available.`}
       </p>
-      <Button className="mt-5 rounded bg-[#6b1fa8] hover:bg-[#551783]" onClick={handleDownload} disabled={isLoading || isDownloading || assets.length === 0}>
-        <Download className="mr-2 size-4" />
-        {isDownloading ? "Downloading..." : "Download Final Assets"}
-      </Button>
+      <div className="mt-8 flex items-center gap-3">
+        <Button variant="outline" onClick={onPrevious} disabled={isLoading || isDownloading}>
+          Previous: Invoicing
+        </Button>
+        <Button className="rounded bg-[#6b1fa8] hover:bg-[#551783]" onClick={handleDownload} disabled={isLoading || isDownloading || assets.length === 0}>
+          <Download className="mr-2 size-4" />
+          {isDownloading ? "Downloading..." : "Download Final Assets"}
+        </Button>
+      </div>
     </section>
   );
 }
@@ -652,6 +672,7 @@ export default function ClientWorkspace({
   const { data, isLoading: campaignLoading } = useCampaignSetup(campaignId);
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
+  const [maxAllowedStep, setMaxAllowedStep] = useState(0);
   const [activeSubmissionStep, setActiveSubmissionStep] = useState(0);
   const [activeDeliverable, setActiveDeliverable] = useState(0);
   const [activeDeliverableItem, setActiveDeliverableItem] = useState(0);
@@ -677,6 +698,31 @@ export default function ClientWorkspace({
     useLatestWrittenAsset(selectedDeliverableItem?.public_id);
   const { data: latestMediaAsset, isLoading: mediaLoading } =
     useLatestMediaAsset(selectedDeliverableItem?.public_id);
+
+  const isContractSigned = Boolean(
+    data?.contract?.creator_signed && data?.contract?.client_signed,
+  );
+
+  const hasInitializedRef = useRef(false);
+
+  useEffect(() => {
+    if (hasInitializedRef.current || campaignLoading) return;
+    if (data) {
+      let initialStep = 0;
+      if (isContractSigned) {
+        initialStep = 1;
+        if (data.campaign.all_deliverables_approved) {
+          initialStep = 2;
+          if (data.campaign.campaign_status === "COMPLETED") {
+            initialStep = 3;
+          }
+        }
+      }
+      setActiveStep(initialStep);
+      setMaxAllowedStep(initialStep);
+      hasInitializedRef.current = true;
+    }
+  }, [data, campaignLoading, isContractSigned]);
 
   const handleSignOut = async () => {
     setIsSigningOut(true);
@@ -713,7 +759,7 @@ export default function ClientWorkspace({
           <ClientWorkspaceHeader
             campaignName={data?.campaign?.project_name ?? "Campaign Name"}
             campaignOverview={data?.campaign?.description ?? "Campaign Overview"}
-            progress={<Progress activeStep={activeStep} onChange={setActiveStep} />}
+            progress={<Progress activeStep={activeStep} maxAllowedStep={maxAllowedStep} onChange={(step) => step <= maxAllowedStep && setActiveStep(step)} />}
           />
 
           <div className="mt-14 flex items-start justify-center gap-6">
@@ -745,9 +791,9 @@ export default function ClientWorkspace({
 
           {/* Main Content Area */}
           {activeStep === 0 ? (
-            <ContractSigningPlaceholder />
+            <ContractSigningPlaceholder onNext={() => setActiveStep(1)} />
           ) : activeStep === 2 ? (
-            <InvoicePanel campaignId={campaignId} />
+            <InvoicePanel campaignId={campaignId} onPrevious={() => setActiveStep(1)} onNext={() => setActiveStep(3)} />
           ) : activeStep === 1 ? (
             <div className="flex min-w-0 flex-1 gap-6">
               {activeSubmissionStep === 0 ? (
@@ -756,28 +802,36 @@ export default function ClientWorkspace({
                   isLoading={writtenLoading}
                   onHistory={() => setHistoryOpen(true)}
                 />
-              ) : (
+              ) : activeSubmissionStep === 1 ? (
                 <MediaAssetPanel
                   asset={latestMediaAsset}
                   isLoading={mediaLoading}
                   onHistory={() => setHistoryOpen(true)}
                   onPreview={() => setPreviewOpen(true)}
                 />
+              ) : (
+                <ClientDeliverableApprovedCard
+                  deliverableName={activeDeliverableName}
+                  onNext={() => setActiveStep(2)}
+                />
               )}
-              <FeedbackActions
-                submissionStep={activeSubmissionStep}
-                writtenAssetPublicId={latestWrittenAsset?.public_id}
-                mediaAssetPublicId={latestMediaAsset?.public_id}
-                writtenAssetAction={latestWrittenAsset?.written_asset_action}
-                mediaAssetAction={latestMediaAsset?.media_asset_action}
-                onMutationSuccess={handleMutationSuccess}
-              />
+              {activeSubmissionStep < 2 && (
+                <FeedbackActions
+                  submissionStep={activeSubmissionStep}
+                  writtenAssetPublicId={latestWrittenAsset?.public_id}
+                  mediaAssetPublicId={latestMediaAsset?.public_id}
+                  writtenAssetAction={latestWrittenAsset?.written_asset_action}
+                  mediaAssetAction={latestMediaAsset?.media_asset_action}
+                  onMutationSuccess={handleMutationSuccess}
+                />
+              )}
             </div>
           ) : (
             <CompletionPanel
               campaignId={campaignId}
               campaignName={data?.campaign?.project_name ?? "campaign"}
               isPaidFull={Boolean(data?.campaign?.paid_full)}
+              onPrevious={() => setActiveStep(2)}
             />
           )}
           </div>

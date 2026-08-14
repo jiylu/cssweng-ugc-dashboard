@@ -19,6 +19,7 @@ interface VideoSubmissionContainerProps {
   mediaAsset?: MediaAsset | null
   contentType?: string
   onSubmit?: (files: UploadedFile[]) => void
+  onPrevious?: () => void
   onNext?: () => void
 }
 
@@ -30,6 +31,7 @@ export function VideoSubmissionContainer({
   mediaAsset,
   contentType,
   onSubmit,
+  onPrevious,
   onNext,
 }: VideoSubmissionContainerProps) {
   const { files, addFiles, removeFile, clearFiles } = useFileUploads()
@@ -125,6 +127,7 @@ export function VideoSubmissionContainer({
       onRemoveFile={removeFile}
       onPreviewFile={handlePreview}
       onSubmit={handleSubmit}
+      onPrevious={onPrevious}
       onNext={onNext}
       isSubmitting={isSubmitting}
       accept={allowedExtensions.join(",")}
