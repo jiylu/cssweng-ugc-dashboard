@@ -1,6 +1,7 @@
 import { Card } from "@/src/components/atoms/card"
 import { Separator } from "@/components/ui/separator"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { formatCurrency } from "@/src/features/creator/proposals/utils/formatCurrency"
 
 interface AddOnRow {
     name: string
@@ -10,9 +11,10 @@ interface AddOnRow {
 
 interface AddOnsSummaryCardProps {
   addOns: AddOnRow[]
+  currency: string
 }
 
-export function AddOnsSummaryCard({ addOns }: AddOnsSummaryCardProps) {
+export function AddOnsSummaryCard({ addOns, currency }: AddOnsSummaryCardProps) {
     if (addOns.length === 0) return null
 
     return (
@@ -34,7 +36,7 @@ export function AddOnsSummaryCard({ addOns }: AddOnsSummaryCardProps) {
                     <TableCell className="text-sm text-foreground">{addon.name}</TableCell>
                     <TableCell className="text-sm text-foreground">{addon.description}</TableCell>
                     <TableCell className="text-sm text-foreground text-right">
-                    ${addon.price.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                    {formatCurrency(addon.price, currency)}
                     </TableCell>
                 </TableRow>
                 ))}

@@ -25,6 +25,18 @@ export interface CampaignDetailsFormProps {
 }
 
 export default function CampaignDetailsSection({ form }: CampaignDetailsFormProps) {
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const todayKey = [
+    today.getFullYear(),
+    String(today.getMonth() + 1).padStart(2, "0"),
+    String(today.getDate()).padStart(2, "0"),
+  ].join("-")
+
+  const acceptCurrentOrFutureDate = (iso: string, setDate: (value: string) => void) => {
+    if (!iso || iso.slice(0, 10) >= todayKey) setDate(iso)
+  }
+
   return (
     <div className="bg-white border border-border rounded p-5.5 flex flex-col gap-6 transition-[border-color,box-shadow] duration-300">
       <h2 className="text-[26px] font-normal text-foreground">Campaign Details</h2>
@@ -57,7 +69,8 @@ export default function CampaignDetailsSection({ form }: CampaignDetailsFormProp
           <label className="text-sm text-muted-foreground uppercase tracking-[0.03em] mt-0">CAMPAIGN START DATE<span className="text-[#ff6467] ml-1">*</span></label>
           <DatePickerInput
             value={form.startDate}
-            onChange={(iso) => form.setStartDate(iso)}
+            onChange={(iso) => acceptCurrentOrFutureDate(iso, form.setStartDate)}
+            minDate={today}
           />
           {form.errors.startDate && (
             <p className="text-xs mt-1 text-[#ff6467]">{form.errors.startDate}</p>
@@ -68,7 +81,8 @@ export default function CampaignDetailsSection({ form }: CampaignDetailsFormProp
           <label className="text-sm text-muted-foreground uppercase tracking-[0.03em] mt-0">CAMPAIGN END DATE<span className="text-[#ff6467] ml-1">*</span></label>
           <DatePickerInput  
             value={form.endDate}
-            onChange={(iso) => form.setEndDate(iso)}
+            onChange={(iso) => acceptCurrentOrFutureDate(iso, form.setEndDate)}
+            minDate={today}
           />
           {form.errors.endDate && (
             <p className="text-xs mt-1 text-[#ff6467]">{form.errors.endDate}</p>

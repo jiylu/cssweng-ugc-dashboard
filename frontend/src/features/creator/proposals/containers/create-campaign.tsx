@@ -71,6 +71,14 @@ export default function CreateCampaign() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setupDetails, user])
+    const warnBeforeLeaving = (event: BeforeUnloadEvent) => {
+      event.preventDefault()
+      event.returnValue = true
+    }
+
+    window.addEventListener("beforeunload", warnBeforeLeaving)
+    return () => window.removeEventListener("beforeunload", warnBeforeLeaving)
+  }, [])
 
   if (loading) return <LogoLoader label="Loading proposal form" />;
 
