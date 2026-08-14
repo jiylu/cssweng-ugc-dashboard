@@ -1,8 +1,16 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { UserService } from '../../features/user/users/users.service';
-import { CampaignStatus } from '@prisma/client';
+import { CampaignStatus, CampaignCurrency } from '@prisma/client';
 import { ProposalsService } from '../../features/campaign/proposals/proposals.service';
+
+const EXCHANGE_RATES_TO_PHP: Record<CampaignCurrency, number> = {
+  PHP: 1,
+  USD: 56.0,
+  CAD: 41.0,
+  EUR: 61.0,
+  GBP: 71.0,
+};
 
 @Injectable()
 export class AnalyticsService {
@@ -24,10 +32,11 @@ export class AnalyticsService {
     const completedCampaigns = await this.getCompletedCampaignsForUser(
       user.user_id,
     );
-    const revenueGenerated = completedCampaigns.reduce(
-      (sum, campaign) => sum + campaign.paid_amount.toNumber(),
-      0,
-    );
+    const revenueGenerated = completedCampaigns.reduce((sum, campaign) => {
+      const amount = campaign.paid_amount.toNumber();
+      const rate = EXCHANGE_RATES_TO_PHP[campaign.currency] || 1;
+      return sum + amount * rate;
+    }, 0);
 
     const analytics = {
       active_campaigns: activeCampaigns.length,
@@ -64,6 +73,7 @@ export class AnalyticsService {
       select: {
         campaign_id: true,
         paid_amount: true,
+        currency: true,
       },
     });
 
