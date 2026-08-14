@@ -8,44 +8,38 @@ import Button from "@/src/components/atoms/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useAuth } from "@/src/features/auth/hooks/useAuth";
 import { useAnalytics } from "../hooks/useAnalytics";
+import { useCampaigns } from "@/src/features/creator/campaigns/hooks/useCampaign";
+import { useCampaignDeliverables } from "../hooks/useCampaignDeliverables";
+import { buildDeliverableRows, buildUpcomingTodos } from "../utils/dashboard-rows";
+import { formatDate } from "@/src/utils/date";
+import { DashboardDeliverable } from "../types/dashboard-deliverable.types";
+import { useRouter } from "next/navigation";
 import LogoLoader from "@/src/components/molecules/logo-loader";
 
 export default function CreatorDashboard() {
   const { user, loading } = useAuth();
   const { data: analytics, isLoading: analyticsLoading } = useAnalytics();
+  const { data: campaigns, isLoading: campaignsLoading } = useCampaigns(user?.user_id ?? "", 1, 100);
+  const { deliverablesByCampaign, isLoading: deliverablesLoading } = useCampaignDeliverables(campaigns);
+  const router = useRouter();
 
-  if (loading || analyticsLoading) return <LogoLoader label="Loading creator dashboard" />;
+  if (loading || analyticsLoading || campaignsLoading || deliverablesLoading) return <LogoLoader label="Loading creator dashboard" />;
   if (!user) return null;
+
+  const deliverableRows = buildDeliverableRows(campaigns, deliverablesByCampaign);
+  const todos = buildUpcomingTodos(campaigns, deliverablesByCampaign);
+
+  const deliverableTypeLabel = (type: DashboardDeliverable["deliverable_type"]) =>
+    type === "UGC" ? "UGC" : "Partnership";
+
+  const deliverableStatusLabel = (status: DashboardDeliverable["deliverable_status"]) =>
+    status === "PENDING" ? "Pending" : status === "IN_PROGRESS" ? "In progress" : "Approved";
 
   const creatorDashboardStats = [
     { icon: Megaphone, label: "Active Campaigns", value: analytics?.active_campaigns ?? 0 },
     { icon: NotebookPen, label: "Pending Proposals", value: analytics?.pending_proposals ?? 0 },
     { icon: TrendingUp, label: "Revenue Generated", value: `Php ${(analytics?.revenue_generated ?? 0).toLocaleString()}` },
     { icon: CheckCircle, label: "Monthly Completed", value: analytics?.monthly_completed ?? 0 },
-  ];
-
-  const creatorDeliverables = [
-    { 
-      campaign: "Summer Glow 2026",
-      deliverable: "TikTok short",
-      type: "UGC",
-      deadline: "Jul 22, 2026",
-      status: "In progress", 
-    },
-    { 
-      campaign: "Summer Glow 2026",
-      deliverable: "Instagram reel",
-      type: "Partnership",
-      deadline: "Jul 24, 2026",
-      status: "In progress",
-    },
-    {
-      campaign: "FitLife Pro Launch",
-      deliverable: "YouTube review",
-      type: "Partnership",
-      deadline: "Jul 30, 2026",
-      status: "In Progress",
-    }
   ];
 
   return (
@@ -88,14 +82,17 @@ export default function CreatorDashboard() {
           {/* TODOS */}
           <h2 className="text-xl sm:text-2xl font-bold mb-2">Urgent / To Do</h2>
           <div className="flex flex-row gap-4 flex-start mb-10">
-            <CreatorTodoCard
-              campaignName="Summer Glow 2026"
-              message="Campaign due in 3 days."
-            />
-            <CreatorTodoCard
-              campaignName="FitLife Pro Launch"
-              message="Campaign due in 14 days."
-            />
+            {todos.length > 0 ? (
+              todos.map((todo) => (
+                <CreatorTodoCard
+                  key={`${todo.campaignName}-${todo.message}`}
+                  campaignName={todo.campaignName}
+                  message={todo.message}
+                />
+              ))
+            ) : (
+              <p className="text-sm text-gray-500">No upcoming deadlines.</p>
+            )}
           </div>
 
           {/* ONGOING DELIVERABLES */}
@@ -120,19 +117,35 @@ export default function CreatorDashboard() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {creatorDeliverables.map((row, i) => (
-                    <TableRow key={i} className="text-sm">
-                      <TableCell>{row.campaign}</TableCell>
-                      <TableCell>{row.deliverable}</TableCell>
-                      <TableCell>{row.type}</TableCell>
-                      <TableCell>{row.deadline}</TableCell>
-                      <TableCell>
-                        <span className="text-purple-700 bg-purple-50 px-2 py-1 rounded text-xs font-medium">
-                          {row.status}
-                        </span>
+                  {deliverableRows.length > 0 ? (
+                    deliverableRows.map((row) => (
+                      <TableRow key={row.deliverable.public_id} className="text-sm">
+                        <TableCell>
+                          <button
+                            type="button"
+                            className="text-left underline-offset-2 hover:underline cursor-pointer"
+                            onClick={() => router.push(`/workspace/${row.campaignPublicId}`)}
+                          >
+                            {row.campaignName}
+                          </button>
+                        </TableCell>
+                        <TableCell>{row.deliverable.deliverable_content}</TableCell>
+                        <TableCell>{deliverableTypeLabel(row.deliverable.deliverable_type)}</TableCell>
+                        <TableCell>{formatDate(new Date(row.deliverable.due_date))}</TableCell>
+                        <TableCell>
+                          <span className="text-purple-700 bg-purple-50 px-2 py-1 rounded text-xs font-medium">
+                            {deliverableStatusLabel(row.deliverable.deliverable_status)}
+                          </span>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={5} className="text-center text-sm text-muted-foreground py-6">
+                        No ongoing deliverables.
                       </TableCell>
                     </TableRow>
-                  ))}
+                  )}
                 </TableBody>
               </Table>
             </div>
