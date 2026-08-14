@@ -5,11 +5,11 @@ export type PdfShippingAddress = NonNullable<
 >
 
 export function formatCurrency(amount: number, currency: string) {
-  try {
-    return new Intl.NumberFormat("en-US", { style: "currency", currency }).format(amount)
-  } catch {
-    return `${currency} ${amount.toLocaleString()}`
-  }
+  void currency
+  return new Intl.NumberFormat("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(amount)
 }
 
 export function formatAgreementDate() {

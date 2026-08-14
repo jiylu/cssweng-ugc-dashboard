@@ -2,10 +2,10 @@ import { Module } from '@nestjs/common';
 import { PrismaModule } from 'src/shared/prisma/prisma.module';
 import { WrittenAssetDraftsService } from './written-asset-drafts.service';
 import { WrittenAssetDraftsController } from './written-asset-drafts.controller';
-import { WrittenAssetsModule } from '../written-assets/written-assets.module';
+import { DeliverableItemsModule } from '../../deliverable/deliverable-items/deliverable-items.module';
 
 @Module({
-  imports: [PrismaModule, WrittenAssetsModule],
+  imports: [PrismaModule, DeliverableItemsModule],
   providers: [WrittenAssetDraftsService],
   controllers: [WrittenAssetDraftsController],
 })

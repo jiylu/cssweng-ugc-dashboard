@@ -21,7 +21,8 @@ import { ContractTermsContainer } from "@/src/features/creator/proposals/contain
 import { PaymentTermsContainer } from "@/src/features/creator/proposals/containers/payment-terms-container";
 import { AddOnsContainer } from "@/src/features/creator/proposals/containers/add-ons-container";
 import { ProposalSummaryContainer } from "@/src/features/creator/proposals/containers/proposal-summary-container"
-import { buildProposalPayload, toShippingAddressPayload, trimString } from "@/src/features/creator/proposals/utils/buildProposalPayload"
+import { buildProposalPayload } from "@/src/features/creator/proposals/utils/buildProposalPayload"
+import { buildDraftPayload } from "@/src/features/creator/proposals/utils/buildDraftPayload"
 import { useContractTerms } from "@/src/features/creator/proposals/hooks/useContractTerms"
 import { usePaymentTerms } from "@/src/features/creator/proposals/hooks/usePaymentTerms"
 import { useAddOns } from "@/src/features/creator/proposals/hooks/useAddOns"
@@ -102,44 +103,18 @@ export default function CreateCampaign() {
       return;
     }
 
-    if (!form.validateForm()) {
-      const allErrors = Object.entries(form.errors)
-        .map(([field, err]) => {
-          const message = (err as { message?: string })?.message || err || "Invalid input";
-          return `${field}: ${message}`;
-        })
-        .join(", ");
-      if (allErrors) {
-        toast.error(allErrors);
-      }
-      return;
-    };
-
-    const payload = buildPayload();
-    const draftPayload = {
-      campaign: {
-        ...payload.campaign,
-        platforms: payload.campaign.platforms,
-      },
-      proposal: payload.proposal,
-      deliverables: payload.deliverables,
-      contract: payload.contract,
-      addOns: addOns.addOns.map((a) => ({
-        addOnName: trimString(a.title),
-        description: trimString(a.desc),
-        fee: a.fee ?? 0,
-      })),
-      giftedProducts: paymentTerms.giftedProducts.map((p) => ({
-        productName: trimString(p.productName),
-        value: parseFloat(p.value.replace(/,/g, "") || "0"),
-        shippingAddress: toShippingAddressPayload(p.shippingAddress),
-        deliveryInstructions: trimString(p.deliveryInstructions),
-        ownershipTerms: trimString(p.ownershipTerms),
-      })),
-    };
+    const draftPayload = buildDraftPayload({
+      userId: user.user_id,
+      form,
+      contractTerms,
+      paymentTerms,
+      addOns,
+    });
 
     if (draftId) {
-      saveExistingDraft(draftPayload, {
+      const { userId, ...updatePayload } = draftPayload;
+      void userId;
+      saveExistingDraft(updatePayload, {
         onSuccess: () => {
           toast.success("Draft saved!");
           router.push('/proposals/drafts');
@@ -150,7 +125,7 @@ export default function CreateCampaign() {
     }
 
     saveNewDraft(
-      { userId: user.user_id, ...draftPayload },
+      draftPayload,
       {
         onSuccess: (data) => {
           toast.success("Draft saved!");
@@ -260,6 +235,7 @@ export default function CreateCampaign() {
               form={form}
               readOnly={isEditing}
               onNext={() => form.setActiveStep(2)}
+              onSaveDraft={handleSaveDraft}
             />
           )}
 
@@ -271,6 +247,7 @@ export default function CreateCampaign() {
               campaignDates={{ startDate: form.startDate, endDate: form.endDate }}
               onBack={() => form.setActiveStep(1)}
               onNext={() => form.setActiveStep(3)}
+              onSaveDraft={handleSaveDraft}
             />
           )}
           
@@ -281,6 +258,7 @@ export default function CreateCampaign() {
               currency={form.currency}
               onBack={() => form.setActiveStep(2)}
               onNext={() => form.setActiveStep(4)}
+              onSaveDraft={handleSaveDraft}
             />
           )}
 

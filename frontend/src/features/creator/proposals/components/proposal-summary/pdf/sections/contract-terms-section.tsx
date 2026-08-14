@@ -2,6 +2,7 @@ import type { ReactNode } from "react"
 import { Text, View } from "@react-pdf/renderer"
 import { ProposalSummaryData } from "../../../../types/proposal-summary.types"
 import { styles } from "../pdf-styles"
+import { formatCurrency } from "../pdf-utils"
 
 function ClauseBlock({ title, children }: { title: string; children: ReactNode }) {
   return (
@@ -29,7 +30,9 @@ export function ContractTermsSection({
         ...(summary.exclusivity.startDate || summary.exclusivity.endDate
           ? [`Period: ${summary.exclusivity.startDate || "TBD"} - ${summary.exclusivity.endDate || "TBD"}`]
           : []),
-        ...(summary.exclusivity.fee ? [`Additional exclusivity fee: ${summary.exclusivity.fee}`] : []),
+        ...(summary.exclusivity.fee
+          ? [`Additional exclusivity fee: ${formatCurrency(parseFloat(summary.exclusivity.fee.replace(/,/g, "") || "0"), summary.fees.currency)}`]
+          : []),
       ].join(". ")
     : ""
 

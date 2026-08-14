@@ -222,8 +222,9 @@ model WrittenAssets {
 }
 
 model WrittenAssetsDrafts {
-  written_asset_draft_id   String @id @default(uuid())
-  written_asset_id         String
+  written_asset_draft_id   String   @id @default(uuid())
+  deliverable_item_id      String
+  written_asset_id         String?
   public_id                String
   content                  String
   created_at               DateTime

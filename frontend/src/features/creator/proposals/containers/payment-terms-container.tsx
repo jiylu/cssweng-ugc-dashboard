@@ -18,7 +18,7 @@ interface PaymentTermsContainerProps {
   taxRate: number
 }
 
-export function PaymentTermsContainer({ paymentTerms, onBack, onNext, baseCreatorFee, currency, taxRate }: PaymentTermsContainerProps) {
+export function PaymentTermsContainer({ paymentTerms, onBack, onNext, onSaveDraft, baseCreatorFee, currency, taxRate }: PaymentTermsContainerProps) {
   return (
     <>
     <div className="flex flex-col gap-6">
@@ -62,6 +62,7 @@ export function PaymentTermsContainer({ paymentTerms, onBack, onNext, baseCreato
       <div className="flex gap-3">
         <Button
           variant="outline"
+          onClick={onSaveDraft}
           className="flex items-center gap-2 p-5"
         >
           <Save size={16} className="-mt-1" /> Save Draft

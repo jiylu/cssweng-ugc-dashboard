@@ -1,20 +1,22 @@
 "use client"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useState } from "react"
 import { toast } from "sonner"
-import { Receipt, Eye, ArrowRight, CircleCheck, ExternalLink } from "lucide-react"
+import { Receipt, ArrowRight, CircleCheck, ExternalLink, Send, FileText } from "lucide-react"
 import { Card } from "@/src/components/atoms/card"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
+import { FileDropzone } from "@/src/features/creator/workspace/components/deliverables-submission/file-dropzone"
+import { FileUploadItem } from "@/src/features/creator/workspace/components/deliverables-submission/file-upload-item"
+import { useFileUploads } from "@/src/features/creator/workspace/hooks/useFileUpload"
 import {
   getPaymentForCampaign,
-  validatePayment,
-  type Payment,
-} from "@/src/features/creator/workspace/services/payments-api"
-import {
   getInvoiceForCampaign,
   uploadInvoice,
+  sendInvoice,
+  validatePayment,
+  type Payment,
   type Invoice,
-} from "@/src/features/creator/workspace/services/invoices-api"
+} from "@/src/features/creator/workspace/services/payments-api"
 
 interface InvoiceDetailsCardProps {
   campaignId: string
@@ -25,27 +27,22 @@ interface InvoiceDetailsCardProps {
 export function InvoiceDetailsCard({ campaignId, onPrevious, onNext }: InvoiceDetailsCardProps) {
   const [payment, setPayment] = useState<Payment | null>(null)
   const [invoice, setInvoice] = useState<Invoice | null>(null)
-  const invoiceInputRef = useRef<HTMLInputElement>(null)
-  const [checked, setChecked] = useState(false)
-  const [isLoadingInvoice, setIsLoadingInvoice] = useState(false)
-  const [isSending, setIsSending] = useState(false)
   const [initialLoading, setInitialLoading] = useState(true)
+  const [isUploading, setIsUploading] = useState(false)
+  const [isSending, setIsSending] = useState(false)
+  const { files, addFiles, removeFile, clearFiles } = useFileUploads()
 
   useEffect(() => {
     let cancelled = false
     Promise.all([
-      getPaymentForCampaign(campaignId),
-      getInvoiceForCampaign(campaignId),
+      getPaymentForCampaign(campaignId).catch(() => null),
+      getInvoiceForCampaign(campaignId).catch(() => null),
     ])
       .then(([paymentResult, invoiceResult]) => {
         if (!cancelled) {
           setPayment(paymentResult)
           setInvoice(invoiceResult)
-          setChecked(true)
         }
-      })
-      .catch(() => {
-        // ignore silent fetch errors on initial load
       })
       .finally(() => {
         if (!cancelled) setInitialLoading(false)
@@ -55,36 +52,66 @@ export function InvoiceDetailsCard({ campaignId, onPrevious, onNext }: InvoiceDe
     }
   }, [campaignId])
 
-  const handleViewInvoice = async () => {
-    setIsLoadingInvoice(true)
+  const handleFileDrop = (fileList: FileList | File[]) => {
+    const dropped = Array.from(fileList)
+    const allowed = (file: File) =>
+      file.name.toLowerCase().endsWith(".pdf")
+    const rejected = dropped.filter((file) => !allowed(file))
+
+    if (rejected.length > 0) {
+      toast.error(
+        `Only .pdf files are allowed. Skipped: ${rejected
+          .map((f) => f.name)
+          .join(", ")}`,
+      )
+    }
+
+    let accepted = dropped.filter(allowed)
+    // Only allow 1 file at a time
+    const remainingSlots = Math.max(0, 1 - files.length)
+    if (accepted.length > remainingSlots) {
+      const overflow = accepted.slice(remainingSlots)
+      accepted = accepted.slice(0, remainingSlots)
+      toast.error(
+        `Only 1 file can be uploaded. Skipped: ${overflow
+          .map((f) => f.name)
+          .join(", ")}`,
+      )
+    }
+
+    if (accepted.length > 0) addFiles(accepted)
+  }
+
+  const handlePreview = (id: string) => {
+    const target = files.find((f) => f.id === id)
+    if (target) window.open(target.previewUrl, "_blank")
+  }
+
+  const handleUploadInvoice = async () => {
+    const readyFiles = files.filter((f) => f.status === "done")
+    if (readyFiles.length === 0) return
+
+    setIsUploading(true)
     try {
-      const result = await getInvoiceForCampaign(campaignId)
+      const result = await uploadInvoice(campaignId, readyFiles[0].file)
       setInvoice(result)
-      setChecked(true)
-      if (result) {
-        window.open(result.invoice_url, "_blank", "noopener,noreferrer")
-      } else {
-        toast.info("No invoice has been sent yet.")
-      }
+      clearFiles()
+      toast.success("Invoice uploaded successfully.")
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Unable to load invoice.",
+        error instanceof Error ? error.message : "Unable to upload invoice.",
       )
     } finally {
-      setIsLoadingInvoice(false)
+      setIsUploading(false)
     }
   }
 
-  const handleSendInvoice = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    event.target.value = ""
-    if (!file) return
-
+  const handleSendInvoice = async () => {
     setIsSending(true)
     try {
-      const uploadedInvoice = await uploadInvoice(campaignId, file)
-      setInvoice(uploadedInvoice)
-      toast.success("Invoice sent.")
+      const result = await sendInvoice(campaignId)
+      setPayment(result)
+      toast.success("Invoice sent to client.")
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Unable to send invoice.",
@@ -116,6 +143,7 @@ export function InvoiceDetailsCard({ campaignId, onPrevious, onNext }: InvoiceDe
     )
   }
 
+  // ── Payment verified: show completed state ──
   if (payment?.is_payment_verified) {
     return (
       <Card className="flex flex-col gap-4 overflow-hidden p-0">
@@ -174,6 +202,7 @@ export function InvoiceDetailsCard({ campaignId, onPrevious, onNext }: InvoiceDe
     )
   }
 
+  // ── Main invoicing flow ──
   return (
     <Card className="flex flex-col gap-4 p-0 overflow-hidden">
       <h2 className="text-xl text-foreground px-5 pt-4 pb-3">
@@ -186,28 +215,89 @@ export function InvoiceDetailsCard({ campaignId, onPrevious, onNext }: InvoiceDe
         <Receipt className="text-[#6b1fa8]" size={40} strokeWidth={1.5} />
 
         <p className="text-sm text-muted-foreground text-center">
-          Once all deliverables have been submitted, you may issue the
-          invoice to the client. Be sure to review the invoice carefully
-          before submitting it.
+          Upload your invoice as a PDF file, then send it to the client
+          for review and payment.
         </p>
 
-        {checked && !invoice && (
-          <p className="text-xs text-muted-foreground">
-            The invoice has not been sent yet.
-          </p>
+        {/* Step 1: Upload Invoice via dropzone (media-asset style) */}
+        {!invoice && (
+          <div className="flex flex-col gap-3 w-full max-w-80">
+            <p className="text-xs text-muted-foreground text-center">
+              Step 1: Upload your invoice
+            </p>
+
+            <FileDropzone
+              onFileDrop={handleFileDrop}
+              accept=".pdf"
+              multiple={false}
+            />
+
+            {/* File list */}
+            <div className="flex flex-col gap-2">
+              {files.map((file) => (
+                <FileUploadItem
+                  key={file.id}
+                  filename={file.filename}
+                  status={file.status}
+                  progress={Math.round(file.progress)}
+                  onPreview={() => handlePreview(file.id)}
+                  onRemove={() => removeFile(file.id)}
+                />
+              ))}
+            </div>
+
+            <Button
+              type="button"
+              className="w-full rounded-[3px] bg-[#6b1fa8] hover:bg-[#5a1a8f] text-white"
+              onClick={handleUploadInvoice}
+              disabled={
+                isUploading ||
+                isSending ||
+                files.length === 0 ||
+                files.some((f) => f.status === "uploading")
+              }
+            >
+              {isUploading ? "Uploading..." : "Submit Invoice"}
+              <ArrowRight size={16} className="ml-1" />
+            </Button>
+          </div>
         )}
 
-        {invoice && !payment?.proof_payment_url && (
+        {/* Invoice uploaded: show file info and Step 2 */}
+        {invoice && (
+          <>
+            <div className="flex flex-col gap-1 w-full max-w-80 rounded-[3px] border border-[#2d7a3a]/30 bg-[#e7f4ea] px-3 py-2 text-xs text-[#2d7a3a]">
+              <span className="flex items-center gap-1">
+                <FileText size={12} />
+                Invoice uploaded successfully
+              </span>
+              <span>Invoice ID: {invoice.public_id}</span>
+              <a
+                href={invoice.invoice_url}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1 text-[#6b1fa8] hover:underline"
+              >
+                View Invoice PDF
+                <ExternalLink size={12} />
+              </a>
+            </div>
+          </>
+        )}
+
+        {/* Invoice sent: show status */}
+        {payment && !payment.proof_payment_url && (
           <p className="text-xs text-muted-foreground">
             Invoice sent. Waiting for the client to upload proof of payment.
           </p>
         )}
 
-        {invoice && (
-          <div className="flex flex-col gap-1 w-full max-w-64 rounded-[3px] border border-border px-3 py-2 text-xs text-muted-foreground">
-            <span>Invoice ID: {invoice.public_id}</span>
-            {payment?.proof_payment_url && <a
-              href={payment?.proof_payment_url}
+        {/* Payment proof submitted: show info and validate button */}
+        {payment && (
+          <div className="flex flex-col gap-1 w-full max-w-80 rounded-[3px] border border-border px-3 py-2 text-xs text-muted-foreground">
+            <span>Payment ID: {payment.public_id}</span>
+            {payment.proof_payment_url && <a
+              href={payment.proof_payment_url}
               target="_blank"
               rel="noreferrer"
               className="inline-flex items-center gap-1 text-[#6b1fa8] hover:underline"
@@ -217,55 +307,26 @@ export function InvoiceDetailsCard({ campaignId, onPrevious, onNext }: InvoiceDe
             </a>}
             <span>
               Status:{" "}
-              {payment?.is_payment_verified
+              {payment.is_payment_verified
                 ? "Verified"
-                : payment?.proof_payment_url
+                : payment.proof_payment_url
                   ? "Pending verification"
                   : "Awaiting proof of payment"}
             </span>
           </div>
         )}
 
-        <div className="flex flex-col gap-2 w-full max-w-64">
-          {invoice && <Button
-            type="button"
-            variant="outline"
-            className="rounded-[3px] border-[#6b1fa8] text-[#6b1fa8] hover:bg-[#6b1fa8]/5 hover:text-[#6b1fa8]"
-            onClick={handleViewInvoice}
-            disabled={isLoadingInvoice || isSending}
-          >
-            {isLoadingInvoice ? "Loading..." : "View Invoice"}
-            <Eye size={16} />
-          </Button>}
-
+        <div className="flex flex-col gap-2 w-full max-w-80">
           {payment?.proof_payment_url && <Button
             type="button"
             className="rounded-[3px] bg-[#6b1fa8] hover:bg-[#5a1a8f] text-white"
             onClick={handleValidatePayment}
-            disabled={isSending || isLoadingInvoice}
+            disabled={isSending || isUploading}
           >
             {isSending ? "Validating..." : "Validate Payment"}
             <ArrowRight size={16} />
           </Button>}
 
-          <input
-            ref={invoiceInputRef}
-            type="file"
-            className="hidden"
-            accept="application/pdf,image/*"
-            onChange={handleSendInvoice}
-          />
-          {!invoice && (
-            <Button
-              type="button"
-              className="rounded-[3px] bg-[#6b1fa8] hover:bg-[#5a1a8f] text-white"
-              onClick={() => invoiceInputRef.current?.click()}
-              disabled={isSending || isLoadingInvoice}
-            >
-              {isSending ? "Sending..." : "Upload and Send Invoice"}
-              <ArrowRight size={16} />
-            </Button>
-          )}
           {onPrevious && (
             <Button
               type="button"
@@ -281,3 +342,4 @@ export function InvoiceDetailsCard({ campaignId, onPrevious, onNext }: InvoiceDe
     </Card>
   )
 }
+  

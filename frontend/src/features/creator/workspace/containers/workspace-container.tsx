@@ -212,7 +212,7 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
       try {
         const payment = await getPaymentForCampaign(campaignId)
         if (!payment?.is_payment_verified) {
-          toast.info("Invoicing must be completed before proceeding to completion.")
+          toast.info("Payment must be verified before completion.")
           return
         }
       } catch {
@@ -239,13 +239,13 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
   }
 
   const handleSaveDraft = (content: string) => {
-    if (!latestWrittenAsset) {
-      toast.info("Submit a version first to save drafts.")
+    if (!selectedDeliverableItem) {
+      toast.error("Deliverable items are still loading. Please try again.")
       return
     }
     saveWrittenAssetDraftMutation(
       {
-        writtenAssetPublicId: latestWrittenAsset.public_id,
+        deliverableItemPublicId: selectedDeliverableItem.public_id,
         content,
       },
       {
@@ -376,6 +376,7 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
                     onSubmit={handleSubmitWrittenAsset}
                     onNext={() => setActiveDeliverableStep(1)}
                     writtenAsset={latestWrittenAsset}
+                    deliverableItemPublicId={selectedDeliverableItem?.public_id}
                     isSubmitting={isSubmittingWrittenAsset}
                     isSavingDraft={isSavingDraft}
                     itemsLoading={itemsLoading}

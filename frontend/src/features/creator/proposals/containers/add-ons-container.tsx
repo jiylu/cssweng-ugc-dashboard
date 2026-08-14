@@ -9,9 +9,10 @@ interface AddOnsContainerProps {
     currency: string
     onBack: () => void
     onNext: () => void
+    onSaveDraft: () => void
 }
 
-export function AddOnsContainer({ addOns, currency, onBack, onNext }: AddOnsContainerProps) {
+export function AddOnsContainer({ addOns, currency, onBack, onNext, onSaveDraft }: AddOnsContainerProps) {
     return (
     <>
         <div className="mt-6">  
@@ -39,6 +40,7 @@ export function AddOnsContainer({ addOns, currency, onBack, onNext }: AddOnsCont
                 <div className="flex gap-3">
                 <Button
                         variant="outline"
+                        onClick={onSaveDraft}
                         className="flex items-center gap-2 p-5"
                     >
                         <Save size={16} className="-mt-1" /> Save Draft
