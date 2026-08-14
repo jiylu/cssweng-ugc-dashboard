@@ -796,14 +796,17 @@ describe('CampaignService', () => {
       mockPrisma.giftedProducts.findMany.mockResolvedValue([
         { value: new Prisma.Decimal(300) },
       ]);
+      mockPrisma.addOns.findMany.mockResolvedValue([
+        { fee: new Prisma.Decimal(200) },
+      ]);
       mockPrisma.campaigns.update.mockResolvedValue({
         ...mockCampaign,
-        pricing: new Prisma.Decimal(2016),
+        pricing: new Prisma.Decimal(2240),
       });
 
       const res = await service.recalculateCampaignPricing(campaignId);
 
-      expect(res.pricing).toEqual(new Prisma.Decimal(2016));
+      expect(res.pricing).toEqual(new Prisma.Decimal(2240));
       expect(mockPrisma.campaigns.findFirst).toHaveBeenCalledWith({
         where: { campaign_id: campaignId },
       });
@@ -815,10 +818,13 @@ describe('CampaignService', () => {
         where: { campaign_id: campaignId, is_deleted: false },
         select: { value: true },
       });
-      expect(mockPrisma.addOns.findMany).not.toHaveBeenCalled();
+      expect(mockPrisma.addOns.findMany).toHaveBeenCalledWith({
+        where: { campaign_id: campaignId, is_deleted: false, opt_in: true },
+        select: { fee: true },
+      });
       expect(mockPrisma.campaigns.update).toHaveBeenCalledWith({
         where: { campaign_id: campaignId },
-        data: { pricing: new Prisma.Decimal(2016) },
+        data: { pricing: new Prisma.Decimal(2240) },
       });
     });
 
