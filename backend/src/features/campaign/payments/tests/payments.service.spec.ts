@@ -100,15 +100,7 @@ describe('PaymentsService', () => {
         is_payment_verified: false,
       };
 
-      const sentInvoice = {
-        ...mockPayment,
-        proof_payment_url: null,
-        invoice_sent_at: new Date(),
-      };
-
       mockCampaignService.findOneCampaign.mockResolvedValue(mockCampaign);
-      mockPrisma.payments.findFirst.mockResolvedValue(sentInvoice);
-      mockPrisma.payments.update.mockResolvedValue(mockPayment);
       mockPrisma.payments.create.mockResolvedValue(mockPayment);
       mockInvoiceService.findInvoiceForCampaign.mockResolvedValue({});
 
@@ -118,9 +110,12 @@ describe('PaymentsService', () => {
         creator_id: 'creator-1',
         project_name: 'E2E Draft Campaign',
       });
-      expect(mockPrisma.payments.update).toHaveBeenCalledWith({
-        where: { payment_id: 'payment-1' },
-        data: { proof_payment_url: dto.proofPaymentUrl },
+      expect(mockPrisma.payments.create).toHaveBeenCalledWith({
+        data: {
+          public_id: expect.any(String),
+          campaign_id: 'camp-1',
+          proof_payment_url: dto.proofPaymentUrl,
+        },
       });
     });
 
