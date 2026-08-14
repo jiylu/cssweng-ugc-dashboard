@@ -496,13 +496,13 @@ export class UserService {
         display_name:
           dto.displayName === undefined
             ? undefined
-            : dto.displayName.trim() || "",
+            : dto.displayName.trim() || null,
         primary_handle:
           dto.primaryHandle === undefined
             ? undefined
-            : dto.primaryHandle.trim() || "",
+            : dto.primaryHandle.trim() || null,
         phone_number:
-          dto.phoneNumber === undefined ? undefined : dto.phoneNumber || "",
+          dto.phoneNumber === undefined ? undefined : dto.phoneNumber || null,
         timezone: dto.timezone,
       },
     });
