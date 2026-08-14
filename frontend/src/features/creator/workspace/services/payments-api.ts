@@ -10,8 +10,9 @@ export interface Invoice {
 export interface Payment {
   public_id: string
   proof_payment_url: string | null
+}
 
-@@ -9,6 +15,41 @@ export interface Payment {
+export interface Payment {
   verified_at: string | null
 }
 
