@@ -26,11 +26,24 @@ export default function SignContractModal({ contractPublicId, proposalPublicId }
   const [initialsDataUrl, setInitialsDataUrl] = useState("");
   const signingMutation = useMutation({
     mutationFn: async () => {
-      await signContract(contractPublicId, {
-        signatureDataUrl,
-        initialsDataUrl,
-        signerRole: "CLIENT",
-      });
+      try {
+        await signContract(contractPublicId, {
+          signatureDataUrl,
+          initialsDataUrl,
+          signerRole: "CLIENT",
+        });
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "";
+        const clientAlreadySigned =
+          /already signed by (?:the )?client/i.test(message);
+
+        if (!clientAlreadySigned) throw error;
+        if (!proposalPublicId) {
+          throw new Error(
+            "You have already signed this contract. It is awaiting the creator’s signature.",
+          );
+        }
+      }
 
       if (proposalPublicId) {
         await acceptProposal(proposalPublicId);
