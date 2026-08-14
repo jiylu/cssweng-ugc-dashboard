@@ -8,6 +8,7 @@ export type ClientCampaignStatus =
 
 export interface ClientCampaign {
   id: string;
+  proposalId: string;
   name: string;
   creatorName: string;
   startDate: string;

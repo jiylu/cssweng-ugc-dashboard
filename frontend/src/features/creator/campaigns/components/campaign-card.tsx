@@ -19,33 +19,35 @@ interface CampaignCardProps {
 
 export function CampaignCard({ campaign, clientName, onOpenWorkspace }: CampaignCardProps) {
   return (
-    <Card className="flex flex-row items-center justify-between px-6 py-4 h-20">
+    <Card className="grid min-h-24 grid-cols-1 items-center gap-4 px-6 py-4 md:grid-cols-[minmax(0,1fr)_auto] xl:grid-cols-[minmax(0,1fr)_auto_auto] xl:gap-6">
       {/* Name & Client */}
-      <div className="w-48 shrink-0">
-        <p className="font-normal text-foreground break-words min-w-0">{campaign.project_name}</p>
-        <p className="text-sm text-muted-foreground">{clientName ?? campaign.currency}</p>
+      <div className="min-w-0 self-start xl:self-center">
+        <p className="break-words font-normal leading-6 text-foreground">
+          {campaign.project_name}
+        </p>
+        <p className="mt-1 break-words text-sm text-muted-foreground">
+          {clientName ?? campaign.currency}
+        </p>
       </div>
 
-      {/* Divider */}
-      <div className="w-px h-8 bg-border mx-4 shrink-0" />
-
       {/* Dates */}
-      <div className="flex gap-10 shrink-0">
+      <div className="flex shrink-0 gap-8 border-l border-border pl-6">
         <div className="flex flex-col">
           <span className="text-xs text-muted-foreground">Start Date</span>
-          <span className="text-sm text-foreground">{formatDate(new Date(campaign.start_date))}</span>
+          <span className="whitespace-nowrap text-sm text-foreground">
+            {formatDate(new Date(campaign.start_date))}
+          </span>
         </div>
         <div className="flex flex-col">
           <span className="text-xs text-muted-foreground">Deadline</span>
-          <span className="text-sm text-foreground">{formatDate(new Date(campaign.end_date))}</span>
+          <span className="whitespace-nowrap text-sm text-foreground">
+            {formatDate(new Date(campaign.end_date))}
+          </span>
         </div>
       </div>
 
-      {/* Divider */}
-      <div className="w-px h-12 bg-border mx-4 shrink-0" />
-
       {/* Status & Action */}
-      <div className="flex items-center gap-3 shrink-0">
+      <div className="flex shrink-0 items-center justify-end gap-3 border-t border-border pt-4 md:col-span-2 xl:col-span-1 xl:border-l xl:border-t-0 xl:pl-6 xl:pt-0">
         <span className={cn("text-xs font-medium px-4 py-1.5 rounded-[2px] tracking-wide", statusStyles[campaign.campaign_status])}>
           {campaign.campaign_status.replace("_", " ")}
         </span>

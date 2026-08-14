@@ -25,6 +25,7 @@ import { logoutUser } from "@/src/features/auth/services/auth-session";
 import ClientSidebar from "@/src/features/client/dashboard/components/client-sidebar";
 import { ClientDeliverablesSidebar } from "@/src/features/client/workspace/components/client-deliverables-sidebar";
 import { ClientWorkspaceHeader } from "@/src/features/client/workspace/components/client-workspace-header";
+import { HistoryOverlay } from "@/src/features/creator/workspace/components/deliverables-submission/history-overlay";
 import { useCampaignSetup } from "@/src/features/creator/workspace/hooks/useCampaignSetup";
 import { useDeliverableItems } from "@/src/features/client/workspace/hooks/useDeliverableItems";
 import {
@@ -73,7 +74,11 @@ function Progress({
           >
             <button
               type="button"
-              className="group flex flex-col items-center gap-1"
+              disabled={index < activeStep}
+              className={cn(
+                "group flex flex-col items-center gap-1",
+                index < activeStep ? "cursor-default" : "cursor-pointer",
+              )}
               onClick={() => onChange(index)}
             >
               <span
@@ -146,16 +151,55 @@ function MediaPreview({
 
 const RICH_TEXT_TAGS = new Set([
   "p", "br", "strong", "b", "em", "i", "u", "s", "ul", "ol", "li",
-  "h1", "h2", "h3", "h4", "blockquote",
+  "h1", "h2", "h3", "h4", "blockquote", "mark", "img",
 ]);
+
+function getSafeAttribute(attributes: string, name: string) {
+  const match = attributes.match(
+    new RegExp(`\\s${name}\\s*=\\s*(?:"([^"]*)"|'([^']*)')`, "i"),
+  );
+  return match?.[1] ?? match?.[2] ?? "";
+}
+
+function escapeAttribute(value: string) {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
 
 function sanitizeRichText(content: string) {
   return content
     .replace(/<(script|style|iframe|object|embed)[^>]*>[\s\S]*?<\/\1>/gi, "")
-    .replace(/<\/?([a-z0-9]+)(?:\s[^>]*)?>/gi, (tag, name: string) => {
+    .replace(/<\/?([a-z0-9]+)((?:\s[^>]*)?)\s*\/?>/gi, (tag, name: string, attributes: string) => {
       const normalizedName = name.toLowerCase();
       if (!RICH_TEXT_TAGS.has(normalizedName)) return "";
-      return tag.startsWith("</") ? `</${normalizedName}>` : `<${normalizedName}>`;
+      if (tag.startsWith("</")) return `</${normalizedName}>`;
+
+      if (normalizedName === "img") {
+        const src = getSafeAttribute(attributes, "src");
+        const isSafeSource =
+          /^https?:\/\//i.test(src) ||
+          /^data:image\/(?:png|jpe?g|gif|webp);base64,/i.test(src);
+        if (!isSafeSource) return "";
+
+        const alt = getSafeAttribute(attributes, "alt");
+        return `<img src="${escapeAttribute(src)}" alt="${escapeAttribute(alt)}">`;
+      }
+
+      if (["p", "h1", "h2", "h3", "h4"].includes(normalizedName)) {
+        const style = getSafeAttribute(attributes, "style");
+        const alignment = style.match(/text-align:\s*(left|center|right|justify)/i)?.[1];
+        if (alignment) {
+          return `<${normalizedName} style="text-align: ${alignment.toLowerCase()}">`;
+        }
+      }
+
+      if (normalizedName === "ul") return '<ul class="list-disc ml-3">';
+      if (normalizedName === "ol") return '<ol class="list-decimal ml-3">';
+
+      return `<${normalizedName}>`;
     });
 }
 
@@ -190,7 +234,7 @@ function WrittenAssetPanel({
       ) : asset ? (
         <div className="pt-5">
           <div
-            className="prose prose-sm min-h-[200px] max-w-none rounded border border-[#d8d4cb] p-5 leading-6 text-[#44403b]"
+            className="prose prose-sm min-h-[200px] max-w-none rounded border border-[#d8d4cb] p-5 leading-6 text-[#44403b] [&_img]:my-4 [&_img]:max-h-[480px] [&_img]:max-w-full [&_img]:rounded [&_img]:object-contain [&_mark]:bg-yellow-200"
             dangerouslySetInnerHTML={{ __html: sanitizeRichText(asset.content) }}
           />
           {asset.client_comments && (
@@ -609,7 +653,7 @@ export default function ClientWorkspace({
           />
 
           <div className="mt-14 flex items-start justify-center gap-6">
-            {deliverables.length === 0 ? (
+            {activeStep === 1 && (deliverables.length === 0 ? (
               <aside className="w-64 shrink-0">
                 <p className="text-2xl text-foreground">Deliverables</p>
                 <p className="mt-3 text-sm italic text-[#77736d]">
@@ -633,7 +677,7 @@ export default function ClientWorkspace({
                   setActiveStep(1);
                 }}
               />
-            )}
+            ))}
 
           {/* Main Content Area */}
           {activeStep === 0 ? (
@@ -705,78 +749,12 @@ export default function ClientWorkspace({
         </DialogContent>
       </Dialog>
 
-      {/* History Dialog */}
-      <Dialog open={historyOpen} onOpenChange={setHistoryOpen}>
-        <DialogContent
-          showCloseButton={false}
-          className="max-h-[90vh] !max-w-5xl overflow-y-auto border-[#d8d4cb] bg-[#f2f0ea] p-8"
-        >
-          <div className="flex items-center justify-between">
-            <div className="flex items-baseline gap-8">
-              <DialogTitle className="text-3xl font-normal">
-                Version{" "}
-                {activeSubmissionStep === 0
-                  ? (latestWrittenAsset?.version_number ?? "-")
-                  : (latestMediaAsset?.version_number ?? "-")}
-              </DialogTitle>
-              <span className="text-sm text-[#6f6a63]">
-                {activeSubmissionStep === 0
-                  ? latestWrittenAsset?.created_at
-                    ? new Date(latestWrittenAsset.created_at).toLocaleString()
-                    : ""
-                  : latestMediaAsset?.created_at
-                    ? new Date(latestMediaAsset.created_at).toLocaleString()
-                    : ""}
-              </span>
-            </div>
-            <button onClick={() => setHistoryOpen(false)}>
-              <X />
-            </button>
-          </div>
-          <div className="mt-5 grid grid-cols-[1.35fr_1fr] gap-7">
-            <section className="rounded border border-[#d8d4cb] bg-white p-6">
-              <h3 className="border-b pb-3 text-2xl">
-                {activeSubmissionStep === 0 ? "Written Assets" : "Media Assets"}
-              </h3>
-              {activeSubmissionStep === 0 ? (
-                <div
-                  className="prose prose-sm mt-5 min-h-[320px] max-w-none rounded border p-5"
-                  dangerouslySetInnerHTML={{
-                    __html: latestWrittenAsset?.content
-                      ? sanitizeRichText(latestWrittenAsset.content)
-                      : "No submission yet.",
-                  }}
-                />
-              ) : (
-                <div className="mt-5">
-                  {latestMediaAsset?.content_url ? (
-                    <video
-                      src={latestMediaAsset.content_url}
-                      controls
-                      className="w-full"
-                    />
-                  ) : (
-                    <p className="text-sm italic text-[#77736d]">
-                      No video submitted yet.
-                    </p>
-                  )}
-                </div>
-              )}
-            </section>
-            <section className="rounded border border-[#d8d4cb] bg-white p-6">
-              <h3 className="border-b pb-3 text-2xl">Feedback</h3>
-              <div className="mt-5 rounded border p-5">
-                <p className="font-medium">Client</p>
-                <p className="mt-5 text-sm leading-6">
-                  {activeSubmissionStep === 0
-                    ? latestWrittenAsset?.client_comments || "No feedback yet."
-                    : latestMediaAsset?.client_comments || "No feedback yet."}
-                </p>
-              </div>
-            </section>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <HistoryOverlay
+        open={historyOpen}
+        onClose={() => setHistoryOpen(false)}
+        deliverableItemPublicId={selectedDeliverableItem?.public_id}
+        type={activeSubmissionStep === 0 ? "written" : "media"}
+      />
     </main>
   );
 }

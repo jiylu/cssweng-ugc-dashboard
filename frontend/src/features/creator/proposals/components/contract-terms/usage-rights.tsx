@@ -5,6 +5,13 @@ import { Textarea } from "@/components/ui/textarea"
 import { Separator } from "@/components/ui/separator"
 import { ChevronUp, ChevronDown } from "lucide-react"
 
+const BLOCKED_NUMBER_KEYS = new Set(["e", "E", "+", "-", ".", ","])
+
+function parseContentRetention(value: string) {
+  if (!/^\d+$/.test(value)) return null
+  return Math.max(1, Number(value))
+}
+
 interface UsageRightsProps {
   includedOrganicUsage: string
   setIncludedOrganicUsage: (v: string) => void
@@ -27,6 +34,11 @@ export function UsageRights({
                               partnershipTags, setPartnershipTags, 
                               errors }: UsageRightsProps) 
                             {
+  const contentRetentionError =
+    contentRetention > 120
+      ? "Content retention must not exceed 120 months."
+      : errors.contentRetention
+
   return (
     <div className="grid grid-cols-3 gap-6">
       {/* Usage Rights and Ownership */}
@@ -83,27 +95,47 @@ export function UsageRights({
                 type="number"
                 min={1}
                 max={120}
+                step={1}
+                inputMode="numeric"
                 value={contentRetention}
-                onChange={(e) => setContentRetention(Math.min(120, Math.max(1, Number(e.target.value))))}
+                aria-invalid={Boolean(contentRetentionError)}
+                onKeyDown={(e) => {
+                  if (BLOCKED_NUMBER_KEYS.has(e.key)) e.preventDefault()
+                }}
+                onChange={(e) => {
+                  const value = parseContentRetention(e.target.value)
+                  if (value !== null) setContentRetention(value)
+                }}
                 className="border-0 p-0 h-auto text-sm shadow-none focus-visible:ring-0 px-2 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               />
               <InputGroupAddon align="inline-end">MONTHS</InputGroupAddon>
               <InputGroupAddon align="inline-end">
                 <div className="flex flex-col shrink-0 px-1.5">
-                  <ChevronUp
-                    size={12}
-                    aria-disabled={contentRetention >= 120}
-                    className={contentRetention >= 120 ? "cursor-not-allowed text-muted-foreground opacity-40" : "cursor-pointer text-muted-foreground hover:text-foreground"}
+                  <button
+                    type="button"
+                    aria-label="Increase content retention"
+                    disabled={contentRetention >= 120}
+                    className="text-foreground hover:text-[#6b1fa8] disabled:cursor-not-allowed disabled:text-muted-foreground disabled:opacity-40"
                     onClick={() => setContentRetention(Math.min(120, contentRetention + 1))}
-                  />
-                  <ChevronDown size={12} className="cursor-pointer text-muted-foreground hover:text-foreground" onClick={() => setContentRetention(Math.max(1, contentRetention - 1))} />
+                  >
+                    <ChevronUp size={12} />
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="Decrease content retention"
+                    disabled={contentRetention <= 1}
+                    className="text-foreground hover:text-[#6b1fa8] disabled:cursor-not-allowed disabled:text-muted-foreground disabled:opacity-40"
+                    onClick={() => setContentRetention(Math.max(1, contentRetention - 1))}
+                  >
+                    <ChevronDown size={12} />
+                  </button>
                 </div>
               </InputGroupAddon>
             </InputGroup>
           </div>
 
           <span className="text-xs text-muted-foreground mt-1 italic">Posts must remain live for the duration</span>
-          {errors.contentRetention && <p className="text-xs mt-1 text-[#ff6467]">{errors.contentRetention}</p>}
+          {contentRetentionError && <p className="text-xs mt-1 text-[#ff6467]">{contentRetentionError}</p>}
         </div>
 
         {/* Tags */}

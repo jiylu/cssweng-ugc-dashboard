@@ -5,7 +5,9 @@ export const clientCampaignTabs = [
   "ACTIVE",
   "PENDING",
   "FOR REVISIONS",
+  "REJECTED",
   "COMPLETED",
+  "CANCELLED",
 ] as const;
 
 export type ClientCampaignTab = (typeof clientCampaignTabs)[number];
