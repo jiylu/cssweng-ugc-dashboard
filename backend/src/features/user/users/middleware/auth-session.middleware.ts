@@ -24,6 +24,18 @@ export class AuthSessionMiddleware implements NestMiddleware {
   ) {}
 
   async use(req: Request, res: Response, next: NextFunction) {
+    // Public profile lookup — GET /users/:userId does not require a session.
+    // A user id is a UUID, so "/users/me" is never treated as public here.
+    const isPublicProfileGet =
+      req.method === 'GET' &&
+      /^\/(?:api\/)?users\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+        req.path,
+      );
+
+    if (isPublicProfileGet) {
+      return next();
+    }
+
     const authCookie = parseAuthCookie(req.headers.cookie);
 
     if (!authCookie) {
