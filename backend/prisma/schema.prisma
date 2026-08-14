@@ -13,10 +13,10 @@ model User {
   first_name String
   middle_name String?
   last_name  String
-  display_name String?
-  primary_handle String?
-  phone_number String?
-  timezone String?
+  display_name String @default("")
+  primary_handle String @default("")
+  phone_number String @default("")
+  timezone String @default("Asia/Manila")
   profile_picture_url String @default("https://www.clipartmax.com/png/full/449-4492509_lefroy-ice-breakers-minor-hockey-tournament-sorry-no-image-available.png")
   role       UserRoles
   is_active  Boolean   @default(true)
@@ -291,6 +291,14 @@ model Payments {
   is_payment_verified   Boolean @default(false)
   created_at            DateTime @default(now())
   verified_at           DateTime?
+}
+
+model Invoices {
+  invoice_id     String     @id @default(uuid())
+  public_id      String     @unique @db.VarChar(10)
+  campaign_id    String     @unique
+  invoice_url    String
+  created_at     DateTime   @default(now())
 }
 
 enum UserRoles {

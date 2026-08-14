@@ -8,9 +8,15 @@ import {
 import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { CampaignsService } from '../campaigns/campaigns.service';
 import { CreatePaymentDTO } from './dto/create-payment.dto';
-import { CampaignStatus, Prisma, ProposalStatus } from '@prisma/client';
+import {
+  Campaigns,
+  CampaignStatus,
+  Prisma,
+  ProposalStatus,
+} from '@prisma/client';
 import { nanoid } from 'nanoid';
 import { ProposalsService } from '../proposals/proposals.service';
+import { InvoiceService } from '../invoices/invoice.service';
 
 @Injectable()
 export class PaymentsService {
@@ -19,6 +25,7 @@ export class PaymentsService {
     private prisma: PrismaService,
     private campaignsService: CampaignsService,
     private proposalsService: ProposalsService,
+    private invoiceService: InvoiceService,
   ) {}
 
   async sendInvoice(campaignId: string) {
@@ -65,27 +72,7 @@ export class PaymentsService {
       dto.campaignId,
     );
 
-    if (campaign.campaign_status != CampaignStatus.ACTIVE) {
-      this.logger.warn(
-        `Attempted to record payment to non active campaign ${campaign.campaign_id}`,
-      );
-
-      throw new BadRequestException({
-        code: 'CAMPAIGN_NOT_ACTIVE',
-        message: `Cannot record payment: campaign is ${campaign.campaign_status}, not ACTIVE.`,
-      });
-    }
-
-    if (!campaign.all_deliverables_approved) {
-      this.logger.warn(
-        `Attempted to pay campaign where all deliverables are not approved.`,
-      );
-
-      throw new BadRequestException({
-        code: 'ALL_DELIVERABLES_NOT_APPROVED',
-        message: `Cannot record payment, all campaign deliverables are not approved.`,
-      });
-    }
+    await this.assertCampaignCanBePaid(campaign);
 
     const invoice = await this.prisma.payments.findFirst({
       where: { campaign_id: campaign.campaign_id, invoice_sent_at: { not: null } },
@@ -265,5 +252,40 @@ export class PaymentsService {
     this.logger.log(`Successfully validated payment ${paymentId}.`);
 
     return result;
+  }
+
+  async assertCampaignCanBePaid(campaign: Campaigns) {
+    if (campaign.campaign_status != CampaignStatus.ACTIVE) {
+      this.logger.warn(
+        `Attempted to record payment to non active campaign ${campaign.campaign_id}`,
+      );
+
+      throw new BadRequestException({
+        code: 'CAMPAIGN_NOT_ACTIVE',
+        message: `Cannot record payment: campaign is ${campaign.campaign_status}, not ACTIVE.`,
+      });
+    }
+
+    if (!campaign.all_deliverables_approved) {
+      this.logger.warn(
+        `Attempted to pay campaign where all deliverables are not approved.`,
+      );
+
+      throw new BadRequestException({
+        code: 'ALL_DELIVERABLES_NOT_APPROVED',
+        message: `Cannot record payment, all campaign deliverables are not approved.`,
+      });
+    }
+
+    const invoice = await this.invoiceService.findInvoiceForCampaign(
+      campaign.campaign_id,
+    );
+
+    if (!invoice) {
+      throw new BadRequestException({
+        code: 'NO_INVOICE_FOUND',
+        message: `Cannot record payment. No invoice yet for campaign.`,
+      });
+    }
   }
 }

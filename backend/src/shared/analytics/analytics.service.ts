@@ -21,8 +21,9 @@ export class AnalyticsService {
     const activeCampaigns = await this.getActiveCampaignsForUser(user.user_id);
     const pendingProposals =
       await this.generatePendingProposalsAnalytics(activeCampaigns);
-    const completedCampaigns =
-      await this.getCompletedCampaignsForUser(user.user_id);
+    const completedCampaigns = await this.getCompletedCampaignsForUser(
+      user.user_id,
+    );
     const revenueGenerated = completedCampaigns.reduce(
       (sum, campaign) => sum + campaign.paid_amount.toNumber(),
       0,

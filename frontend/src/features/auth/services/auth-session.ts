@@ -42,9 +42,9 @@ export async function logoutUser() {
 export async function updateCurrentUser(payload: {
   firstName: string;
   lastName: string;
-  middleName?: string;
-  displayName?: string;
-  primaryHandle?: string;
+  middleName: string;
+  displayName: string;
+  primaryHandle: string;
   email: string;
   phoneNumber?: string;
   timezone?: string;
