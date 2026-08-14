@@ -382,7 +382,10 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
             )}
 
             {activeStep === 2 && (
-              <InvoiceDetailsCard campaignId={campaignId} />
+              <InvoiceDetailsCard
+                campaignId={campaignId}
+                onNext={() => handleStepChange(3)}
+              />
             )}
 
             {activeStep === 3 && (
