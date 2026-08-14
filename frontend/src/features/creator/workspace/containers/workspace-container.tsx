@@ -29,6 +29,7 @@ import {
   downloadFinalAssetsAsZip,
   getFinalAssetsForCampaign,
 } from "@/src/features/creator/workspace/services/final-assets-api"
+import { getPaymentForCampaign } from "@/src/features/creator/workspace/services/payments-api"
 
 interface WorkspaceProps {
   campaignId: string
@@ -167,7 +168,7 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
     setActiveDeliverableStep(step)
   }
 
-  const handleStepChange = (step: number) => {
+  const handleStepChange = async (step: number) => {
     if (step === 1 && !isContractSigned) {
       toast.info("Please complete contract signing before submitting deliverables.")
       return
@@ -183,6 +184,18 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
     if (!allDeliverablesApproved) {
       toast.info("All deliverables must be approved before proceeding to invoicing.")
       return
+    }
+    if (step === 3) {
+      try {
+        const payment = await getPaymentForCampaign(campaignId)
+        if (!payment?.is_payment_verified) {
+          toast.info("Invoicing must be completed before proceeding to completion.")
+          return
+        }
+      } catch {
+        toast.error("Unable to verify invoice status. Please try again.")
+        return
+      }
     }
     setActiveStep(step)
   }
