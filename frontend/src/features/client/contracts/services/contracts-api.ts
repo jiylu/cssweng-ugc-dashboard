@@ -1,5 +1,6 @@
 import { API_BASE_URL } from "@/src/config/api";
 import { parseApiError } from "@/src/features/auth/services/users-api";
+import type { CampaignSetupDetails } from "@/src/features/creator/proposals/types/campaign-setup-response.types";
 
 export interface SignContractPayload {
   signatureDataUrl: string;
@@ -22,6 +23,39 @@ export interface ContractSignature {
   signed_at: string;
 }
 
+export interface UnsignedContractPreview {
+  details: CampaignSetupDetails;
+  creatorName: string;
+}
+
+export async function getUnsignedContractPreview(
+  proposalPublicId: string,
+): Promise<UnsignedContractPreview> {
+  const setupResponse = await fetch(
+    `${API_BASE_URL}/campaign-setup/proposal/${encodeURIComponent(proposalPublicId)}`,
+    { credentials: "include" },
+  );
+  if (!setupResponse.ok) {
+    throw new Error(await parseApiError(setupResponse, "Unable to load contract details."));
+  }
+  const details = (await setupResponse.json()) as CampaignSetupDetails;
+  const creatorResponse = await fetch(
+    `${API_BASE_URL}/users/${encodeURIComponent(details.campaign.ugc_creator_id)}`,
+    { credentials: "include" },
+  );
+  if (!creatorResponse.ok) {
+    throw new Error(await parseApiError(creatorResponse, "Unable to load creator details."));
+  }
+  const creator = (await creatorResponse.json()) as {
+    first_name: string;
+    last_name: string;
+  };
+  return {
+    details,
+    creatorName: `${creator.first_name} ${creator.last_name}`.trim(),
+  };
+}
+
 export async function getContractStatus(contractPublicId: string): Promise<ContractStatus> {
   const response = await fetch(`${API_BASE_URL}/contracts/${contractPublicId}`, {
     credentials: "include",
@@ -30,19 +64,6 @@ export async function getContractStatus(contractPublicId: string): Promise<Contr
     throw new Error(await parseApiError(response, "Unable to load contract status."));
   }
   return response.json();
-}
-
-function dataUrlToPng(dataUrl: string, filename: string): File {
-  const [metadata, encodedData] = dataUrl.split(",");
-  if (!metadata || !encodedData || !metadata.includes("image/png")) {
-    throw new Error("Signature and initials must be PNG images.");
-  }
-
-  const bytes = Uint8Array.from(atob(encodedData), (character) =>
-    character.charCodeAt(0),
-  );
-
-  return new File([bytes], filename, { type: "image/png" });
 }
 
 export async function signContract(

@@ -41,3 +41,19 @@ export async function updateAccountSettings(
   }
   return response.json();
 }
+
+export async function changePassword(payload: {
+  currentPassword: string;
+  newPassword: string;
+}): Promise<{ message: string }> {
+  const response = await fetch(`${API_BASE_URL}/users/me/password`, {
+    method: "PATCH",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok) {
+    throw new Error(await parseApiError(response, "Unable to change password."));
+  }
+  return response.json();
+}

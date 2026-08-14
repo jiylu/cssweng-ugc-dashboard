@@ -28,6 +28,7 @@ import { SupabaseStorageService } from 'src/shared/supabase-storage/supabase-sto
 import { ForgotPasswordDTO } from './dto/forgot-password.dto';
 import { ResetPasswordDTO } from './dto/reset-password.dto';
 import { UpdateUserSettingsDTO } from './dto/update-user-settings.dto';
+import { ChangePasswordDTO } from './dto/change-password.dto';
 
 @Controller('users')
 export class UserController {
@@ -133,6 +134,18 @@ export class UserController {
     @Body() dto: UpdateUserSettingsDTO,
   ) {
     return this.userService.updateSettings(req.authUser.user_id, dto);
+  }
+
+  @Patch('me/password')
+  changePassword(
+    @Req() req: AuthenticatedRequest,
+    @Body() dto: ChangePasswordDTO,
+  ) {
+    return this.userService.changePassword(
+      req.authUser.user_id,
+      req.authUser.email,
+      dto,
+    );
   }
 
   @Post('me/profile-picture')
