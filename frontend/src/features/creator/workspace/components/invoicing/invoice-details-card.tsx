@@ -206,8 +206,8 @@ export function InvoiceDetailsCard({ campaignId, onPrevious, onNext }: InvoiceDe
         {invoice && (
           <div className="flex flex-col gap-1 w-full max-w-64 rounded-[3px] border border-border px-3 py-2 text-xs text-muted-foreground">
             <span>Invoice ID: {invoice.public_id}</span>
-            {payment.proof_payment_url && <a
-              href={payment.proof_payment_url}
+            {payment?.proof_payment_url && <a
+              href={payment?.proof_payment_url}
               target="_blank"
               rel="noreferrer"
               className="inline-flex items-center gap-1 text-[#6b1fa8] hover:underline"
@@ -217,9 +217,9 @@ export function InvoiceDetailsCard({ campaignId, onPrevious, onNext }: InvoiceDe
             </a>}
             <span>
               Status:{" "}
-              {payment.is_payment_verified
+              {payment?.is_payment_verified
                 ? "Verified"
-                : payment.proof_payment_url
+                : payment?.proof_payment_url
                   ? "Pending verification"
                   : "Awaiting proof of payment"}
             </span>
