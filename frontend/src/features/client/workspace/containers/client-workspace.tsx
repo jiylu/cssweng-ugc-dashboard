@@ -246,7 +246,7 @@ function WrittenAssetPanel({
       ) : asset ? (
         <div className="pt-5">
           <div
-            className="prose prose-sm min-h-[200px] max-w-none rounded border border-[#d8d4cb] p-5 leading-6 text-[#44403b] [&_img]:my-4 [&_img]:max-h-[480px] [&_img]:max-w-full [&_img]:rounded [&_img]:object-contain [&_mark]:bg-yellow-200"
+            className="prose prose-sm min-h-[200px] max-w-none break-words rounded border border-[#d8d4cb] p-5 leading-6 text-[#44403b] [&_img]:my-4 [&_img]:max-h-[480px] [&_img]:max-w-full [&_img]:rounded [&_img]:object-contain [&_mark]:bg-yellow-200"
             dangerouslySetInnerHTML={{ __html: sanitizeRichText(asset.content) }}
           />
           {asset.client_comments && (
