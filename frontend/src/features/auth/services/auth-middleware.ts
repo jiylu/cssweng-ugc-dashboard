@@ -14,7 +14,8 @@ const DEFAULT_API_URL = "http://localhost:8080";
 
 type ValidSession =
   | { isAuthenticated: true; setCookie: string | null; user: AuthUser }
-  | { isAuthenticated: false; setCookie: null; user: null };
+  | { isAuthenticated: false; setCookie: null; user: null }
+  | { isAuthenticated: null; setCookie: null; user: null };
 
 const protectedRoutes: Array<{
   path: string;
@@ -105,8 +106,14 @@ async function validateSession(request: NextRequest): Promise<ValidSession> {
       cache: "no-store",
     });
 
-    if (!response.ok) {
+    if (response.status === 401 || response.status === 403) {
       return { isAuthenticated: false, setCookie: null, user: null };
+    }
+
+    // A temporary API failure is not proof that the session is invalid. Keep
+    // the cookie and allow protected pages to render their own error state.
+    if (!response.ok) {
+      return { isAuthenticated: null, setCookie: null, user: null };
     }
 
     const user = authUserSchema.safeParse(await response.json());
@@ -121,7 +128,7 @@ async function validateSession(request: NextRequest): Promise<ValidSession> {
       user: user.data,
     };
   } catch {
-    return { isAuthenticated: false, setCookie: null, user: null };
+    return { isAuthenticated: null, setCookie: null, user: null };
   }
 }
 
@@ -144,6 +151,10 @@ export async function handleAuthMiddleware(request: NextRequest) {
   }
 
   const session = await validateSession(request);
+
+  if (session.isAuthenticated === null) {
+    return NextResponse.next();
+  }
 
   if (!session.isAuthenticated) {
     const response = isProtectedRoute
