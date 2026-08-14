@@ -135,6 +135,12 @@ export const styles = StyleSheet.create({
     marginTop: 8,
     marginBottom: 4,
   },
+  signatureImage: {
+    height: 28,
+    maxWidth: 140,
+    objectFit: "contain",
+    marginTop: 6,
+  },
   signatureLabel: {
     fontSize: 8,
     color: MUTED_COLOR,

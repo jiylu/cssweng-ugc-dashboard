@@ -59,6 +59,7 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
   ]
     .filter(Boolean)
     .join(" ") || "Client"
+  const creatorName = [user?.first_name, user?.last_name].filter(Boolean).join(" ")
   const deliverables = campaignSetup?.deliverables ?? []
   const isContractSigned =
     creatorSignedLocally ||
@@ -330,6 +331,7 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
               <ContractSigningPanel 
                 contract={campaignSetup?.contract} 
                 campaignId={campaignId}
+                creatorName={creatorName}
                 onSigned={() => setCreatorSignedLocally(true)}
                 onNext={() => setActiveStep(1)}
               />
