@@ -2,7 +2,6 @@ import { Card } from "@/src/components/atoms/card"
 import { Separator } from "@/components/ui/separator"
 import { Slider } from "@/components/ui/slider"
 import { cn } from "@/lib/utils"
-import { useState } from "react"
 
 interface CreativeDirectionProps {
   revisionRounds: number
@@ -59,7 +58,7 @@ export function CreativeDirection({ revisionRounds, setRevisionRounds, revisionD
             </p>
             <Slider
               min={3}
-              max={10}
+              max={6}
               step={1}
               value={[revisionRounds]}
               onValueChange={(val) => setRevisionRounds(val[0])}
@@ -68,7 +67,7 @@ export function CreativeDirection({ revisionRounds, setRevisionRounds, revisionD
             <div className="flex justify-between text-xs text-muted-foreground">
               <span>3 Revisions</span>
               <span className="text-[#6b1fa8] font-semibold text-[13px]">{revisionRounds} Revisions</span>
-              <span>10 Revisions</span>
+              <span>6 Revisions</span>
             </div>
           </div>
         )}

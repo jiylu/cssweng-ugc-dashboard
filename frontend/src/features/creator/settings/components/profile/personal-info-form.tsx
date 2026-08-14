@@ -17,6 +17,7 @@ import { Separator } from "@/components/ui/separator";
 
 interface PersonalInfoProps {
   data: ProfileSettings;
+  errors: Partial<Record<keyof ProfileSettings, string>>;
   isEditing: boolean;
   onChange: <K extends keyof ProfileSettings>(
     field: K,
@@ -24,8 +25,12 @@ interface PersonalInfoProps {
   ) => void;
 }
 
+const sanitizeNameInput = (value: string) =>
+  value.replace(/[^\p{L}\p{M}'’\-\s]/gu, "").replace(/\s{2,}/g, " ");
+
 export function PersonalInfoSection({
   data,
+  errors,
   isEditing,
   onChange,
 }: PersonalInfoProps) {
@@ -46,79 +51,87 @@ export function PersonalInfoSection({
           <div className="grid grid-cols-3 gap-6 mb-4">
             <div className="space-y-2">
               <label className="text-sm font-medium uppercase text-[#141518]">
-                First Name
+                First Name<span className="ml-1 text-[#ff6467]">*</span>
               </label>
-              <Input
+              {isEditing ? <Input
                 value={data.firstName}
-                onChange={(e) => onChange("firstName", e.target.value)}
+                aria-invalid={Boolean(errors.firstName)}
+                onChange={(e) =>
+                  onChange("firstName", sanitizeNameInput(e.target.value))
+                }
                 placeholder="Enter first name"
-                disabled={!isEditing}
-              />
+              /> : <p className="py-2 text-base text-[#141518]">{data.firstName || "—"}</p>}
+              {isEditing && errors.firstName && <p className="text-xs text-[#ff6467]">{errors.firstName}</p>}
             </div>
 
             <div className="space-y-2">
               <label className="text-sm font-medium uppercase text-[#141518]">
-                Last Name
+                Last Name<span className="ml-1 text-[#ff6467]">*</span>
               </label>
-              <Input
+              {isEditing ? <Input
                 value={data.lastName}
-                onChange={(e) => onChange("lastName", e.target.value)}
+                aria-invalid={Boolean(errors.lastName)}
+                onChange={(e) =>
+                  onChange("lastName", sanitizeNameInput(e.target.value))
+                }
                 placeholder="Enter last name"
-                disabled={!isEditing}
-              />
+              /> : <p className="py-2 text-base text-[#141518]">{data.lastName || "—"}</p>}
+              {isEditing && errors.lastName && <p className="text-xs text-[#ff6467]">{errors.lastName}</p>}
             </div>
 
             <div className="space-y-2">
               <label className="text-sm font-medium uppercase text-[#141518]">
                 Middle Name
               </label>
-              <Input
+              {isEditing ? <Input
                 value={data.middleName}
                 placeholder="Enter middle name"
-                disabled={!isEditing}
-                onChange={(e) => onChange("middleName", e.target.value)}
-              />
+                onChange={(e) =>
+                  onChange("middleName", sanitizeNameInput(e.target.value))
+                }
+              /> : <p className="py-2 text-base text-[#141518]">{data.middleName || "—"}</p>}
             </div>
 
             <div className="space-y-2">
               <label className="text-sm font-medium uppercase text-[#141518]">
-                Account Email
+                Account Email<span className="ml-1 text-[#ff6467]">*</span>
               </label>
-              <Input
+              {isEditing ? <Input
                 value={data.accountEmail}
+                aria-invalid={Boolean(errors.accountEmail)}
                 placeholder="Account email"
                 type="email"
-                disabled={!isEditing}
                 onChange={(e) => onChange("accountEmail", e.target.value)}
-              />
+              /> : <p className="py-2 text-base text-[#141518]">{data.accountEmail || "—"}</p>}
+              {isEditing && errors.accountEmail && <p className="text-xs text-[#ff6467]">{errors.accountEmail}</p>}
             </div>
 
             <div className="space-y-2">
               <label className="text-sm font-medium uppercase text-[#141518]">
                 Phone Number
               </label>
-              <Input
+              {isEditing ? <Input
                 value={data.phoneNumber}
+                aria-invalid={Boolean(errors.phoneNumber)}
                 placeholder="Enter phone number"
                 inputMode="numeric"
                 pattern="[0-9]*"
-                disabled={!isEditing}
                 onChange={(e) =>
                   onChange("phoneNumber", e.target.value.replace(/\D/g, ""))
                 }
-              />
+              /> : <p className="py-2 text-base text-[#141518]">{data.phoneNumber || "—"}</p>}
+              {isEditing && errors.phoneNumber && <p className="text-xs text-[#ff6467]">{errors.phoneNumber}</p>}
             </div>
 
             <div className="space-y-2">
               <label className="text-sm font-medium uppercase text-[#141518]">
-                Location / Timezone
+                Location / Timezone<span className="ml-1 text-[#ff6467]">*</span>
               </label>
-              <Select
+              {isEditing ? <Select
                 value={data.location}
-                disabled={!isEditing}
                 onValueChange={(value) => onChange("location", value)}
               >
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="w-full" aria-invalid={Boolean(errors.location)}>
                   <SelectValue placeholder="Select location and timezone" />
                 </SelectTrigger>
                 <SelectContent className="p-1">
@@ -129,7 +142,12 @@ export function PersonalInfoSection({
                     Asia/Tokyo (GMT+9)
                   </SelectItem>
                 </SelectContent>
-              </Select>
+              </Select> : (
+                <p className="py-2 text-base text-[#141518]">
+                  {data.location === "Asia/Manila" ? "Asia/Manila (GMT+8)" : data.location === "Asia/Tokyo" ? "Asia/Tokyo (GMT+9)" : data.location || "—"}
+                </p>
+              )}
+              {isEditing && errors.location && <p className="text-xs text-[#ff6467]">{errors.location}</p>}
             </div>
           </div>
         </AccordionContent>

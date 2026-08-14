@@ -65,7 +65,7 @@ export default function ClientCampaignCard({
           onClick={() =>
             router.push(
               campaign.status === "PENDING"
-                ? `/proposals/${campaign.id}`
+                ? `/proposals/${campaign.proposalId}`
                 : `/client-workspace/${campaign.id}`,
             )
           }

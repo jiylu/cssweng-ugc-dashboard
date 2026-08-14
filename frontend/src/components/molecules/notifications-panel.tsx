@@ -6,14 +6,31 @@ import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
 import { Spinner } from "@/components/ui/spinner"
 import { useNotifications, useMarkNotificationRead } from "@/src/features/notifications/hooks/useNotifications"
+import { useAuth } from "@/src/features/auth/hooks/useAuth"
+import { useRouter } from "next/navigation"
+import { getNotificationDestination } from "@/src/features/notifications/utils/notification-navigation"
 
 const NOTIFICATION_LIMIT = 10
 
 export default function NotificationsPanel() {
+  const { user } = useAuth(false)
+  const router = useRouter()
   const { data: notifications, isLoading } = useNotifications(NOTIFICATION_LIMIT)
   const markRead = useMarkNotificationRead()
 
   const unreadCount = notifications?.filter((n) => !n.is_read).length ?? 0
+
+  const handleNotificationClick = async (
+    notificationId: string,
+    title: string,
+    isRead: boolean,
+  ) => {
+    if (!isRead) {
+      await markRead.mutateAsync(notificationId)
+    }
+
+    router.push(getNotificationDestination(title, user?.role === "CLIENT"))
+  }
 
   return (
     <Popover>
@@ -52,28 +69,35 @@ export default function NotificationsPanel() {
             notifications.map((n) => (
               <li
                 key={n.public_id}
-                className="flex gap-3 px-4 py-3 transition-colors hover:bg-muted/50"
+                className="transition-colors hover:bg-muted/50"
               >
-                <div className="flex-1 space-y-1">
-                  <p className="text-sm font-medium leading-none">{n.title}</p>
-                  <p className="text-sm text-muted-foreground">{n.message}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {new Date(n.created_at).toLocaleDateString("en-US", {
-                      month: "short",
-                      day: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </p>
-                </div>
-                {!n.is_read && (
-                  <button
-                    type="button"
-                    className="mt-1.5 size-2 shrink-0 rounded-full bg-[#6b1fa8] hover:ring-2 hover:ring-[#6b1fa8]/30"
-                    aria-label="Mark as read"
-                    onClick={() => markRead.mutate(n.public_id)}
-                  />
-                )}
+                <button
+                  type="button"
+                  className="flex w-full cursor-pointer gap-3 px-4 py-3 text-left disabled:cursor-wait"
+                  disabled={markRead.isPending}
+                  onClick={() =>
+                    handleNotificationClick(n.public_id, n.title, n.is_read)
+                  }
+                >
+                  <div className="flex-1 space-y-1">
+                    <p className="text-sm font-medium leading-none">{n.title}</p>
+                    <p className="text-sm text-muted-foreground">{n.message}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {new Date(n.created_at).toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </p>
+                  </div>
+                  {!n.is_read && (
+                    <span
+                      className="mt-1.5 size-2 shrink-0 rounded-full bg-[#6b1fa8]"
+                      aria-label="Unread"
+                    />
+                  )}
+                </button>
               </li>
             ))
           ) : (
@@ -87,6 +111,7 @@ export default function NotificationsPanel() {
           <button
             type="button"
             className="text-xs font-medium text-[#6b1fa8] hover:underline"
+            onClick={() => router.push("/notifications")}
           >
             View all notifications
           </button>

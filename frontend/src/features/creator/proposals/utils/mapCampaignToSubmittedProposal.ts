@@ -67,6 +67,16 @@ export function mapCampaignToSubmittedProposal(
   const firstPlatform = Array.isArray(platformsValue)
     ? (platformsValue[0] ?? "")
     : Object.keys(platformsValue)[0]
+  const campaignStatus = asString(campaign.campaign_status)
+  const terminalCampaignStatuses = new Set([
+    "COMPLETED",
+    "COMPLETE",
+    "CANCELLED",
+    "REJECTED",
+  ])
+  const effectiveStatus = terminalCampaignStatuses.has(campaignStatus)
+    ? campaignStatus
+    : proposalStatus ?? campaignStatus
 
   return {
     id: campaign.public_id,
@@ -80,6 +90,6 @@ export function mapCampaignToSubmittedProposal(
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     })}`,
-    status: toProposalStatus(proposalStatus ?? campaign.campaign_status),
+    status: toProposalStatus(effectiveStatus),
   }
 }
