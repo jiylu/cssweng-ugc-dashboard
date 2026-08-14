@@ -29,6 +29,7 @@ import {
   downloadFinalAssetsAsZip,
   getFinalAssetsForCampaign,
 } from "@/src/features/creator/workspace/services/final-assets-api"
+import { useEffect } from "react"
 
 interface WorkspaceProps {
   campaignId: string
@@ -114,6 +115,27 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
     setActiveDeliverableItem(itemIndex)
     setActiveDeliverableStep(0)
   }
+
+  const hasInitializedRef = useRef(false)
+
+  useEffect(() => {
+    if (hasInitializedRef.current || campaignLoading || approvalLoading) return
+
+    if (campaignSetup) {
+      let initialStep = 0
+      if (isContractSigned) {
+        initialStep = 1
+        if (allDeliverablesApproved || campaignSetup.campaign?.all_deliverables_approved) {
+          initialStep = 2
+          if (campaignSetup.campaign?.campaign_status === "COMPLETED") {
+            initialStep = 3
+          }
+        }
+      }
+      setActiveStep(initialStep)
+      hasInitializedRef.current = true
+    }
+  }, [campaignSetup, campaignLoading, approvalLoading, isContractSigned, allDeliverablesApproved, setActiveStep])
 
   const handleDirtyChange = useCallback((dirty: boolean) => {
     setHasUnsavedChanges(dirty)

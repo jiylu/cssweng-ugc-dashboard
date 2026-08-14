@@ -43,6 +43,7 @@ import {
   getPaymentForCampaign,
   uploadPaymentProof,
 } from "@/src/features/client/workspace/services/payments-api";
+import { useEffect } from "react";
 
 const STEPS = [
   "Contract Signing",
@@ -569,6 +570,30 @@ export default function ClientWorkspace({
     useLatestWrittenAsset(selectedDeliverableItem?.public_id);
   const { data: latestMediaAsset, isLoading: mediaLoading } =
     useLatestMediaAsset(selectedDeliverableItem?.public_id);
+
+  const isContractSigned = Boolean(
+    data?.contract?.creator_signed && data?.contract?.client_signed,
+  );
+
+  const hasInitializedRef = useRef(false);
+
+  useEffect(() => {
+    if (hasInitializedRef.current || campaignLoading) return;
+    if (data) {
+      let initialStep = 0;
+      if (isContractSigned) {
+        initialStep = 1;
+        if (data.campaign.all_deliverables_approved) {
+          initialStep = 2;
+          if (data.campaign.campaign_status === "COMPLETED") {
+            initialStep = 3;
+          }
+        }
+      }
+      setActiveStep(initialStep);
+      hasInitializedRef.current = true;
+    }
+  }, [data, campaignLoading, isContractSigned]);
 
   const handleSignOut = async () => {
     setIsSigningOut(true);
