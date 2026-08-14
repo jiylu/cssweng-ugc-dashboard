@@ -212,7 +212,7 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
       try {
         const payment = await getPaymentForCampaign(campaignId)
         if (!payment?.is_payment_verified) {
-          toast.info("Invoicing must be completed before proceeding to completion.")
+          toast.info("Payment must be verified before completion.")
           return
         }
       } catch {

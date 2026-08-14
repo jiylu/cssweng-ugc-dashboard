@@ -282,24 +282,6 @@ export function InvoiceDetailsCard({ campaignId, onPrevious, onNext }: InvoiceDe
                 <ExternalLink size={12} />
               </a>
             </div>
-
-            {/* Step 2: Send Invoice to Client (only if not yet sent / no payment record) */}
-            {!payment && (
-              <div className="flex flex-col items-center gap-2 w-full max-w-80">
-                <p className="text-xs text-muted-foreground">
-                  Step 2: Send the invoice to the client
-                </p>
-                <Button
-                  type="button"
-                  className="w-full rounded-[3px] bg-[#6b1fa8] hover:bg-[#5a1a8f] text-white"
-                  onClick={handleSendInvoice}
-                  disabled={isSending || isUploading}
-                >
-                  {isSending ? "Sending..." : "Send Invoice to Client"}
-                  <Send size={16} className="ml-1" />
-                </Button>
-              </div>
-            )}
           </>
         )}
 

@@ -77,9 +77,10 @@ export async function validatePayment(paymentPublicId: string): Promise<Payment>
 
 export async function sendInvoice(campaignPublicId: string): Promise<Payment> {
   const response = await fetch(
-    `${API_BASE_URL}/payments/invoice?campaignPublic=${encodeURIComponent(campaignPublicId)}`,
+    `${API_BASE_URL}/invoices/store?campaignPublic=${encodeURIComponent(campaignPublicId)}`,
     { method: "POST", credentials: "include" },
   )
+  console.log(response)
   if (!response.ok) {
     throw new Error(await parseApiError(response, "Unable to send invoice."))
   }
