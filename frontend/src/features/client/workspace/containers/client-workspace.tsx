@@ -1,12 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
-  ArrowLeft,
-  ArrowRight,
   Check,
   Download,
   FileText,
@@ -16,7 +14,6 @@ import {
   ReceiptText,
   UploadCloud,
   X,
-  CheckCircle2,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -29,7 +26,6 @@ import { logoutUser } from "@/src/features/auth/services/auth-session";
 import ClientSidebar from "@/src/features/client/dashboard/components/client-sidebar";
 import { ClientDeliverablesSidebar } from "@/src/features/client/workspace/components/client-deliverables-sidebar";
 import { ClientWorkspaceHeader } from "@/src/features/client/workspace/components/client-workspace-header";
-import { SignedContractPanel } from "@/src/features/client/workspace/components/signed-contract-panel";
 import { HistoryOverlay } from "@/src/features/creator/workspace/components/deliverables-submission/history-overlay";
 import { useCampaignSetup } from "@/src/features/creator/workspace/hooks/useCampaignSetup";
 import { useDeliverableItems } from "@/src/features/client/workspace/hooks/useDeliverableItems";
@@ -66,11 +62,9 @@ const STEPS = [
 
 function Progress({
   activeStep,
-  maxAllowedStep,
   onChange,
 }: {
   activeStep: number;
-  maxAllowedStep: number;
   onChange: (step: number) => void;
 }) {
   return (
@@ -86,11 +80,7 @@ function Progress({
           >
             <button
               type="button"
-              disabled={index > maxAllowedStep}
-              className={cn(
-                "group flex flex-col items-center gap-1",
-                index > maxAllowedStep ? "cursor-default" : "cursor-pointer",
-              )}
+              className="group flex cursor-pointer flex-col items-center gap-1"
               onClick={() => onChange(index)}
             >
               <span
@@ -260,7 +250,7 @@ function WrittenAssetPanel({
       ) : asset ? (
         <div className="pt-5">
           <div
-            className="prose prose-sm min-h-[200px] max-w-none break-words rounded border border-[#d8d4cb] p-5 leading-6 text-[#44403b] [&_img]:my-4 [&_img]:max-h-[480px] [&_img]:max-w-full [&_img]:rounded [&_img]:object-contain [&_mark]:bg-yellow-200"
+            className="prose prose-sm min-h-[200px] max-w-none rounded border border-[#d8d4cb] p-5 leading-6 text-[#44403b] [&_img]:my-4 [&_img]:max-h-[480px] [&_img]:max-w-full [&_img]:rounded [&_img]:object-contain [&_mark]:bg-yellow-200"
             dangerouslySetInnerHTML={{ __html: sanitizeRichText(asset.content) }}
           />
           {asset.client_comments && (
@@ -429,7 +419,6 @@ function FeedbackActions({
             onClick={onNext}
           >
             {isWrittenStep ? "Next: Media Assets" : "Next: Completion"}
-            <ArrowRight className="ml-2 size-4" />
           </Button>
         </div>
       ) : !currentAssetPublicId ? (
@@ -486,59 +475,9 @@ function FeedbackActions({
   );
 }
 
-// ── Completion Step (Wired) ────────────────────────────────────────────────────
-
-function ClientDeliverableApprovedCard({
-  deliverableName,
-  allApproved,
-  isPaidFull,
-  onNextInvoicing,
-  onNextCompletion,
-}: {
-  deliverableName: string;
-  allApproved: boolean;
-  isPaidFull: boolean;
-  onNextInvoicing: () => void;
-  onNextCompletion: () => void;
-}) {
-  return (
-    <div className="flex flex-col items-center justify-center gap-3 rounded border border-[#d8d4cb] bg-white px-10 py-16 mx-auto w-full text-center shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
-      <CheckCircle2 className="text-[#2d7a3a]" size={56} strokeWidth={1.5} />
-
-      <h2 className="text-2xl font-normal text-[#141518]">
-        Deliverable Completed & Approved
-      </h2>
-
-      <p className="text-sm text-[#6f6a63]">
-        You have successfully reviewed and approved the {deliverableName} submission.
-      </p>
-
-      <p className="text-xs italic text-[#77736d]">
-        Tip: You can view the approved assets by clicking on the stages in the card on the left.
-      </p>
-
-      {allApproved ? (
-        isPaidFull ? (
-          <Button type="button" className="mt-4 rounded bg-[#6b1fa8] font-normal hover:bg-[#551783] min-w-48" onClick={onNextCompletion}>
-            Complete Campaign
-          </Button>
-        ) : (
-          <Button type="button" className="mt-4 rounded bg-[#6b1fa8] font-normal hover:bg-[#551783] min-w-48" onClick={onNextInvoicing}>
-            Next: Invoicing
-          </Button>
-        )
-      ) : (
-        <p className="mt-4 text-sm text-[#6f6a63]">
-          Please select the next deliverable from the sidebar to continue.
-        </p>
-      )}
-    </div>
-  );
-}
-
 // ── Contract Signing Placeholder ───────────────────────────────────────────────
 
-function ContractSigningPlaceholder({ onNext }: { onNext: () => void }) {
+function ContractSigningPlaceholder() {
   return (
     <section className="flex min-h-[350px] flex-1 flex-col items-center justify-center rounded border border-[#d8d4cb] bg-white p-7 text-center">
       <FileText className="size-12 text-[#6b1fa8]" strokeWidth={1.6} />
@@ -546,16 +485,13 @@ function ContractSigningPlaceholder({ onNext }: { onNext: () => void }) {
         The contract for this campaign needs to be reviewed and signed. Please
         check your proposal invitation or visit the contract review page.
       </p>
-      <Button type="button" className="mt-6 min-w-48" onClick={onNext}>
-        Next: Deliverables
-      </Button>
     </section>
   );
 }
 
 // ── Invoice Panel ──────────────────────────────────────────────────────────────
 
-function InvoicePanel({ campaignId, onPrevious, onNext }: { campaignId: string; onPrevious: () => void; onNext: () => void }) {
+function InvoicePanel({ campaignId }: { campaignId: string }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [invoiceOpen, setInvoiceOpen] = useState(false);
@@ -563,13 +499,12 @@ function InvoicePanel({ campaignId, onPrevious, onNext }: { campaignId: string; 
     useQuery({
       queryKey: ["invoice", campaignId],
       queryFn: () => getInvoiceForCampaign(campaignId),
-      enabled: true,
     });
-  const { data: payment, refetch: loadPayment } = useQuery({
-    queryKey: ["payment", campaignId],
-    queryFn: () => getPaymentForCampaign(campaignId),
-    enabled: true,
-  });
+  const { data: payment, refetch: loadPayment } =
+    useQuery({
+      queryKey: ["payment", campaignId],
+      queryFn: () => getPaymentForCampaign(campaignId),
+    });
 
   const handleViewInvoice = async () => {
     const result = await loadInvoice();
@@ -635,33 +570,15 @@ function InvoicePanel({ campaignId, onPrevious, onNext }: { campaignId: string; 
         </Button>
         {!payment?.is_payment_verified && (
           <>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={handleProofSelection}
-            />
-            <Button
-              type="button"
-              className="mt-3 rounded bg-[#6b1fa8] font-normal hover:bg-[#551783]"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={isUploading || isLoadingInvoice || !invoice}
-            >
-              {isUploading
-                ? "Uploading..."
-                : payment
-                  ? "Upload New Proof of Payment"
-                  : "Upload Proof of Payment"}
+            <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleProofSelection} />
+            <Button type="button" className="mt-3 rounded bg-[#6b1fa8] font-normal hover:bg-[#551783]" onClick={() => fileInputRef.current?.click()} disabled={isUploading || isLoadingInvoice || !invoice}>
+              {isUploading ? "Uploading..." : payment ? "Upload New Proof of Payment" : "Upload Proof of Payment"}
               <UploadCloud className="ml-2 size-4" />
             </Button>
           </>
         )}
         {payment && !payment.is_payment_verified && (
-          <p className="mt-3 text-sm text-muted-foreground">
-            The latest payment proof is waiting for creator verification. You may
-            upload a newer proof if needed.
-          </p>
+          <p className="mt-3 text-sm text-muted-foreground">The latest payment proof is waiting for creator verification.</p>
         )}
       </div>
 
@@ -675,25 +592,12 @@ function InvoicePanel({ campaignId, onPrevious, onNext }: { campaignId: string; 
                 Sent {new Date(invoice.created_at).toLocaleDateString()}
               </p>
               <Button asChild type="button" className="mt-4">
-                <a href={invoice.invoice_url} target="_blank" rel="noreferrer">
-                  Open invoice file
-                </a>
+                <a href={invoice.invoice_url} target="_blank" rel="noreferrer">Open invoice file</a>
               </Button>
             </div>
           ) : null}
         </DialogContent>
       </Dialog>
-<<<<<<< HEAD
-
-=======
-      <div className="mt-8 flex items-center justify-end gap-3 border-t border-[#d8d4cb] pt-4">
-        <Button variant="outline" className="min-w-32" onClick={onPrevious}>
-          Previous: Deliverables
-        </Button>
-        <Button className="min-w-32" onClick={onNext} disabled={!payment?.is_payment_verified}>
-          Next: Completion
-        </Button>
-      </div>
     </section>
   );
 }
@@ -715,7 +619,6 @@ function DeliverableCompletedPanel({ onNext }: { onNext: () => void }) {
       >
         Next: Invoicing
       </Button>
->>>>>>> origin/dev
     </section>
   );
 }
@@ -724,12 +627,10 @@ function CompletionPanel({
   campaignId,
   campaignName,
   isPaidFull,
-  onPrevious,
 }: {
   campaignId: string;
   campaignName: string;
   isPaidFull: boolean;
-  onPrevious: () => void;
 }) {
   const [isDownloading, setIsDownloading] = useState(false);
   const { data: groupedAssets, isLoading } = useQuery({
@@ -768,15 +669,10 @@ function CompletionPanel({
       <p className="mt-2 text-sm text-[#44403b]">
         {isLoading ? "Loading final assets..." : `${assets.length} final asset${assets.length === 1 ? "" : "s"} available.`}
       </p>
-      <div className="mt-8 flex items-center gap-3">
-        <Button variant="outline" onClick={onPrevious} disabled={isLoading || isDownloading}>
-          Previous: Invoicing
-        </Button>
-        <Button className="rounded bg-[#6b1fa8] hover:bg-[#551783]" onClick={handleDownload} disabled={isLoading || isDownloading || assets.length === 0}>
-          <Download className="mr-2 size-4" />
-          {isDownloading ? "Downloading..." : "Download Final Assets"}
-        </Button>
-      </div>
+      <Button className="mt-5 rounded bg-[#6b1fa8] hover:bg-[#551783]" onClick={handleDownload} disabled={isLoading || isDownloading || assets.length === 0}>
+        <Download className="mr-2 size-4" />
+        {isDownloading ? "Downloading..." : "Download Final Assets"}
+      </Button>
     </section>
   );
 }
@@ -794,7 +690,6 @@ export default function ClientWorkspace({
   const { data, isLoading: campaignLoading } = useCampaignSetup(campaignId);
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
-  const [maxAllowedStep, setMaxAllowedStep] = useState(0);
   const [activeSubmissionStep, setActiveSubmissionStep] = useState(0);
   const [activeDeliverable, setActiveDeliverable] = useState(0);
   const [activeDeliverableItem, setActiveDeliverableItem] = useState(0);
@@ -821,38 +716,6 @@ export default function ClientWorkspace({
   const { data: latestMediaAsset, isLoading: mediaLoading } =
     useLatestMediaAsset(selectedDeliverableItem?.public_id);
 
-  const activeDeliverableName =
-    selectedDeliverableItem && (deliverableItems?.length ?? 0) > 1
-      ? `${deliverables[activeDeliverable]?.deliverable_content} ${selectedDeliverableItem.deliverable_index}`
-      : deliverables[activeDeliverable]?.deliverable_content ?? "Deliverable";
-
-  const isContractSigned = Boolean(
-    data?.contract?.creator_signed && data?.contract?.client_signed,
-  );
-
-  const hasInitializedRef = useRef(false);
-
-  useEffect(() => {
-    if (hasInitializedRef.current || campaignLoading) return;
-    if (data) {
-      let initialStep = 0;
-      if (isContractSigned) {
-        initialStep = 1;
-        if (data.campaign.all_deliverables_approved) {
-          initialStep = 2;
-          if (data.campaign.campaign_status === "COMPLETED") {
-            initialStep = 3;
-          }
-        }
-      }
-      // Initialize navigation once from the persisted campaign state.
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setActiveStep(initialStep);
-      setMaxAllowedStep(initialStep);
-      hasInitializedRef.current = true;
-    }
-  }, [data, campaignLoading, isContractSigned]);
-
   const handleSignOut = async () => {
     setIsSigningOut(true);
     try {
@@ -867,7 +730,6 @@ export default function ClientWorkspace({
 
   const handleMutationSuccess = () => {
     // Invalidate all relevant queries to refresh the UI
-    queryClient.invalidateQueries({ queryKey: ["campaign", campaignId] });
     queryClient.invalidateQueries({ queryKey: ["latestWrittenAsset"] });
     queryClient.invalidateQueries({ queryKey: ["latestMediaAsset"] });
     queryClient.invalidateQueries({ queryKey: ["deliverableItems"] });
@@ -889,11 +751,10 @@ export default function ClientWorkspace({
           <ClientWorkspaceHeader
             campaignName={data?.campaign?.project_name ?? "Campaign Name"}
             campaignOverview={data?.campaign?.description ?? "Campaign Overview"}
-            progress={<Progress activeStep={activeStep} maxAllowedStep={maxAllowedStep} onChange={(step) => step <= maxAllowedStep && setActiveStep(step)} />}
+            progress={<Progress activeStep={activeStep} onChange={setActiveStep} />}
           />
 
-          <div className="mt-14 flex min-h-[480px] flex-col gap-4">
-            <div className="flex flex-1 items-start justify-center gap-6">
+          <div className="mt-14 flex items-start justify-center gap-6">
             {activeStep === 1 && (deliverables.length === 0 ? (
               <aside className="w-64 shrink-0">
                 <p className="text-2xl text-foreground">Deliverables</p>
@@ -934,17 +795,9 @@ export default function ClientWorkspace({
           {/* Main Content Area */}
           <div className="flex min-w-0 flex-1 flex-col">
             {activeStep === 0 ? (
-              isContractSigned && data?.contract ? (
-                <SignedContractPanel
-                  campaignId={campaignId}
-                  contractPublicId={data.contract.public_id}
-                  creatorId={data.campaign.ugc_creator_id}
-                />
-              ) : (
-                <ContractSigningPlaceholder onNext={() => setActiveStep(1)} />
-              )
+              <ContractSigningPlaceholder />
             ) : activeStep === 2 ? (
-              <InvoicePanel campaignId={campaignId} onPrevious={() => setActiveStep(1)} onNext={() => setActiveStep(3)} />
+              <InvoicePanel campaignId={campaignId} />
             ) : activeStep === 1 ? (
               <div className="flex min-w-0 flex-1 gap-6">
               {activeSubmissionStep === 0 ? (
@@ -961,30 +814,7 @@ export default function ClientWorkspace({
                   onPreview={() => setPreviewOpen(true)}
                 />
               ) : (
-<<<<<<< HEAD
-                <ClientDeliverableApprovedCard
-                  deliverableName={activeDeliverableName}
-                  allApproved={Boolean(data?.campaign?.all_deliverables_approved)}
-                  isPaidFull={Boolean(data?.campaign?.paid_full)}
-                  onNextInvoicing={() => setActiveStep(2)}
-                  onNextCompletion={() => setActiveStep(3)}
-                />
-              )}
-              {activeSubmissionStep < 2 && (
-                <FeedbackActions
-                  submissionStep={activeSubmissionStep}
-                  writtenAssetPublicId={latestWrittenAsset?.public_id}
-                  mediaAssetPublicId={latestMediaAsset?.public_id}
-                  writtenAssetAction={latestWrittenAsset?.written_asset_action}
-                  mediaAssetAction={latestMediaAsset?.media_asset_action}
-                  onMutationSuccess={handleMutationSuccess}
-                  onNext={() => setActiveSubmissionStep(activeSubmissionStep + 1)}
-                />
-              )}
-=======
-                <DeliverableCompletedPanel
-                  onNext={() => setActiveStep(2)}
-                />
+                <DeliverableCompletedPanel onNext={() => setActiveStep(2)} />
               )}
               {activeSubmissionStep < 2 && (
                 <FeedbackActions
@@ -1005,7 +835,6 @@ export default function ClientWorkspace({
                 campaignId={campaignId}
                 campaignName={data?.campaign?.project_name ?? "campaign"}
                 isPaidFull={Boolean(data?.campaign?.paid_full)}
-                onPrevious={() => setActiveStep(2)}
               />
             )}
 
@@ -1026,7 +855,7 @@ export default function ClientWorkspace({
               ) : (
                 <span />
               )}
-              {activeStep < maxAllowedStep && (
+              {activeStep < STEPS.length - 1 && (
                 <Button
                   type="button"
                   className="rounded bg-[#6b1fa8] px-6 font-normal hover:bg-[#551783]"
@@ -1036,7 +865,6 @@ export default function ClientWorkspace({
                   <ArrowRight className="ml-2 size-4" />
                 </Button>
               )}
->>>>>>> origin/dev
             </div>
           </div>
         </div>
