@@ -2,7 +2,9 @@ export type ClientCampaignStatus =
   | "COMPLETE"
   | "ACTIVE"
   | "PENDING"
-  | "FOR REVISIONS";
+  | "FOR REVISIONS"
+  | "REJECTED"
+  | "CANCELLED";
 
 export interface ClientCampaign {
   id: string;

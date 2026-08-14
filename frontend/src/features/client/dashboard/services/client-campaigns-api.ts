@@ -54,6 +54,8 @@ function deriveDisplayStatus(
   campaignStatus: string,
   proposalStatus: string,
 ): ClientCampaignStatus {
+  if (proposalStatus === "REJECTED" || campaignStatus === "REJECTED") return "REJECTED";
+  if (proposalStatus === "CANCELLED" || campaignStatus === "CANCELLED") return "CANCELLED";
   // If proposal is still pending client review, show PENDING
   if (proposalStatus === "PENDING") return "PENDING";
   // If proposal needs revision, show FOR REVISIONS
