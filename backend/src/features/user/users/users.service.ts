@@ -160,7 +160,11 @@ export class UserService {
         .toLowerCase()
         .includes('already registered');
 
-      this.logger.warn(`Failed to create user ${email}`);
+      this.logger.warn(
+        `Failed to create auth user ${email}: ${error.message}` +
+          (error.code ? ` (code: ${error.code})` : '') +
+          (error.status ? ` (status: ${error.status})` : ''),
+      );
 
       throw new (isExistingUser ? ConflictException : BadRequestException)({
         status: isExistingUser ? HttpStatus.CONFLICT : HttpStatus.BAD_REQUEST,

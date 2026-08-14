@@ -14,9 +14,6 @@ export class PaymentsEntity {
   proof_payment_url: string | null;
 
   @Expose()
-  invoice_sent_at: string | null;
-
-  @Expose()
   is_payment_verified: boolean;
 
   @Expose()
