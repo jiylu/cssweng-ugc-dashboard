@@ -80,11 +80,12 @@ export function PersonalInfoSection({
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium uppercase text-[#141518]">
+              <label className="text-sm font-medium uppercase text-muted-foreground">
                 Middle Name
               </label>
               {isEditing ? <Input
                 value={data.middleName}
+                className="border-muted"
                 placeholder="Enter middle name"
                 onChange={(e) =>
                   onChange("middleName", sanitizeNameInput(e.target.value))
@@ -107,7 +108,7 @@ export function PersonalInfoSection({
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium uppercase text-[#141518]">
+              <label className="text-sm font-medium uppercase text-muted-foreground">
                 Phone Number
               </label>
               {isEditing ? <Input

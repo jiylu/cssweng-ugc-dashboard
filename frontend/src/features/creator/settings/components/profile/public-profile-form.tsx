@@ -137,7 +137,7 @@ export function PublicProfileSection({
             {isEditing && errors.displayName && <p className="text-xs text-[#ff6467]">{errors.displayName}</p>}
           </div>
           <div className="space-y-2">
-            <label className="text-[15px] font-normal uppercase text-[#141518]">
+            <label className="text-[15px] font-normal uppercase text-muted-foreground">
               Primary Handle
             </label>
             {isEditing ? (
@@ -163,13 +163,13 @@ export function PublicProfileSection({
 
       {/* bio */}
       <div className="space-y-2">
-        <label className="text-[15px] font-normal uppercase text-[#141518]">
+        <label className="text-[15px] font-normal uppercase text-muted-foreground">
           Bio
         </label>
         {isEditing ? <div className="relative">
           <Textarea
             placeholder="Enter your bio"
-            className="min-h-[160px] resize-none pb-8 italic placeholder:text-gray-400"
+            className="min-h-[160px] resize-none pb-8 italic placeholder:text-gray-400 border-muted"
             value={data.bio ?? ""}
             onChange={(event) => onChange("bio", event.target.value)}
             maxLength={100}

@@ -56,9 +56,6 @@ export default function Campaigns() {
                     setPage(1)
                   }}
                 />
-                <Button onClick={() => router.push('/proposals/create-campaign')} className="px-5 py-2 cursor-pointer">
-                  + Create Proposal
-                </Button>
               </div>
 
               {/* Campaign List */}
