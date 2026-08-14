@@ -11,26 +11,33 @@ import { Input } from "@/components/ui/input";
 import Button from "@/src/components/atoms/button";
 import SignatureField from "./signature-field";
 import { signContract } from "../services/contracts-api";
+import { acceptProposal } from "../../proposals/services/proposals-api";
 
 interface SignContractModalProps {
   contractPublicId: string;
+  proposalPublicId?: string;
 }
 
-export default function SignContractModal({ contractPublicId }: SignContractModalProps) {
+export default function SignContractModal({ contractPublicId, proposalPublicId }: SignContractModalProps) {
   const router = useRouter();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [signatureDataUrl, setSignatureDataUrl] = useState("");
   const [initialsDataUrl, setInitialsDataUrl] = useState("");
   const signingMutation = useMutation({
-    mutationFn: () =>
-      signContract(contractPublicId, {
+    mutationFn: async () => {
+      await signContract(contractPublicId, {
         signatureDataUrl,
         initialsDataUrl,
         signerRole: "CLIENT",
-      }),
+      });
+
+      if (proposalPublicId) {
+        await acceptProposal(proposalPublicId);
+      }
+    },
     onSuccess: () => {
-      toast.success("Contract signed successfully.");
+      toast.success("Contract signed and proposal accepted.");
       router.push("/dashboard");
     },
     onError: (error) =>

@@ -1,16 +1,27 @@
 import { Campaign } from "@/src/features/creator/campaigns/types/campaign.types"
-import { Button } from "@/components/ui/button"
+import { CAMPAIGNS_PAGE_SIZE } from "../services/getCampaigns"
+import { cn } from "@/lib/utils"
 import { CampaignCard } from "./campaign-card"
 import { useRouter } from "next/navigation"
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination"
 
 interface CampaignListProps {
   campaigns: Campaign[]
+  clientNames?: Record<string, string>
+  page: number
+  onPageChange: (page: number) => void
 }
 
 
-export function CampaignList({ campaigns }: CampaignListProps) {
+export function CampaignList({ campaigns, clientNames, page, onPageChange }: CampaignListProps) {
   const router = useRouter()
-  const limit = 10
+  const limit = CAMPAIGNS_PAGE_SIZE
   
   return (
     <div className="flex flex-col gap-3">
@@ -18,6 +29,7 @@ export function CampaignList({ campaigns }: CampaignListProps) {
         <CampaignCard
           key={campaign.public_id}
           campaign={campaign}
+          clientName={clientNames?.[campaign.public_id]}
           onOpenWorkspace={(id) => router.push(`/workspace/${id}`)}
         />
       ))}
@@ -26,24 +38,32 @@ export function CampaignList({ campaigns }: CampaignListProps) {
         <p className="text-sm text-muted-foreground">
           Showing {campaigns.length} Campaign{campaigns.length !== 1 ? "s" : ""}
         </p>
-        {/* <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={page === 1}
-            onClick={() => onPageChange(page - 1)}
-          >
-            Previous
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={page * limit >= total}
-            onClick={() => onPageChange(page + 1)}
-          >
-            Next
-          </Button>
-        </div> */}
+        <Pagination>
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault()
+                  if (page > 1) onPageChange(page - 1)
+                }}
+                aria-disabled={page === 1}
+                className={cn(page === 1 && "pointer-events-none opacity-50")}
+              />
+            </PaginationItem>
+            <PaginationItem>
+              <PaginationNext
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault()
+                  if (campaigns.length === limit) onPageChange(page + 1)
+                }}
+                aria-disabled={campaigns.length < limit}
+                className={cn(campaigns.length < limit && "pointer-events-none opacity-50")}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
       </div>
     </div>
   )

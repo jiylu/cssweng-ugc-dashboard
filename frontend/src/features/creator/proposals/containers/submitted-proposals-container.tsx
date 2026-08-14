@@ -16,6 +16,7 @@ import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export function SubmittedProposalsContainer() {
     const { user, loading } = useAuth();
@@ -29,9 +30,14 @@ export function SubmittedProposalsContainer() {
         campaignPublicId: string
         campaignName: string
     } | null>(null);
+    const router = useRouter();
 
     const handleView = (id: string) => {
         setPreviewPublicId(id)
+    }
+
+    const handleEdit = (id: string) => {
+        router.push(`/proposals/create-campaign?edit=${encodeURIComponent(id)}`)
     }
 
     const handleSendReminder = (id: string) => {
@@ -93,6 +99,7 @@ export function SubmittedProposalsContainer() {
                             onView={handleView}
                             onSendReminder={handleSendReminder}
                             onCancel={handleCancel}
+                            onEdit={handleEdit}
                         />
                     </div>
                 </div>

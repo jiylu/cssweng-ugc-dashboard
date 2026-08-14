@@ -9,6 +9,7 @@ export interface ShippingAddress {
 
 export interface GiftedProduct {
   id: number
+  dbId?: string
   productName: string
   value: string
   ownershipTerms: string

@@ -8,10 +8,11 @@ import { useCampaignForm } from "@/src/features/creator/proposals/hooks/useCampa
 
 interface CampaignDeliverablesContainerProps {
     form: ReturnType<typeof useCampaignForm>
+    readOnly?: boolean
     onNext: () => void
 }
 
-export function CampaignDeliverablesContainer({ form, onNext }: CampaignDeliverablesContainerProps) {
+export function CampaignDeliverablesContainer({ form, readOnly = false, onNext }: CampaignDeliverablesContainerProps) {
   return (
     <>
         <div className="grid grid-cols-2 gap-6 mb-6">
@@ -22,6 +23,7 @@ export function CampaignDeliverablesContainer({ form, onNext }: CampaignDelivera
                 contactEmail={form.contactEmail}
                 setContactEmail={form.setContactEmail}
                 errors={form.errors}
+                readOnly={readOnly}
             />
         </div>
 

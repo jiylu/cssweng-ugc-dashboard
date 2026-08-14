@@ -23,7 +23,7 @@ export interface Campaign {
   start_date: string
   end_date: string
   created_at: string
-  campaign_status: "ACTIVE" | "PENDING" | "FOR_REVISIONS" | "COMPLETE"
+  campaign_status: "ACTIVE" | "REJECTED" | "COMPLETED" | "CANCELLED"
 }
 
 export type CampaignListResponse = Campaign[]

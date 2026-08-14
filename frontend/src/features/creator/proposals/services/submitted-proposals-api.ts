@@ -1,5 +1,6 @@
 import { CampaignListResponse } from "@/src/features/creator/campaigns/types/campaign.types"
 import { CampaignSetupDetails } from "../types/campaign-setup-response.types"
+import { UpdateCampaignSetupPayload } from "../types/update-campaign-setup.types"
 import { API_BASE_URL } from "@/src/config/api"
 
 export async function getSubmittedProposals(creatorId: string): Promise<CampaignListResponse> {
@@ -55,6 +56,26 @@ export async function cancelProposal(publicId: string): Promise<CampaignProposal
   if (!response.ok) {
     const error = await response.json().catch(() => ({}))
     throw new Error(error.message ?? "Failed to cancel proposal")
+  }
+  return response.json()
+}
+
+export async function updateCampaignSetup(
+  campaignPublicId: string,
+  payload: UpdateCampaignSetupPayload
+): Promise<unknown> {
+  const response = await fetch(
+    `${API_BASE_URL}/campaign-setup/${encodeURIComponent(campaignPublicId)}`,
+    {
+      method: "PATCH",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    }
+  )
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}))
+    throw new Error(error.message ?? "Failed to update proposal")
   }
   return response.json()
 }
