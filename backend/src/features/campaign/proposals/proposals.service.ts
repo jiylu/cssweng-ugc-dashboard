@@ -403,7 +403,13 @@ export class ProposalsService {
         tx,
       );
 
-      return { updatedProposal, campaign };
+      const updatedCampaign =
+        await this.campaignService.recalculateCampaignPricing(
+          campaign.campaign_id,
+          tx,
+        );
+
+      return { updatedProposal, updatedCampaign };
     });
   }
 

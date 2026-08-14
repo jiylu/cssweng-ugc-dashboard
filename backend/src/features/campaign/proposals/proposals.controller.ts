@@ -173,12 +173,12 @@ export class ProposalsController {
   @ApiAcceptProposal()
   @Patch('/accept/:publicId')
   async accept(@Param('publicId') publicId: string) {
-    const { updatedProposal, campaign } =
+    const { updatedProposal, updatedCampaign } =
       await this.proposalsService.acceptProposal(publicId);
 
     try {
       await this.notificationsService.createNotification({
-        userId: campaign.ugc_creator_id,
+        userId: updatedCampaign.ugc_creator_id,
         title: `Your Proposal Has Been Accepted.`,
         message:
           'Your proposal has been accepted! Please wait for the contract to be signed by the client.',
