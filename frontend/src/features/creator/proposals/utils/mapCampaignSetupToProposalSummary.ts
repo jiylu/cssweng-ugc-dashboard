@@ -110,8 +110,8 @@ export function mapCampaignSetupToProposalSummary(
   const baseFee = baseFeeWithoutAddOns + addOnsTotal
 
   const taxRate = parseMoney(details.campaign.tax)
-  const tax = baseFee * (taxRate / 100)
-  const total = baseFee + tax
+  const tax = baseFeeWithoutAddOns * (taxRate / 100)
+  const total = baseFeeWithoutAddOns + tax
 
   const contract = details.contract
   const rawExclusivity = contract?.exclusivity ?? null

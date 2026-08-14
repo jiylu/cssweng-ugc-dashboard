@@ -32,8 +32,8 @@ export function useProposalSummary(
 
   const addOnsTotal = enabledAddOns.reduce((sum, a) => sum + (a.fee ?? 0), 0)
 
-  const taxAmount = baseFee * (paymentTerms.taxRate / 100)
-  const total = baseFee + taxAmount
+  const taxAmount = baseFeeWithoutAddOns * (paymentTerms.taxRate / 100)
+  const total = baseFeeWithoutAddOns + taxAmount
 
   const startDateFormatted = form.startDate
     ? formatDate(new Date(form.startDate))

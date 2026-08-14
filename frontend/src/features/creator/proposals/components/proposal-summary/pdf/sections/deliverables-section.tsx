@@ -36,17 +36,6 @@ export function DeliverablesSection({
           />
         ))}
       </TermsTable>
-      {summary.addOns.length > 0 && (
-        <View style={{ marginTop: 6 }}>
-          <Text style={styles.termTitle}>Add-ons</Text>
-          {summary.addOns.map((a, i) => (
-            <View key={i} style={styles.textRow}>
-              <Text style={styles.value}>- {a.title}</Text>
-              <Text>{formatCurrency(a.fee, summary.earnings.currency)}</Text>
-            </View>
-          ))}
-        </View>
-      )}
       <View style={styles.tableFooter}>
         <Text style={styles.tableFooterText}>
           Total ({summary.fees.currency}): {formatCurrency(summary.fees.total, summary.fees.currency)}
