@@ -404,9 +404,9 @@ describe('UserService', () => {
 
     await expect(
       service.updateOwnProfile('abc123', {
-        firstName: ' Jane ',
-        lastName: ' Smith ',
-        middleName: ' Q ',
+        firstName: ' "  Jane  " ',
+        lastName: " d'Arc ",
+        middleName: ' Anne-Marie ',
         displayName: ' Jane Smith ',
         primaryHandle: 'jane.smith',
         bio: ' Creator bio ',
@@ -420,8 +420,8 @@ describe('UserService', () => {
       data: {
         email: 'john@test.com',
         first_name: 'Jane',
-        last_name: 'Smith',
-        middle_name: 'Q',
+        last_name: "d'Arc",
+        middle_name: 'Anne-Marie',
         display_name: 'Jane Smith',
         primary_handle: 'jane.smith',
         bio: 'Creator bio',

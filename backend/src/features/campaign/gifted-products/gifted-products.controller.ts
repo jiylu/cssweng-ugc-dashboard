@@ -1,4 +1,4 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Param, UseGuards } from '@nestjs/common';
 import { GiftedProductsService } from './gifted-products.service';
 import {
   ApiFindGiftedProductById,
@@ -7,6 +7,7 @@ import {
 import { CampaignsService } from '../campaigns/campaigns.service';
 import { plainToInstance } from 'class-transformer';
 import { GiftedProductsEntity } from './entities/gifted-products.entity';
+import { RolesGuard } from 'src/shared/guards/roles.guard';
 
 @Controller('gifted-products')
 export class GiftedProductsController {
@@ -17,6 +18,7 @@ export class GiftedProductsController {
 
   @ApiFindGiftedProductById()
   @Get(':publicId')
+  @UseGuards(RolesGuard)
   async findOne(@Param('publicId') publicId: string) {
     const giftedProductId =
       await this.giftedProductsService.resolvePublicId(publicId);
@@ -28,6 +30,7 @@ export class GiftedProductsController {
 
   @ApiFindGiftedProductsForCampaign()
   @Get('/campaign/:publicId')
+  @UseGuards(RolesGuard)
   async findMany(@Param('publicId') publicId: string) {
     const campaignId =
       await this.campaignsService.resolveCampaignPublicId(publicId);

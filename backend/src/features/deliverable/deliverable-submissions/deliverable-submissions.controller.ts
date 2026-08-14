@@ -5,6 +5,7 @@ import {
   Patch,
   Post,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -25,6 +26,9 @@ import {
 } from './docs/deliverable-submissions.controller.swagger';
 import { DeliverableItemsService } from '../deliverable-items/deliverable-items.service';
 import { NotificationsService } from '../../../shared/notifications/notifications.service';
+import { RolesGuard } from 'src/shared/guards/roles.guard';
+import { Roles } from 'src/shared/decorators/roles.decorator';
+import { UserRoles } from '@prisma/client';
 
 @Controller('deliverable-submissions')
 export class DeliverableSubmissionsController {
@@ -39,6 +43,8 @@ export class DeliverableSubmissionsController {
 
   @ApiSubmitWrittenAsset()
   @Post('written-assets')
+  @UseGuards(RolesGuard)
+  @Roles(UserRoles.CREATOR)
   async submitWrittenAsset(@Body() dto: SubmitWrittenAssetDTO) {
     const deliverableItemId =
       await this.deliverableItemsService.resolvePublicId(
@@ -64,6 +70,8 @@ export class DeliverableSubmissionsController {
 
   @ApiSubmitMediaAsset()
   @Post('media-assets')
+  @UseGuards(RolesGuard)
+  @Roles(UserRoles.CREATOR)
   @UseInterceptors(FileInterceptor('file'))
   async submitMediaAsset(
     @Body('deliverableItemPublicId') deliverableItemPublicId: string,
@@ -96,6 +104,8 @@ export class DeliverableSubmissionsController {
 
   @ApiApproveWrittenAsset()
   @Patch('written-assets/:publicId/approve')
+  @UseGuards(RolesGuard)
+  @Roles(UserRoles.CLIENT)
   async approveWrittenAsset(@Param('publicId') publicId: string) {
     const writtenAssetId =
       await this.writtenAssetsService.resolvePublicId(publicId);
@@ -116,6 +126,8 @@ export class DeliverableSubmissionsController {
 
   @ApiReviseWrittenAsset()
   @Patch('written-assets/:publicId/revise')
+  @UseGuards(RolesGuard)
+  @Roles(UserRoles.CLIENT)
   async reviseWrittenAsset(
     @Param('publicId') publicId: string,
     @Body() dto: UpdateWrittenAssetCommentDTO,
@@ -140,6 +152,8 @@ export class DeliverableSubmissionsController {
 
   @ApiReviseMediaAsset()
   @Patch('media-assets/:publicId/revise')
+  @UseGuards(RolesGuard)
+  @Roles(UserRoles.CLIENT)
   async reviseMediaAsset(
     @Param('publicId') publicId: string,
     @Body() dto: UpdateMediaAssetCommentDTO,
@@ -164,6 +178,8 @@ export class DeliverableSubmissionsController {
 
   @ApiApproveMediaAsset()
   @Patch('media-assets/:publicId/approve')
+  @UseGuards(RolesGuard)
+  @Roles(UserRoles.CLIENT)
   async approveMediaAsset(@Param('publicId') publicId: string) {
     const mediaAssetId =
       await this.mediaAssetsService.resolvePublicId(publicId);

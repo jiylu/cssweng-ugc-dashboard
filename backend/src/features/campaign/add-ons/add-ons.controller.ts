@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { AddOnsService } from './add-ons.service';
 import { UpdateOptInDTO } from './dto/update-opt-in.dto';
 import {
@@ -9,6 +9,9 @@ import {
 import { CampaignsService } from '../campaigns/campaigns.service';
 import { plainToInstance } from 'class-transformer';
 import { AddOnsEntity } from './entities/add-ons.entity';
+import { RolesGuard } from 'src/shared/guards/roles.guard';
+import { UserRoles } from '@prisma/client';
+import { Roles } from 'src/shared/decorators/roles.decorator';
 
 @Controller('add-ons')
 export class AddOnsController {
@@ -19,6 +22,7 @@ export class AddOnsController {
 
   @ApiFindAddOnByPublicId()
   @Get(':publicId')
+  @UseGuards(RolesGuard)
   async findOne(@Param('publicId') publicId: string) {
     const addOnId = await this.addOnsService.resolvePublicId(publicId);
     const addOn = await this.addOnsService.findOneAddOnByUID(addOnId);
@@ -28,6 +32,7 @@ export class AddOnsController {
 
   @ApiFindAddOnsForCampaign()
   @Get('/campaign/:publicId')
+  @UseGuards(RolesGuard)
   async findMany(@Param('publicId') publicId: string) {
     const campaignId =
       await this.campaignsService.resolveCampaignPublicId(publicId);
@@ -38,6 +43,8 @@ export class AddOnsController {
 
   @ApiUpdateAddOnOptIn()
   @Post('opt-in/:publicId')
+  @UseGuards(RolesGuard)
+  @Roles(UserRoles.CLIENT)
   async optIn(
     @Param('publicId') publicId: string,
     @Body() dto: UpdateOptInDTO,

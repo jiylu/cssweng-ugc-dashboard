@@ -1,19 +1,10 @@
+import { API_BASE_URL } from '@/src/config/api';
 import { CalendarEvent, Campaign, Deliverable } from '../types/calendar.types';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
-
-// ─── Pure Mapper ───────────────────────────────────────────────────────────────
 
 /**
  * Converts a list of Campaign objects (each with nested deliverables) into a
- * flat CalendarEvent[] suitable for all calendar grid components.
- *
- * Produces two event types per campaign deliverable:
- *  • DELIVERABLE_DUE   — one event per deliverable on its due_date
- *  • DELIVERABLE_POST  — one event per deliverable on its post_date
- *
- * This function is pure (no side-effects / no network calls) so it can be
- * used by both the real API service and the mock hook.
+ * flat CalendarEvent[]. Used by the mock hook; this function is pure (no
+ * side-effects / no network calls).
  */
 export function mapCampaignsToEvents(campaigns: Campaign[]): CalendarEvent[] {
   const events: CalendarEvent[] = [];
@@ -57,41 +48,68 @@ export function mapCampaignsToEvents(campaigns: Campaign[]): CalendarEvent[] {
   return events;
 }
 
-// ─── Async API Fetcher ─────────────────────────────────────────────────────────
+interface ApiCalendarEntry {
+  campaignName: string;
+  deliverableName: string;
+  deliverableType: "COLLABORATION" | "UGC";
+  deliverableRequirements: string;
+  deliverablePublicId: string;
+  dueDate: string;
+  postDate: string;
+}
 
-/**
- * Fetches campaigns + deliverables from the backend API and maps them to
- * CalendarEvent[]. Requires an authenticated creatorId.
- */
 export async function getCalendarEvents(creatorId: string): Promise<CalendarEvent[]> {
-  const campaignsRes = await fetch(
-    `${API_URL}/campaigns?creatorId=${creatorId}`,
+  const res = await fetch(
+    `${API_BASE_URL}/deliverables/calendar/${creatorId}`,
     { credentials: 'include' }
   );
-  if (!campaignsRes.ok) {
-    throw new Error(`Failed to fetch campaigns: ${campaignsRes.status}`);
+  
+  if (!res.ok) {
+    throw new Error(`Failed to fetch calendar data: ${res.status}`);
   }
-  const campaigns: Campaign[] = await campaignsRes.json();
+  
+  const entries: ApiCalendarEntry[] = await res.json();
+  const events: CalendarEvent[] = [];
 
-  // Fetch deliverables for every campaign in parallel
-  const deliverableGroups = await Promise.all(
-    campaigns.map(async (c) => {
-      const res = await fetch(
-        `${API_URL}/deliverables/campaign/${c.public_id}`,
-        { credentials: 'include' }
-      );
-      if (!res.ok) {
-        throw new Error(`Failed to fetch deliverables for campaign ${c.public_id}: ${res.status}`);
-      }
-      return res.json() as Promise<Deliverable[]>;
-    })
-  );
+  for (const entry of entries) {
+    const label = `${entry.campaignName} - ${entry.deliverableName}`;
+    
+    // Construct a partial deliverable object for the details modal
+    const deliverable = {
+      public_id: entry.deliverablePublicId,
+      deliverable_content: entry.deliverableName,
+      deliverable_type: entry.deliverableType,
+      requirements: entry.deliverableRequirements,
+      due_date: entry.dueDate,
+      post_date: entry.postDate,
+    } as Deliverable;
 
-  // Attach deliverables to each campaign
-  const enriched: Campaign[] = campaigns.map((c, i) => ({
-    ...c,
-    deliverables: deliverableGroups[i] ?? [],
-  }));
+    if (entry.dueDate) {
+      events.push({
+        id: `due-${entry.deliverablePublicId}`,
+        title: label,
+        date: new Date(entry.dueDate),
+        type: 'DELIVERABLE_DUE',
+        status: 'ACTIVE', // The API only returns active campaigns
+        sourceId: entry.deliverablePublicId,
+        campaignName: entry.campaignName,
+        deliverable,
+      });
+    }
 
-  return mapCampaignsToEvents(enriched);
+    if (entry.postDate) {
+      events.push({
+        id: `post-${entry.deliverablePublicId}`,
+        title: label,
+        date: new Date(entry.postDate),
+        type: 'DELIVERABLE_POST',
+        status: 'ACTIVE', // The API only returns active campaigns
+        sourceId: entry.deliverablePublicId,
+        campaignName: entry.campaignName,
+        deliverable,
+      });
+    }
+  }
+
+  return events;
 }

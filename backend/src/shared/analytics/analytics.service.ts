@@ -21,13 +21,18 @@ export class AnalyticsService {
     const activeCampaigns = await this.getActiveCampaignsForUser(user.user_id);
     const pendingProposals =
       await this.generatePendingProposalsAnalytics(activeCampaigns);
+    const completedCampaigns =
+      await this.getCompletedCampaignsForUser(user.user_id);
+    const revenueGenerated = completedCampaigns.reduce(
+      (sum, campaign) => sum + campaign.paid_amount.toNumber(),
+      0,
+    );
 
-    // TODO: Update revenue_generated and monthly_generated in the future
     const analytics = {
       active_campaigns: activeCampaigns.length,
       pending_proposals: pendingProposals,
-      revenue_generated: 0,
-      monthly_completed: 0,
+      revenue_generated: revenueGenerated,
+      monthly_completed: completedCampaigns.length,
     };
 
     this.logger.log(`Analytics generated for ${userId}`);
@@ -47,6 +52,21 @@ export class AnalyticsService {
     });
 
     return activeCampaigns.map((c) => c.campaign_id);
+  }
+
+  private async getCompletedCampaignsForUser(userId: string) {
+    const completedCampaigns = await this.prisma.campaigns.findMany({
+      where: {
+        ugc_creator_id: userId,
+        campaign_status: CampaignStatus.COMPLETED,
+      },
+      select: {
+        campaign_id: true,
+        paid_amount: true,
+      },
+    });
+
+    return completedCampaigns;
   }
 
   private async generatePendingProposalsAnalytics(activeCampaigns: string[]) {

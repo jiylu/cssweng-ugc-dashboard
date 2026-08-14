@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { CampaignStatus } from '@prisma/client';
+import { CampaignStatus, Prisma } from '@prisma/client';
 import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { UserService } from 'src/features/user/users/users.service';
 import { ProposalsService } from 'src/features/campaign/proposals/proposals.service';
@@ -44,14 +44,21 @@ describe('AnalyticsService', () => {
   });
 
   describe('generateAnalyticsForUser', () => {
-    it('should return active campaign and pending proposal counts', async () => {
+    it('should return active, pending proposal, completed and revenue analytics', async () => {
       mockUserService.getActiveUserById.mockResolvedValue({
         user_id: 'user-1',
       });
-      mockPrisma.campaigns.findMany.mockResolvedValue([
-        { campaign_id: 'camp-1' },
-        { campaign_id: 'camp-2' },
-      ]);
+      mockPrisma.campaigns.findMany
+        .mockResolvedValueOnce([
+          { campaign_id: 'camp-1' },
+          { campaign_id: 'camp-2' },
+        ])
+        .mockResolvedValueOnce([
+          {
+            campaign_id: 'camp-3',
+            paid_amount: new Prisma.Decimal(500.5),
+          },
+        ]);
       mockProposalService.findProposalByCampaignId
         .mockResolvedValueOnce({ proposal_id: 'proposal-1' })
         .mockResolvedValueOnce({ proposal_id: 'proposal-2' });
@@ -61,17 +68,27 @@ describe('AnalyticsService', () => {
       expect(result).toEqual({
         active_campaigns: 2,
         pending_proposals: 2,
-        monthly_completed: 0,
-        revenue_generated: 0,
+        monthly_completed: 1,
+        revenue_generated: 500.5,
       });
       expect(mockUserService.getActiveUserById).toHaveBeenCalledWith('user-1');
-      expect(mockPrisma.campaigns.findMany).toHaveBeenCalledWith({
+      expect(mockPrisma.campaigns.findMany).toHaveBeenNthCalledWith(1, {
         where: {
           ugc_creator_id: 'user-1',
           campaign_status: CampaignStatus.ACTIVE,
         },
         select: {
           campaign_id: true,
+        },
+      });
+      expect(mockPrisma.campaigns.findMany).toHaveBeenNthCalledWith(2, {
+        where: {
+          ugc_creator_id: 'user-1',
+          campaign_status: CampaignStatus.COMPLETED,
+        },
+        select: {
+          campaign_id: true,
+          paid_amount: true,
         },
       });
       expect(
@@ -85,11 +102,34 @@ describe('AnalyticsService', () => {
       );
     });
 
-    it('should return zero counts when the user has no active campaigns', async () => {
+    it('should sum paid amounts across all completed campaigns', async () => {
       mockUserService.getActiveUserById.mockResolvedValue({
         user_id: 'user-1',
       });
-      mockPrisma.campaigns.findMany.mockResolvedValue([]);
+      mockPrisma.campaigns.findMany
+        .mockResolvedValueOnce([])
+        .mockResolvedValueOnce([
+          { campaign_id: 'camp-1', paid_amount: new Prisma.Decimal(1000) },
+          { campaign_id: 'camp-2', paid_amount: new Prisma.Decimal(250.75) },
+        ]);
+
+      const result = await service.generateAnalyticsForUser('user-1');
+
+      expect(result).toEqual({
+        active_campaigns: 0,
+        pending_proposals: 0,
+        monthly_completed: 2,
+        revenue_generated: 1250.75,
+      });
+    });
+
+    it('should return zero counts when the user has no campaigns', async () => {
+      mockUserService.getActiveUserById.mockResolvedValue({
+        user_id: 'user-1',
+      });
+      mockPrisma.campaigns.findMany
+        .mockResolvedValueOnce([])
+        .mockResolvedValueOnce([]);
 
       const result = await service.generateAnalyticsForUser('user-1');
 

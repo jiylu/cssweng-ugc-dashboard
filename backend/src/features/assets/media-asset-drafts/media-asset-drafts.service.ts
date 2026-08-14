@@ -12,9 +12,12 @@ export class MediaAssetDraftsService {
   ) {}
 
   async createDraft(mediaAssetPublicId: string, contentUrl: string) {
-    this.logger.debug(`Creating media asset draft for asset ${mediaAssetPublicId}`);
+    this.logger.debug(
+      `Creating media asset draft for asset ${mediaAssetPublicId}`,
+    );
 
-    const mediaAssetId = await this.mediaAssetsService.resolvePublicId(mediaAssetPublicId);
+    const mediaAssetId =
+      await this.mediaAssetsService.resolvePublicId(mediaAssetPublicId);
     const publicId = nanoid(10);
 
     const draft = await this.prisma.mediaAssetsDrafts.create({
@@ -44,13 +47,17 @@ export class MediaAssetDraftsService {
     });
 
     if (!draft) {
-      this.logger.warn(`Media asset draft with publicId ${publicId} not found.`);
+      this.logger.warn(
+        `Media asset draft with publicId ${publicId} not found.`,
+      );
       throw new NotFoundException({
         code: 'DRAFT_NOT_FOUND',
         message: 'Draft not found',
       });
     }
-    this.logger.log(`Public id ${publicId} resolved: ${draft.media_asset_draft_id}`);
+    this.logger.log(
+      `Public id ${publicId} resolved: ${draft.media_asset_draft_id}`,
+    );
     return draft.media_asset_draft_id;
   }
 
@@ -85,7 +92,9 @@ export class MediaAssetDraftsService {
       },
     });
 
-    this.logger.log(`Found ${drafts.length} drafts for media asset ${mediaAssetId}.`);
+    this.logger.log(
+      `Found ${drafts.length} drafts for media asset ${mediaAssetId}.`,
+    );
     return drafts;
   }
 

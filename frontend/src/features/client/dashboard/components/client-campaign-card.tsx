@@ -10,6 +10,8 @@ const statusStyles: Record<ClientCampaign["status"], string> = {
   ACTIVE: "border-[#7bb184] bg-[#eeeae2] text-[#44403b]",
   PENDING: "border-[#d8d4cb] bg-[#eeeae2] text-[#44403b]",
   "FOR REVISIONS": "border-[#6b1fa8] bg-[#f5effb] text-[#6b1fa8]",
+  REJECTED: "border-[#dc2626] bg-[#fee2e2] text-[#dc2626]",
+  CANCELLED: "border-[#78746e] bg-[#f5f5f5] text-[#78746e]",
 };
 
 interface ClientCampaignCardProps {
@@ -20,8 +22,11 @@ export default function ClientCampaignCard({
   campaign,
 }: ClientCampaignCardProps) {
   const router = useRouter();
+  const opensProposal = ["PENDING", "FOR REVISIONS", "REJECTED", "CANCELLED"].includes(
+    campaign.status,
+  );
   const actionLabel =
-    campaign.status === "PENDING" ? "View Proposal" : "Open Workspace";
+    opensProposal ? "View Proposal" : "Open Workspace";
 
   return (
     <article className="grid min-h-[106px] grid-cols-[300px_1px_1fr_1px_300px] items-center rounded border border-[#d8d4cb] bg-white px-8 py-4 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
@@ -62,15 +67,16 @@ export default function ClientCampaignCard({
           type="button"
           variant="outline"
           className="h-9 w-[148px] rounded-none border-[#6b1fa8] bg-white text-base font-normal text-[#44403b] hover:bg-[#f7f2fb]"
+          disabled={campaign.status === "REJECTED" || campaign.status === "CANCELLED"}
           onClick={() =>
             router.push(
-              campaign.status === "PENDING"
-                ? `/proposals/${campaign.id}`
+              opensProposal && campaign.proposalId
+                ? `/proposals/${campaign.proposalId}`
                 : `/client-workspace/${campaign.id}`,
             )
           }
         >
-          {actionLabel}
+          {campaign.status === "REJECTED" ? "Declined" : campaign.status === "CANCELLED" ? "Cancelled" : actionLabel}
         </Button>
       </div>
     </article>

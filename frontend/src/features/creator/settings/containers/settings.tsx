@@ -34,6 +34,17 @@ export interface ProfileSettings {
   location?: string;
 }
 
+function capitalizeMessage(message: string) {
+  return message.charAt(0).toUpperCase() + message.slice(1);
+}
+
+function normalizeName(value: string) {
+  return value
+    .replace(/[^\p{L}\p{M}'’\-\s]/gu, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 export function SettingsContainer() {
   const { user, loading } = useAuth();
   const router = useRouter();
@@ -43,6 +54,7 @@ export function SettingsContainer() {
   >("profile");
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [profileErrors, setProfileErrors] = useState<Partial<Record<keyof ProfileSettings, string>>>({});
 
   const [formData, setFormData] = useState<ProfileSettings>({
     profilePic: null,
@@ -78,21 +90,33 @@ export function SettingsContainer() {
   }, [user]);
 
   const saveProfile = useMutation({
-    mutationFn: () =>
+    mutationFn: (profile: ProfileSettings) =>
       updateCurrentUser({
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        middleName: formData.middleName ?? "",
-        displayName: formData.displayName,
-        primaryHandle: formData.primaryHandle,
-        bio: formData.bio,
-        email: formData.accountEmail,
-        phoneNumber: formData.phoneNumber ?? "",
-        timezone: formData.location ?? "Asia/Manila",
+        firstName: profile.firstName,
+        lastName: profile.lastName,
+        middleName: profile.middleName ?? "",
+        displayName: profile.displayName,
+        primaryHandle: profile.primaryHandle,
+        bio: profile.bio,
+        email: profile.accountEmail,
+        phoneNumber: profile.phoneNumber ?? "",
+        timezone: profile.location ?? "Asia/Manila",
       }),
     onSuccess: (updatedUser) => {
       queryClient.setQueryData(["auth-user"], updatedUser);
+      setProfileErrors({});
       setIsEditing(false);
+    },
+    onError: (error) => {
+      if (!(error instanceof Error)) return;
+
+      const message = capitalizeMessage(error.message);
+      if (/email/i.test(message)) {
+        setProfileErrors((previous) => ({
+          ...previous,
+          accountEmail: message,
+        }));
+      }
     },
   });
 
@@ -115,6 +139,39 @@ export function SettingsContainer() {
     value: ProfileSettings[K],
   ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+    setProfileErrors((prev) => ({ ...prev, [field]: undefined }));
+    if (saveProfile.isError) saveProfile.reset();
+  };
+
+  const validateProfile = (profile: ProfileSettings) => {
+    const errors: Partial<Record<keyof ProfileSettings, string>> = {};
+    if (!profile.displayName.trim()) errors.displayName = "Display name is required.";
+    if (profile.primaryHandle && !/^[a-zA-Z0-9._]{3,30}$/.test(profile.primaryHandle)) {
+      errors.primaryHandle = "Primary handle must be 3–30 letters, numbers, dots, or underscores.";
+    }
+    if (!profile.firstName) errors.firstName = "First name is required.";
+    if (!profile.lastName) errors.lastName = "Last name is required.";
+    if (!/^\S+@\S+\.\S+$/.test(profile.accountEmail)) {
+      errors.accountEmail = "Account email must be a valid email address.";
+    }
+    if (profile.phoneNumber && !/^\d{7,15}$/.test(profile.phoneNumber)) {
+      errors.phoneNumber = "Phone number must contain 7–15 digits.";
+    }
+    if (!profile.location) errors.location = "Location / timezone is required.";
+    setProfileErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleSaveProfile = () => {
+    const normalizedProfile = {
+      ...formData,
+      firstName: normalizeName(formData.firstName),
+      lastName: normalizeName(formData.lastName),
+      middleName: normalizeName(formData.middleName ?? ""),
+    };
+
+    setFormData(normalizedProfile);
+    if (validateProfile(normalizedProfile)) saveProfile.mutate(normalizedProfile);
   };
 
   const handleCancelEdit = () => {
@@ -134,6 +191,7 @@ export function SettingsContainer() {
       location: user.timezone,
     }));
     saveProfile.reset();
+    setProfileErrors({});
     setIsEditing(false);
   };
 
@@ -238,6 +296,7 @@ export function SettingsContainer() {
             <div className="flex flex-col gap-6">
               <PublicProfileSection
                 data={formData}
+                errors={profileErrors}
                 isEditing={isEditing}
                 onChange={handleFieldChange}
                 onRemovePicture={handleRemovePicture}
@@ -246,6 +305,7 @@ export function SettingsContainer() {
               />
               <PersonalInfoSection
                 data={formData}
+                errors={profileErrors}
                 isEditing={isEditing}
                 onChange={handleFieldChange}
               />
@@ -261,15 +321,16 @@ export function SettingsContainer() {
 
           {activeTab === "notifications" && (
             <div className="flex flex-col gap-6">
-              <NotificationsTab />
+              <NotificationsTab isClient={user.role === "CLIENT"} />
             </div>
           )}
 
           {activeTab === "profile" && (isEditing || saveProfile.isSuccess) && (
             <div className="mt-8 flex flex-col items-end gap-2">
-              {saveProfile.error instanceof Error && (
+              {saveProfile.error instanceof Error &&
+                !/email/i.test(saveProfile.error.message) && (
                 <p role="alert" className="text-sm text-red-600">
-                  {saveProfile.error.message}
+                  {capitalizeMessage(saveProfile.error.message)}
                 </p>
               )}
               {saveProfile.isSuccess && (
@@ -290,12 +351,8 @@ export function SettingsContainer() {
                   </Button>
                   <Button
                     type="button"
-                    onClick={() => saveProfile.mutate()}
-                    disabled={
-                      saveProfile.isPending ||
-                      !formData.firstName.trim() ||
-                      !formData.lastName.trim()
-                    }
+                    onClick={handleSaveProfile}
+                    disabled={saveProfile.isPending}
                     className="bg-[#6b1fa8] hover:bg-[#5a1a8f] text-white px-8 py-6 text-base"
                   >
                     {saveProfile.isPending ? "Saving..." : "Save Changes"}

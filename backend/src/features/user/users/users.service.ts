@@ -369,6 +369,11 @@ export class UserService {
   async updateOwnProfile(userId: string, dto: UpdateOwnProfileDTO) {
     const currentUser = await this.getActiveUserById(userId);
     const email = dto.email.trim().toLowerCase();
+    const normalizeName = (value: string) =>
+      value
+        .replace(/[^\p{L}\p{M}'’\-\s]/gu, '')
+        .replace(/\s+/g, ' ')
+        .trim();
 
     if (email !== currentUser.email) {
       const existingUser = await this.findActiveUserByEmail(email);
@@ -396,9 +401,9 @@ export class UserService {
       where: { user_id: userId },
       data: {
         email,
-        first_name: dto.firstName.trim(),
-        last_name: dto.lastName.trim(),
-        middle_name: dto.middleName.trim(),
+        first_name: normalizeName(dto.firstName),
+        last_name: normalizeName(dto.lastName),
+        middle_name: normalizeName(dto.middleName),
         display_name: dto.displayName.trim(),
         primary_handle: dto.primaryHandle.trim(),
         bio: dto.bio.trim(),

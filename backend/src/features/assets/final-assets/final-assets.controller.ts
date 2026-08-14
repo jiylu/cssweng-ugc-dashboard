@@ -1,9 +1,10 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Param, UseGuards } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import { FinalAssetsService } from './final-assets.service';
 import { CampaignsService } from 'src/features/campaign/campaigns/campaigns.service';
 import { FinalAssetsEntity } from './entities/final-assets.entity';
 import { ApiFindFinalAssetsForCampaign } from './docs/final-assets.controller.swagger';
+import { RolesGuard } from 'src/shared/guards/roles.guard';
 
 @Controller('final-assets')
 export class FinalAssetsController {
@@ -14,6 +15,7 @@ export class FinalAssetsController {
 
   @ApiFindFinalAssetsForCampaign()
   @Get('campaign/:campaignPublicId')
+  @UseGuards(RolesGuard)
   async findFinalAssetsForCampaign(
     @Param('campaignPublicId') campaignPublicId: string,
   ) {

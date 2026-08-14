@@ -23,7 +23,15 @@ const protectedRoutes: Array<{
   { path: "/dashboard", roles: ["CLIENT"] },
   { path: "/creator-dashboard", roles: ["CREATOR"] },
   { path: "/campaigns", roles: ["CREATOR"] },
-  { path: "/create-campaign", roles: ["CREATOR"] },
+  { path: "/workspace", roles: ["CREATOR"] },
+  { path: "/client-workspace", roles: ["CLIENT"] },
+  { path: "/proposals/create-campaign", roles: ["CREATOR"] },
+  { path: "/proposals/submitted", roles: ["CREATOR"] },
+  { path: "/proposals/drafts", roles: ["CREATOR"] },
+  { path: "/proposals", roles: ["CLIENT"] },
+  { path: "/contracts", roles: ["CLIENT"] },
+  { path: "/calendar", roles: ["CREATOR"] },
+  { path: "/settings", roles: ["CLIENT", "CREATOR"] },
 ];
 
 const guestOnlyRoutes = [

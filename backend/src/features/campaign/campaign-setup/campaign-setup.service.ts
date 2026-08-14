@@ -1,4 +1,9 @@
-import { Injectable, Logger } from '@nestjs/common';
+import {
+  ForbiddenException,
+  HttpStatus,
+  Injectable,
+  Logger,
+} from '@nestjs/common';
 import { CampaignsService } from '../campaigns/campaigns.service';
 import { DeliverablesService } from '../../deliverable/deliverables/deliverables.service';
 import { ProposalsService } from '../proposals/proposals.service';
@@ -11,7 +16,7 @@ import { GiftedProductsService } from '../gifted-products/gifted-products.servic
 import { UpdateCampaignSetupDto } from './dto/update-campaign-setup.dto';
 import { UserService } from '../../user/users/users.service';
 import { PAYMENT_SCHEDULE } from '../contracts/dto/payment-terms.dto';
-import { PaymentSchedule, ProposalStatus } from '@prisma/client';
+import { PaymentSchedule, ProposalStatus, UserRoles } from '@prisma/client';
 
 @Injectable()
 export class CampaignSetupService {
@@ -34,12 +39,25 @@ export class CampaignSetupService {
       `Creating create campaign transaction for campaign ${dto.campaign.projectName} for user ${dto.campaign.ugcId}`,
     );
 
-    let clientId: string | undefined = undefined;
-    const clientUser = await this.userService.findActiveUserByEmail(
+    const user = await this.userService.findActiveUserByEmail(
       dto.proposal.clientEmail,
     );
-    if (clientUser) {
-      clientId = clientUser.user_id;
+
+    if (user?.role === UserRoles.CREATOR) {
+      this.logger.warn(
+        `Cannot use creator user ${user.user_id} as campaign client.`,
+      );
+
+      throw new ForbiddenException({
+        status: HttpStatus.FORBIDDEN,
+        code: 'USER_IS_NOT_CLIENT',
+        message: 'User is not a client',
+      });
+    }
+
+    let clientId: string | undefined = undefined;
+    if (user) {
+      clientId = user.user_id;
     }
 
     const result = await this.prisma.$transaction(async (tx) => {

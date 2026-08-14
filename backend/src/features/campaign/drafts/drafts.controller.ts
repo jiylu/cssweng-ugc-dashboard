@@ -7,6 +7,7 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { DraftsService } from './drafts.service';
 import { CreateDraftDto } from './dto/create-draft.dto';
@@ -20,6 +21,9 @@ import {
   ApiFindDraftsForUser,
   ApiUpdateDraft,
 } from './docs/drafts.controller.swagger';
+import { RolesGuard } from 'src/shared/guards/roles.guard';
+import { Roles } from 'src/shared/decorators/roles.decorator';
+import { UserRoles } from '@prisma/client';
 
 @Controller('drafts')
 export class DraftsController {
@@ -27,6 +31,8 @@ export class DraftsController {
 
   @ApiCreateDraft()
   @Post()
+  @UseGuards(RolesGuard)
+  @Roles(UserRoles.CREATOR)
   async create(@Body() dto: CreateDraftDto) {
     const draft = await this.draftsService.createDraft(dto);
 
@@ -35,6 +41,8 @@ export class DraftsController {
 
   @ApiFindDraft()
   @Get(':publicId')
+  @UseGuards(RolesGuard)
+  @Roles(UserRoles.CREATOR)
   async findOne(@Param('publicId') publicId: string) {
     const draftId = await this.draftsService.resolvePublicId(publicId);
     const draft = await this.draftsService.findOneDraft(draftId);
@@ -44,6 +52,8 @@ export class DraftsController {
 
   @ApiFindDraftsForUser()
   @Get()
+  @UseGuards(RolesGuard)
+  @Roles(UserRoles.CREATOR)
   async findMany(@Query('userId') userId: string) {
     const drafts = await this.draftsService.findDraftsForUser(userId);
 
@@ -52,6 +62,8 @@ export class DraftsController {
 
   @ApiUpdateDraft()
   @Patch(':publicId')
+  @UseGuards(RolesGuard)
+  @Roles(UserRoles.CREATOR)
   async update(
     @Param('publicId') publicId: string,
     @Body() dto: UpdateDraftDto,
@@ -64,6 +76,8 @@ export class DraftsController {
 
   @ApiDeleteDraft()
   @Delete(':publicId')
+  @UseGuards(RolesGuard)
+  @Roles(UserRoles.CREATOR)
   async remove(@Param('publicId') publicId: string) {
     const draftId = await this.draftsService.resolvePublicId(publicId);
     const deletedDraft = await this.draftsService.deleteDraft(draftId);
