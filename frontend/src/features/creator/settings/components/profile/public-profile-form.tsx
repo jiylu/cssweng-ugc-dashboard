@@ -159,6 +159,10 @@ export function PublicProfileSection({
           </div>
         </div>
       </div>
+<<<<<<< HEAD
+=======
+
+>>>>>>> 2b565430f44eaf0a1cf4115cbf4039d800b2341f
     </div>
   );
 }
