@@ -24,9 +24,13 @@ export default function LoginCard({ loginForm }: LoginCardProps) {
     <div className="w-full flex flex-col justify-center items-center box-border">
       <Card className="w-full">
         <CardHeader>
-          <CardTitle>Login to your account</CardTitle>
+          <CardTitle>
+            {loginForm.requiresTwoFactor ? "Verify it’s you" : "Login to your account"}
+          </CardTitle>
           <CardDescription>
-            Enter your email below to login to your account
+            {loginForm.requiresTwoFactor
+              ? `Enter the 8-digit code sent to ${loginForm.form.email}`
+              : "Enter your email below to login to your account"}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -35,6 +39,38 @@ export default function LoginCard({ loginForm }: LoginCardProps) {
             aria-busy={loginForm.isSubmitting}
           >
             <div className="flex flex-col gap-6">
+              {loginForm.requiresTwoFactor ? (
+                <div className="grid gap-2">
+                  <Label htmlFor="login-otp">Verification code</Label>
+                  <Input
+                    id="login-otp"
+                    type="text"
+                    inputMode="numeric"
+                    autoComplete="one-time-code"
+                    maxLength={8}
+                    placeholder="00000000"
+                    value={loginForm.otp}
+                    onChange={(event) =>
+                      loginForm.setOtp(event.target.value.replace(/\D/g, "").slice(0, 8))
+                    }
+                    disabled={loginForm.isSubmitting}
+                    className="text-center text-xl tracking-[0.45em]"
+                    autoFocus
+                  />
+                  <button
+                    type="button"
+                    className="justify-self-start text-sm text-[#6b1fa8] hover:underline"
+                    onClick={() => {
+                      loginForm.setOtp("");
+                      loginForm.setRequiresTwoFactor(false);
+                    }}
+                    disabled={loginForm.isSubmitting}
+                  >
+                    Use a different account
+                  </button>
+                </div>
+              ) : (
+                <>
               {/* email input */}
               <div className="grid gap-2">
                 <Label htmlFor="email">Email</Label>
@@ -118,6 +154,8 @@ export default function LoginCard({ loginForm }: LoginCardProps) {
                   Forgot password?
                 </button>
               </div>
+                </>
+              )}
 
               <div aria-live="polite" className="min-h-6">
                 {loginForm.submitError && (
@@ -138,14 +176,23 @@ export default function LoginCard({ loginForm }: LoginCardProps) {
               <Button
                 type="submit"
                 className="cursor-pointer w-full mt-3"
-                disabled={loginForm.isSubmitting}
+                disabled={
+                  loginForm.isSubmitting ||
+                  (loginForm.requiresTwoFactor && loginForm.otp.length !== 8)
+                }
               >
                 {loginForm.isSubmitting && (
                   <Loader2 className="size-4 animate-spin" />
                 )}
-                {loginForm.isSubmitting ? "Logging in..." : "Login"}
+                {loginForm.isSubmitting
+                  ? loginForm.requiresTwoFactor
+                    ? "Verifying..."
+                    : "Logging in..."
+                  : loginForm.requiresTwoFactor
+                    ? "Verify and login"
+                    : "Login"}
               </Button>
-              <Button
+              {!loginForm.requiresTwoFactor && <Button
                 type="button"
                 variant="outline"
                 className="cursor-pointer w-full"
@@ -153,7 +200,7 @@ export default function LoginCard({ loginForm }: LoginCardProps) {
                 disabled={loginForm.isSubmitting}
               >
                 Register
-              </Button>
+              </Button>}
             </CardFooter>
           </form>
         </CardContent>

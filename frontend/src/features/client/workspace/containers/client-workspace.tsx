@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
+  ArrowLeft,
+  ArrowRight,
   Check,
   Download,
   FileText,
@@ -509,7 +511,7 @@ function InvoicePanel({ campaignId, onPrevious, onNext }: { campaignId: string; 
     useQuery({
       queryKey: ["payment", campaignId],
       queryFn: () => getPaymentForCampaign(campaignId),
-      enabled: false,
+      enabled: true,
     });
 
   const handleViewInvoice = async () => {
@@ -521,7 +523,7 @@ function InvoicePanel({ campaignId, onPrevious, onNext }: { campaignId: string; 
       return;
     }
     if (!result.data) {
-      toast.info("No payment proof has been uploaded yet.");
+      toast.info("The creator has not sent an invoice yet.");
       return;
     }
     setInvoiceOpen(true);
@@ -542,6 +544,7 @@ function InvoicePanel({ campaignId, onPrevious, onNext }: { campaignId: string; 
     setIsUploading(true);
     try {
       await uploadPaymentProof(campaignId, file);
+      await loadInvoice();
       toast.success("Proof of payment uploaded successfully.");
     } catch (error) {
       toast.error(
@@ -560,15 +563,15 @@ function InvoicePanel({ campaignId, onPrevious, onNext }: { campaignId: string; 
       <div className="flex flex-1 flex-col items-center justify-center text-center">
         <ReceiptText className="size-12 text-[#6b1fa8]" strokeWidth={1.6} />
         <p className="mt-4 max-w-lg text-sm leading-5 text-[#44403b]">
-          The final itemized breakdown of services, fees, and pay-outs is
-          available for review. Once payment is confirmed, upload the proof of
-          payment here.
+          {payment
+            ? "The creator has sent the invoice. Once payment is made, upload the proof of payment here."
+            : "Waiting for the creator to send the invoice."}
         </p>
         <Button
           type="button"
           className="mt-5 rounded bg-[#6b1fa8] font-normal hover:bg-[#551783]"
           onClick={handleViewInvoice}
-          disabled={isLoadingInvoice}
+          disabled={isLoadingInvoice || !payment}
         >
           {isLoadingInvoice ? "Loading..." : "View Invoice"}
           <FileText className="ml-2 size-4" />
@@ -584,7 +587,7 @@ function InvoicePanel({ campaignId, onPrevious, onNext }: { campaignId: string; 
           type="button"
           className="mt-3 rounded bg-[#6b1fa8] font-normal hover:bg-[#551783]"
           onClick={() => fileInputRef.current?.click()}
-          disabled={isUploading}
+          disabled={isUploading || isLoadingInvoice || !payment}
         >
           {isUploading ? "Uploading..." : "Upload Proof of Payment"}
           <UploadCloud className="ml-2 size-4" />
@@ -594,14 +597,12 @@ function InvoicePanel({ campaignId, onPrevious, onNext }: { campaignId: string; 
       <Dialog open={invoiceOpen} onOpenChange={setInvoiceOpen}>
         <DialogContent className="max-h-[95vh] !max-w-5xl overflow-y-auto border-[#d8d4cb] bg-[#f2f0ea] p-8">
           <DialogTitle className="text-3xl font-normal">Invoice</DialogTitle>
-          {payment?.proof_payment_url ? (
+          {payment ? (
             <div className="mt-5 rounded border border-[#d8d4cb] bg-white p-5">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={payment.proof_payment_url}
-                alt="Uploaded proof of payment"
-                className="max-h-[78vh] w-full object-contain"
-              />
+              <p>Invoice ID: {payment.public_id}</p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Sent {payment.invoice_sent_at ? new Date(payment.invoice_sent_at).toLocaleDateString() : "by the creator"}
+              </p>
             </div>
           ) : null}
         </DialogContent>
@@ -759,6 +760,8 @@ export default function ClientWorkspace({
           }
         }
       }
+      // Initialize navigation once from the persisted campaign state.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setActiveStep(initialStep);
       setMaxAllowedStep(initialStep);
       hasInitializedRef.current = true;
@@ -803,7 +806,8 @@ export default function ClientWorkspace({
             progress={<Progress activeStep={activeStep} maxAllowedStep={maxAllowedStep} onChange={(step) => step <= maxAllowedStep && setActiveStep(step)} />}
           />
 
-          <div className="mt-14 flex items-start justify-center gap-6">
+          <div className="mt-14 flex min-h-[480px] flex-col gap-4">
+            <div className="flex flex-1 items-start justify-center gap-6">
             {activeStep === 1 && (deliverables.length === 0 ? (
               <aside className="w-64 shrink-0">
                 <p className="text-2xl text-foreground">Deliverables</p>
@@ -842,19 +846,19 @@ export default function ClientWorkspace({
             ))}
 
           {/* Main Content Area */}
-          {activeStep === 0 ? (
-            <ContractSigningPlaceholder onNext={() => setActiveStep(1)} />
-          ) : activeStep === 2 ? (
-            <InvoicePanel campaignId={campaignId} onPrevious={() => setActiveStep(1)} onNext={() => setActiveStep(3)} />
-          ) : activeStep === 1 ? (
-            <div className="flex min-w-0 flex-1 gap-6">
+          <div className="flex min-w-0 flex-1 flex-col">
+            {activeStep === 0 ? (
+              <ContractSigningPlaceholder onNext={() => setActiveStep(1)} />
+            ) : activeStep === 2 ? (
+              <InvoicePanel campaignId={campaignId} onPrevious={() => setActiveStep(1)} onNext={() => setActiveStep(3)} />
+            ) : activeStep === 1 ? (
+              <div className="flex min-w-0 flex-1 gap-6">
               {activeSubmissionStep === 0 ? (
                 <WrittenAssetPanel
                   asset={latestWrittenAsset}
                   isLoading={writtenLoading}
                   onHistory={() => setHistoryOpen(true)}
                 />
-              ) : activeSubmissionStep === 1 ? (
               ) : activeSubmissionStep === 1 ? (
                 <MediaAssetPanel
                   asset={latestMediaAsset}
@@ -863,8 +867,7 @@ export default function ClientWorkspace({
                   onPreview={() => setPreviewOpen(true)}
                 />
               ) : (
-                <ClientDeliverableApprovedCard
-                  deliverableName={activeDeliverableName}
+                <DeliverableCompletedPanel
                   onNext={() => setActiveStep(2)}
                 />
               )}
@@ -876,15 +879,44 @@ export default function ClientWorkspace({
                 mediaAssetAction={latestMediaAsset?.media_asset_action}
                 onMutationSuccess={handleMutationSuccess}
               />
+              </div>
+            ) : (
+              <CompletionPanel
+                campaignId={campaignId}
+                 campaignName={data?.campaign?.project_name ?? "campaign"}
+                 isPaidFull={Boolean(data?.campaign?.paid_full)}
+                 onPrevious={() => setActiveStep(2)}
+               />
+            )}
+
+          </div>
             </div>
-          ) : (
-            <CompletionPanel
-              campaignId={campaignId}
-              campaignName={data?.campaign?.project_name ?? "campaign"}
-              isPaidFull={Boolean(data?.campaign?.paid_full)}
-              onPrevious={() => setActiveStep(2)}
-            />
-          )}
+
+            <div className="mt-auto flex min-h-10 items-center justify-between">
+              {activeStep > 0 ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="rounded border-[#6b1fa8] px-6 font-normal text-[#6b1fa8]"
+                  onClick={() => setActiveStep((step) => Math.max(0, step - 1))}
+                >
+                  <ArrowLeft className="mr-2 size-4" />
+                  Previous
+                </Button>
+              ) : (
+                <span />
+              )}
+              {activeStep < maxAllowedStep && (
+                <Button
+                  type="button"
+                  className="rounded bg-[#6b1fa8] px-6 font-normal hover:bg-[#551783]"
+                  onClick={() => setActiveStep((step) => step + 1)}
+                >
+                  Next
+                  <ArrowRight className="ml-2 size-4" />
+                </Button>
+              )}
+            </div>
           </div>
         </div>
       </section>

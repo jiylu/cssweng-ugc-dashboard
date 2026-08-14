@@ -59,8 +59,9 @@ export class DeliverableSubmissionsController {
 
     if (serviceResponse.client_id) {
       await this.notificationsService.createNotification({
+        category: 'DELIVERABLE',
         userId: serviceResponse.client_id,
-        title: 'Creator has Submitted a Written Asset',
+        title: 'Creator has submitted a written asset',
         message: `A written asset (v${serviceResponse.submittedWrittenAsset.version_number}) for deliverable item #${serviceResponse.deliverable_index} of "${serviceResponse.deliverable_content}" has been submitted. Please review the asset.`,
       });
     }
@@ -93,8 +94,9 @@ export class DeliverableSubmissionsController {
 
     if (serviceResponse.client_id) {
       await this.notificationsService.createNotification({
+        category: 'DELIVERABLE',
         userId: serviceResponse.client_id,
-        title: 'Creator has Submitted a Media Asset',
+        title: 'Creator has submitted a media asset',
         message: `A media asset (v${serviceResponse.submittedMediaAsset.version_number}) for deliverable item #${serviceResponse.deliverable_index} of "${serviceResponse.deliverable_content}" has been submitted. Please review the asset.`,
       });
     }
@@ -116,8 +118,9 @@ export class DeliverableSubmissionsController {
       );
 
     await this.notificationsService.createNotification({
+      category: 'DELIVERABLE',
       userId: serviceResponse.ugc_id,
-      title: 'Client has Approved a Written Asset',
+      title: 'Client has approved a written asset',
       message: `Your written asset (v${serviceResponse.updatedWrittenAsset.version_number}) for deliverable item #${serviceResponse.deliverable_index} of "${serviceResponse.deliverable_content}" has been approved. You can now submit the media asset.`,
     });
 
@@ -142,8 +145,9 @@ export class DeliverableSubmissionsController {
       );
 
     await this.notificationsService.createNotification({
+      category: 'DELIVERABLE',
       userId: serviceResponse.ugc_id,
-      title: 'Client has Requested a Revision for a Written Asset',
+      title: 'Client has requested a revision for a written asset',
       message: `Your written asset (v${serviceResponse.revisedWrittenAsset.version_number}) for deliverable item #${serviceResponse.deliverable_index} of "${serviceResponse.deliverable_content}" needs revision. Please review the client's feedback and resubmit.`,
     });
 
@@ -168,8 +172,9 @@ export class DeliverableSubmissionsController {
       );
 
     await this.notificationsService.createNotification({
+      category: 'DELIVERABLE',
       userId: serviceResponse.ugc_id,
-      title: 'Client has Requested a Revision for a Media Asset',
+      title: 'Client has requested a revision for a media asset',
       message: `Your media asset (v${serviceResponse.revisedMediaAsset.version_number}) for deliverable item #${serviceResponse.deliverable_index} of "${serviceResponse.deliverable_content}" needs revision. Please review the client's feedback and resubmit.`,
     });
 
@@ -188,8 +193,9 @@ export class DeliverableSubmissionsController {
       await this.deliverableSubmissionsService.approveMediaAsset(mediaAssetId);
 
     await this.notificationsService.createNotification({
+      category: 'DELIVERABLE',
       userId: serviceResponse.ugc_id,
-      title: 'Client has Approved a Media Asset',
+      title: 'Client has approved a media asset',
       message: `Your media asset (v${serviceResponse.updatedMediaAsset.version_number}) for deliverable item #${serviceResponse.deliverable_index} of "${serviceResponse.deliverable_content}" has been approved.`,
     });
 

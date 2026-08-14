@@ -2,7 +2,6 @@ import { useRef, useState } from "react";
 import Image from "next/image";
 import { User, Upload, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
   DropdownMenu,
   DropdownMenuContent,

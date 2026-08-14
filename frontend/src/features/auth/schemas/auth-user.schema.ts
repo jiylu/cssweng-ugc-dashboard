@@ -13,7 +13,6 @@ export const authUserSchema = z.object({
   middle_name: optionalProfileText,
   display_name: optionalProfileText,
   primary_handle: optionalProfileText,
-  bio: optionalProfileText,
   phone_number: optionalProfileText,
   profile_picture_url: z
     .string()

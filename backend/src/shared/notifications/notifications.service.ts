@@ -10,6 +10,7 @@ import { UserService } from '../../features/user/users/users.service';
 import { CreateNotificationDTO } from './dto/create-notification.dto';
 import { FindNotificationsQueryDTO } from './dto/find-notifications-query.dto';
 import { nanoid } from 'nanoid';
+import { EmailService } from '../email/email.service';
 
 @Injectable()
 export class NotificationsService {
@@ -17,12 +18,13 @@ export class NotificationsService {
   constructor(
     private prisma: PrismaService,
     private userService: UserService,
+    private emailService: EmailService,
   ) {}
 
   async createNotification(dto: CreateNotificationDTO) {
     this.logger.debug(`Creating notification for ${dto.userId}`);
 
-    await this.userService.getActiveUserById(dto.userId);
+    const user = await this.userService.getActiveUserById(dto.userId);
 
     const publicId = nanoid(10);
 
@@ -38,6 +40,28 @@ export class NotificationsService {
     this.logger.log(
       `Created notification with title ${notification.title} for ${notification.user_id}`,
     );
+
+    const emailEnabled = {
+      PROPOSAL: user.email_proposal_updates,
+      CONTRACT: user.email_contract_updates,
+      DELIVERABLE: user.email_deliverable_updates,
+      PAYMENT: user.email_payment_updates,
+    }[dto.category ?? 'PROPOSAL'];
+
+    if (emailEnabled) {
+      try {
+        await this.emailService.sendNotificationEmail(
+          user.email,
+          dto.title,
+          dto.message,
+        );
+      } catch (error) {
+        this.logger.warn(
+          `Failed to send notification email to ${user.email}`,
+          error,
+        );
+      }
+    }
 
     return notification;
   }
