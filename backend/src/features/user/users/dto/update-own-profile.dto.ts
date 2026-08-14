@@ -47,7 +47,8 @@ export class UpdateOwnProfileDTO {
   })
   phoneNumber?: string;
 
-  @IsOptional()
+  @IsString({ message: 'Timezone must be a string.' })
+  @IsNotEmpty({ message: 'Timezone is required.' })
   @IsIn(['Asia/Manila', 'Asia/Tokyo'])
-  timezone?: string;
+  timezone!: string;
 }

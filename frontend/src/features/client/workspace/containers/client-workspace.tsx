@@ -47,6 +47,7 @@ import {
   getPaymentForCampaign,
   uploadPaymentProof,
 } from "@/src/features/client/workspace/services/payments-api";
+import { getInvoiceForCampaign } from "@/src/features/creator/workspace/services/invoices-api";
 import {
   downloadFinalAssetsAsZip,
   getFinalAssetsForCampaign,
@@ -507,12 +508,17 @@ function InvoicePanel({ campaignId, onPrevious, onNext }: { campaignId: string; 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [invoiceOpen, setInvoiceOpen] = useState(false);
-  const { data: payment, isFetching: isLoadingInvoice, refetch: loadInvoice } =
+  const { data: invoice, isFetching: isLoadingInvoice, refetch: loadInvoice } =
     useQuery({
-      queryKey: ["payment", campaignId],
-      queryFn: () => getPaymentForCampaign(campaignId),
+      queryKey: ["invoice", campaignId],
+      queryFn: () => getInvoiceForCampaign(campaignId),
       enabled: true,
     });
+  const { data: payment, refetch: loadPayment } = useQuery({
+    queryKey: ["payment", campaignId],
+    queryFn: () => getPaymentForCampaign(campaignId),
+    enabled: true,
+  });
 
   const handleViewInvoice = async () => {
     const result = await loadInvoice();
@@ -544,7 +550,7 @@ function InvoicePanel({ campaignId, onPrevious, onNext }: { campaignId: string; 
     setIsUploading(true);
     try {
       await uploadPaymentProof(campaignId, file);
-      await loadInvoice();
+      await loadPayment();
       toast.success("Proof of payment uploaded successfully.");
     } catch (error) {
       toast.error(
@@ -563,7 +569,7 @@ function InvoicePanel({ campaignId, onPrevious, onNext }: { campaignId: string; 
       <div className="flex flex-1 flex-col items-center justify-center text-center">
         <ReceiptText className="size-12 text-[#6b1fa8]" strokeWidth={1.6} />
         <p className="mt-4 max-w-lg text-sm leading-5 text-[#44403b]">
-          {payment
+          {invoice
             ? "The creator has sent the invoice. Once payment is made, upload the proof of payment here."
             : "Waiting for the creator to send the invoice."}
         </p>
@@ -571,38 +577,57 @@ function InvoicePanel({ campaignId, onPrevious, onNext }: { campaignId: string; 
           type="button"
           className="mt-5 rounded bg-[#6b1fa8] font-normal hover:bg-[#551783]"
           onClick={handleViewInvoice}
-          disabled={isLoadingInvoice || !payment}
+          disabled={isLoadingInvoice || !invoice}
         >
           {isLoadingInvoice ? "Loading..." : "View Invoice"}
           <FileText className="ml-2 size-4" />
         </Button>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={handleProofSelection}
-        />
-        <Button
-          type="button"
-          className="mt-3 rounded bg-[#6b1fa8] font-normal hover:bg-[#551783]"
-          onClick={() => fileInputRef.current?.click()}
-          disabled={isUploading || isLoadingInvoice || !payment}
-        >
-          {isUploading ? "Uploading..." : "Upload Proof of Payment"}
-          <UploadCloud className="ml-2 size-4" />
-        </Button>
+        {!payment?.is_payment_verified && (
+          <>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleProofSelection}
+            />
+            <Button
+              type="button"
+              className="mt-3 rounded bg-[#6b1fa8] font-normal hover:bg-[#551783]"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isUploading || isLoadingInvoice || !invoice}
+            >
+              {isUploading
+                ? "Uploading..."
+                : payment
+                  ? "Upload New Proof of Payment"
+                  : "Upload Proof of Payment"}
+              <UploadCloud className="ml-2 size-4" />
+            </Button>
+          </>
+        )}
+        {payment && !payment.is_payment_verified && (
+          <p className="mt-3 text-sm text-muted-foreground">
+            The latest payment proof is waiting for creator verification. You may
+            upload a newer proof if needed.
+          </p>
+        )}
       </div>
 
       <Dialog open={invoiceOpen} onOpenChange={setInvoiceOpen}>
         <DialogContent className="max-h-[95vh] !max-w-5xl overflow-y-auto border-[#d8d4cb] bg-[#f2f0ea] p-8">
           <DialogTitle className="text-3xl font-normal">Invoice</DialogTitle>
-          {payment ? (
+          {invoice ? (
             <div className="mt-5 rounded border border-[#d8d4cb] bg-white p-5">
-              <p>Invoice ID: {payment.public_id}</p>
+              <p>Invoice ID: {invoice.public_id}</p>
               <p className="mt-2 text-sm text-muted-foreground">
-                Sent {payment.invoice_sent_at ? new Date(payment.invoice_sent_at).toLocaleDateString() : "by the creator"}
+                Sent {new Date(invoice.created_at).toLocaleDateString()}
               </p>
+              <Button asChild type="button" className="mt-4">
+                <a href={invoice.invoice_url} target="_blank" rel="noreferrer">
+                  Open invoice file
+                </a>
+              </Button>
             </div>
           ) : null}
         </DialogContent>

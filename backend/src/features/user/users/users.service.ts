@@ -454,10 +454,21 @@ export class UserService {
         first_name: normalizeName(dto.firstName),
         last_name: normalizeName(dto.lastName),
         middle_name:
-          dto.middleName === undefined ? undefined : normalizeName(dto.middleName),
-        display_name: dto.displayName?.trim(),
-        primary_handle: dto.primaryHandle?.trim(),
-        phone_number: dto.phoneNumber,
+          dto.middleName === undefined
+            ? undefined
+            : dto.middleName.trim()
+              ? normalizeName(dto.middleName)
+              : null,
+        display_name:
+          dto.displayName === undefined
+            ? undefined
+            : dto.displayName.trim() || null,
+        primary_handle:
+          dto.primaryHandle === undefined
+            ? undefined
+            : dto.primaryHandle.trim() || null,
+        phone_number:
+          dto.phoneNumber === undefined ? undefined : dto.phoneNumber || null,
         timezone: dto.timezone,
       },
     });
