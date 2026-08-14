@@ -32,7 +32,6 @@ const nextMonthStart = startOfMonth(addMonths(now, 1));
 export const MOCK_CAMPAIGNS: Campaign[] = [
   // ── Campaign 1: Active — straddles last month → current month ────────────────
   {
-    campaign_id: 'mock-camp-001',
     public_id: 'UGC-001',
     ugc_creator_id: 'mock-user-001',
     client_id: 'mock-client-001',
@@ -48,7 +47,6 @@ export const MOCK_CAMPAIGNS: Campaign[] = [
     campaign_status: 'ACTIVE',
     deliverables: [
       {
-        deliverable_id: 'mock-del-001a',
         public_id: 'DEL-001A',
         campaign_id: 'mock-camp-001',
         quantity: 1,
@@ -61,7 +59,6 @@ export const MOCK_CAMPAIGNS: Campaign[] = [
         is_deleted: false,
       },
       {
-        deliverable_id: 'mock-del-001b',
         public_id: 'DEL-001B',
         campaign_id: 'mock-camp-001',
         quantity: 1,
@@ -74,7 +71,6 @@ export const MOCK_CAMPAIGNS: Campaign[] = [
         is_deleted: false,
       },
       {
-        deliverable_id: 'mock-del-001c',
         public_id: 'DEL-001C',
         campaign_id: 'mock-camp-001',
         quantity: 1,
@@ -91,7 +87,6 @@ export const MOCK_CAMPAIGNS: Campaign[] = [
 
   // ── Campaign 2: Active — current month only ───────────────────────────────────
   {
-    campaign_id: 'mock-camp-002',
     public_id: 'UGC-002',
     ugc_creator_id: 'mock-user-001',
     client_id: 'mock-client-002',
@@ -107,7 +102,6 @@ export const MOCK_CAMPAIGNS: Campaign[] = [
     campaign_status: 'ACTIVE',
     deliverables: [
       {
-        deliverable_id: 'mock-del-002a',
         public_id: 'DEL-002A',
         campaign_id: 'mock-camp-002',
         quantity: 1,
@@ -120,7 +114,6 @@ export const MOCK_CAMPAIGNS: Campaign[] = [
         is_deleted: false,
       },
       {
-        deliverable_id: 'mock-del-002b',
         public_id: 'DEL-002B',
         campaign_id: 'mock-camp-002',
         quantity: 2,
@@ -133,7 +126,6 @@ export const MOCK_CAMPAIGNS: Campaign[] = [
         is_deleted: false,
       },
       {
-        deliverable_id: 'mock-del-002c',
         public_id: 'DEL-002C',
         campaign_id: 'mock-camp-002',
         quantity: 1,
@@ -150,7 +142,6 @@ export const MOCK_CAMPAIGNS: Campaign[] = [
 
   // ── Campaign 3: Completed — last month ───────────────────────────────────────
   {
-    campaign_id: 'mock-camp-003',
     public_id: 'UGC-003',
     ugc_creator_id: 'mock-user-001',
     client_id: 'mock-client-003',
@@ -166,7 +157,6 @@ export const MOCK_CAMPAIGNS: Campaign[] = [
     campaign_status: 'COMPLETED',
     deliverables: [
       {
-        deliverable_id: 'mock-del-003a',
         public_id: 'DEL-003A',
         campaign_id: 'mock-camp-003',
         quantity: 1,
@@ -179,7 +169,6 @@ export const MOCK_CAMPAIGNS: Campaign[] = [
         is_deleted: false,
       },
       {
-        deliverable_id: 'mock-del-003b',
         public_id: 'DEL-003B',
         campaign_id: 'mock-camp-003',
         quantity: 1,
@@ -196,7 +185,6 @@ export const MOCK_CAMPAIGNS: Campaign[] = [
 
   // ── Campaign 4: Active — spans current month → next month ────────────────────
   {
-    campaign_id: 'mock-camp-004',
     public_id: 'UGC-004',
     ugc_creator_id: 'mock-user-001',
     client_id: 'mock-client-004',
@@ -212,7 +200,6 @@ export const MOCK_CAMPAIGNS: Campaign[] = [
     campaign_status: 'ACTIVE',
     deliverables: [
       {
-        deliverable_id: 'mock-del-004a',
         public_id: 'DEL-004A',
         campaign_id: 'mock-camp-004',
         quantity: 1,
@@ -225,7 +212,6 @@ export const MOCK_CAMPAIGNS: Campaign[] = [
         is_deleted: false,
       },
       {
-        deliverable_id: 'mock-del-004b',
         public_id: 'DEL-004B',
         campaign_id: 'mock-camp-004',
         quantity: 1,
@@ -238,7 +224,6 @@ export const MOCK_CAMPAIGNS: Campaign[] = [
         is_deleted: false,
       },
       {
-        deliverable_id: 'mock-del-004c',
         public_id: 'DEL-004C',
         campaign_id: 'mock-camp-004',
         quantity: 1,

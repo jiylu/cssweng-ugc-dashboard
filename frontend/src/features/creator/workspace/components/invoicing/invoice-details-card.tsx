@@ -1,5 +1,5 @@
 "use client"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 import { Receipt, ArrowRight, CircleCheck, ExternalLink, Send, FileText } from "lucide-react"
 import { Card } from "@/src/components/atoms/card"
@@ -17,6 +17,11 @@ import {
   type Payment,
   type Invoice,
 } from "@/src/features/creator/workspace/services/payments-api"
+import {
+  getInvoiceForCampaign,
+  uploadInvoice,
+  type Invoice,
+} from "@/src/features/creator/workspace/services/invoices-api"
 
 interface InvoiceDetailsCardProps {
   campaignId: string
@@ -106,7 +111,11 @@ export function InvoiceDetailsCard({ campaignId, onPrevious, onNext }: InvoiceDe
     }
   }
 
-  const handleSendInvoice = async () => {
+  const handleSendInvoice = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    event.target.value = ""
+    if (!file) return
+
     setIsSending(true)
     try {
       const result = await sendInvoice(campaignId)
@@ -325,9 +334,9 @@ export function InvoiceDetailsCard({ campaignId, onPrevious, onNext }: InvoiceDe
             </a>}
             <span>
               Status:{" "}
-              {payment.is_payment_verified
+              {payment?.is_payment_verified
                 ? "Verified"
-                : payment.proof_payment_url
+                : payment?.proof_payment_url
                   ? "Pending verification"
                   : "Awaiting proof of payment"}
             </span>

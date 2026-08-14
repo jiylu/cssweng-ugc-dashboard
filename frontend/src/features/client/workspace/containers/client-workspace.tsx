@@ -16,6 +16,7 @@ import {
   ReceiptText,
   UploadCloud,
   X,
+  CheckCircle2,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -28,6 +29,7 @@ import { logoutUser } from "@/src/features/auth/services/auth-session";
 import ClientSidebar from "@/src/features/client/dashboard/components/client-sidebar";
 import { ClientDeliverablesSidebar } from "@/src/features/client/workspace/components/client-deliverables-sidebar";
 import { ClientWorkspaceHeader } from "@/src/features/client/workspace/components/client-workspace-header";
+import { SignedContractPanel } from "@/src/features/client/workspace/components/signed-contract-panel";
 import { HistoryOverlay } from "@/src/features/creator/workspace/components/deliverables-submission/history-overlay";
 import { useCampaignSetup } from "@/src/features/creator/workspace/hooks/useCampaignSetup";
 import { useDeliverableItems } from "@/src/features/client/workspace/hooks/useDeliverableItems";
@@ -47,6 +49,7 @@ import {
   getPaymentForCampaign,
   uploadPaymentProof,
 } from "@/src/features/client/workspace/services/payments-api";
+import { getInvoiceForCampaign } from "@/src/features/creator/workspace/services/invoices-api";
 import {
   downloadFinalAssetsAsZip,
   getFinalAssetsForCampaign,
@@ -420,15 +423,13 @@ function FeedbackActions({
               ? "Script has been approved."
               : "Media assets have been approved."}
           </p>
-          {!isWrittenStep && (
-            <Button
-              type="button"
-              className="mt-3 w-full rounded bg-[#6b1fa8] font-normal hover:bg-[#551783]"
-              onClick={onNext}
-            >
-              Next: Completion
-            </Button>
-          )}
+          <Button
+            type="button"
+            className="mt-3 w-full rounded bg-[#6b1fa8] font-normal hover:bg-[#551783]"
+            onClick={onNext}
+          >
+            {isWrittenStep ? "Next: Media Assets" : "Next: Completed"}
+          </Button>
         </div>
       ) : !currentAssetPublicId ? (
         <p className="mt-4 text-sm italic text-[#77736d]">
@@ -484,6 +485,56 @@ function FeedbackActions({
   );
 }
 
+// ── Completion Step (Wired) ────────────────────────────────────────────────────
+
+function ClientDeliverableApprovedCard({
+  deliverableName,
+  allApproved,
+  isPaidFull,
+  onNextInvoicing,
+  onNextCompletion,
+}: {
+  deliverableName: string;
+  allApproved: boolean;
+  isPaidFull: boolean;
+  onNextInvoicing: () => void;
+  onNextCompletion: () => void;
+}) {
+  return (
+    <div className="flex flex-col items-center justify-center gap-3 rounded border border-[#d8d4cb] bg-white px-10 py-16 mx-auto w-full text-center shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
+      <CheckCircle2 className="text-[#2d7a3a]" size={56} strokeWidth={1.5} />
+
+      <h2 className="text-2xl font-normal text-[#141518]">
+        Deliverable Completed & Approved
+      </h2>
+
+      <p className="text-sm text-[#6f6a63]">
+        You have successfully reviewed and approved the {deliverableName} submission.
+      </p>
+
+      <p className="text-xs italic text-[#77736d]">
+        Tip: You can view the approved assets by clicking on the stages in the card on the left.
+      </p>
+
+      {allApproved ? (
+        isPaidFull ? (
+          <Button type="button" className="mt-4 rounded bg-[#6b1fa8] font-normal hover:bg-[#551783] min-w-48" onClick={onNextCompletion}>
+            Complete Campaign
+          </Button>
+        ) : (
+          <Button type="button" className="mt-4 rounded bg-[#6b1fa8] font-normal hover:bg-[#551783] min-w-48" onClick={onNextInvoicing}>
+            Next: Invoicing
+          </Button>
+        )
+      ) : (
+        <p className="mt-4 text-sm text-[#6f6a63]">
+          Please select the next deliverable from the sidebar to continue.
+        </p>
+      )}
+    </div>
+  );
+}
+
 // ── Contract Signing Placeholder ───────────────────────────────────────────────
 
 function ContractSigningPlaceholder({ onNext }: { onNext: () => void }) {
@@ -507,12 +558,17 @@ function InvoicePanel({ campaignId, onPrevious, onNext }: { campaignId: string; 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [invoiceOpen, setInvoiceOpen] = useState(false);
-  const { data: payment, isFetching: isLoadingInvoice, refetch: loadInvoice } =
+  const { data: invoice, isFetching: isLoadingInvoice, refetch: loadInvoice } =
     useQuery({
-      queryKey: ["payment", campaignId],
-      queryFn: () => getPaymentForCampaign(campaignId),
+      queryKey: ["invoice", campaignId],
+      queryFn: () => getInvoiceForCampaign(campaignId),
       enabled: true,
     });
+  const { data: payment, refetch: loadPayment } = useQuery({
+    queryKey: ["payment", campaignId],
+    queryFn: () => getPaymentForCampaign(campaignId),
+    enabled: true,
+  });
 
   const handleViewInvoice = async () => {
     const result = await loadInvoice();
@@ -544,7 +600,7 @@ function InvoicePanel({ campaignId, onPrevious, onNext }: { campaignId: string; 
     setIsUploading(true);
     try {
       await uploadPaymentProof(campaignId, file);
-      await loadInvoice();
+      await loadPayment();
       toast.success("Proof of payment uploaded successfully.");
     } catch (error) {
       toast.error(
@@ -563,7 +619,7 @@ function InvoicePanel({ campaignId, onPrevious, onNext }: { campaignId: string; 
       <div className="flex flex-1 flex-col items-center justify-center text-center">
         <ReceiptText className="size-12 text-[#6b1fa8]" strokeWidth={1.6} />
         <p className="mt-4 max-w-lg text-sm leading-5 text-[#44403b]">
-          {payment
+          {invoice
             ? "The creator has sent the invoice. Once payment is made, upload the proof of payment here."
             : "Waiting for the creator to send the invoice."}
         </p>
@@ -571,42 +627,62 @@ function InvoicePanel({ campaignId, onPrevious, onNext }: { campaignId: string; 
           type="button"
           className="mt-5 rounded bg-[#6b1fa8] font-normal hover:bg-[#551783]"
           onClick={handleViewInvoice}
-          disabled={isLoadingInvoice || !payment}
+          disabled={isLoadingInvoice || !invoice}
         >
           {isLoadingInvoice ? "Loading..." : "View Invoice"}
           <FileText className="ml-2 size-4" />
         </Button>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={handleProofSelection}
-        />
-        <Button
-          type="button"
-          className="mt-3 rounded bg-[#6b1fa8] font-normal hover:bg-[#551783]"
-          onClick={() => fileInputRef.current?.click()}
-          disabled={isUploading || isLoadingInvoice || !payment}
-        >
-          {isUploading ? "Uploading..." : "Upload Proof of Payment"}
-          <UploadCloud className="ml-2 size-4" />
-        </Button>
+        {!payment?.is_payment_verified && (
+          <>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleProofSelection}
+            />
+            <Button
+              type="button"
+              className="mt-3 rounded bg-[#6b1fa8] font-normal hover:bg-[#551783]"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isUploading || isLoadingInvoice || !invoice}
+            >
+              {isUploading
+                ? "Uploading..."
+                : payment
+                  ? "Upload New Proof of Payment"
+                  : "Upload Proof of Payment"}
+              <UploadCloud className="ml-2 size-4" />
+            </Button>
+          </>
+        )}
+        {payment && !payment.is_payment_verified && (
+          <p className="mt-3 text-sm text-muted-foreground">
+            The latest payment proof is waiting for creator verification. You may
+            upload a newer proof if needed.
+          </p>
+        )}
       </div>
 
       <Dialog open={invoiceOpen} onOpenChange={setInvoiceOpen}>
         <DialogContent className="max-h-[95vh] !max-w-5xl overflow-y-auto border-[#d8d4cb] bg-[#f2f0ea] p-8">
           <DialogTitle className="text-3xl font-normal">Invoice</DialogTitle>
-          {payment ? (
+          {invoice ? (
             <div className="mt-5 rounded border border-[#d8d4cb] bg-white p-5">
-              <p>Invoice ID: {payment.public_id}</p>
+              <p>Invoice ID: {invoice.public_id}</p>
               <p className="mt-2 text-sm text-muted-foreground">
-                Sent {payment.invoice_sent_at ? new Date(payment.invoice_sent_at).toLocaleDateString() : "by the creator"}
+                Sent {new Date(invoice.created_at).toLocaleDateString()}
               </p>
+              <Button asChild type="button" className="mt-4">
+                <a href={invoice.invoice_url} target="_blank" rel="noreferrer">
+                  Open invoice file
+                </a>
+              </Button>
             </div>
           ) : null}
         </DialogContent>
       </Dialog>
+
       <div className="mt-8 flex items-center justify-end gap-3 border-t border-[#d8d4cb] pt-4">
         <Button variant="outline" className="min-w-32" onClick={onPrevious}>
           Previous: Deliverables
@@ -741,6 +817,11 @@ export default function ClientWorkspace({
   const { data: latestMediaAsset, isLoading: mediaLoading } =
     useLatestMediaAsset(selectedDeliverableItem?.public_id);
 
+  const activeDeliverableName =
+    selectedDeliverableItem && (deliverableItems?.length ?? 0) > 1
+      ? `${deliverables[activeDeliverable]?.deliverable_content} ${selectedDeliverableItem.deliverable_index}`
+      : deliverables[activeDeliverable]?.deliverable_content ?? "Deliverable";
+
   const isContractSigned = Boolean(
     data?.contract?.creator_signed && data?.contract?.client_signed,
   );
@@ -782,6 +863,7 @@ export default function ClientWorkspace({
 
   const handleMutationSuccess = () => {
     // Invalidate all relevant queries to refresh the UI
+    queryClient.invalidateQueries({ queryKey: ["campaign", campaignId] });
     queryClient.invalidateQueries({ queryKey: ["latestWrittenAsset"] });
     queryClient.invalidateQueries({ queryKey: ["latestMediaAsset"] });
     queryClient.invalidateQueries({ queryKey: ["deliverableItems"] });
@@ -848,7 +930,15 @@ export default function ClientWorkspace({
           {/* Main Content Area */}
           <div className="flex min-w-0 flex-1 flex-col">
             {activeStep === 0 ? (
-              <ContractSigningPlaceholder onNext={() => setActiveStep(1)} />
+              isContractSigned && data?.contract ? (
+                <SignedContractPanel
+                  campaignId={campaignId}
+                  contractPublicId={data.contract.public_id}
+                  creatorId={data.campaign.ugc_creator_id}
+                />
+              ) : (
+                <ContractSigningPlaceholder onNext={() => setActiveStep(1)} />
+              )
             ) : activeStep === 2 ? (
               <InvoicePanel campaignId={campaignId} onPrevious={() => setActiveStep(1)} onNext={() => setActiveStep(3)} />
             ) : activeStep === 1 ? (
@@ -867,8 +957,12 @@ export default function ClientWorkspace({
                   onPreview={() => setPreviewOpen(true)}
                 />
               ) : (
-                <DeliverableCompletedPanel
-                  onNext={() => setActiveStep(2)}
+                <ClientDeliverableApprovedCard
+                  deliverableName={activeDeliverableName}
+                  allApproved={Boolean(data?.campaign?.all_deliverables_approved)}
+                  isPaidFull={Boolean(data?.campaign?.paid_full)}
+                  onNextInvoicing={() => setActiveStep(2)}
+                  onNextCompletion={() => setActiveStep(3)}
                 />
               )}
               {activeSubmissionStep < 2 && (
@@ -879,7 +973,7 @@ export default function ClientWorkspace({
                   writtenAssetAction={latestWrittenAsset?.written_asset_action}
                   mediaAssetAction={latestMediaAsset?.media_asset_action}
                   onMutationSuccess={handleMutationSuccess}
-                  onNext={() => setActiveSubmissionStep(2)}
+                  onNext={() => setActiveSubmissionStep(activeSubmissionStep + 1)}
                 />
               )}
               </div>
@@ -919,6 +1013,7 @@ export default function ClientWorkspace({
                   <ArrowRight className="ml-2 size-4" />
                 </Button>
               )}
+
             </div>
           </div>
         </div>

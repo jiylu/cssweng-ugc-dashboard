@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 import { useState, useEffect, useRef } from "react"
 
 const BASE = "https://api.geocoded.me"
@@ -146,3 +147,4 @@ export function useLocationData(currency: string) {
     loadCities,
   }
 }
+/* eslint-disable react-hooks/set-state-in-effect */

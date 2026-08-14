@@ -24,6 +24,16 @@ export interface ProposalAddOn {
   selected: boolean;
 }
 
+export interface ProposalGiftedProduct {
+  id: string;
+  productName: string;
+  value: string;
+  numericValue: number;
+  shippingAddress: string;
+  deliveryInstructions: string;
+  ownershipTerms: string;
+}
+
 export interface ProposalRecord {
   proposal_id: string;
   public_id: string;
@@ -66,6 +76,8 @@ export interface ProposalReviewData {
   deliverables: ProposalDeliverable[];
   terms: ContractTerm[];
   addOns: ProposalAddOn[];
+  giftedProducts: ProposalGiftedProduct[];
+  giftedProductsTotal: number;
   paymentMethod: string;
   baseFee: number;
   selectedAddOnsFee: number;
