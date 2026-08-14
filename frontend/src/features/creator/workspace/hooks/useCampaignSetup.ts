@@ -6,5 +6,6 @@ export function useCampaignSetup(campaignId: string | undefined) {
     queryKey: ["campaignSetup", campaignId],
     queryFn: () => getCampaignSetup(campaignId!),
     enabled: !!campaignId,
+    staleTime: 5 * 60 * 1000,
   })
 }

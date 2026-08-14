@@ -28,6 +28,7 @@ import { logoutUser } from "@/src/features/auth/services/auth-session";
 import ClientSidebar from "@/src/features/client/dashboard/components/client-sidebar";
 import { ClientDeliverablesSidebar } from "@/src/features/client/workspace/components/client-deliverables-sidebar";
 import { ClientWorkspaceHeader } from "@/src/features/client/workspace/components/client-workspace-header";
+import { SignedContractPanel } from "@/src/features/client/workspace/components/signed-contract-panel";
 import { HistoryOverlay } from "@/src/features/creator/workspace/components/deliverables-submission/history-overlay";
 import { useCampaignSetup } from "@/src/features/creator/workspace/hooks/useCampaignSetup";
 import { useDeliverableItems } from "@/src/features/client/workspace/hooks/useDeliverableItems";
@@ -873,7 +874,15 @@ export default function ClientWorkspace({
           {/* Main Content Area */}
           <div className="flex min-w-0 flex-1 flex-col">
             {activeStep === 0 ? (
-              <ContractSigningPlaceholder onNext={() => setActiveStep(1)} />
+              isContractSigned && data?.contract ? (
+                <SignedContractPanel
+                  campaignId={campaignId}
+                  contractPublicId={data.contract.public_id}
+                  creatorId={data.campaign.ugc_creator_id}
+                />
+              ) : (
+                <ContractSigningPlaceholder onNext={() => setActiveStep(1)} />
+              )
             ) : activeStep === 2 ? (
               <InvoicePanel campaignId={campaignId} onPrevious={() => setActiveStep(1)} onNext={() => setActiveStep(3)} />
             ) : activeStep === 1 ? (
