@@ -160,7 +160,11 @@ export class UserService {
         .toLowerCase()
         .includes('already registered');
 
-      this.logger.warn(`Failed to create user ${email}`);
+      this.logger.warn(
+        `Failed to create auth user ${email}: ${error.message}` +
+          (error.code ? ` (code: ${error.code})` : '') +
+          (error.status ? ` (status: ${error.status})` : ''),
+      );
 
       throw new (isExistingUser ? ConflictException : BadRequestException)({
         status: isExistingUser ? HttpStatus.CONFLICT : HttpStatus.BAD_REQUEST,
@@ -449,9 +453,10 @@ export class UserService {
         email,
         first_name: normalizeName(dto.firstName),
         last_name: normalizeName(dto.lastName),
-        middle_name: normalizeName(dto.middleName),
-        display_name: dto.displayName.trim(),
-        primary_handle: dto.primaryHandle.trim(),
+        middle_name:
+          dto.middleName === undefined ? undefined : normalizeName(dto.middleName),
+        display_name: dto.displayName?.trim(),
+        primary_handle: dto.primaryHandle?.trim(),
         phone_number: dto.phoneNumber,
         timezone: dto.timezone,
       },

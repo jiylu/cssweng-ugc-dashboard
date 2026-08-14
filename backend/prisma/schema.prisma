@@ -287,7 +287,6 @@ model Payments {
   public_id             String   @unique @db.VarChar(10)
   campaign_id           String
   proof_payment_url     String?
-  invoice_sent_at      DateTime?
   is_payment_verified   Boolean @default(false)
   created_at            DateTime @default(now())
   verified_at           DateTime?

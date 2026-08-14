@@ -35,26 +35,6 @@ export class PaymentsController {
     private readonly notificationsService: NotificationsService,
   ) {}
 
-  @Post('invoice')
-  @UseGuards(RolesGuard)
-  @Roles(UserRoles.CREATOR)
-  async sendInvoice(@Query('campaignPublic') campaignPublic: string) {
-    const campaignId =
-      await this.campaignsService.resolveCampaignPublicId(campaignPublic);
-    const result = await this.paymentsService.sendInvoice(campaignId);
-
-    if (result.client_id) {
-      await this.notificationsService.createNotification({
-        category: 'PAYMENT',
-        userId: result.client_id,
-        title: 'An invoice has been sent',
-        message: `The creator has sent an invoice for "${result.project_name}". You can now upload proof of payment.`,
-      });
-    }
-
-    return plainToInstance(PaymentsEntity, result.invoice);
-  }
-
   @ApiCreatePayment()
   @Post('pay')
   @UseGuards(RolesGuard)
