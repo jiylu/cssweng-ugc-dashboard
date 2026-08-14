@@ -20,6 +20,7 @@ import { ForgotPasswordDTO } from './dto/forgot-password.dto';
 import { ResetPasswordDTO } from './dto/reset-password.dto';
 import { EmailService } from '../../../shared/email/email.service';
 import { UpdateUserSettingsDTO } from './dto/update-user-settings.dto';
+import { ChangePasswordDTO } from './dto/change-password.dto';
 
 @Injectable()
 export class UserService {
@@ -310,6 +311,39 @@ export class UserService {
     return { message: 'Password updated successfully.' };
   }
 
+  async changePassword(
+    userId: string,
+    email: string,
+    dto: ChangePasswordDTO,
+  ) {
+    const { error: verificationError } =
+      await this.supabase.client.auth.signInWithPassword({
+        email,
+        password: dto.currentPassword,
+      });
+
+    if (verificationError) {
+      throw new UnauthorizedException({
+        code: 'INVALID_CURRENT_PASSWORD',
+        message: 'Current password is incorrect.',
+      });
+    }
+
+    const { error } =
+      await this.supabase.adminClient.auth.admin.updateUserById(userId, {
+        password: dto.newPassword,
+      });
+
+    if (error) {
+      throw new BadRequestException({
+        code: 'PASSWORD_CHANGE_FAILED',
+        message: error.message,
+      });
+    }
+
+    return { message: 'Password changed successfully.' };
+  }
+
   async findActiveUserByEmail(email: string) {
     this.logger.debug(`Finding active user with email ${email}`);
 
@@ -454,10 +488,21 @@ export class UserService {
         first_name: normalizeName(dto.firstName),
         last_name: normalizeName(dto.lastName),
         middle_name:
-          dto.middleName === undefined ? undefined : normalizeName(dto.middleName),
-        display_name: dto.displayName?.trim(),
-        primary_handle: dto.primaryHandle?.trim(),
-        phone_number: dto.phoneNumber,
+          dto.middleName === undefined
+            ? undefined
+            : dto.middleName.trim()
+              ? normalizeName(dto.middleName)
+              : null,
+        display_name:
+          dto.displayName === undefined
+            ? undefined
+            : dto.displayName.trim() || "",
+        primary_handle:
+          dto.primaryHandle === undefined
+            ? undefined
+            : dto.primaryHandle.trim() || "",
+        phone_number:
+          dto.phoneNumber === undefined ? undefined : dto.phoneNumber || "",
         timezone: dto.timezone,
       },
     });

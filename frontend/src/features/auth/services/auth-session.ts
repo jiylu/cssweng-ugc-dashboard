@@ -47,7 +47,7 @@ export async function updateCurrentUser(payload: {
   primaryHandle: string;
   email: string;
   phoneNumber?: string;
-  timezone?: string;
+  timezone: string;
 }): Promise<AuthUser> {
   const response = await fetch(`${API_BASE_URL}/users/me`, {
     method: "PATCH",

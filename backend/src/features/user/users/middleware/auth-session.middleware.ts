@@ -47,23 +47,20 @@ export class AuthSessionMiddleware implements NestMiddleware {
       );
     }
 
+    let userId: string;
+
     try {
-      const user = await this.getUserFromAccessToken(authCookie.accessToken);
-      (req as AuthenticatedRequest).authUser = user;
-      return next();
+      userId = await this.getUserIdFromAccessToken(authCookie.accessToken);
     } catch {
       try {
-        const { user, session } = await this.refreshSession(
-          authCookie.refreshToken,
-        );
-
-        (req as AuthenticatedRequest).authUser = user;
+        const refreshed = await this.refreshSession(authCookie.refreshToken);
+        userId = refreshed.userId;
         res.setHeader(
           'Set-Cookie',
           serializeAuthCookie(
             {
-              accessToken: session.access_token,
-              refreshToken: session.refresh_token,
+              accessToken: refreshed.session.access_token,
+              refreshToken: refreshed.session.refresh_token,
               rememberMe: authCookie.rememberMe,
             },
             authCookie.rememberMe,
@@ -76,9 +73,16 @@ export class AuthSessionMiddleware implements NestMiddleware {
         return next(error);
       }
     }
+
+    // Database or application-user lookup errors are operational failures,
+    // not evidence that the Supabase session is invalid. Do not clear the
+    // authentication cookie when this lookup fails.
+    const user = await this.userService.getActiveUserById(userId);
+    (req as AuthenticatedRequest).authUser = user;
+    return next();
   }
 
-  private async getUserFromAccessToken(accessToken: string) {
+  private async getUserIdFromAccessToken(accessToken: string) {
     this.logger.debug(`Getting user from access token`);
 
     const { data, error } =
@@ -96,7 +100,7 @@ export class AuthSessionMiddleware implements NestMiddleware {
     }
 
     this.logger.debug(`Retrieved user ${data.user.id} from access token`);
-    return this.userService.getActiveUserById(data.user.id);
+    return data.user.id;
   }
 
   private async refreshSession(refreshToken: string) {
@@ -117,9 +121,7 @@ export class AuthSessionMiddleware implements NestMiddleware {
       });
     }
 
-    const user = await this.userService.getActiveUserById(data.user.id);
-
-    this.logger.log(`Session refreshed for user ${user.user_id}`);
-    return { user, session: data.session };
+    this.logger.log(`Session refreshed for user ${data.user.id}`);
+    return { userId: data.user.id, session: data.session };
   }
 }

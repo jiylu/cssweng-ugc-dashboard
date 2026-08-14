@@ -30,7 +30,7 @@ export interface ProfileSettings {
   middleName?: string;
   accountEmail: string;
   phoneNumber?: string;
-  location?: string;
+  location: string;
 }
 
 function capitalizeMessage(message: string) {
@@ -96,7 +96,7 @@ export function SettingsContainer() {
         primaryHandle: profile.primaryHandle,
         email: profile.accountEmail,
         phoneNumber: profile.phoneNumber ?? "",
-        timezone: profile.location ?? "Asia/Manila",
+        timezone: profile.location,
       }),
     onSuccess: (updatedUser) => {
       queryClient.setQueryData(["auth-user"], updatedUser);
@@ -146,6 +146,7 @@ export function SettingsContainer() {
     }
     if (!profile.firstName) errors.firstName = "First name is required.";
     if (!profile.lastName) errors.lastName = "Last name is required.";
+    if (!profile.location) errors.location = "Timezone is required.";
     if (!/^\S+@\S+\.\S+$/.test(profile.accountEmail)) {
       errors.accountEmail = "Account email must be a valid email address.";
     }

@@ -1,5 +1,5 @@
 "use client"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 import { Receipt, Eye, ArrowRight, CircleCheck, ExternalLink } from "lucide-react"
 import { Card } from "@/src/components/atoms/card"
@@ -7,10 +7,14 @@ import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import {
   getPaymentForCampaign,
-  sendInvoice,
   validatePayment,
   type Payment,
 } from "@/src/features/creator/workspace/services/payments-api"
+import {
+  getInvoiceForCampaign,
+  uploadInvoice,
+  type Invoice,
+} from "@/src/features/creator/workspace/services/invoices-api"
 
 interface InvoiceDetailsCardProps {
   campaignId: string
@@ -20,6 +24,8 @@ interface InvoiceDetailsCardProps {
 
 export function InvoiceDetailsCard({ campaignId, onPrevious, onNext }: InvoiceDetailsCardProps) {
   const [payment, setPayment] = useState<Payment | null>(null)
+  const [invoice, setInvoice] = useState<Invoice | null>(null)
+  const invoiceInputRef = useRef<HTMLInputElement>(null)
   const [checked, setChecked] = useState(false)
   const [isLoadingInvoice, setIsLoadingInvoice] = useState(false)
   const [isSending, setIsSending] = useState(false)
@@ -27,10 +33,14 @@ export function InvoiceDetailsCard({ campaignId, onPrevious, onNext }: InvoiceDe
 
   useEffect(() => {
     let cancelled = false
-    getPaymentForCampaign(campaignId)
-      .then((result) => {
+    Promise.all([
+      getPaymentForCampaign(campaignId),
+      getInvoiceForCampaign(campaignId),
+    ])
+      .then(([paymentResult, invoiceResult]) => {
         if (!cancelled) {
-          setPayment(result)
+          setPayment(paymentResult)
+          setInvoice(invoiceResult)
           setChecked(true)
         }
       })
@@ -48,13 +58,13 @@ export function InvoiceDetailsCard({ campaignId, onPrevious, onNext }: InvoiceDe
   const handleViewInvoice = async () => {
     setIsLoadingInvoice(true)
     try {
-      const result = await getPaymentForCampaign(campaignId)
-      setPayment(result)
+      const result = await getInvoiceForCampaign(campaignId)
+      setInvoice(result)
       setChecked(true)
       if (result) {
-        toast.success("Invoice loaded.")
+        window.open(result.invoice_url, "_blank", "noopener,noreferrer")
       } else {
-        toast.info("No client payment yet.")
+        toast.info("No invoice has been sent yet.")
       }
     } catch (error) {
       toast.error(
@@ -65,11 +75,15 @@ export function InvoiceDetailsCard({ campaignId, onPrevious, onNext }: InvoiceDe
     }
   }
 
-  const handleSendInvoice = async () => {
+  const handleSendInvoice = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    event.target.value = ""
+    if (!file) return
+
     setIsSending(true)
     try {
-      const invoice = await sendInvoice(campaignId)
-      setPayment(invoice)
+      const uploadedInvoice = await uploadInvoice(campaignId, file)
+      setInvoice(uploadedInvoice)
       toast.success("Invoice sent.")
     } catch (error) {
       toast.error(
@@ -177,21 +191,21 @@ export function InvoiceDetailsCard({ campaignId, onPrevious, onNext }: InvoiceDe
           before submitting it.
         </p>
 
-        {checked && !payment && (
+        {checked && !invoice && (
           <p className="text-xs text-muted-foreground">
             The invoice has not been sent yet.
           </p>
         )}
 
-        {payment && !payment.proof_payment_url && (
+        {invoice && !payment?.proof_payment_url && (
           <p className="text-xs text-muted-foreground">
             Invoice sent. Waiting for the client to upload proof of payment.
           </p>
         )}
 
-        {payment && (
+        {invoice && (
           <div className="flex flex-col gap-1 w-full max-w-64 rounded-[3px] border border-border px-3 py-2 text-xs text-muted-foreground">
-            <span>Invoice ID: {payment.public_id}</span>
+            <span>Invoice ID: {invoice.public_id}</span>
             {payment.proof_payment_url && <a
               href={payment.proof_payment_url}
               target="_blank"
@@ -213,7 +227,7 @@ export function InvoiceDetailsCard({ campaignId, onPrevious, onNext }: InvoiceDe
         )}
 
         <div className="flex flex-col gap-2 w-full max-w-64">
-          {!payment && <Button
+          {invoice && <Button
             type="button"
             variant="outline"
             className="rounded-[3px] border-[#6b1fa8] text-[#6b1fa8] hover:bg-[#6b1fa8]/5 hover:text-[#6b1fa8]"
@@ -234,15 +248,24 @@ export function InvoiceDetailsCard({ campaignId, onPrevious, onNext }: InvoiceDe
             <ArrowRight size={16} />
           </Button>}
 
-          <Button
-            type="button"
-            className="rounded-[3px] bg-[#6b1fa8] hover:bg-[#5a1a8f] text-white"
-            onClick={handleSendInvoice}
-            disabled={isSending || isLoadingInvoice}
-          >
-            {isSending ? "Sending..." : "Send Invoice"}
-            <ArrowRight size={16} />
-          </Button>
+          <input
+            ref={invoiceInputRef}
+            type="file"
+            className="hidden"
+            accept="application/pdf,image/*"
+            onChange={handleSendInvoice}
+          />
+          {!invoice && (
+            <Button
+              type="button"
+              className="rounded-[3px] bg-[#6b1fa8] hover:bg-[#5a1a8f] text-white"
+              onClick={() => invoiceInputRef.current?.click()}
+              disabled={isSending || isLoadingInvoice}
+            >
+              {isSending ? "Sending..." : "Upload and Send Invoice"}
+              <ArrowRight size={16} />
+            </Button>
+          )}
           {onPrevious && (
             <Button
               type="button"
