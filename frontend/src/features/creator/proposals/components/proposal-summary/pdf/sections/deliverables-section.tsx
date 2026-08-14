@@ -2,7 +2,7 @@ import { Text, View } from "@react-pdf/renderer"
 import { ProposalSummaryData } from "../../../../types/proposal-summary.types"
 import { styles } from "../pdf-styles"
 import { formatAddressParts, formatCurrency } from "../pdf-utils"
-import { LabelValueRow, TermsTable, TermsTableRow } from "../pdf-table"
+import { GIFTED_PRODUCT_COLUMN_WIDTHS, LabelValueRow, TermsTable, TermsTableRow } from "../pdf-table"
 
 export function DeliverablesSection({
   summary,
@@ -36,19 +36,33 @@ export function DeliverablesSection({
           />
         ))}
       </TermsTable>
-      {summary.addOns.length > 0 && (
-        <View style={{ marginTop: 6 }}>
-          <Text style={styles.termTitle}>Add-ons</Text>
-          {summary.addOns.map((a, i) => (
-            <View key={i} style={styles.textRow}>
-              <Text style={styles.value}>- {a.title}</Text>
-              <Text>{formatCurrency(a.fee, summary.earnings.currency)}</Text>
-            </View>
-          ))}
-        </View>
+      {summary.giftedProducts.length > 0 && (
+        <>
+          <Text style={[styles.termTitle, { marginTop: 10 }]}>Gifted Products / In-Kind Items</Text>
+          <TermsTable>
+            <TermsTableRow head widths={GIFTED_PRODUCT_COLUMN_WIDTHS} cells={["Product", "Value", "Delivery Address", "Delivery Instructions", "Ownership Terms"]} />
+            {summary.giftedProducts.map((p, i) => (
+              <TermsTableRow
+                key={i}
+                last={i === summary.giftedProducts.length - 1}
+                widths={GIFTED_PRODUCT_COLUMN_WIDTHS}
+                cells={[
+                  p.productName,
+                  formatCurrency(parseFloat(p.value.replace(/,/g, "") || "0"), summary.fees.currency),
+                  formatAddressParts(p.shippingAddress),
+                  p.deliveryInstructions || "—",
+                  p.ownershipTerms || "—",
+                ]}
+              />
+            ))}
+          </TermsTable>
+        </>
       )}
       <View style={styles.tableFooter}>
         <Text style={styles.tableFooterText}>
+          Tax ({summary.fees.taxRate}%): {formatCurrency(summary.fees.tax, summary.fees.currency)}
+        </Text>
+        <Text style={styles.tableFooterTotal}>
           Total ({summary.fees.currency}): {formatCurrency(summary.fees.total, summary.fees.currency)}
         </Text>
       </View>

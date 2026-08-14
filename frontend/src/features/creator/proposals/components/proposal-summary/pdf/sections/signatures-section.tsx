@@ -1,11 +1,18 @@
-import { Text, View } from "@react-pdf/renderer"
+import { Image, Text, View } from "@react-pdf/renderer"
 import { ProposalSummaryData } from "../../../../types/proposal-summary.types"
 import { styles } from "../pdf-styles"
 
+export interface SignatureImages {
+  client?: string
+  creator?: string
+}
+
 export function SignaturesSection({
   summary,
+  signatures,
 }: {
   summary: ProposalSummaryData
+  signatures?: SignatureImages
 }) {
   return (
     <View style={styles.section}>
@@ -16,12 +23,20 @@ export function SignaturesSection({
       <View style={styles.signatureRow}>
         <View style={styles.signatureCol}>
           <Text style={styles.termTitle}>Brand / Client</Text>
-          <View style={styles.signatureLine} />
+          {signatures?.client ? (
+            <Image src={signatures.client} style={styles.signatureImage} />
+          ) : (
+            <View style={styles.signatureLine} />
+          )}
           <Text style={styles.signatureLabel}>{summary.campaign.brand}</Text>
         </View>
         <View style={[styles.signatureCol, { marginLeft: 32 }]}>
           <Text style={styles.termTitle}>Creator</Text>
-          <View style={styles.signatureLine} />
+          {signatures?.creator ? (
+            <Image src={signatures.creator} style={styles.signatureImage} />
+          ) : (
+            <View style={styles.signatureLine} />
+          )}
           <Text style={styles.signatureLabel}>{summary.campaign.creator}</Text>
         </View>
       </View>

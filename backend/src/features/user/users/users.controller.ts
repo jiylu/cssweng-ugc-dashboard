@@ -37,8 +37,32 @@ export class UserController {
   // TODO: Safeguard
   @ApiCreateUser()
   @Post()
-  create(@Body() dto: CreateUserTransactionDTO) {
-    return this.userService.createUser(dto);
+  async create(
+    @Body() dto: CreateUserTransactionDTO,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const user = await this.userService.createUser(dto);
+
+    // Auto-login right after registration so the new account is authenticated
+    // for immediate follow-up calls (e.g. assigning the client to a campaign).
+    const { session } = await this.userService.login({
+      email: dto.userDTO.email,
+      password: dto.userDTO.password,
+    });
+
+    res.setHeader(
+      'Set-Cookie',
+      serializeAuthCookie(
+        {
+          accessToken: session.access_token,
+          refreshToken: session.refresh_token,
+          rememberMe: false,
+        },
+        false,
+      ),
+    );
+
+    return user;
   }
 
   @Post('login')

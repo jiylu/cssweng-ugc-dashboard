@@ -1,5 +1,6 @@
 "use client"
 import { useCallback, useRef, useState } from "react";
+import Profile from "@/src/components/molecules/profile";
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import CreatorSidebar from "@/src/components/organisms/creator-sidebar"
@@ -29,6 +30,7 @@ import {
   downloadFinalAssetsAsZip,
   getFinalAssetsForCampaign,
 } from "@/src/features/creator/workspace/services/final-assets-api"
+import { getPaymentForCampaign } from "@/src/features/creator/workspace/services/payments-api"
 
 interface WorkspaceProps {
   campaignId: string
@@ -57,6 +59,7 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
   ]
     .filter(Boolean)
     .join(" ") || "Client"
+  const creatorName = [user?.first_name, user?.last_name].filter(Boolean).join(" ")
   const deliverables = campaignSetup?.deliverables ?? []
   const isContractSigned =
     creatorSignedLocally ||
@@ -167,7 +170,7 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
     setActiveDeliverableStep(step)
   }
 
-  const handleStepChange = (step: number) => {
+  const handleStepChange = async (step: number) => {
     if (step === 1 && !isContractSigned) {
       toast.info("Please complete contract signing before submitting deliverables.")
       return
@@ -183,6 +186,18 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
     if (!allDeliverablesApproved) {
       toast.info("All deliverables must be approved before proceeding to invoicing.")
       return
+    }
+    if (step === 3) {
+      try {
+        const payment = await getPaymentForCampaign(campaignId)
+        if (!payment?.is_payment_verified) {
+          toast.info("Invoicing must be completed before proceeding to completion.")
+          return
+        }
+      } catch {
+        toast.error("Unable to verify invoice status. Please try again.")
+        return
+      }
     }
     setActiveStep(step)
   }
@@ -261,8 +276,20 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
       <section className="flex-1 h-screen overflow-y-scroll scrollbar-gutter-stable">
         <div className="flex flex-col gap-6 p-8 w-full max-w-325 m-auto">
           {/* Header */}
-          <div className="flex items-start justify-between">
-            <h1 className="text-4xl font-normal text-foreground">Workspace</h1>
+          <div className="flex items-center justify-between gap-4">
+            <h1 className="flex items-center gap-2 text-4xl font-normal text-foreground min-w-0">
+              <span className="whitespace-nowrap shrink-0">Workspace</span>
+              <span aria-hidden className="text-muted-foreground shrink-0">&gt;</span>
+              <span className="min-w-0 break-words">
+                {campaign?.project_name ?? "Campaign Name"}
+              </span>
+            </h1>
+
+            <Profile 
+              firstName={user.first_name}
+              lastName={user.last_name}
+              email={user.email}
+            />
           </div>
           <Separator />
           <div className="flex items-start justify-between bg-white px-8 py-7">
@@ -308,6 +335,7 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
               <ContractSigningPanel 
                 contract={campaignSetup?.contract} 
                 campaignId={campaignId}
+                creatorName={creatorName}
                 onSigned={() => setCreatorSignedLocally(true)}
                 onNext={() => setActiveStep(1)}
               />
@@ -369,7 +397,10 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
             )}
 
             {activeStep === 2 && (
-              <InvoiceDetailsCard campaignId={campaignId} />
+              <InvoiceDetailsCard
+                campaignId={campaignId}
+                onNext={() => handleStepChange(3)}
+              />
             )}
 
             {activeStep === 3 && (

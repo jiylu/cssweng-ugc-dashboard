@@ -6,12 +6,14 @@ import { CampaignOverviewSection } from "./sections/campaign-overview-section"
 import { DeliverablesSection } from "./sections/deliverables-section"
 import { UsageRightsSection } from "./sections/usage-rights-section"
 import { ContractTermsSection } from "./sections/contract-terms-section"
-import { SignaturesSection } from "./sections/signatures-section"
+import { SignaturesSection, SignatureImages } from "./sections/signatures-section"
 
 export function ContractAgreementDocument({
   summary,
+  signatures,
 }: {
   summary: ProposalSummaryData
+  signatures?: SignatureImages
 }) {
   return (
     <Document>
@@ -27,7 +29,7 @@ export function ContractAgreementDocument({
         <DeliverablesSection summary={summary} />
         <UsageRightsSection summary={summary} />
         <ContractTermsSection summary={summary} />
-        <SignaturesSection summary={summary} />
+        <SignaturesSection summary={summary} signatures={signatures} />
 
         <View style={styles.footer} fixed>
           <Text>Influencer Collaboration Agreement</Text>

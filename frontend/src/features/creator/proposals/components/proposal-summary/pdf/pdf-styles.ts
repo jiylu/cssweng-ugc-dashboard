@@ -93,6 +93,11 @@ export const styles = StyleSheet.create({
   tableFooterText: {
     fontSize: 10,
     fontWeight: "bold",
+    marginRight: 8,
+  },
+  tableFooterTotal: {
+    fontSize: 10,
+    fontWeight: "bold",
   },
   termBlock: {
     marginBottom: 5,
@@ -129,6 +134,12 @@ export const styles = StyleSheet.create({
     borderBottomColor: "#2f2d2a",
     marginTop: 8,
     marginBottom: 4,
+  },
+  signatureImage: {
+    height: 28,
+    maxWidth: 140,
+    objectFit: "contain",
+    marginTop: 6,
   },
   signatureLabel: {
     fontSize: 8,
