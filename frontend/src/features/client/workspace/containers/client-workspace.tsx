@@ -126,6 +126,15 @@ function Progress({
 
 // ── Media Preview ──────────────────────────────────────────────────────────────
 
+const IMAGE_URL_PATTERN = /\.(?:avif|gif|jpe?g|png|svg|webp)(?:[?#]|$)/i;
+
+function shouldRenderAsVideo(contentUrl: string, isVideo?: boolean) {
+  const isImageUrl =
+    contentUrl.startsWith("data:image/") || IMAGE_URL_PATTERN.test(contentUrl);
+
+  return Boolean(isVideo) && !isImageUrl;
+}
+
 function MediaPreview({
   onOpen,
   contentUrl,
@@ -142,7 +151,7 @@ function MediaPreview({
       className="group flex min-h-[260px] w-full items-center justify-center border border-[#d8d4cb] bg-white"
       aria-label="Preview submitted media"
     >
-      {contentUrl && isVideo ? (
+      {contentUrl && shouldRenderAsVideo(contentUrl, isVideo) ? (
         <video
           src={contentUrl}
           className="max-h-[260px] w-full object-contain"
@@ -286,7 +295,7 @@ function MediaAssetPanel({
   return (
     <section className="min-h-[410px] min-w-0 flex-1 rounded border border-[#d8d4cb] bg-white p-5 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
       <div className="flex items-center justify-between gap-4 border-b border-[#d8d4cb] pb-3">
-        <h2 className="text-2xl text-[#141518]">Media</h2>
+        <h2 className="text-2xl text-[#141518]">Media Assets</h2>
         <div className="flex items-center gap-3 text-sm text-[#6f6a63]">
           {asset && <span>Version {asset.version_number}</span>}
           <Button
@@ -335,6 +344,7 @@ function FeedbackActions({
   writtenAssetAction,
   mediaAssetAction,
   onMutationSuccess,
+  onNext,
 }: {
   submissionStep: number;
   writtenAssetPublicId: string | undefined;
@@ -342,6 +352,7 @@ function FeedbackActions({
   writtenAssetAction: string | undefined;
   mediaAssetAction: string | undefined;
   onMutationSuccess: () => void;
+  onNext: () => void;
 }) {
   const [feedback, setFeedback] = useState("");
   const isWrittenStep = submissionStep === 0;
@@ -362,7 +373,7 @@ function FeedbackActions({
       toast.success(
         isWrittenStep
           ? "Script approved successfully."
-          : "Video approved successfully.",
+          : "Media assets approved successfully.",
       );
       setFeedback("");
       onMutationSuccess();
@@ -405,13 +416,22 @@ function FeedbackActions({
           <p className="text-sm text-[#6f6a63]">
             {isWrittenStep
               ? "Script has been approved."
-              : "Video has been approved."}
+              : "Media assets have been approved."}
           </p>
+          {!isWrittenStep && (
+            <Button
+              type="button"
+              className="mt-3 w-full rounded bg-[#6b1fa8] font-normal hover:bg-[#551783]"
+              onClick={onNext}
+            >
+              Next: Completion
+            </Button>
+          )}
         </div>
       ) : !currentAssetPublicId ? (
         <p className="mt-4 text-sm italic text-[#77736d]">
           Waiting for the creator to submit{" "}
-          {isWrittenStep ? "a script" : "a video"} before you can review.
+          {isWrittenStep ? "a script" : "media assets"} before you can review.
         </p>
       ) : (
         <>
@@ -594,6 +614,27 @@ function InvoicePanel({ campaignId, onPrevious, onNext }: { campaignId: string; 
           Next: Completion
         </Button>
       </div>
+    </section>
+  );
+}
+
+function DeliverableCompletedPanel({ onNext }: { onNext: () => void }) {
+  return (
+    <section className="flex min-h-[410px] min-w-0 flex-1 flex-col items-center justify-center rounded border border-[#d8d4cb] bg-white p-7 text-center shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
+      <Check className="size-14 text-[#2d7a3a]" strokeWidth={1.6} />
+      <h2 className="mt-4 text-2xl text-[#141518]">
+        Deliverable Completed &amp; Approved
+      </h2>
+      <p className="mt-2 max-w-lg text-sm leading-5 text-[#6f6a63]">
+        You have reviewed and approved this deliverable&apos;s media assets.
+      </p>
+      <Button
+        type="button"
+        className="mt-5 rounded bg-[#6b1fa8] px-8 font-normal hover:bg-[#551783]"
+        onClick={onNext}
+      >
+        Next: Invoicing
+      </Button>
     </section>
   );
 }
@@ -783,6 +824,17 @@ export default function ClientWorkspace({
                 }}
                 onItemChange={setActiveDeliverableItem}
                 onStepChange={(step) => {
+                  if (step >= 1 && !selectedDeliverableItem?.written_asset_approved) {
+                    toast.info("Written assets must be approved before reviewing media assets.");
+                    return;
+                  }
+                  if (
+                    step >= 2 &&
+                    selectedDeliverableItem?.deliverable_item_status !== "APPROVED"
+                  ) {
+                    toast.info("Media assets must be approved before completing this deliverable.");
+                    return;
+                  }
                   setActiveSubmissionStep(step);
                   setActiveStep(1);
                 }}
@@ -803,6 +855,7 @@ export default function ClientWorkspace({
                   onHistory={() => setHistoryOpen(true)}
                 />
               ) : activeSubmissionStep === 1 ? (
+              ) : activeSubmissionStep === 1 ? (
                 <MediaAssetPanel
                   asset={latestMediaAsset}
                   isLoading={mediaLoading}
@@ -815,16 +868,14 @@ export default function ClientWorkspace({
                   onNext={() => setActiveStep(2)}
                 />
               )}
-              {activeSubmissionStep < 2 && (
-                <FeedbackActions
-                  submissionStep={activeSubmissionStep}
-                  writtenAssetPublicId={latestWrittenAsset?.public_id}
-                  mediaAssetPublicId={latestMediaAsset?.public_id}
-                  writtenAssetAction={latestWrittenAsset?.written_asset_action}
-                  mediaAssetAction={latestMediaAsset?.media_asset_action}
-                  onMutationSuccess={handleMutationSuccess}
-                />
-              )}
+              <FeedbackActions
+                submissionStep={activeSubmissionStep}
+                writtenAssetPublicId={latestWrittenAsset?.public_id}
+                mediaAssetPublicId={latestMediaAsset?.public_id}
+                writtenAssetAction={latestWrittenAsset?.written_asset_action}
+                mediaAssetAction={latestMediaAsset?.media_asset_action}
+                onMutationSuccess={handleMutationSuccess}
+              />
             </div>
           ) : (
             <CompletionPanel
@@ -838,7 +889,7 @@ export default function ClientWorkspace({
         </div>
       </section>
 
-      {/* Video Preview Dialog */}
+      {/* Media Preview Dialog */}
       <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
         <DialogContent
           showCloseButton={false}
@@ -851,7 +902,11 @@ export default function ClientWorkspace({
             </button>
           </div>
           <div className="mx-auto mt-5 w-full max-w-3xl rounded border border-[#d8d4cb] bg-white p-5">
-            {latestMediaAsset?.content_url && latestMediaAsset.is_video ? (
+            {latestMediaAsset?.content_url &&
+            shouldRenderAsVideo(
+              latestMediaAsset.content_url,
+              latestMediaAsset.is_video,
+            ) ? (
               <video
                 src={latestMediaAsset.content_url}
                 controls
