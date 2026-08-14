@@ -2,7 +2,7 @@ import { DeliverableStatus, DeliverableType } from '@prisma/client';
 import { Exclude, Expose, Type } from 'class-transformer';
 
 export class DeliverablesEntity {
-  @Exclude()
+  @Expose()
   deliverable_id: string;
 
   @Expose()

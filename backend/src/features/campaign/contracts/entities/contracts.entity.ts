@@ -9,7 +9,7 @@ import { InvoiceRequirementsDTO } from '../dto/invoice-requirements.dto';
 import { GeneralTermsDTO } from '../dto/general-terms.dto';
 
 export class ContractsEntity {
-  @Exclude()
+  @Expose()
   contract_id: string;
 
   @Expose()

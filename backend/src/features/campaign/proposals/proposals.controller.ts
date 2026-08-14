@@ -10,6 +10,8 @@ import {
   ApiCancelProposal,
   ApiFindProposalsForUser,
   ApiFindActiveProposalByClientEmail,
+  ApiUpdateProposalStatus,
+  ApiUpdateProposalComment,
 } from './docs/proposals.controller.swagger';
 import { NotificationsService } from '../../../shared/notifications/notifications.service';
 import { CampaignsService } from '../campaigns/campaigns.service';
@@ -17,7 +19,10 @@ import { plainToInstance } from 'class-transformer';
 import { ProposalsEntity } from './entities/proposals.entity';
 import { ProposalHistoryService } from './proposal-history.service';
 import { UpdateProposalHistoryCommentDTO } from './dto/update-proposal-history-comment.dto';
+import { UpdateProposalCommentDTO } from './dto/update-proposal-comment.dto';
+import { UpdateProposalStatusDTO } from './dto/update-proposal-status.dto';
 import { ProposalHistoryEntity } from './entities/proposal-history.entity';
+import { ProposalStatus } from '@prisma/client';
 
 @Controller('proposals')
 export class ProposalsController {
@@ -66,6 +71,61 @@ export class ProposalsController {
       this.proposalsService.findProposalByCampaignId(campaignPublicId);
 
     return plainToInstance(ProposalsEntity, proposal);
+  }
+
+  @ApiUpdateProposalStatus()
+  @Patch('status/:publicId')
+  async updateStatus(
+    @Param('publicId') publicId: string,
+    @Body() dto: UpdateProposalStatusDTO,
+  ) {
+    if (dto.proposalStatus === ProposalStatus.REJECTED) {
+      const { updatedProposal, campaign } =
+        await this.proposalsService.rejectProposal(publicId);
+
+      try {
+        await this.notificationsService.createNotification({
+          userId: campaign.ugc_creator_id,
+          title: `Your Proposal Has Been Rejected.`,
+          message:
+            'Unfortunately, your proposal has been rejected by the client.',
+        });
+      } catch (err) {
+        this.logger.warn(`Failed to send notification`, err);
+      }
+
+      return plainToInstance(ProposalsEntity, updatedProposal);
+    }
+
+    const proposalId = await this.proposalsService.resolvePublicId(publicId);
+    const updatedProposal = await this.proposalsService.updateProposalStatus(
+      proposalId,
+      dto,
+    );
+
+    return plainToInstance(ProposalsEntity, updatedProposal);
+  }
+
+  @ApiUpdateProposalComment()
+  @Patch(':publicId/comments')
+  async updateComments(
+    @Param('publicId') publicId: string,
+    @Body() dto: UpdateProposalCommentDTO,
+  ) {
+    const { campaign, updatedHistory } =
+      await this.proposalsService.reviseProposal(publicId, dto);
+
+    try {
+      await this.notificationsService.createNotification({
+        userId: campaign.ugc_creator_id,
+        title: 'Your Proposal Has New comments',
+        message: `Comment for your proposal: ${updatedHistory.client_comments}`,
+      });
+    } catch (err) {
+      this.logger.warn(`Failed to send notification`, err);
+    }
+
+    return plainToInstance(ProposalHistoryEntity, updatedHistory);
   }
 
   @ApiReviseProposal()

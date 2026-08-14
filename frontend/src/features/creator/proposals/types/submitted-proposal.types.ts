@@ -1,4 +1,4 @@
-export type ProposalStatus = "PENDING" | "ACTIVE" | "REJECTED" | "COMPLETED" | "CANCELLED"
+export type ProposalStatus = "PENDING" | "FOR_REVISION" | "ACTIVE" | "REJECTED" | "COMPLETED" | "CANCELLED"
 
 export interface SubmittedProposal {
     id: string

@@ -1,6 +1,59 @@
 import { applyDecorators } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { UpdateProposalCommentDTO } from '../dto/update-proposal-comment.dto';
+import { UpdateProposalStatusDTO } from '../dto/update-proposal-status.dto';
+
+export function ApiUpdateProposalStatus() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Update a proposal status',
+      description:
+        'Updates the status of an active proposal by its public ID. Request body must follow UpdateProposalStatusDTO (field: proposalStatus). Setting REJECTED also rejects the proposal, marks the campaign as rejected, and notifies the creator.',
+    }),
+    ApiParam({
+      name: 'publicId',
+      type: String,
+      description: 'Public ID of the proposal',
+      example: 'e3Fx0pFGsF',
+    }),
+    ApiBody({ type: UpdateProposalStatusDTO }),
+    ApiResponse({
+      status: 200,
+      description: 'Proposal status updated successfully',
+    }),
+    ApiResponse({
+      status: 404,
+      description: 'Proposal not found or not active',
+    }),
+    ApiResponse({ status: 400, description: 'Invalid status payload' }),
+  );
+}
+
+export function ApiUpdateProposalComment() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Update a proposal client comment',
+      description:
+        'Updates the client_comments field on the latest proposal history version and sets the action to REVISE. Request body must follow UpdateProposalCommentDTO (field: comment — 30 to 500 characters).',
+    }),
+    ApiParam({
+      name: 'publicId',
+      type: String,
+      description: 'Public ID of the proposal',
+      example: 'e3Fx0pFGsF',
+    }),
+    ApiBody({ type: UpdateProposalCommentDTO }),
+    ApiResponse({
+      status: 200,
+      description: 'Proposal comment updated successfully',
+    }),
+    ApiResponse({
+      status: 404,
+      description: 'Proposal not found or not active',
+    }),
+    ApiResponse({ status: 400, description: 'Invalid comment payload' }),
+  );
+}
 
 export function ApiFindProposal() {
   return applyDecorators(

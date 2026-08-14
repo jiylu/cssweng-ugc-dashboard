@@ -42,6 +42,7 @@ describe('CampaignSetupService', () => {
   const mockProposalService = {
     createProposal: jest.fn(),
     findProposalByCampaignId: jest.fn(),
+    updateProposalStatus: jest.fn(),
     resolvePublicId: jest.fn(),
     findActiveProposal: jest.fn(),
   };
@@ -503,6 +504,11 @@ describe('CampaignSetupService', () => {
 
       mockProposalService.findProposalByCampaignId.mockResolvedValue({
         proposal_id: 'prop-1',
+        proposal_status: 'FOR_REVISION',
+      });
+      mockProposalService.updateProposalStatus.mockResolvedValue({
+        proposal_id: 'prop-1',
+        proposal_status: 'PENDING',
       });
       mockContractService.findContractByCampaignId.mockResolvedValue(
         updatedContract,
@@ -597,6 +603,16 @@ describe('CampaignSetupService', () => {
         tx,
       );
       expect(mockAddOnService.deleteAddOn).toHaveBeenCalledWith('addon-2', tx);
+      expect(mockProposalService.findProposalByCampaignId).toHaveBeenCalledWith(
+        campaignId,
+        false,
+        tx,
+      );
+      expect(mockProposalService.updateProposalStatus).toHaveBeenCalledWith(
+        'prop-1',
+        { proposalStatus: 'PENDING' },
+        tx,
+      );
     });
   });
 });

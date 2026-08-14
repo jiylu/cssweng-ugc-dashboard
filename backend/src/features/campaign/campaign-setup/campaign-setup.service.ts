@@ -11,7 +11,7 @@ import { GiftedProductsService } from '../gifted-products/gifted-products.servic
 import { UpdateCampaignSetupDto } from './dto/update-campaign-setup.dto';
 import { UserService } from '../../user/users/users.service';
 import { PAYMENT_SCHEDULE } from '../contracts/dto/payment-terms.dto';
-import { PaymentSchedule } from '@prisma/client';
+import { PaymentSchedule, ProposalStatus } from '@prisma/client';
 
 @Injectable()
 export class CampaignSetupService {
@@ -214,6 +214,20 @@ export class CampaignSetupService {
         await this.campaignService.updateCampaignDetails(
           campaignId,
           dto.campaign,
+          tx,
+        );
+      }
+
+      const proposal = await this.proposalService.findProposalByCampaignId(
+        campaignId,
+        false,
+        tx,
+      );
+
+      if (proposal.proposal_status !== ProposalStatus.PENDING) {
+        await this.proposalService.updateProposalStatus(
+          proposal.proposal_id,
+          { proposalStatus: ProposalStatus.PENDING },
           tx,
         );
       }

@@ -114,7 +114,13 @@ export function mapCampaignSetupToProposalSummary(
   const total = baseFee + tax
 
   const contract = details.contract
-  const exclusivity = contract?.exclusivity ?? null
+  const rawExclusivity = contract?.exclusivity ?? null
+  const exclusivity =
+    rawExclusivity &&
+    typeof rawExclusivity === "object" &&
+    Object.keys(rawExclusivity).length > 0
+      ? rawExclusivity
+      : null
 
   const startDate = formatSummaryDate(details.campaign.start_date)
   const endDate = formatSummaryDate(details.campaign.end_date)
@@ -123,7 +129,12 @@ export function mapCampaignSetupToProposalSummary(
     .filter(Boolean)
     .join(" ")
 
-  const platforms = Object.keys(details.campaign.platforms ?? {})
+  const platformsValue = (details.campaign.platforms ?? {}) as
+    | Record<string, string>
+    | string[]
+  const platforms = Array.isArray(platformsValue)
+    ? platformsValue
+    : Object.keys(platformsValue)
 
   return {
     earnings: {

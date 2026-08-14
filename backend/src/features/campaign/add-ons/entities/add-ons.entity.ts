@@ -1,7 +1,7 @@
 import { Exclude, Expose, Type } from 'class-transformer';
 
 export class AddOnsEntity {
-  @Exclude()
+  @Expose()
   add_on_id: string;
 
   @Exclude()
