@@ -7,6 +7,7 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { WrittenAssetDraftsService } from './written-asset-drafts.service';
 import { CreateWrittenAssetDraftDto } from './dto/create-written-asset-draft.dto';
@@ -21,6 +22,9 @@ import {
   ApiFindWrittenAssetDraftsForAsset,
   ApiUpdateWrittenAssetDraft,
 } from './docs/written-asset-drafts.controller.swagger';
+import { RolesGuard } from 'src/shared/guards/roles.guard';
+import { Roles } from 'src/shared/decorators/roles.decorator';
+import { UserRoles } from '@prisma/client';
 
 @Controller('written-asset-drafts')
 export class WrittenAssetDraftsController {
@@ -31,6 +35,8 @@ export class WrittenAssetDraftsController {
 
   @ApiCreateWrittenAssetDraft()
   @Post()
+  @UseGuards(RolesGuard)
+  @Roles(UserRoles.CREATOR)
   async create(@Body() dto: CreateWrittenAssetDraftDto) {
     const draft = await this.writtenAssetDraftsService.createDraft(dto);
     return plainToInstance(WrittenAssetDraftEntity, draft);
@@ -38,6 +44,8 @@ export class WrittenAssetDraftsController {
 
   @ApiFindWrittenAssetDraft()
   @Get(':publicId')
+  @UseGuards(RolesGuard)
+  @Roles(UserRoles.CREATOR)
   async findOne(@Param('publicId') publicId: string) {
     const draftId =
       await this.writtenAssetDraftsService.resolvePublicId(publicId);
@@ -47,6 +55,8 @@ export class WrittenAssetDraftsController {
 
   @ApiFindWrittenAssetDraftsForAsset()
   @Get()
+  @UseGuards(RolesGuard)
+  @Roles(UserRoles.CREATOR)
   async findMany(@Query('writtenAssetPublicId') writtenAssetPublicId: string) {
     const writtenAssetId =
       await this.writtenAssetsService.resolvePublicId(writtenAssetPublicId);
@@ -59,6 +69,8 @@ export class WrittenAssetDraftsController {
 
   @ApiUpdateWrittenAssetDraft()
   @Patch(':publicId')
+  @UseGuards(RolesGuard)
+  @Roles(UserRoles.CREATOR)
   async update(
     @Param('publicId') publicId: string,
     @Body() dto: UpdateWrittenAssetDraftDto,
@@ -74,6 +86,8 @@ export class WrittenAssetDraftsController {
 
   @ApiDeleteWrittenAssetDraft()
   @Delete(':publicId')
+  @UseGuards(RolesGuard)
+  @Roles(UserRoles.CREATOR)
   async remove(@Param('publicId') publicId: string) {
     const draftId =
       await this.writtenAssetDraftsService.resolvePublicId(publicId);

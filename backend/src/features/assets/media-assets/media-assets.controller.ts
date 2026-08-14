@@ -1,4 +1,4 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Param, UseGuards } from '@nestjs/common';
 import { MediaAssetsService } from './media-assets.service';
 import { DeliverableItemsService } from '../../deliverable/deliverable-items/deliverable-items.service';
 import { plainToInstance } from 'class-transformer';
@@ -8,6 +8,7 @@ import {
   ApiGetLatestMediaAssetForDeliverableItem,
   ApiGetMediaAssetHistoryForDeliverableItem,
 } from './docs/media-assets.controller.swagger';
+import { RolesGuard } from 'src/shared/guards/roles.guard';
 
 @Controller('media-assets')
 export class MediaAssetsController {
@@ -18,6 +19,7 @@ export class MediaAssetsController {
 
   @ApiFindMediaAsset()
   @Get(':publicId')
+  @UseGuards(RolesGuard)
   async findOne(@Param('publicId') publicId: string) {
     const mediaAssetId =
       await this.mediaAssetsService.resolvePublicId(publicId);
@@ -29,6 +31,7 @@ export class MediaAssetsController {
 
   @ApiGetMediaAssetHistoryForDeliverableItem()
   @Get('history/:deliverableItemPublicId')
+  @UseGuards(RolesGuard)
   async getMediaAssetHistoryForDeliverableItem(
     @Param('deliverableItemPublicId') deliverableItemPublicId: string,
   ) {
@@ -46,6 +49,7 @@ export class MediaAssetsController {
 
   @ApiGetLatestMediaAssetForDeliverableItem()
   @Get('latest/:deliverableItemPublicId')
+  @UseGuards(RolesGuard)
   async getLatestAssetHistoryForDeliverableItem(
     @Param('deliverableItemPublicId') deliverableItemPublicId: string,
   ) {
