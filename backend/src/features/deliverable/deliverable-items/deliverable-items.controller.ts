@@ -1,4 +1,4 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Param, UseGuards } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import { DeliverableItemsService } from './deliverable-items.service';
 import { DeliverablesService } from '../deliverables/deliverables.service';
@@ -7,6 +7,7 @@ import {
   ApiFindDeliverableItem,
   ApiFindDeliverableItems,
 } from './docs/deliverable-items.controller.swagger';
+import { RolesGuard } from 'src/shared/guards/roles.guard';
 
 @Controller('deliverable-items')
 export class DeliverableItemsController {
@@ -17,6 +18,7 @@ export class DeliverableItemsController {
 
   @ApiFindDeliverableItems()
   @Get('/deliverable/:publicId')
+  @UseGuards(RolesGuard)
   async findMany(@Param('publicId') publicId: string) {
     const deliverableId =
       await this.deliverablesService.resolvePublicId(publicId);
@@ -31,6 +33,7 @@ export class DeliverableItemsController {
 
   @ApiFindDeliverableItem()
   @Get('item/:publicId')
+  @UseGuards(RolesGuard)
   async findOne(@Param('publicId') publicId: string) {
     const deliverableItemId =
       await this.deliverableItemsService.resolvePublicId(publicId);

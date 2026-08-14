@@ -1,4 +1,4 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Param, UseGuards } from '@nestjs/common';
 import { DeliverablesService } from './deliverables.service';
 import {
   ApiFindDeliverable,
@@ -8,6 +8,7 @@ import {
 import { CampaignsService } from '../../campaign/campaigns/campaigns.service';
 import { plainToInstance } from 'class-transformer';
 import { DeliverablesEntity } from './entities/deliverables.entity';
+import { RolesGuard } from 'src/shared/guards/roles.guard';
 
 @Controller('deliverables')
 export class DeliverablesController {
@@ -18,6 +19,7 @@ export class DeliverablesController {
 
   @ApiFindDeliverable()
   @Get(':publicId')
+  @UseGuards(RolesGuard)
   async findOne(@Param('publicId') publicId: string) {
     const deliverableId =
       await this.deliverablesService.resolvePublicId(publicId);
@@ -29,6 +31,7 @@ export class DeliverablesController {
 
   @ApiFindDeliverablesForCampaign()
   @Get('/campaign/:publicId')
+  @UseGuards(RolesGuard)
   async findMany(@Param('publicId') publicId: string) {
     const campaignId =
       await this.campaignsService.resolveCampaignPublicId(publicId);
@@ -40,6 +43,7 @@ export class DeliverablesController {
 
   @ApiGetCalendarForUser()
   @Get('/calendar/:userId')
+  @UseGuards(RolesGuard)
   getCalendar(@Param('userId') userId: string) {
     return this.deliverablesService.getCalendarDataForUser(userId);
   }
