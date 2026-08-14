@@ -15,7 +15,6 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { UploadService } from 'src/shared/upload/upload.service';
 import { plainToInstance } from 'class-transformer';
 import { PaymentsEntity } from './entities/payments.entity';
-import { ProposalsService } from '../proposals/proposals.service';
 import {
   ApiCreatePayment,
   ApiFindPaymentByPublicId,
@@ -33,7 +32,6 @@ export class PaymentsController {
     private readonly paymentsService: PaymentsService,
     private readonly campaignsService: CampaignsService,
     private readonly uploadService: UploadService,
-    private readonly proposalsService: ProposalsService,
     private readonly notificationsService: NotificationsService,
   ) {}
 

@@ -18,6 +18,7 @@ import { DraftsModule } from './features/campaign/drafts/drafts.module';
 import { CloudinaryModule } from './shared/cloudinary/cloudinary.module';
 import { UploadModule } from './shared/upload/upload.module';
 import { PaymentsModule } from './features/campaign/payments/payments.module';
+import { InvoiceModule } from './features/campaign/invoices/invoice.module';
 import { DeliverableSubmissionsModule } from './features/deliverable/deliverable-submissions/deliverable-submissions.module';
 import { WrittenAssetsModule } from './features/assets/written-assets/written-assets.module';
 import { MediaAssetsModule } from './features/assets/media-assets/media-assets.module';
@@ -46,6 +47,7 @@ import { MediaAssetDraftsModule } from './features/assets/media-asset-drafts/med
     CloudinaryModule,
     UploadModule,
     PaymentsModule,
+    InvoiceModule,
     DeliverableSubmissionsModule,
     WrittenAssetsModule,
     MediaAssetsModule,
