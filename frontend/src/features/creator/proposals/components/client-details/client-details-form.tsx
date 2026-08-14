@@ -26,7 +26,7 @@ export default function ClientDetailsForm({ contactPerson, setContactPerson, con
 
       <div className="flex flex-col gap-0">
         <label className="text-sm text-muted-foreground uppercase tracking-[0.03em] mt-0">
-          CONTACT PERSON
+          CONTACT PERSON<span className="ml-1 text-[#ff6467]">*</span>
         </label>
 
         <Input

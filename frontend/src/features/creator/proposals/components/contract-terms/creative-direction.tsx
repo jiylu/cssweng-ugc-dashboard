@@ -2,7 +2,6 @@ import { Card } from "@/src/components/atoms/card"
 import { Separator } from "@/components/ui/separator"
 import { Slider } from "@/components/ui/slider"
 import { cn } from "@/lib/utils"
-import { useState } from "react"
 
 interface CreativeDirectionProps {
   revisionRounds: number

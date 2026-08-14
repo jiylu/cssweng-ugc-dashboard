@@ -14,6 +14,7 @@ import { ProfilePictureCropper } from "./profile-picture-cropper";
 
 interface PublicProfileProps {
   data: ProfileSettings;
+  errors: Partial<Record<keyof ProfileSettings, string>>;
   isEditing: boolean;
   isUploading: boolean;
   onChange: <K extends keyof ProfileSettings>(
@@ -26,6 +27,7 @@ interface PublicProfileProps {
 
 export function PublicProfileSection({
   data,
+  errors,
   isEditing,
   isUploading,
   onChange,
@@ -89,7 +91,7 @@ export function PublicProfileSection({
           </div>
 
           {/* profile picture */}
-          <DropdownMenu>
+          {isEditing && <DropdownMenu>
             <DropdownMenuTrigger
               disabled={isUploading}
               className="cursor-pointer text-[15px] font-normal text-[#6b1fa8] hover:text-[#5a1a8f] focus:outline-none disabled:cursor-wait disabled:text-[#9d78bd]"
@@ -112,39 +114,49 @@ export function PublicProfileSection({
                 <span>Remove</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
-          </DropdownMenu>
+          </DropdownMenu>}
         </div>
 
         {/* name and handle */}
         <div className="flex-1 flex flex-col gap-6 w-full">
           <div className="space-y-2">
-            <label className="text-[15px] font-normal uppercase text-muted-foreground">
-              Display Name
+            <label className="text-[15px] font-normal uppercase text-[#141518]">
+              Display Name<span className="ml-1 text-[#ff6467]">*</span>
             </label>
-            <Input
-              placeholder="Enter display name"
-              value={data.displayName}
-              disabled={!isEditing}
-              onChange={(event) => onChange("displayName", event.target.value)}
-              className="placeholder:text-gray-400 border-muted"
-            />
+            {isEditing ? (
+              <Input
+                placeholder="Enter display name"
+                value={data.displayName}
+                aria-invalid={Boolean(errors.displayName)}
+                onChange={(event) => onChange("displayName", event.target.value)}
+                className="placeholder:text-gray-400"
+              />
+            ) : (
+              <p className="min-h-9 py-2 text-base text-[#141518]">{data.displayName || "—"}</p>
+            )}
+            {isEditing && errors.displayName && <p className="text-xs text-[#ff6467]">{errors.displayName}</p>}
           </div>
           <div className="space-y-2">
             <label className="text-[15px] font-normal uppercase text-muted-foreground">
               Primary Handle
             </label>
-            <Input
-              placeholder="Enter primary name"
-              value={data.primaryHandle}
-              disabled={!isEditing}
-              onChange={(event) =>
-                onChange(
-                  "primaryHandle",
-                  event.target.value.replace(/[^a-zA-Z0-9._]/g, ""),
-                )
-              }
-              className="placeholder:text-gray-400 border-muted"
-            />
+            {isEditing ? (
+              <Input
+                placeholder="Enter primary name"
+                value={data.primaryHandle}
+                aria-invalid={Boolean(errors.primaryHandle)}
+                onChange={(event) =>
+                  onChange(
+                    "primaryHandle",
+                    event.target.value.replace(/[^a-zA-Z0-9._]/g, ""),
+                  )
+                }
+                className="placeholder:text-gray-400"
+              />
+            ) : (
+              <p className="min-h-9 py-2 text-base text-[#141518]">{data.primaryHandle || "—"}</p>
+            )}
+            {isEditing && errors.primaryHandle && <p className="text-xs text-[#ff6467]">{errors.primaryHandle}</p>}
           </div>
         </div>
       </div>
@@ -154,19 +166,22 @@ export function PublicProfileSection({
         <label className="text-[15px] font-normal uppercase text-muted-foreground">
           Bio
         </label>
-        <div className="relative">
+        {isEditing ? <div className="relative">
           <Textarea
             placeholder="Enter your bio"
             className="min-h-[160px] resize-none pb-8 italic placeholder:text-gray-400 border-muted"
             value={data.bio ?? ""}
-            disabled={!isEditing}
             onChange={(event) => onChange("bio", event.target.value)}
             maxLength={100}
           />
           <span className="absolute bottom-3 right-3 text-[15px] text-gray-500 font-light">
             {(data.bio ?? "").length}/100
           </span>
-        </div>
+        </div> : (
+          <p className="min-h-12 whitespace-pre-wrap py-2 text-base leading-relaxed text-[#141518]">
+            {data.bio || "—"}
+          </p>
+        )}
       </div>
     </div>
   );

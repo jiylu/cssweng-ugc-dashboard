@@ -5,6 +5,7 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
+  Max,
   MaxLength,
   Min,
   ValidateNested,
@@ -51,7 +52,8 @@ export class CreateContractDTO {
 
   @ApiProperty({ example: 7 })
   @IsInt()
-  @Min(0)
+  @Min(1)
+  @Max(365)
   cancellation_period!: number;
 
   @ApiProperty({ type: PaymentTermsDTO })

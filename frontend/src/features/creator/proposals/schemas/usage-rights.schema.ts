@@ -14,6 +14,7 @@ export const usageRightsSchema = z.object({
     .max(300, "Restrictions must be less than 300 characters."),
 
   contentRetention: z.number()
+    .int("Content retention must be a whole number.")
     .min(1, "Content retention must be at least 1 month.")
     .max(120, "Content retention must not exceed 120 months."),
 

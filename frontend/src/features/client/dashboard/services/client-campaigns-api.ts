@@ -48,7 +48,7 @@ function formatDate(dateString: string) {
  * CampaignStatus in DB: ACTIVE | REJECTED | COMPLETED | CANCELLED
  * ProposalStatus in DB: PENDING | FOR_REVISION | REJECTED | ACCEPTED | CANCELLED
  *
- * UI statuses: COMPLETE | ACTIVE | PENDING | FOR REVISIONS
+ * UI statuses: COMPLETE | ACTIVE | PENDING | FOR REVISIONS | REJECTED | CANCELLED
  */
 function deriveDisplayStatus(
   campaignStatus: string,
@@ -82,6 +82,7 @@ export async function getClientCampaigns(clientId: string): Promise<ClientCampai
     campaigns.map(async (c) => {
       // Fetch full campaign setup to get proposal status
       let proposalStatus = "ACCEPTED"; // fallback for campaigns without a fetchable setup
+      let proposalId = "";
       try {
         const setupRes = await fetch(`${API_BASE_URL}/campaign-setup/${c.public_id}`, {
           credentials: "include",
@@ -90,6 +91,7 @@ export async function getClientCampaigns(clientId: string): Promise<ClientCampai
         if (setupRes.ok) {
           const setup: CampaignSetupResponse = await setupRes.json();
           proposalStatus = setup.proposal?.proposal_status ?? "ACCEPTED";
+          proposalId = setup.proposal?.public_id ?? "";
         }
       } catch {
         // If setup fetch fails, derive status from campaign only
@@ -112,6 +114,7 @@ export async function getClientCampaigns(clientId: string): Promise<ClientCampai
 
       return {
         id: c.public_id,
+        proposalId,
         name: c.project_name,
         creatorName,
         startDate: formatDate(c.start_date),

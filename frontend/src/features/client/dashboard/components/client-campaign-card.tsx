@@ -22,8 +22,11 @@ export default function ClientCampaignCard({
   campaign,
 }: ClientCampaignCardProps) {
   const router = useRouter();
+  const opensProposal = ["PENDING", "FOR REVISIONS", "REJECTED", "CANCELLED"].includes(
+    campaign.status,
+  );
   const actionLabel =
-    campaign.status === "PENDING" ? "View Proposal" : "Open Workspace";
+    opensProposal ? "View Proposal" : "Open Workspace";
 
   return (
     <article className="grid min-h-[106px] grid-cols-[300px_1px_1fr_1px_300px] items-center rounded border border-[#d8d4cb] bg-white px-8 py-4 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
@@ -67,8 +70,8 @@ export default function ClientCampaignCard({
           disabled={campaign.status === "REJECTED" || campaign.status === "CANCELLED"}
           onClick={() =>
             router.push(
-              campaign.status === "PENDING"
-                ? `/proposals/${campaign.id}`
+              opensProposal && campaign.proposalId
+                ? `/proposals/${campaign.proposalId}`
                 : `/client-workspace/${campaign.id}`,
             )
           }

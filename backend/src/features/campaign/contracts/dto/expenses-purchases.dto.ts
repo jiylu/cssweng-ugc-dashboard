@@ -1,4 +1,11 @@
-import { IsInt, IsNotEmpty, IsString, MaxLength, Min } from 'class-validator';
+import {
+  IsInt,
+  IsNotEmpty,
+  IsString,
+  Max,
+  MaxLength,
+  Min,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 
@@ -7,6 +14,7 @@ export class ExpensesPurchasesDTO {
   @ApiProperty({ example: 30 })
   @IsInt({ message: 'Reimbursement period must be an integer (days).' })
   @Min(1, { message: 'Reimbursement period must be at least 1 day.' })
+  @Max(365, { message: 'Reimbursement period must not exceed 365 days.' })
   reimbursement_period!: number;
 
   @Expose()
