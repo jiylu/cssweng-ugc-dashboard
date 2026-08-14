@@ -128,7 +128,7 @@ export function InvoiceDetailsCard({ campaignId, onPrevious, onNext }: InvoiceDe
             )}
           </div>
           <Button asChild type="button" variant="outline" className="w-full max-w-64 rounded-[3px] border-[#6b1fa8] text-[#6b1fa8] hover:bg-[#6b1fa8]/5 hover:text-[#6b1fa8]">
-            <a href={payment.proof_payment_url} target="_blank" rel="noreferrer">
+            <a href={payment.proof_payment_url ?? undefined} target="_blank" rel="noreferrer">
               View Proof of Payment
               <ExternalLink size={16} />
             </a>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -83,15 +83,11 @@ function Progress({
           >
             <button
               type="button"
-<<<<<<< HEAD
               disabled={index > maxAllowedStep}
               className={cn(
                 "group flex flex-col items-center gap-1",
                 index > maxAllowedStep ? "cursor-default" : "cursor-pointer",
               )}
-=======
-              className="group flex cursor-pointer flex-col items-center gap-1"
->>>>>>> 2b565430f44eaf0a1cf4115cbf4039d800b2341f
               onClick={() => onChange(index)}
             >
               <span
@@ -644,27 +640,6 @@ function DeliverableCompletedPanel({ onNext }: { onNext: () => void }) {
   );
 }
 
-function DeliverableCompletedPanel({ onNext }: { onNext: () => void }) {
-  return (
-    <section className="flex min-h-[410px] min-w-0 flex-1 flex-col items-center justify-center rounded border border-[#d8d4cb] bg-white p-7 text-center shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
-      <Check className="size-14 text-[#2d7a3a]" strokeWidth={1.6} />
-      <h2 className="mt-4 text-2xl text-[#141518]">
-        Deliverable Completed &amp; Approved
-      </h2>
-      <p className="mt-2 max-w-lg text-sm leading-5 text-[#6f6a63]">
-        You have reviewed and approved this deliverable&apos;s media assets.
-      </p>
-      <Button
-        type="button"
-        className="mt-5 rounded bg-[#6b1fa8] px-8 font-normal hover:bg-[#551783]"
-        onClick={onNext}
-      >
-        Next: Invoicing
-      </Button>
-    </section>
-  );
-}
-
 function CompletionPanel({
   campaignId,
   campaignName,
@@ -873,15 +848,9 @@ export default function ClientWorkspace({
           {/* Main Content Area */}
           <div className="flex min-w-0 flex-1 flex-col">
             {activeStep === 0 ? (
-<<<<<<< HEAD
               <ContractSigningPlaceholder onNext={() => setActiveStep(1)} />
             ) : activeStep === 2 ? (
               <InvoicePanel campaignId={campaignId} onPrevious={() => setActiveStep(1)} onNext={() => setActiveStep(3)} />
-=======
-              <ContractSigningPlaceholder />
-            ) : activeStep === 2 ? (
-              <InvoicePanel campaignId={campaignId} />
->>>>>>> 2b565430f44eaf0a1cf4115cbf4039d800b2341f
             ) : activeStep === 1 ? (
               <div className="flex min-w-0 flex-1 gap-6">
               {activeSubmissionStep === 0 ? (
@@ -898,13 +867,9 @@ export default function ClientWorkspace({
                   onPreview={() => setPreviewOpen(true)}
                 />
               ) : (
-<<<<<<< HEAD
                 <DeliverableCompletedPanel
                   onNext={() => setActiveStep(2)}
                 />
-=======
-                <DeliverableCompletedPanel onNext={() => setActiveStep(2)} />
->>>>>>> 2b565430f44eaf0a1cf4115cbf4039d800b2341f
               )}
               {activeSubmissionStep < 2 && (
                 <FeedbackActions
@@ -923,18 +888,8 @@ export default function ClientWorkspace({
                 campaignId={campaignId}
                 campaignName={data?.campaign?.project_name ?? "campaign"}
                 isPaidFull={Boolean(data?.campaign?.paid_full)}
+                onPrevious={() => setActiveStep(2)}
               />
-<<<<<<< HEAD
-              </div>
-            ) : (
-              <CompletionPanel
-                campaignId={campaignId}
-                 campaignName={data?.campaign?.project_name ?? "campaign"}
-                 isPaidFull={Boolean(data?.campaign?.paid_full)}
-                 onPrevious={() => setActiveStep(2)}
-               />
-=======
->>>>>>> 2b565430f44eaf0a1cf4115cbf4039d800b2341f
             )}
 
           </div>
@@ -954,11 +909,7 @@ export default function ClientWorkspace({
               ) : (
                 <span />
               )}
-<<<<<<< HEAD
               {activeStep < maxAllowedStep && (
-=======
-              {activeStep < STEPS.length - 1 && (
->>>>>>> 2b565430f44eaf0a1cf4115cbf4039d800b2341f
                 <Button
                   type="button"
                   className="rounded bg-[#6b1fa8] px-6 font-normal hover:bg-[#551783]"
