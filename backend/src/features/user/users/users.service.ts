@@ -19,6 +19,8 @@ import { UpdateOwnProfileDTO } from './dto/update-own-profile.dto';
 import { ForgotPasswordDTO } from './dto/forgot-password.dto';
 import { ResetPasswordDTO } from './dto/reset-password.dto';
 import { EmailService } from '../../../shared/email/email.service';
+import { UpdateUserSettingsDTO } from './dto/update-user-settings.dto';
+import { ChangePasswordDTO } from './dto/change-password.dto';
 
 @Injectable()
 export class UserService {
@@ -159,7 +161,11 @@ export class UserService {
         .toLowerCase()
         .includes('already registered');
 
-      this.logger.warn(`Failed to create user ${email}`);
+      this.logger.warn(
+        `Failed to create auth user ${email}: ${error.message}` +
+          (error.code ? ` (code: ${error.code})` : '') +
+          (error.status ? ` (status: ${error.status})` : ''),
+      );
 
       throw new (isExistingUser ? ConflictException : BadRequestException)({
         status: isExistingUser ? HttpStatus.CONFLICT : HttpStatus.BAD_REQUEST,
@@ -198,12 +204,57 @@ export class UserService {
     }
 
     const user = await this.getActiveUserById(data.user.id);
+
+    if (user.two_factor_enabled) {
+      if (!dto.otp) {
+        await this.otpService.createLogin(user.email, user.role);
+        return { requiresTwoFactor: true as const };
+      }
+
+      await this.otpService.validateLogin(user.email, user.role, dto.otp);
+    }
+
     this.logger.debug(`Successful login for ${dto.email}`);
 
     return {
       user,
       session: data.session,
+      requiresTwoFactor: false as const,
     };
+  }
+
+  async getSettings(userId: string) {
+    return this.prisma.user.findUniqueOrThrow({
+      where: { user_id: userId },
+      select: {
+        two_factor_enabled: true,
+        email_proposal_updates: true,
+        email_contract_updates: true,
+        email_deliverable_updates: true,
+        email_payment_updates: true,
+      },
+    });
+  }
+
+  async updateSettings(userId: string, dto: UpdateUserSettingsDTO) {
+    await this.getActiveUserById(userId);
+    return this.prisma.user.update({
+      where: { user_id: userId },
+      data: {
+        two_factor_enabled: dto.twoFactorEnabled,
+        email_proposal_updates: dto.emailProposalUpdates,
+        email_contract_updates: dto.emailContractUpdates,
+        email_deliverable_updates: dto.emailDeliverableUpdates,
+        email_payment_updates: dto.emailPaymentUpdates,
+      },
+      select: {
+        two_factor_enabled: true,
+        email_proposal_updates: true,
+        email_contract_updates: true,
+        email_deliverable_updates: true,
+        email_payment_updates: true,
+      },
+    });
   }
 
   async requestPasswordReset(dto: ForgotPasswordDTO) {
@@ -258,6 +309,39 @@ export class UserService {
     }
 
     return { message: 'Password updated successfully.' };
+  }
+
+  async changePassword(
+    userId: string,
+    email: string,
+    dto: ChangePasswordDTO,
+  ) {
+    const { error: verificationError } =
+      await this.supabase.client.auth.signInWithPassword({
+        email,
+        password: dto.currentPassword,
+      });
+
+    if (verificationError) {
+      throw new UnauthorizedException({
+        code: 'INVALID_CURRENT_PASSWORD',
+        message: 'Current password is incorrect.',
+      });
+    }
+
+    const { error } =
+      await this.supabase.adminClient.auth.admin.updateUserById(userId, {
+        password: dto.newPassword,
+      });
+
+    if (error) {
+      throw new BadRequestException({
+        code: 'PASSWORD_CHANGE_FAILED',
+        message: error.message,
+      });
+    }
+
+    return { message: 'Password changed successfully.' };
   }
 
   async findActiveUserByEmail(email: string) {
@@ -403,11 +487,22 @@ export class UserService {
         email,
         first_name: normalizeName(dto.firstName),
         last_name: normalizeName(dto.lastName),
-        middle_name: normalizeName(dto.middleName),
-        display_name: dto.displayName.trim(),
-        primary_handle: dto.primaryHandle.trim(),
-        bio: dto.bio.trim(),
-        phone_number: dto.phoneNumber,
+        middle_name:
+          dto.middleName === undefined
+            ? undefined
+            : dto.middleName.trim()
+              ? normalizeName(dto.middleName)
+              : null,
+        display_name:
+          dto.displayName === undefined
+            ? undefined
+            : dto.displayName.trim() || "",
+        primary_handle:
+          dto.primaryHandle === undefined
+            ? undefined
+            : dto.primaryHandle.trim() || "",
+        phone_number:
+          dto.phoneNumber === undefined ? undefined : dto.phoneNumber || "",
         timezone: dto.timezone,
       },
     });

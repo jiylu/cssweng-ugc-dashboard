@@ -11,7 +11,7 @@ export class UploadService {
 
   async upload(
     file: Express.Multer.File,
-  ): Promise<{ url: string; type: 'image' | 'video' }> {
+  ): Promise<{ url: string; type: 'image' | 'video' | 'pdf' }> {
     if (!file) {
       throw new BadRequestException({
         code: 'FILE_NOT_PROVIDED',
@@ -33,6 +33,14 @@ export class UploadService {
       return {
         url: result.secure_url,
         type: 'video',
+      };
+    }
+
+    if (file.mimetype === 'application/pdf') {
+      const result = await this.supabaseStorageService.upload(file);
+      return {
+        url: result.publicUrl,
+        type: 'pdf',
       };
     }
 

@@ -79,6 +79,53 @@ export class EmailService {
     }
   }
 
+  async sendLoginOtpEmail(email: string, otp: string) {
+    try {
+      await this.transporter.sendMail({
+        from: `Asceoft Notifications <${process.env.ZOHO_USER}>`,
+        to: email,
+        subject: `Your Asceoft login code is ${otp}`,
+        text: `Your login verification code is ${otp}. It expires in 10 minutes.`,
+        html: `
+          <div style="margin:0;padding:24px;background:#f6f4fb;font-family:Arial,Helvetica,sans-serif;color:#211a2e;">
+            <div style="max-width:520px;margin:0 auto;background:#fff;border:1px solid #ebe7f3;border-radius:12px;padding:24px;">
+              <h1 style="margin:0 0 12px;font-size:28px;color:#000;">Verify your login</h1>
+              <p style="margin:0 0 22px;color:#4b415f;">Enter this 8-digit code to finish signing in to your Asceoft account.</p>
+              <div style="padding:22px 12px;background:#f6f4fb;border:1px solid #ebe7f3;border-radius:8px;text-align:center;">
+                <span style="font-size:32px;font-weight:700;letter-spacing:8px;color:#6f667a;">${otp}</span>
+              </div>
+              <p style="margin:22px 0 0;font-size:13px;color:#6f667a;">This code expires in 10 minutes and can only be used once. If you did not try to sign in, change your password.</p>
+            </div>
+          </div>`,
+      });
+    } catch (error) {
+      this.logger.warn('Failed to send login OTP email.', error);
+      throw new BadRequestException({
+        status: HttpStatus.BAD_REQUEST,
+        code: 'UNABLE_TO_SEND_OTP',
+        message: 'Unable to send login verification code',
+      });
+    }
+  }
+
+  async sendNotificationEmail(email: string, subject: string, message: string) {
+    const safeSubject = escapeHtml(subject);
+    const safeMessage = escapeHtml(message);
+    await this.transporter.sendMail({
+      from: `Asceoft Notifications <${process.env.ZOHO_USER}>`,
+      to: email,
+      subject,
+      text: message,
+      html: `
+        <div style="margin:0;padding:24px;background:#f6f4fb;font-family:Arial,Helvetica,sans-serif;color:#211a2e;">
+          <div style="max-width:520px;margin:0 auto;background:#fff;border:1px solid #ebe7f3;border-radius:12px;padding:24px;">
+            <h1 style="margin:0 0 12px;font-size:24px;color:#000;">${safeSubject}</h1>
+            <p style="margin:0;color:#4b415f;line-height:1.6;">${safeMessage}</p>
+          </div>
+        </div>`,
+    });
+  }
+
   async sendPasswordResetEmail(email: string, resetUrl: string) {
     const safeResetUrl = escapeHtml(resetUrl);
 

@@ -15,7 +15,6 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { UploadService } from 'src/shared/upload/upload.service';
 import { plainToInstance } from 'class-transformer';
 import { PaymentsEntity } from './entities/payments.entity';
-import { ProposalsService } from '../proposals/proposals.service';
 import {
   ApiCreatePayment,
   ApiFindPaymentByPublicId,
@@ -33,7 +32,6 @@ export class PaymentsController {
     private readonly paymentsService: PaymentsService,
     private readonly campaignsService: CampaignsService,
     private readonly uploadService: UploadService,
-    private readonly proposalsService: ProposalsService,
     private readonly notificationsService: NotificationsService,
   ) {}
 
@@ -56,8 +54,9 @@ export class PaymentsController {
     });
 
     await this.notificationsService.createNotification({
+      category: 'PAYMENT',
       userId: result.creator_id,
-      title: 'Payment Proof has been Submitted',
+      title: 'Payment proof has been submitted',
       message: `The client has submitted proof of payment for "${result.project_name}". Please review and validate the payment.`,
     });
 
@@ -96,8 +95,9 @@ export class PaymentsController {
 
     if (result.client_id) {
       await this.notificationsService.createNotification({
+        category: 'PAYMENT',
         userId: result.client_id,
-        title: 'Payment has been Validated',
+        title: 'Payment has been validated',
         message: `Your payment for "${result.project_name}" has been validated.`,
       });
     }

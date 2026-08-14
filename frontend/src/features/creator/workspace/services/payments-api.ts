@@ -3,7 +3,7 @@ import { parseApiError } from "@/src/features/auth/services/users-api"
 
 export interface Payment {
   public_id: string
-  proof_payment_url: string
+  proof_payment_url: string | null
   is_payment_verified: boolean
   created_at: string
   verified_at: string | null

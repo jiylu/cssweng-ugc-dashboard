@@ -11,7 +11,7 @@ export class PaymentsEntity {
   campaign_id: string;
 
   @Expose()
-  proof_payment_url: string;
+  proof_payment_url: string | null;
 
   @Expose()
   is_payment_verified: boolean;

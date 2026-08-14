@@ -11,13 +11,25 @@ export function useLogin() {
   const [errors, setErrors] = useState<LoginForm>({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const [otp, setOtp] = useState("");
+  const [requiresTwoFactor, setRequiresTwoFactor] = useState(false);
   const router = useRouter();
   const queryClient = useQueryClient();
 
   const { mutate: login, isPending, error, isSuccess } = useMutation({
     // PROD: Keep credentials included so the backend can set the HttpOnly auth cookie; do not store access tokens in frontend storage for security
-    mutationFn: () => loginUser({ ...form, rememberMe }),
-    onSuccess: ({ user }) => {
+    mutationFn: () =>
+      loginUser({
+        ...form,
+        rememberMe,
+        otp: requiresTwoFactor ? otp : undefined,
+      }),
+    onSuccess: (result) => {
+      if (result.requiresTwoFactor) {
+        setRequiresTwoFactor(true);
+        return;
+      }
+      const { user } = result;
       queryClient.setQueryData(["auth-user"], user);
       router.replace(getAuthenticatedHomeRoute(user));
     },
@@ -31,6 +43,11 @@ export function useLogin() {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (requiresTwoFactor) {
+      if (!/^\d{8}$/.test(otp)) return;
+      login();
+      return;
+    }
     const newErrors = validateLoginFields(form);
     if (newErrors.email || newErrors.password) {
       setErrors(newErrors);
@@ -45,12 +62,19 @@ export function useLogin() {
     errors,
     showPassword,
     rememberMe,
+    otp,
+    requiresTwoFactor,
     isSubmitting: isPending,
     submitError: error instanceof Error ? error.message : error ? "Unable to login." : "",
-    submitSuccess: isSuccess ? "Login successful. Taking you to your dashboard..." : "",
+    submitSuccess:
+      isSuccess && !requiresTwoFactor
+        ? "Login successful. Taking you to your dashboard..."
+        : "",
     updateField,
     togglePasswordVisibility,
     setRememberMe,
+    setOtp,
+    setRequiresTwoFactor,
     handleSubmit,
     setShowPassword,
   };

@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
+  ArrowLeft,
+  ArrowRight,
   Check,
   Download,
   FileText,
@@ -27,6 +29,7 @@ import { logoutUser } from "@/src/features/auth/services/auth-session";
 import ClientSidebar from "@/src/features/client/dashboard/components/client-sidebar";
 import { ClientDeliverablesSidebar } from "@/src/features/client/workspace/components/client-deliverables-sidebar";
 import { ClientWorkspaceHeader } from "@/src/features/client/workspace/components/client-workspace-header";
+import { SignedContractPanel } from "@/src/features/client/workspace/components/signed-contract-panel";
 import { HistoryOverlay } from "@/src/features/creator/workspace/components/deliverables-submission/history-overlay";
 import { useCampaignSetup } from "@/src/features/creator/workspace/hooks/useCampaignSetup";
 import { useDeliverableItems } from "@/src/features/client/workspace/hooks/useDeliverableItems";
@@ -46,6 +49,7 @@ import {
   getPaymentForCampaign,
   uploadPaymentProof,
 } from "@/src/features/client/workspace/services/payments-api";
+import { getInvoiceForCampaign } from "@/src/features/creator/workspace/services/invoices-api";
 import {
   downloadFinalAssetsAsZip,
   getFinalAssetsForCampaign,
@@ -62,9 +66,11 @@ const STEPS = [
 
 function Progress({
   activeStep,
+  maxAllowedStep,
   onChange,
 }: {
   activeStep: number;
+  maxAllowedStep: number;
   onChange: (step: number) => void;
 }) {
   return (
@@ -80,10 +86,10 @@ function Progress({
           >
             <button
               type="button"
-              disabled={index < activeStep}
+              disabled={index > maxAllowedStep}
               className={cn(
                 "group flex flex-col items-center gap-1",
-                index < activeStep ? "cursor-default" : "cursor-pointer",
+                index > maxAllowedStep ? "cursor-default" : "cursor-pointer",
               )}
               onClick={() => onChange(index)}
             >
@@ -125,6 +131,15 @@ function Progress({
 
 // ── Media Preview ──────────────────────────────────────────────────────────────
 
+const IMAGE_URL_PATTERN = /\.(?:avif|gif|jpe?g|png|svg|webp)(?:[?#]|$)/i;
+
+function shouldRenderAsVideo(contentUrl: string, isVideo?: boolean) {
+  const isImageUrl =
+    contentUrl.startsWith("data:image/") || IMAGE_URL_PATTERN.test(contentUrl);
+
+  return Boolean(isVideo) && !isImageUrl;
+}
+
 function MediaPreview({
   onOpen,
   contentUrl,
@@ -141,7 +156,7 @@ function MediaPreview({
       className="group flex min-h-[260px] w-full items-center justify-center border border-[#d8d4cb] bg-white"
       aria-label="Preview submitted media"
     >
-      {contentUrl && isVideo ? (
+      {contentUrl && shouldRenderAsVideo(contentUrl, isVideo) ? (
         <video
           src={contentUrl}
           className="max-h-[260px] w-full object-contain"
@@ -245,7 +260,7 @@ function WrittenAssetPanel({
       ) : asset ? (
         <div className="pt-5">
           <div
-            className="prose prose-sm min-h-[200px] max-w-none rounded border border-[#d8d4cb] p-5 leading-6 text-[#44403b] [&_img]:my-4 [&_img]:max-h-[480px] [&_img]:max-w-full [&_img]:rounded [&_img]:object-contain [&_mark]:bg-yellow-200"
+            className="prose prose-sm min-h-[200px] max-w-none break-words rounded border border-[#d8d4cb] p-5 leading-6 text-[#44403b] [&_img]:my-4 [&_img]:max-h-[480px] [&_img]:max-w-full [&_img]:rounded [&_img]:object-contain [&_mark]:bg-yellow-200"
             dangerouslySetInnerHTML={{ __html: sanitizeRichText(asset.content) }}
           />
           {asset.client_comments && (
@@ -285,7 +300,7 @@ function MediaAssetPanel({
   return (
     <section className="min-h-[410px] min-w-0 flex-1 rounded border border-[#d8d4cb] bg-white p-5 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
       <div className="flex items-center justify-between gap-4 border-b border-[#d8d4cb] pb-3">
-        <h2 className="text-2xl text-[#141518]">Media</h2>
+        <h2 className="text-2xl text-[#141518]">Media Assets</h2>
         <div className="flex items-center gap-3 text-sm text-[#6f6a63]">
           {asset && <span>Version {asset.version_number}</span>}
           <Button
@@ -363,7 +378,7 @@ function FeedbackActions({
       toast.success(
         isWrittenStep
           ? "Script approved successfully."
-          : "Video approved successfully.",
+          : "Media assets approved successfully.",
       );
       setFeedback("");
       onMutationSuccess();
@@ -406,7 +421,7 @@ function FeedbackActions({
           <p className="text-sm text-[#6f6a63]">
             {isWrittenStep
               ? "Script has been approved."
-              : "Video has been approved."}
+              : "Media assets have been approved."}
           </p>
           <Button
             type="button"
@@ -419,7 +434,7 @@ function FeedbackActions({
       ) : !currentAssetPublicId ? (
         <p className="mt-4 text-sm italic text-[#77736d]">
           Waiting for the creator to submit{" "}
-          {isWrittenStep ? "a script" : "a video"} before you can review.
+          {isWrittenStep ? "a script" : "media assets"} before you can review.
         </p>
       ) : (
         <>
@@ -522,7 +537,7 @@ function ClientDeliverableApprovedCard({
 
 // ── Contract Signing Placeholder ───────────────────────────────────────────────
 
-function ContractSigningPlaceholder() {
+function ContractSigningPlaceholder({ onNext }: { onNext: () => void }) {
   return (
     <section className="flex min-h-[350px] flex-1 flex-col items-center justify-center rounded border border-[#d8d4cb] bg-white p-7 text-center">
       <FileText className="size-12 text-[#6b1fa8]" strokeWidth={1.6} />
@@ -530,22 +545,30 @@ function ContractSigningPlaceholder() {
         The contract for this campaign needs to be reviewed and signed. Please
         check your proposal invitation or visit the contract review page.
       </p>
+      <Button type="button" className="mt-6 min-w-48" onClick={onNext}>
+        Next: Deliverables
+      </Button>
     </section>
   );
 }
 
 // ── Invoice Panel ──────────────────────────────────────────────────────────────
 
-function InvoicePanel({ campaignId }: { campaignId: string }) {
+function InvoicePanel({ campaignId, onPrevious, onNext }: { campaignId: string; onPrevious: () => void; onNext: () => void }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [invoiceOpen, setInvoiceOpen] = useState(false);
-  const { data: payment, isFetching: isLoadingInvoice, refetch: loadInvoice } =
+  const { data: invoice, isFetching: isLoadingInvoice, refetch: loadInvoice } =
     useQuery({
-      queryKey: ["payment", campaignId],
-      queryFn: () => getPaymentForCampaign(campaignId),
-      enabled: false,
+      queryKey: ["invoice", campaignId],
+      queryFn: () => getInvoiceForCampaign(campaignId),
+      enabled: true,
     });
+  const { data: payment, refetch: loadPayment } = useQuery({
+    queryKey: ["payment", campaignId],
+    queryFn: () => getPaymentForCampaign(campaignId),
+    enabled: true,
+  });
 
   const handleViewInvoice = async () => {
     const result = await loadInvoice();
@@ -556,7 +579,7 @@ function InvoicePanel({ campaignId }: { campaignId: string }) {
       return;
     }
     if (!result.data) {
-      toast.info("No payment proof has been uploaded yet.");
+      toast.info("The creator has not sent an invoice yet.");
       return;
     }
     setInvoiceOpen(true);
@@ -577,6 +600,7 @@ function InvoicePanel({ campaignId }: { campaignId: string }) {
     setIsUploading(true);
     try {
       await uploadPaymentProof(campaignId, file);
+      await loadPayment();
       toast.success("Proof of payment uploaded successfully.");
     } catch (error) {
       toast.error(
@@ -595,53 +619,102 @@ function InvoicePanel({ campaignId }: { campaignId: string }) {
       <div className="flex flex-1 flex-col items-center justify-center text-center">
         <ReceiptText className="size-12 text-[#6b1fa8]" strokeWidth={1.6} />
         <p className="mt-4 max-w-lg text-sm leading-5 text-[#44403b]">
-          The final itemized breakdown of services, fees, and pay-outs is
-          available for review. Once payment is confirmed, upload the proof of
-          payment here.
+          {invoice
+            ? "The creator has sent the invoice. Once payment is made, upload the proof of payment here."
+            : "Waiting for the creator to send the invoice."}
         </p>
         <Button
           type="button"
           className="mt-5 rounded bg-[#6b1fa8] font-normal hover:bg-[#551783]"
           onClick={handleViewInvoice}
-          disabled={isLoadingInvoice}
+          disabled={isLoadingInvoice || !invoice}
         >
           {isLoadingInvoice ? "Loading..." : "View Invoice"}
           <FileText className="ml-2 size-4" />
         </Button>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={handleProofSelection}
-        />
-        <Button
-          type="button"
-          className="mt-3 rounded bg-[#6b1fa8] font-normal hover:bg-[#551783]"
-          onClick={() => fileInputRef.current?.click()}
-          disabled={isUploading}
-        >
-          {isUploading ? "Uploading..." : "Upload Proof of Payment"}
-          <UploadCloud className="ml-2 size-4" />
-        </Button>
+        {!payment?.is_payment_verified && (
+          <>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleProofSelection}
+            />
+            <Button
+              type="button"
+              className="mt-3 rounded bg-[#6b1fa8] font-normal hover:bg-[#551783]"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isUploading || isLoadingInvoice || !invoice}
+            >
+              {isUploading
+                ? "Uploading..."
+                : payment
+                  ? "Upload New Proof of Payment"
+                  : "Upload Proof of Payment"}
+              <UploadCloud className="ml-2 size-4" />
+            </Button>
+          </>
+        )}
+        {payment && !payment.is_payment_verified && (
+          <p className="mt-3 text-sm text-muted-foreground">
+            The latest payment proof is waiting for creator verification. You may
+            upload a newer proof if needed.
+          </p>
+        )}
       </div>
 
       <Dialog open={invoiceOpen} onOpenChange={setInvoiceOpen}>
         <DialogContent className="max-h-[95vh] !max-w-5xl overflow-y-auto border-[#d8d4cb] bg-[#f2f0ea] p-8">
           <DialogTitle className="text-3xl font-normal">Invoice</DialogTitle>
-          {payment?.proof_payment_url ? (
+          {invoice ? (
             <div className="mt-5 rounded border border-[#d8d4cb] bg-white p-5">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={payment.proof_payment_url}
-                alt="Uploaded proof of payment"
-                className="max-h-[78vh] w-full object-contain"
-              />
+              <p>Invoice ID: {invoice.public_id}</p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Sent {new Date(invoice.created_at).toLocaleDateString()}
+              </p>
+              <Button asChild type="button" className="mt-4">
+                <a href={invoice.invoice_url} target="_blank" rel="noreferrer">
+                  Open invoice file
+                </a>
+              </Button>
             </div>
           ) : null}
         </DialogContent>
       </Dialog>
+<<<<<<< HEAD
 
+=======
+      <div className="mt-8 flex items-center justify-end gap-3 border-t border-[#d8d4cb] pt-4">
+        <Button variant="outline" className="min-w-32" onClick={onPrevious}>
+          Previous: Deliverables
+        </Button>
+        <Button className="min-w-32" onClick={onNext} disabled={!payment?.is_payment_verified}>
+          Next: Completion
+        </Button>
+      </div>
+    </section>
+  );
+}
+
+function DeliverableCompletedPanel({ onNext }: { onNext: () => void }) {
+  return (
+    <section className="flex min-h-[410px] min-w-0 flex-1 flex-col items-center justify-center rounded border border-[#d8d4cb] bg-white p-7 text-center shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
+      <Check className="size-14 text-[#2d7a3a]" strokeWidth={1.6} />
+      <h2 className="mt-4 text-2xl text-[#141518]">
+        Deliverable Completed &amp; Approved
+      </h2>
+      <p className="mt-2 max-w-lg text-sm leading-5 text-[#6f6a63]">
+        You have reviewed and approved this deliverable&apos;s media assets.
+      </p>
+      <Button
+        type="button"
+        className="mt-5 rounded bg-[#6b1fa8] px-8 font-normal hover:bg-[#551783]"
+        onClick={onNext}
+      >
+        Next: Invoicing
+      </Button>
+>>>>>>> origin/dev
     </section>
   );
 }
@@ -650,10 +723,12 @@ function CompletionPanel({
   campaignId,
   campaignName,
   isPaidFull,
+  onPrevious,
 }: {
   campaignId: string;
   campaignName: string;
   isPaidFull: boolean;
+  onPrevious: () => void;
 }) {
   const [isDownloading, setIsDownloading] = useState(false);
   const { data: groupedAssets, isLoading } = useQuery({
@@ -692,10 +767,15 @@ function CompletionPanel({
       <p className="mt-2 text-sm text-[#44403b]">
         {isLoading ? "Loading final assets..." : `${assets.length} final asset${assets.length === 1 ? "" : "s"} available.`}
       </p>
-      <Button className="mt-5 rounded bg-[#6b1fa8] hover:bg-[#551783]" onClick={handleDownload} disabled={isLoading || isDownloading || assets.length === 0}>
-        <Download className="mr-2 size-4" />
-        {isDownloading ? "Downloading..." : "Download Final Assets"}
-      </Button>
+      <div className="mt-8 flex items-center gap-3">
+        <Button variant="outline" onClick={onPrevious} disabled={isLoading || isDownloading}>
+          Previous: Invoicing
+        </Button>
+        <Button className="rounded bg-[#6b1fa8] hover:bg-[#551783]" onClick={handleDownload} disabled={isLoading || isDownloading || assets.length === 0}>
+          <Download className="mr-2 size-4" />
+          {isDownloading ? "Downloading..." : "Download Final Assets"}
+        </Button>
+      </div>
     </section>
   );
 }
@@ -713,6 +793,7 @@ export default function ClientWorkspace({
   const { data, isLoading: campaignLoading } = useCampaignSetup(campaignId);
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
+  const [maxAllowedStep, setMaxAllowedStep] = useState(0);
   const [activeSubmissionStep, setActiveSubmissionStep] = useState(0);
   const [activeDeliverable, setActiveDeliverable] = useState(0);
   const [activeDeliverableItem, setActiveDeliverableItem] = useState(0);
@@ -763,7 +844,10 @@ export default function ClientWorkspace({
           }
         }
       }
+      // Initialize navigation once from the persisted campaign state.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setActiveStep(initialStep);
+      setMaxAllowedStep(initialStep);
       hasInitializedRef.current = true;
     }
   }, [data, campaignLoading, isContractSigned]);
@@ -804,10 +888,11 @@ export default function ClientWorkspace({
           <ClientWorkspaceHeader
             campaignName={data?.campaign?.project_name ?? "Campaign Name"}
             campaignOverview={data?.campaign?.description ?? "Campaign Overview"}
-            progress={<Progress activeStep={activeStep} onChange={setActiveStep} />}
+            progress={<Progress activeStep={activeStep} maxAllowedStep={maxAllowedStep} onChange={(step) => step <= maxAllowedStep && setActiveStep(step)} />}
           />
 
-          <div className="mt-14 flex items-start justify-center gap-6">
+          <div className="mt-14 flex min-h-[480px] flex-col gap-4">
+            <div className="flex flex-1 items-start justify-center gap-6">
             {activeStep === 1 && (deliverables.length === 0 ? (
               <aside className="w-64 shrink-0">
                 <p className="text-2xl text-foreground">Deliverables</p>
@@ -828,6 +913,17 @@ export default function ClientWorkspace({
                 }}
                 onItemChange={setActiveDeliverableItem}
                 onStepChange={(step) => {
+                  if (step >= 1 && !selectedDeliverableItem?.written_asset_approved) {
+                    toast.info("Written assets must be approved before reviewing media assets.");
+                    return;
+                  }
+                  if (
+                    step >= 2 &&
+                    selectedDeliverableItem?.deliverable_item_status !== "APPROVED"
+                  ) {
+                    toast.info("Media assets must be approved before completing this deliverable.");
+                    return;
+                  }
                   setActiveSubmissionStep(step);
                   setActiveStep(1);
                 }}
@@ -835,12 +931,21 @@ export default function ClientWorkspace({
             ))}
 
           {/* Main Content Area */}
-          {activeStep === 0 ? (
-            <ContractSigningPlaceholder />
-          ) : activeStep === 2 ? (
-            <InvoicePanel campaignId={campaignId} />
-          ) : activeStep === 1 ? (
-            <div className="flex min-w-0 flex-1 gap-6">
+          <div className="flex min-w-0 flex-1 flex-col">
+            {activeStep === 0 ? (
+              isContractSigned && data?.contract ? (
+                <SignedContractPanel
+                  campaignId={campaignId}
+                  contractPublicId={data.contract.public_id}
+                  creatorId={data.campaign.ugc_creator_id}
+                />
+              ) : (
+                <ContractSigningPlaceholder onNext={() => setActiveStep(1)} />
+              )
+            ) : activeStep === 2 ? (
+              <InvoicePanel campaignId={campaignId} onPrevious={() => setActiveStep(1)} onNext={() => setActiveStep(3)} />
+            ) : activeStep === 1 ? (
+              <div className="flex min-w-0 flex-1 gap-6">
               {activeSubmissionStep === 0 ? (
                 <WrittenAssetPanel
                   asset={latestWrittenAsset}
@@ -855,6 +960,7 @@ export default function ClientWorkspace({
                   onPreview={() => setPreviewOpen(true)}
                 />
               ) : (
+<<<<<<< HEAD
                 <ClientDeliverableApprovedCard
                   deliverableName={activeDeliverableName}
                   allApproved={Boolean(data?.campaign?.all_deliverables_approved)}
@@ -874,19 +980,66 @@ export default function ClientWorkspace({
                   onNext={() => setActiveSubmissionStep(activeSubmissionStep + 1)}
                 />
               )}
+=======
+                <DeliverableCompletedPanel
+                  onNext={() => setActiveStep(2)}
+                />
+              )}
+              {activeSubmissionStep < 2 && (
+                <FeedbackActions
+                  submissionStep={activeSubmissionStep}
+                  writtenAssetPublicId={latestWrittenAsset?.public_id}
+                  mediaAssetPublicId={latestMediaAsset?.public_id}
+                  writtenAssetAction={latestWrittenAsset?.written_asset_action}
+                  mediaAssetAction={latestMediaAsset?.media_asset_action}
+                  onMutationSuccess={handleMutationSuccess}
+                  onNext={() => setActiveSubmissionStep(2)}
+                />
+              )}
+              </div>
+            ) : (
+              <CompletionPanel
+                campaignId={campaignId}
+                campaignName={data?.campaign?.project_name ?? "campaign"}
+                isPaidFull={Boolean(data?.campaign?.paid_full)}
+                onPrevious={() => setActiveStep(2)}
+              />
+            )}
+
+          </div>
             </div>
-          ) : (
-            <CompletionPanel
-              campaignId={campaignId}
-              campaignName={data?.campaign?.project_name ?? "campaign"}
-              isPaidFull={Boolean(data?.campaign?.paid_full)}
-            />
-          )}
+
+            <div className="mt-auto flex min-h-10 items-center justify-between">
+              {activeStep > 0 ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="rounded border-[#6b1fa8] px-6 font-normal text-[#6b1fa8]"
+                  onClick={() => setActiveStep((step) => Math.max(0, step - 1))}
+                >
+                  <ArrowLeft className="mr-2 size-4" />
+                  Previous
+                </Button>
+              ) : (
+                <span />
+              )}
+              {activeStep < maxAllowedStep && (
+                <Button
+                  type="button"
+                  className="rounded bg-[#6b1fa8] px-6 font-normal hover:bg-[#551783]"
+                  onClick={() => setActiveStep((step) => step + 1)}
+                >
+                  Next
+                  <ArrowRight className="ml-2 size-4" />
+                </Button>
+              )}
+>>>>>>> origin/dev
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Video Preview Dialog */}
+      {/* Media Preview Dialog */}
       <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
         <DialogContent
           showCloseButton={false}
@@ -899,7 +1052,11 @@ export default function ClientWorkspace({
             </button>
           </div>
           <div className="mx-auto mt-5 w-full max-w-3xl rounded border border-[#d8d4cb] bg-white p-5">
-            {latestMediaAsset?.content_url && latestMediaAsset.is_video ? (
+            {latestMediaAsset?.content_url &&
+            shouldRenderAsVideo(
+              latestMediaAsset.content_url,
+              latestMediaAsset.is_video,
+            ) ? (
               <video
                 src={latestMediaAsset.content_url}
                 controls

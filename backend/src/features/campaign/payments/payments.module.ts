@@ -6,6 +6,7 @@ import { CampaignsModule } from '../campaigns/campaigns.module';
 import { UploadModule } from 'src/shared/upload/upload.module';
 import { ProposalsModule } from '../proposals/proposals.module';
 import { NotificationsModule } from '../../../shared/notifications/notifications.module';
+import { InvoiceModule } from '../invoices/invoice.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { NotificationsModule } from '../../../shared/notifications/notifications
     UploadModule,
     ProposalsModule,
     NotificationsModule,
+    InvoiceModule,
   ],
   providers: [PaymentsService],
   controllers: [PaymentsController],

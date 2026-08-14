@@ -4,11 +4,13 @@ import Button from "@/src/components/atoms/button"
 
 interface DeliverableApprovedCardProps {
   deliverableName: string
+  onPrevious: () => void
   onNext: () => void
 }
 
 export function DeliverableApprovedCard({
   deliverableName,
+  onPrevious,
   onNext,
 }: DeliverableApprovedCardProps) {
   return (
@@ -28,9 +30,14 @@ export function DeliverableApprovedCard({
         card on the left.
       </p>
 
-      <Button type="button" className="mt-2 min-w-48" onClick={onNext}>
-        Next: Invoicing
-      </Button>
+      <div className="mt-2 flex items-center justify-center gap-3">
+        <Button variant="outline" type="button" className="min-w-48" onClick={onPrevious}>
+          Previous: Media Assets
+        </Button>
+        <Button type="button" className="min-w-48" onClick={onNext}>
+          Next: Invoicing
+        </Button>
+      </div>
     </Card>
   )
 }

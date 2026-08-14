@@ -82,9 +82,9 @@ export default function CreatorDashboard() {
           <h2 className="text-xl sm:text-2xl font-bold mb-2">Urgent / To Do</h2>
           <div className="flex flex-row flex-wrap gap-4 mb-10">
             {todos.length > 0 ? (
-              todos.map((todo) => (
+              todos.map((todo, index) => (
                 <CreatorTodoCard
-                  key={`${todo.campaignName}-${todo.message}`}
+                  key={`${todo.campaignName}-${todo.message}-${index}`}
                   campaignName={todo.campaignName}
                   message={todo.message}
                 />

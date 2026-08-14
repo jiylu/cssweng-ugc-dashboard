@@ -2,6 +2,7 @@ import {
   IsEmail,
   IsIn,
   IsNotEmpty,
+  IsOptional,
   IsString,
   Matches,
   MaxLength,
@@ -19,34 +20,35 @@ export class UpdateOwnProfileDTO {
   lastName!: string;
 
   @IsString()
+  @IsOptional()
   @MaxLength(50)
-  middleName!: string;
+  middleName?: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   @MaxLength(100)
-  displayName!: string;
+  displayName?: string;
 
   @IsString()
+  @IsOptional()
   @Matches(/^(?:[a-zA-Z0-9._]{3,30})?$/, {
     message:
       'Primary handle must be 3-30 letters, numbers, dots, or underscores.',
   })
-  primaryHandle!: string;
-
-  @IsString()
-  @MaxLength(100)
-  bio!: string;
+  primaryHandle?: string;
 
   @IsEmail()
   email!: string;
 
   @IsString()
+  @IsOptional()
   @Matches(/^(?:\d{7,15})?$/, {
     message: 'Phone number must contain 7-15 digits.',
   })
-  phoneNumber!: string;
+  phoneNumber?: string;
 
+  @IsString({ message: 'Timezone must be a string.' })
+  @IsNotEmpty({ message: 'Timezone is required.' })
   @IsIn(['Asia/Manila', 'Asia/Tokyo'])
   timezone!: string;
 }

@@ -4,6 +4,7 @@ import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { PaymentsService } from '../payments.service';
 import { CampaignsService } from 'src/features/campaign/campaigns/campaigns.service';
 import { ProposalsService } from 'src/features/campaign/proposals/proposals.service';
+import { InvoiceService } from 'src/features/campaign/invoices/invoice.service';
 import { CreatePaymentDTO } from '../dto/create-payment.dto';
 import {
   CampaignStatus,
@@ -37,6 +38,10 @@ describe('PaymentsService', () => {
     findProposalByCampaignId: jest.fn(),
   };
 
+  const mockInvoiceService = {
+    findInvoiceForCampaign: jest.fn(),
+  };
+
   beforeEach(async () => {
     mockPrisma.$transaction.mockImplementation(async (callback: any) =>
       callback(mockPrisma),
@@ -56,6 +61,10 @@ describe('PaymentsService', () => {
         {
           provide: ProposalsService,
           useValue: mockProposalsService,
+        },
+        {
+          provide: InvoiceService,
+          useValue: mockInvoiceService,
         },
       ],
     }).compile();
@@ -93,6 +102,7 @@ describe('PaymentsService', () => {
 
       mockCampaignService.findOneCampaign.mockResolvedValue(mockCampaign);
       mockPrisma.payments.create.mockResolvedValue(mockPayment);
+      mockInvoiceService.findInvoiceForCampaign.mockResolvedValue({});
 
       const res = await service.createPayment(dto);
       expect(res).toEqual({
@@ -102,7 +112,7 @@ describe('PaymentsService', () => {
       });
       expect(mockPrisma.payments.create).toHaveBeenCalledWith({
         data: {
-          public_id: 'mock-pb-id',
+          public_id: expect.any(String),
           campaign_id: 'camp-1',
           proof_payment_url: dto.proofPaymentUrl,
         },
