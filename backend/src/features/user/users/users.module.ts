@@ -29,11 +29,17 @@ export class UsersModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(AuthSessionMiddleware)
-      .forRoutes(
-        { path: 'users/me', method: RequestMethod.GET },
-        { path: 'users/me', method: RequestMethod.PATCH },
-        { path: 'users/me/profile-picture', method: RequestMethod.POST },
-        { path: 'users/me/profile-picture', method: RequestMethod.DELETE },
-      );
+      .exclude(
+        { path: 'users', method: RequestMethod.POST },
+        { path: 'users/login', method: RequestMethod.POST },
+        { path: 'users/forgot-password', method: RequestMethod.POST },
+        { path: 'users/reset-password', method: RequestMethod.POST },
+        { path: 'users/:userId', method: RequestMethod.GET },
+        { path: 'otps', method: RequestMethod.POST },
+        { path: 'otps/validate', method: RequestMethod.POST },
+        { path: 'otps/guest', method: RequestMethod.POST },
+        { path: 'otps/guest/validate', method: RequestMethod.POST },
+      )
+      .forRoutes('*');
   }
 }

@@ -63,13 +63,17 @@ describe('WrittenAssetDraftsService', () => {
         created_at: expect.any(Date),
       };
 
-      mockWrittenAssetsService.resolvePublicId.mockResolvedValue('internal-written-1');
+      mockWrittenAssetsService.resolvePublicId.mockResolvedValue(
+        'internal-written-1',
+      );
       mockPrisma.writtenAssetsDrafts.create.mockResolvedValue(mockDraft);
 
       const res = await service.createDraft(dto);
 
       expect(res).toEqual(mockDraft);
-      expect(mockWrittenAssetsService.resolvePublicId).toHaveBeenCalledWith('pub-written-1');
+      expect(mockWrittenAssetsService.resolvePublicId).toHaveBeenCalledWith(
+        'pub-written-1',
+      );
       expect(mockPrisma.writtenAssetsDrafts.create).toHaveBeenCalledWith({
         data: {
           public_id: 'mock-public-id',
@@ -83,7 +87,9 @@ describe('WrittenAssetDraftsService', () => {
 
   describe('resolvePublicId', () => {
     it('should return draft_id for valid publicId', async () => {
-      mockPrisma.writtenAssetsDrafts.findFirst.mockResolvedValue({ written_asset_draft_id: 'internal-draft-1' });
+      mockPrisma.writtenAssetsDrafts.findFirst.mockResolvedValue({
+        written_asset_draft_id: 'internal-draft-1',
+      });
 
       const res = await service.resolvePublicId('pub-valid');
       expect(res).toBe('internal-draft-1');
@@ -92,7 +98,9 @@ describe('WrittenAssetDraftsService', () => {
     it('should throw NotFoundException when no draft matches', async () => {
       mockPrisma.writtenAssetsDrafts.findFirst.mockResolvedValue(null);
 
-      await expect(service.resolvePublicId('pub-missing')).rejects.toBeInstanceOf(NotFoundException);
+      await expect(
+        service.resolvePublicId('pub-missing'),
+      ).rejects.toBeInstanceOf(NotFoundException);
     });
   });
 
@@ -107,7 +115,9 @@ describe('WrittenAssetDraftsService', () => {
 
     it('should throw NotFoundException if draft not found', async () => {
       mockPrisma.writtenAssetsDrafts.findFirst.mockResolvedValue(null);
-      await expect(service.findOneDraft('draft-1')).rejects.toBeInstanceOf(NotFoundException);
+      await expect(service.findOneDraft('draft-1')).rejects.toBeInstanceOf(
+        NotFoundException,
+      );
     });
   });
 
@@ -141,7 +151,7 @@ describe('WrittenAssetDraftsService', () => {
   describe('deleteDraft', () => {
     it('should delete a draft', async () => {
       const existing = { written_asset_draft_id: 'draft-1' };
-      
+
       mockPrisma.writtenAssetsDrafts.findFirst.mockResolvedValue(existing);
       mockPrisma.writtenAssetsDrafts.delete.mockResolvedValue(existing);
 

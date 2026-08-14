@@ -1,4 +1,13 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { WrittenAssetDraftsService } from './written-asset-drafts.service';
 import { CreateWrittenAssetDraftDto } from './dto/create-written-asset-draft.dto';
 import { plainToInstance } from 'class-transformer';
@@ -30,7 +39,8 @@ export class WrittenAssetDraftsController {
   @ApiFindWrittenAssetDraft()
   @Get(':publicId')
   async findOne(@Param('publicId') publicId: string) {
-    const draftId = await this.writtenAssetDraftsService.resolvePublicId(publicId);
+    const draftId =
+      await this.writtenAssetDraftsService.resolvePublicId(publicId);
     const draft = await this.writtenAssetDraftsService.findOneDraft(draftId);
     return plainToInstance(WrittenAssetDraftEntity, draft);
   }
@@ -38,8 +48,12 @@ export class WrittenAssetDraftsController {
   @ApiFindWrittenAssetDraftsForAsset()
   @Get()
   async findMany(@Query('writtenAssetPublicId') writtenAssetPublicId: string) {
-    const writtenAssetId = await this.writtenAssetsService.resolvePublicId(writtenAssetPublicId);
-    const drafts = await this.writtenAssetDraftsService.findDraftsForWrittenAsset(writtenAssetId);
+    const writtenAssetId =
+      await this.writtenAssetsService.resolvePublicId(writtenAssetPublicId);
+    const drafts =
+      await this.writtenAssetDraftsService.findDraftsForWrittenAsset(
+        writtenAssetId,
+      );
     return plainToInstance(WrittenAssetDraftEntity, drafts);
   }
 
@@ -49,16 +63,22 @@ export class WrittenAssetDraftsController {
     @Param('publicId') publicId: string,
     @Body() dto: UpdateWrittenAssetDraftDto,
   ) {
-    const draftId = await this.writtenAssetDraftsService.resolvePublicId(publicId);
-    const updatedDraft = await this.writtenAssetDraftsService.updateDraft(draftId, dto);
+    const draftId =
+      await this.writtenAssetDraftsService.resolvePublicId(publicId);
+    const updatedDraft = await this.writtenAssetDraftsService.updateDraft(
+      draftId,
+      dto,
+    );
     return plainToInstance(WrittenAssetDraftEntity, updatedDraft);
   }
 
   @ApiDeleteWrittenAssetDraft()
   @Delete(':publicId')
   async remove(@Param('publicId') publicId: string) {
-    const draftId = await this.writtenAssetDraftsService.resolvePublicId(publicId);
-    const deletedDraft = await this.writtenAssetDraftsService.deleteDraft(draftId);
+    const draftId =
+      await this.writtenAssetDraftsService.resolvePublicId(publicId);
+    const deletedDraft =
+      await this.writtenAssetDraftsService.deleteDraft(draftId);
     return plainToInstance(WrittenAssetDraftEntity, deletedDraft);
   }
 }

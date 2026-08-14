@@ -54,7 +54,8 @@ export class MediaAssetDraftsController {
   @ApiFindMediaAssetDraft()
   @Get(':publicId')
   async findOne(@Param('publicId') publicId: string) {
-    const draftId = await this.mediaAssetDraftsService.resolvePublicId(publicId);
+    const draftId =
+      await this.mediaAssetDraftsService.resolvePublicId(publicId);
     const draft = await this.mediaAssetDraftsService.findOneDraft(draftId);
     return plainToInstance(MediaAssetDraftEntity, draft);
   }
@@ -62,8 +63,10 @@ export class MediaAssetDraftsController {
   @ApiFindMediaAssetDraftsForAsset()
   @Get()
   async findMany(@Query('mediaAssetPublicId') mediaAssetPublicId: string) {
-    const mediaAssetId = await this.mediaAssetsService.resolvePublicId(mediaAssetPublicId);
-    const drafts = await this.mediaAssetDraftsService.findDraftsForMediaAsset(mediaAssetId);
+    const mediaAssetId =
+      await this.mediaAssetsService.resolvePublicId(mediaAssetPublicId);
+    const drafts =
+      await this.mediaAssetDraftsService.findDraftsForMediaAsset(mediaAssetId);
     return plainToInstance(MediaAssetDraftEntity, drafts);
   }
 
@@ -77,17 +80,23 @@ export class MediaAssetDraftsController {
     if (!file) {
       throw new BadRequestException('File is required');
     }
-    const draftId = await this.mediaAssetDraftsService.resolvePublicId(publicId);
+    const draftId =
+      await this.mediaAssetDraftsService.resolvePublicId(publicId);
     const uploadResult = await this.uploadService.upload(file);
-    const updatedDraft = await this.mediaAssetDraftsService.updateDraft(draftId, uploadResult.url);
+    const updatedDraft = await this.mediaAssetDraftsService.updateDraft(
+      draftId,
+      uploadResult.url,
+    );
     return plainToInstance(MediaAssetDraftEntity, updatedDraft);
   }
 
   @ApiDeleteMediaAssetDraft()
   @Delete(':publicId')
   async remove(@Param('publicId') publicId: string) {
-    const draftId = await this.mediaAssetDraftsService.resolvePublicId(publicId);
-    const deletedDraft = await this.mediaAssetDraftsService.deleteDraft(draftId);
+    const draftId =
+      await this.mediaAssetDraftsService.resolvePublicId(publicId);
+    const deletedDraft =
+      await this.mediaAssetDraftsService.deleteDraft(draftId);
     return plainToInstance(MediaAssetDraftEntity, deletedDraft);
   }
 }

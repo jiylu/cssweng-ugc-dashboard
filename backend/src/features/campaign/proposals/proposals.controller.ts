@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Logger, Param, Patch } from '@nestjs/common';
+import { Body, Controller, Get, Logger, Param, Patch, UseGuards } from '@nestjs/common';
 import { ProposalsService } from './proposals.service';
 import {
   ApiFindProposal,
@@ -22,7 +22,9 @@ import { UpdateProposalHistoryCommentDTO } from './dto/update-proposal-history-c
 import { UpdateProposalCommentDTO } from './dto/update-proposal-comment.dto';
 import { UpdateProposalStatusDTO } from './dto/update-proposal-status.dto';
 import { ProposalHistoryEntity } from './entities/proposal-history.entity';
-import { ProposalStatus } from '@prisma/client';
+import { ProposalStatus, UserRoles } from '@prisma/client';
+import { RolesGuard } from 'src/shared/guards/roles.guard';
+import { Roles } from 'src/shared/decorators/roles.decorator';
 
 @Controller('proposals')
 export class ProposalsController {
@@ -36,6 +38,7 @@ export class ProposalsController {
 
   @ApiFindProposal()
   @Get(':publicId')
+  @UseGuards(RolesGuard)
   async findOneActive(@Param('publicId') publicId: string) {
     const proposalId = await this.proposalsService.resolvePublicId(publicId);
     const proposal = await this.proposalsService.findActiveProposal(proposalId);
@@ -45,6 +48,7 @@ export class ProposalsController {
 
   @ApiFindProposalsForUser()
   @Get('user/:userId')
+  @UseGuards(RolesGuard)
   async findProposalsForUser(@Param('userId') userId: string) {
     const proposals = await this.proposalsService.findProposalsForUser(userId);
 
@@ -53,6 +57,7 @@ export class ProposalsController {
 
   @ApiFindActiveProposalByClientEmail()
   @Get('active/:clientEmail')
+  @UseGuards(RolesGuard)
   async findActiveProposalByClientEmail(
     @Param('clientEmail') clientEmail: string,
   ) {
@@ -64,6 +69,7 @@ export class ProposalsController {
 
   @ApiFindProposalByCampaign()
   @Get('/campaign/:publicId')
+  @UseGuards(RolesGuard)
   async findOneByCampaign(@Param('publicId') publicId: string) {
     const campaignPublicId =
       await this.campaignsService.resolveCampaignPublicId(publicId);
@@ -75,6 +81,8 @@ export class ProposalsController {
 
   @ApiUpdateProposalStatus()
   @Patch('status/:publicId')
+  @UseGuards(RolesGuard)
+  @Roles(UserRoles.CLIENT)
   async updateStatus(
     @Param('publicId') publicId: string,
     @Body() dto: UpdateProposalStatusDTO,
@@ -108,6 +116,8 @@ export class ProposalsController {
 
   @ApiUpdateProposalComment()
   @Patch(':publicId/comments')
+  @UseGuards(RolesGuard)
+  @Roles(UserRoles.CLIENT)
   async updateComments(
     @Param('publicId') publicId: string,
     @Body() dto: UpdateProposalCommentDTO,
@@ -130,6 +140,8 @@ export class ProposalsController {
 
   @ApiReviseProposal()
   @Patch('revise/:publicId')
+  @UseGuards(RolesGuard)
+  @Roles(UserRoles.CLIENT)
   async revise(
     @Param('publicId') publicId: string,
     @Body() dto: UpdateProposalHistoryCommentDTO,
@@ -152,6 +164,8 @@ export class ProposalsController {
 
   @ApiRejectProposal()
   @Patch('/reject/:publicId')
+  @UseGuards(RolesGuard)
+  @Roles(UserRoles.CLIENT)
   async reject(@Param('publicId') publicId: string) {
     const { updatedProposal, campaign } =
       await this.proposalsService.rejectProposal(publicId);
@@ -172,6 +186,8 @@ export class ProposalsController {
 
   @ApiAcceptProposal()
   @Patch('/accept/:publicId')
+  @UseGuards(RolesGuard)
+  @Roles(UserRoles.CLIENT)
   async accept(@Param('publicId') publicId: string) {
     const { updatedProposal, updatedCampaign } =
       await this.proposalsService.acceptProposal(publicId);
@@ -192,6 +208,8 @@ export class ProposalsController {
 
   @ApiCancelProposal()
   @Patch('/cancel/:publicId')
+  @UseGuards(RolesGuard)
+  @Roles(UserRoles.CREATOR)
   async cancel(@Param('publicId') publicId: string) {
     const updatedProposal =
       await this.proposalsService.cancelProposal(publicId);
@@ -201,6 +219,7 @@ export class ProposalsController {
 
   @ApiFindAllProposalHistory()
   @Get('/history/:publicId')
+  @UseGuards(RolesGuard)
   async findAllHistory(@Param('publicId') publicId: string) {
     const proposalId = await this.proposalsService.resolvePublicId(publicId);
     const histories =

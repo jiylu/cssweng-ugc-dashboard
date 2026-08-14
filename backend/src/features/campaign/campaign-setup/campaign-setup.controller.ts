@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { CampaignSetupService } from './campaign-setup.service';
 import { CreateCampaignRequestDto } from './dto/create-campaign-request-dto';
@@ -15,7 +16,7 @@ import {
   ApiUpdateCampaignSetup,
 } from './docs/campaign-setup.controller.swagger';
 import { ActivityLogService } from '../../../shared/activity-log/activity-log.service';
-import { Action, EntityType } from '@prisma/client';
+import { Action, EntityType, UserRoles } from '@prisma/client';
 import { UpdateCampaignSetupDto } from './dto/update-campaign-setup.dto';
 import { CampaignsService } from '../campaigns/campaigns.service';
 import { plainToInstance } from 'class-transformer';
@@ -27,6 +28,8 @@ import { AddOnsEntity } from '../add-ons/entities/add-ons.entity';
 import { GiftedProductsEntity } from '../gifted-products/entities/gifted-products.entity';
 import { EmailService } from '../../../shared/email/email.service';
 import { NotificationsService } from '../../../shared/notifications/notifications.service';
+import { RolesGuard } from 'src/shared/guards/roles.guard';
+import { Roles } from 'src/shared/decorators/roles.decorator';
 
 @Controller('campaign-setup')
 export class CampaignSetupController {
@@ -42,6 +45,8 @@ export class CampaignSetupController {
 
   @ApiCreateFullCampaign()
   @Post()
+  @UseGuards(RolesGuard)
+  @Roles(UserRoles.CREATOR)
   async create(@Body() dto: CreateCampaignRequestDto) {
     const result =
       await this.campaignSetupService.createFullCampaignService(dto);
@@ -64,6 +69,14 @@ export class CampaignSetupController {
         this.logger.warn('Failed to send proposal email:', err);
       });
 
+    if (result.campaign.client_id) {
+      await this.notificationsService.createNotification({
+        userId: result.campaign.client_id,
+        title: 'New Campaign Setup Submitted',
+        message: `The creator has submitted a new campaign setup for "${dto.campaign.projectName}". Please review the details.`,
+      });
+    }
+
     return {
       campaign: plainToInstance(CampaignsEntity, result.campaign),
       proposal: plainToInstance(ProposalsEntity, result.proposal),
@@ -77,9 +90,10 @@ export class CampaignSetupController {
     };
   }
 
-  // TODO: Add activity log
   @ApiUpdateCampaignSetup()
   @Patch(':publicId')
+  @UseGuards(RolesGuard)
+  @Roles(UserRoles.CREATOR)
   async update(
     @Param('publicId') publicId: string,
     @Body() dto: UpdateCampaignSetupDto,
@@ -146,6 +160,7 @@ export class CampaignSetupController {
 
   @ApiGetFullCampaignDetails()
   @Get('proposal/:publicId')
+  @UseGuards(RolesGuard)
   async findOneByProposal(@Param('publicId') publicId: string) {
     const result =
       await this.campaignSetupService.getFullCampaignDetailsByProposalPublicId(
@@ -167,6 +182,7 @@ export class CampaignSetupController {
 
   @ApiGetFullCampaignDetails()
   @Get(':publicId')
+  @UseGuards(RolesGuard)
   async findOne(@Param('publicId') publicId: string) {
     const campaignId =
       await this.campaignsService.resolveCampaignPublicId(publicId);
