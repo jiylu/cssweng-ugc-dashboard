@@ -93,6 +93,11 @@ export const styles = StyleSheet.create({
   tableFooterText: {
     fontSize: 10,
     fontWeight: "bold",
+    marginRight: 8,
+  },
+  tableFooterTotal: {
+    fontSize: 10,
+    fontWeight: "bold",
   },
   termBlock: {
     marginBottom: 5,

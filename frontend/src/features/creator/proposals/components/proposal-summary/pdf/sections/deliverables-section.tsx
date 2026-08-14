@@ -60,6 +60,9 @@ export function DeliverablesSection({
       )}
       <View style={styles.tableFooter}>
         <Text style={styles.tableFooterText}>
+          Tax ({summary.fees.taxRate}%): {formatCurrency(summary.fees.tax, summary.fees.currency)}
+        </Text>
+        <Text style={styles.tableFooterTotal}>
           Total ({summary.fees.currency}): {formatCurrency(summary.fees.total, summary.fees.currency)}
         </Text>
       </View>

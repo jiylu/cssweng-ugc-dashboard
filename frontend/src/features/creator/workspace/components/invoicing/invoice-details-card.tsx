@@ -1,5 +1,5 @@
 "use client"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { toast } from "sonner"
 import { Receipt, Eye, ArrowRight, CircleCheck, ExternalLink } from "lucide-react"
 import { Card } from "@/src/components/atoms/card"
@@ -20,6 +20,27 @@ export function InvoiceDetailsCard({ campaignId }: InvoiceDetailsCardProps) {
   const [checked, setChecked] = useState(false)
   const [isLoadingInvoice, setIsLoadingInvoice] = useState(false)
   const [isSending, setIsSending] = useState(false)
+  const [initialLoading, setInitialLoading] = useState(true)
+
+  useEffect(() => {
+    let cancelled = false
+    getPaymentForCampaign(campaignId)
+      .then((result) => {
+        if (!cancelled) {
+          setPayment(result)
+          setChecked(true)
+        }
+      })
+      .catch(() => {
+        // ignore silent fetch errors on initial load
+      })
+      .finally(() => {
+        if (!cancelled) setInitialLoading(false)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [campaignId])
 
   const handleViewInvoice = async () => {
     setIsLoadingInvoice(true)
@@ -62,6 +83,14 @@ export function InvoiceDetailsCard({ campaignId }: InvoiceDetailsCardProps) {
     } finally {
       setIsSending(false)
     }
+  }
+
+  if (initialLoading) {
+    return (
+      <Card className="flex flex-col items-center gap-4 overflow-hidden p-8">
+        <p className="text-sm text-muted-foreground">Loading invoice...</p>
+      </Card>
+    )
   }
 
   if (payment?.is_payment_verified) {
