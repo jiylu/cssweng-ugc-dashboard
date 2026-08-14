@@ -118,7 +118,7 @@ export function PublicProfileSection({
         {/* name and handle */}
         <div className="flex-1 flex flex-col gap-6 w-full">
           <div className="space-y-2">
-            <label className="text-[15px] font-normal uppercase text-[#141518]">
+            <label className="text-[15px] font-normal uppercase text-muted-foreground">
               Display Name
             </label>
             <Input
@@ -126,11 +126,11 @@ export function PublicProfileSection({
               value={data.displayName}
               disabled={!isEditing}
               onChange={(event) => onChange("displayName", event.target.value)}
-              className="placeholder:text-gray-400"
+              className="placeholder:text-gray-400 border-muted"
             />
           </div>
           <div className="space-y-2">
-            <label className="text-[15px] font-normal uppercase text-[#141518]">
+            <label className="text-[15px] font-normal uppercase text-muted-foreground">
               Primary Handle
             </label>
             <Input
@@ -143,7 +143,7 @@ export function PublicProfileSection({
                   event.target.value.replace(/[^a-zA-Z0-9._]/g, ""),
                 )
               }
-              className="placeholder:text-gray-400"
+              className="placeholder:text-gray-400 border-muted"
             />
           </div>
         </div>
@@ -151,13 +151,13 @@ export function PublicProfileSection({
 
       {/* bio */}
       <div className="space-y-2">
-        <label className="text-[15px] font-normal uppercase text-[#141518]">
+        <label className="text-[15px] font-normal uppercase text-muted-foreground">
           Bio
         </label>
         <div className="relative">
           <Textarea
             placeholder="Enter your bio"
-            className="min-h-[160px] resize-none pb-8 italic placeholder:text-gray-400"
+            className="min-h-[160px] resize-none pb-8 italic placeholder:text-gray-400 border-muted"
             value={data.bio ?? ""}
             disabled={!isEditing}
             onChange={(event) => onChange("bio", event.target.value)}

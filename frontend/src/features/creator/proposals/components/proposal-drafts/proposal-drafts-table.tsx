@@ -20,13 +20,13 @@ export function ProposalDraftsTable({ drafts, onContinueEditing, onDelete, isDel
                     <EmptyMedia variant="icon">
                         <FileText />
                     </EmptyMedia>
-                    <EmptyTitle>No proposal drafts yet</EmptyTitle>
-                    <EmptyDescription>
+                    <EmptyTitle className="text-lg">No proposal drafts yet</EmptyTitle>
+                    <EmptyDescription className="text-base">
                         You don&apos;t have any saved proposal drafts. Start a new campaign proposal to get going.
                     </EmptyDescription>
                 </EmptyHeader>
                 <EmptyContent>
-                    <Button asChild>
+                    <Button asChild className="p-5">
                         <Link href="/proposals/create-campaign">
                             <PenLine />
                             Create a Proposal
