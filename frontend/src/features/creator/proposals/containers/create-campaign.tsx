@@ -71,6 +71,8 @@ export default function CreateCampaign() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setupDetails, user])
+
+  useEffect(() => {
     const warnBeforeLeaving = (event: BeforeUnloadEvent) => {
       event.preventDefault()
       event.returnValue = true
