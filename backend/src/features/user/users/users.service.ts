@@ -406,7 +406,6 @@ export class UserService {
         middle_name: normalizeName(dto.middleName),
         display_name: dto.displayName.trim(),
         primary_handle: dto.primaryHandle.trim(),
-        bio: dto.bio.trim(),
         phone_number: dto.phoneNumber,
         timezone: dto.timezone,
       },

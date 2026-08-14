@@ -25,7 +25,6 @@ export interface ProfileSettings {
   profilePic: string | null;
   displayName: string;
   primaryHandle: string;
-  bio: string;
   firstName: string;
   lastName: string;
   middleName?: string;
@@ -60,7 +59,6 @@ export function SettingsContainer() {
     profilePic: null,
     displayName: "",
     primaryHandle: "",
-    bio: "",
     firstName: "",
     lastName: "",
     middleName: "",
@@ -78,7 +76,6 @@ export function SettingsContainer() {
       displayName:
         user.display_name || `${user.first_name} ${user.last_name}`.trim(),
       primaryHandle: user.primary_handle ?? "",
-      bio: user.bio ?? "",
       firstName: user.first_name,
       lastName: user.last_name,
       middleName: user.middle_name ?? "",
@@ -97,7 +94,6 @@ export function SettingsContainer() {
         middleName: profile.middleName ?? "",
         displayName: profile.displayName,
         primaryHandle: profile.primaryHandle,
-        bio: profile.bio,
         email: profile.accountEmail,
         phoneNumber: profile.phoneNumber ?? "",
         timezone: profile.location ?? "Asia/Manila",
@@ -182,7 +178,6 @@ export function SettingsContainer() {
       displayName:
         user.display_name || `${user.first_name} ${user.last_name}`.trim(),
       primaryHandle: user.primary_handle,
-      bio: user.bio,
       firstName: user.first_name,
       lastName: user.last_name,
       middleName: user.middle_name,
