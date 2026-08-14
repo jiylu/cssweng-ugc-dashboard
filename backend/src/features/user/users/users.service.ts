@@ -449,9 +449,10 @@ export class UserService {
         email,
         first_name: normalizeName(dto.firstName),
         last_name: normalizeName(dto.lastName),
-        middle_name: normalizeName(dto.middleName),
-        display_name: dto.displayName.trim(),
-        primary_handle: dto.primaryHandle.trim(),
+        middle_name:
+          dto.middleName === undefined ? undefined : normalizeName(dto.middleName),
+        display_name: dto.displayName?.trim(),
+        primary_handle: dto.primaryHandle?.trim(),
         phone_number: dto.phoneNumber,
         timezone: dto.timezone,
       },
