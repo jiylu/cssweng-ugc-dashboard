@@ -1,5 +1,6 @@
 "use client"
 import { useCallback, useRef, useState } from "react";
+import Profile from "@/src/components/molecules/profile";
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import CreatorSidebar from "@/src/components/organisms/creator-sidebar"
@@ -274,9 +275,17 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
       <section className="flex-1 h-screen overflow-y-scroll scrollbar-gutter-stable">
         <div className="flex flex-col gap-6 p-8 w-full max-w-325 m-auto">
           {/* Header */}
-          <div className="flex items-start justify-between">
-            <h1 className="text-4xl font-normal text-foreground">Workspace</h1>
-          </div>
+          <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between">
+                    <h1 className="text-4xl font-normal text-foreground">Workspace</h1>
+                </div>
+
+                <Profile 
+                  firstName={user.first_name}
+                  lastName={user.last_name}
+                  email={user.email}
+                />
+              </div>
           <Separator />
           <div className="flex items-start justify-between bg-white px-8 py-7">
             <WorkspaceHeader
