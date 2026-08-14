@@ -35,7 +35,7 @@ export function CampaignList({ campaigns, clientNames, page, onPageChange }: Cam
       ))}
 
       <div className="flex items-center justify-between mt-2">
-        <p className="text-sm text-muted-foreground">
+        <p className="shrink-0 whitespace-nowrap text-sm text-muted-foreground">
           Showing {campaigns.length} Campaign{campaigns.length !== 1 ? "s" : ""}
         </p>
         <Pagination>

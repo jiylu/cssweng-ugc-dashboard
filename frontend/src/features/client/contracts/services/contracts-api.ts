@@ -7,6 +7,23 @@ export interface SignContractPayload {
   signerRole: "CLIENT" | "CREATOR";
 }
 
+export interface ContractStatus {
+  public_id: string;
+  creator_signed: boolean;
+  client_signed: boolean;
+  effective_date: string | null;
+}
+
+export async function getContractStatus(contractPublicId: string): Promise<ContractStatus> {
+  const response = await fetch(`${API_BASE_URL}/contracts/${contractPublicId}`, {
+    credentials: "include",
+  });
+  if (!response.ok) {
+    throw new Error(await parseApiError(response, "Unable to load contract status."));
+  }
+  return response.json();
+}
+
 function dataUrlToPng(dataUrl: string, filename: string): File {
   const [metadata, encodedData] = dataUrl.split(",");
   if (!metadata || !encodedData || !metadata.includes("image/png")) {

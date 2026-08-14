@@ -59,4 +59,7 @@ export class CampaignsEntity {
 
   @Expose()
   all_deliverables_approved: boolean;
+
+  @Expose()
+  paid_full: boolean;
 }
