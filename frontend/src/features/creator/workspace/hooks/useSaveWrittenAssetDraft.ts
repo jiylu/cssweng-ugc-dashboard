@@ -2,13 +2,13 @@ import { useMutation } from "@tanstack/react-query"
 import { saveWrittenAssetDraft } from "../services/deliverable-submissions-api"
 
 export interface SaveWrittenAssetDraftPayload {
-  writtenAssetPublicId: string
+  deliverableItemPublicId: string
   content: string
 }
 
 export function useSaveWrittenAssetDraft() {
   return useMutation({
-    mutationFn: ({ writtenAssetPublicId, content }: SaveWrittenAssetDraftPayload) =>
-      saveWrittenAssetDraft(writtenAssetPublicId, content),
+    mutationFn: ({ deliverableItemPublicId, content }: SaveWrittenAssetDraftPayload) =>
+      saveWrittenAssetDraft(deliverableItemPublicId, content),
   })
 }

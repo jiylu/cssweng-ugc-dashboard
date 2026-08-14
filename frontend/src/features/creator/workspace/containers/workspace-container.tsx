@@ -31,7 +31,6 @@ import {
   getFinalAssetsForCampaign,
 } from "@/src/features/creator/workspace/services/final-assets-api"
 import { getPaymentForCampaign } from "@/src/features/creator/workspace/services/payments-api"
-import { clearWrittenAssetLocalDraft } from "@/src/features/creator/workspace/utils/written-asset-draft-storage"
 
 interface WorkspaceProps {
   campaignId: string
@@ -232,10 +231,7 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
     submitWrittenAsset(
       { deliverableItemId: selectedDeliverableItem.public_id, content },
       {
-        onSuccess: () => {
-          clearWrittenAssetLocalDraft(selectedDeliverableItem.public_id)
-          toast.success("Written assets submitted for approval.")
-        },
+        onSuccess: () => toast.success("Written assets submitted for approval."),
         onError: (error) =>
           toast.error(error instanceof Error ? error.message : "Unable to submit written assets."),
       },
@@ -243,13 +239,13 @@ export default function Workspace({ campaignId }: WorkspaceProps) {
   }
 
   const handleSaveDraft = (content: string) => {
-    if (!latestWrittenAsset) {
-      toast.info("Submit a version first to save drafts.")
+    if (!selectedDeliverableItem) {
+      toast.error("Deliverable items are still loading. Please try again.")
       return
     }
     saveWrittenAssetDraftMutation(
       {
-        writtenAssetPublicId: latestWrittenAsset.public_id,
+        deliverableItemPublicId: selectedDeliverableItem.public_id,
         content,
       },
       {

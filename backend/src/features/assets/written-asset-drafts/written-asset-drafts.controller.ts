@@ -14,7 +14,7 @@ import { CreateWrittenAssetDraftDto } from './dto/create-written-asset-draft.dto
 import { plainToInstance } from 'class-transformer';
 import { WrittenAssetDraftEntity } from './entities/written-asset-draft.entity';
 import { UpdateWrittenAssetDraftDto } from './dto/update-written-asset-draft.dto';
-import { WrittenAssetsService } from '../written-assets/written-assets.service';
+import { DeliverableItemsService } from '../../deliverable/deliverable-items/deliverable-items.service';
 import {
   ApiCreateWrittenAssetDraft,
   ApiDeleteWrittenAssetDraft,
@@ -30,7 +30,7 @@ import { UserRoles } from '@prisma/client';
 export class WrittenAssetDraftsController {
   constructor(
     private readonly writtenAssetDraftsService: WrittenAssetDraftsService,
-    private readonly writtenAssetsService: WrittenAssetsService,
+    private readonly deliverableItemsService: DeliverableItemsService,
   ) {}
 
   @ApiCreateWrittenAssetDraft()
@@ -57,12 +57,16 @@ export class WrittenAssetDraftsController {
   @Get()
   @UseGuards(RolesGuard)
   @Roles(UserRoles.CREATOR)
-  async findMany(@Query('writtenAssetPublicId') writtenAssetPublicId: string) {
-    const writtenAssetId =
-      await this.writtenAssetsService.resolvePublicId(writtenAssetPublicId);
+  async findMany(
+    @Query('deliverableItemPublicId') deliverableItemPublicId: string,
+  ) {
+    const deliverableItemId =
+      await this.deliverableItemsService.resolvePublicId(
+        deliverableItemPublicId,
+      );
     const drafts =
-      await this.writtenAssetDraftsService.findDraftsForWrittenAsset(
-        writtenAssetId,
+      await this.writtenAssetDraftsService.findDraftsForDeliverableItem(
+        deliverableItemId,
       );
     return plainToInstance(WrittenAssetDraftEntity, drafts);
   }

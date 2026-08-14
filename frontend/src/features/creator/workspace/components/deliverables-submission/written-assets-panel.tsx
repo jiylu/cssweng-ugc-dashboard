@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/src/components/atoms/card"
@@ -6,7 +6,7 @@ import { Separator } from "@/components/ui/separator"
 import { useWrittenAssetsPanel } from "@/src/features/creator/workspace/hooks/useWrittenAssetsPanel"
 import RichTextEditor from "@/components/ui/rich-text-editor"
 import { WrittenAssetPreview } from "./written-asset-preview"
-import { getWrittenAssetLocalDraft, saveWrittenAssetLocalDraft } from "@/src/features/creator/workspace/utils/written-asset-draft-storage"
+import { getWrittenAssetDrafts } from "@/src/features/creator/workspace/services/deliverable-submissions-api"
 import type { WrittenAsset } from "@/src/features/client/workspace/services/deliverable-submissions-api"
 
 interface WrittenAssetsPanelProps {
@@ -40,18 +40,15 @@ export function WrittenAssetsPanel({
 }: WrittenAssetsPanelProps) {
   const { content, errors, isDirty, updateContent, markSaved, validateAndSave } =
     useWrittenAssetsPanel()
+  const [isLoadingDraft, setIsLoadingDraft] = useState(false)
 
   const submittedContent = writtenAsset?.content ?? ""
 
   useEffect(() => {
     if (writtenAsset) {
       markSaved(submittedContent)
-      return
     }
-    if (deliverableItemPublicId) {
-      markSaved(getWrittenAssetLocalDraft(deliverableItemPublicId) ?? "")
-    }
-  }, [writtenAsset?.public_id, deliverableItemPublicId])
+  }, [writtenAsset?.public_id])
 
   useEffect(() => {
     onDirtyChange(isDirty)
@@ -65,14 +62,30 @@ export function WrittenAssetsPanel({
   const isLocked = isAwaitingReview || isApproved
 
   const handleSaveDraft = () => {
-    if (writtenAsset) {
-      onSaveDraft(content)
-      return
-    }
     if (!deliverableItemPublicId) return
-    saveWrittenAssetLocalDraft(deliverableItemPublicId, content)
+    onSaveDraft(content)
     markSaved(content)
-    toast.success("Draft saved.")
+  }
+
+  const handleLoadDraft = async () => {
+    if (isLocked || !deliverableItemPublicId) return
+    setIsLoadingDraft(true)
+    try {
+      const drafts = await getWrittenAssetDrafts(deliverableItemPublicId)
+      const latest = drafts[0]
+      if (!latest) {
+        toast.info("No draft found for this deliverable.")
+        return
+      }
+      markSaved(latest.content)
+      toast.success("Draft loaded.")
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Unable to load draft.",
+      )
+    } finally {
+      setIsLoadingDraft(false)
+    }
   }
 
   const hasContent = content.replace(/<[^>]*>/g, "").trim().length > 0
@@ -126,6 +139,14 @@ export function WrittenAssetsPanel({
       <p className="text-xs mt-1 text-[#ff6467] min-h-[16px]">{errors.content ?? ""}</p>
 
       <div className="flex justify-end gap-2">
+        <Button
+          variant="ghost"
+          onClick={handleLoadDraft}
+          disabled={isLocked || isLoadingDraft}
+          title="Load the most recent saved draft."
+        >
+          {isLoadingDraft ? "Loading..." : "Load Draft"}
+        </Button>
         <Button
           variant="outline"
           onClick={handleSaveDraft}
