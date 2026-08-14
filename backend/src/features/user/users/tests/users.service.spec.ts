@@ -280,10 +280,7 @@ describe('UserService', () => {
       password: 'Password1!',
     };
 
-    const session = {
-      access_token: 'access-token',
-      refresh_token: 'refresh-token',
-    };
+    const session = { access_token: 'access-token', refresh_token: 'refresh-token' };
 
     mockSupabase.client.auth.signInWithPassword.mockResolvedValue({
       data: {
@@ -340,7 +337,10 @@ describe('UserService', () => {
   });
 
   it('should validate the OTP before completing a two-factor login', async () => {
-    const session = { access_token: 'access-token', refresh_token: 'refresh-token' };
+    const session = {
+      access_token: 'access-token',
+      refresh_token: 'refresh-token',
+    };
     const mockUser = {
       user_id: 'abc123',
       email: 'john@test.com',
