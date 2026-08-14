@@ -457,6 +457,64 @@ export class CampaignsService {
     return updatedCampaign;
   }
 
+  async recalculateCampaignPricing(
+    campaignId: string,
+    tx: Prisma.TransactionClient | PrismaService = this.prisma,
+  ) {
+    this.logger.debug(`Recalculating pricing for campaign ${campaignId}`);
+
+    const campaign = await this.findOneCampaign(campaignId, tx);
+
+    const [deliverables, addOns] = await Promise.all([
+      tx.deliverables.findMany({
+        where: {
+          campaign_id: campaign.campaign_id,
+          is_deleted: false,
+        },
+        select: {
+          pricing: true,
+        },
+      }),
+      tx.addOns.findMany({
+        where: {
+          campaign_id: campaign.campaign_id,
+          is_deleted: false,
+          opt_in: true,
+        },
+        select: {
+          fee: true,
+        },
+      }),
+    ]);
+
+    const deliverablesTotal = deliverables.reduce(
+      (sum, deliverable) => sum.plus(deliverable.pricing),
+      new Prisma.Decimal(0),
+    );
+
+    const optedInAddOnsTotal = addOns.reduce(
+      (sum, addOn) => sum.plus(addOn.fee),
+      new Prisma.Decimal(0),
+    );
+
+    const subtotal = deliverablesTotal.plus(optedInAddOnsTotal);
+    const taxRate = campaign.tax.div(100);
+    const totalPrice = subtotal.times(taxRate.plus(1));
+
+    const updatedCampaign = await tx.campaigns.update({
+      where: { campaign_id: campaign.campaign_id },
+      data: {
+        pricing: totalPrice,
+      },
+    });
+
+    this.logger.log(
+      `Recalculated pricing for campaign ${campaign.campaign_id} to ${updatedCampaign.pricing.toString()}`,
+    );
+
+    return updatedCampaign;
+  }
+
   async updateAllDeliverablesApproved(
     campaignId: string,
     tx: Prisma.TransactionClient | PrismaService = this.prisma,

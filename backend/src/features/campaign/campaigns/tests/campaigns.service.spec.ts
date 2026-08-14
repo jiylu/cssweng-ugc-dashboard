@@ -31,6 +31,12 @@ describe('CampaignService', () => {
       create: jest.fn(),
       update: jest.fn(),
     },
+    deliverables: {
+      findMany: jest.fn(),
+    },
+    addOns: {
+      findMany: jest.fn(),
+    },
   };
 
   const mockUserService = {
@@ -756,6 +762,118 @@ describe('CampaignService', () => {
           project_name: 'Updated In Transaction',
         },
       });
+      expect(mockPrisma.campaigns.update).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('recalculateCampaignPricing', () => {
+    it('should recompute pricing from deliverables, opted-in add-ons, and tax', async () => {
+      const campaignId = 'camp-price-1';
+      const mockCampaign = {
+        campaign_id: campaignId,
+        public_id: 'pub_price_1',
+        ugc_creator_id: 'ugcA',
+        client_id: '',
+        project_name: 'Test Project',
+        description: 'Test Desc',
+        tax: new Prisma.Decimal(12),
+        pricing: new Prisma.Decimal(0),
+        platforms: ['Instagram'],
+        start_date: new Date(),
+        end_date: new Date(),
+        created_at: new Date(),
+        campaign_status: CampaignStatus.ACTIVE,
+      };
+
+      mockPrisma.campaigns.findFirst.mockResolvedValue(mockCampaign);
+      mockPrisma.deliverables.findMany.mockResolvedValue([
+        { pricing: new Prisma.Decimal(1000) },
+        { pricing: new Prisma.Decimal(500) },
+      ]);
+      mockPrisma.addOns.findMany.mockResolvedValue([
+        { fee: new Prisma.Decimal(200) },
+        { fee: new Prisma.Decimal(300) },
+      ]);
+      mockPrisma.campaigns.update.mockResolvedValue({
+        ...mockCampaign,
+        pricing: new Prisma.Decimal(2240),
+      });
+
+      const res = await service.recalculateCampaignPricing(campaignId);
+
+      expect(res.pricing).toEqual(new Prisma.Decimal(2240));
+      expect(mockPrisma.campaigns.findFirst).toHaveBeenCalledWith({
+        where: { campaign_id: campaignId },
+      });
+      expect(mockPrisma.deliverables.findMany).toHaveBeenCalledWith({
+        where: { campaign_id: campaignId, is_deleted: false },
+        select: { pricing: true },
+      });
+      expect(mockPrisma.addOns.findMany).toHaveBeenCalledWith({
+        where: {
+          campaign_id: campaignId,
+          is_deleted: false,
+          opt_in: true,
+        },
+        select: { fee: true },
+      });
+      expect(mockPrisma.campaigns.update).toHaveBeenCalledWith({
+        where: { campaign_id: campaignId },
+        data: { pricing: new Prisma.Decimal(2240) },
+      });
+    });
+
+    it('should exclude add-ons that are not opted in', async () => {
+      const campaignId = 'camp-price-2';
+      const mockCampaign = {
+        campaign_id: campaignId,
+        public_id: 'pub_price_2',
+        ugc_creator_id: 'ugcA',
+        client_id: '',
+        project_name: 'Test Project',
+        description: 'Test Desc',
+        tax: new Prisma.Decimal(0),
+        pricing: new Prisma.Decimal(0),
+        platforms: ['Instagram'],
+        start_date: new Date(),
+        end_date: new Date(),
+        created_at: new Date(),
+        campaign_status: CampaignStatus.ACTIVE,
+      };
+
+      mockPrisma.campaigns.findFirst.mockResolvedValue(mockCampaign);
+      mockPrisma.deliverables.findMany.mockResolvedValue([
+        { pricing: new Prisma.Decimal(1000) },
+      ]);
+      mockPrisma.addOns.findMany.mockResolvedValue([
+        { fee: new Prisma.Decimal(250) },
+      ]);
+      mockPrisma.campaigns.update.mockResolvedValue({
+        ...mockCampaign,
+        pricing: new Prisma.Decimal(1000),
+      });
+
+      const res = await service.recalculateCampaignPricing(campaignId);
+
+      expect(res.pricing).toEqual(new Prisma.Decimal(1000));
+      expect(mockPrisma.addOns.findMany).toHaveBeenCalledWith({
+        where: {
+          campaign_id: campaignId,
+          is_deleted: false,
+          opt_in: true,
+        },
+        select: { fee: true },
+      });
+    });
+
+    it('should throw NotFoundException when campaign does not exist', async () => {
+      mockPrisma.campaigns.findFirst.mockResolvedValue(null);
+
+      await expect(
+        service.recalculateCampaignPricing('missing-camp'),
+      ).rejects.toBeInstanceOf(NotFoundException);
+      expect(mockPrisma.deliverables.findMany).not.toHaveBeenCalled();
+      expect(mockPrisma.addOns.findMany).not.toHaveBeenCalled();
       expect(mockPrisma.campaigns.update).not.toHaveBeenCalled();
     });
   });
