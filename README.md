@@ -1,4 +1,4 @@
-# ASCEOfT UGC Dashboard
+# ASCEOFT UGC Dashboard
 
 A full-stack management platform for **user-generated content (UGC)** campaigns, where **creators** and **clients** connect to plan, negotiate, and fulfill brand collaborations. The platform handles the entire lifecycle — from campaign briefs and proposals to signed contracts, deliverables, payments, and invoices.
 
