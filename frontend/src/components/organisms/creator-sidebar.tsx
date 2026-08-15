@@ -48,7 +48,7 @@ export default function CreatorSidebar() {
       )}
 
       {/* Sidebar */}
-      <section className={`fixed lg:static top-0 left-0 h-screen w-[240px] lg:w-[18%] px-6 lg:px-10 flex flex-col justify-start shadow-[-20px_0_60px_rgba(107,31,168,0.08)] border-r border-[#837f7b]
+      <section className={`fixed lg:static top-0 left-0 h-screen w-[240px] lg:w-[18%] px-6 lg:px-10 flex flex-col justify-start shadow-[-20px_0_60px_rgba(107,31,168,0.08)] border-r border-border
                           bg-[#F2F0EA] z-50 transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
         {/* Close button — mobile only */}
         <button

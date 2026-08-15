@@ -13,6 +13,7 @@ import ClientDashboardHeader from "../components/client-dashboard-header";
 import ClientSidebar from "../components/client-sidebar";
 import type { ClientCampaign } from "../types/client-campaign.types";
 import { useClientCampaigns } from "../hooks/useClientCampaigns";
+import { Separator } from "@/components/ui/separator";
 
 function isCampaignVisible(campaign: ClientCampaign, tab: ClientCampaignTab) {
   if (tab === "ALL") return true;
@@ -76,6 +77,8 @@ export default function ClientDashboard() {
         <ClientDashboardHeader
           user={user}
         />
+
+        <Separator />
 
         <div className="mt-8 border-b border-[#d8d4cb] pb-4">
           <h2 className="text-[58px] leading-none text-[#141518]">
