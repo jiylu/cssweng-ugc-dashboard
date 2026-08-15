@@ -1,0 +1,25 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    container_name: asceoft-backend
+    env_file:
+      - ./backend/.env.production
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - INTERNAL_API_URL=http://backend:8080
+    container_name: asceoft-frontend
+    ports:
+      - "127.0.0.1:3000:3000"
+    environment:
+      - NODE_ENV=production
+      - INTERNAL_API_URL=http://backend:8080
+      - PORT=3000
+    restart: unless-stopped
+    depends_on:
+      - backend
