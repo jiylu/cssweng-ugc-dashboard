@@ -8,6 +8,7 @@ const apiDestinationBaseUrl = apiBaseUrl.endsWith("/api")
   : `${apiBaseUrl}/api`;
 
 const nextConfig: NextConfig = {
+  output: "standalone",
   allowedDevOrigins: ["asceoft.accela.moe"],
   devIndicators: false,
   experimental: {
