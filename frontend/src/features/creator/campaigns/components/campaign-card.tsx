@@ -39,7 +39,7 @@ export function CampaignCard({ campaign, clientName, onOpenWorkspace }: Campaign
           </span>
         </div>
         <div className="flex flex-col">
-          <span className="text-xs text-muted-foreground">Deadline</span>
+          <span className="text-xs text-muted-foreground">End Date</span>
           <span className="whitespace-nowrap text-sm text-foreground">
             {formatDate(new Date(campaign.end_date))}
           </span>

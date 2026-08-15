@@ -53,7 +53,7 @@ export default function ClientCampaignCard({
           <p className="mt-2 text-base text-[#7b7771]">{campaign.startDate}</p>
         </div>
         <div>
-          <p>Deadline</p>
+          <p>End Date</p>
           <p className="mt-2 text-base text-[#7b7771]">{campaign.deadline}</p>
         </div>
       </div>
